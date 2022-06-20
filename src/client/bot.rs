@@ -1,5 +1,7 @@
-use tokio::sync::RwLock;
+use std::collections::HashMap;
+use std::fmt::Debug;
 
+use tokio::sync::RwLock;
 use twilight_cache_inmemory::{InMemoryCache, ResourceType};
 use twilight_gateway::{
     cluster::{Cluster, Events, ShardScheme},
@@ -8,15 +10,22 @@ use twilight_gateway::{
 use twilight_http::client::{Client as HttpClient, InteractionClient};
 use twilight_model::oauth::PartialApplication;
 
-use crate::client::config::Config;
+use crate::{client::config::Config, interactions::commands::register::build_register};
+use crate::interactions::commands::command::AppCommand;
 use crate::utils::types::Res;
 
-#[derive(Debug)]
 pub struct Starboard {
     pub cluster: Cluster,
     pub http: HttpClient,
     pub cache: RwLock<InMemoryCache>,
     pub application: RwLock<Option<PartialApplication>>,
+    pub commands: HashMap<String, Box<dyn AppCommand>>,
+}
+
+impl Debug for Starboard {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Starboard")
+    }
 }
 
 impl Starboard {
@@ -47,6 +56,7 @@ impl Starboard {
                 http,
                 cache: RwLock::new(cache),
                 application: RwLock::new(None),
+                commands: build_register(),
             },
         ))
     }

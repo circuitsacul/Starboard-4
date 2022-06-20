@@ -4,6 +4,7 @@ use twilight_gateway::Event;
 
 use crate::client::bot::Starboard;
 use crate::interactions::handle::handle_interaction;
+use crate::interactions::commands::register::post_commands;
 
 pub async fn handle_event(shard_id: u64, event: Event, bot: Arc<Starboard>) {
     bot.cache.write().await.update(&event);
@@ -19,6 +20,7 @@ async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<Starboard>)
         }
         Event::Ready(info) => {
             bot.application.write().await.replace(info.application);
+            post_commands(bot).await;
         }
         _ => {}
     }
