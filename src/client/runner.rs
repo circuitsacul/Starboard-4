@@ -5,7 +5,7 @@ use futures::stream::StreamExt;
 use twilight_gateway::cluster::Events;
 
 use crate::client::bot::Starboard;
-use crate::events::event::EventCtx;
+use crate::events::event_context::EventCtx;
 use crate::events::handler;
 
 async fn shutdown_handler(bot: Arc<Starboard>) {
@@ -31,7 +31,7 @@ pub async fn run(mut events: Events, bot: Starboard) {
         bot.cache.write().await.update(&event);
 
         let ctx = EventCtx {
-            shard: shard_id,
+            shard_id,
             event,
             bot: Arc::clone(&bot),
         };

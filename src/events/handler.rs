@@ -1,5 +1,5 @@
-use crate::events::event::EventCtx;
+use crate::events::event_context::EventCtx;
 
 pub async fn handle_event(ctx: EventCtx) {
-    println!("Shard {}: {:?}", ctx.shard, ctx.event.kind());
+    println!("Shard {}: {:?}", ctx.shard_id, ctx.event.kind());
 }
