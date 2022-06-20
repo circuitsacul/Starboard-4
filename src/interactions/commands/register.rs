@@ -10,7 +10,7 @@ use crate::interactions::commands::command::AppCommand;
 fn build_register() -> Vec<Box<Command>> {
     (vec![chat::ping::PingCommand])
         .into_iter()
-        .map(|command| Box::new(command.info()))
+        .map(|command| Box::new(command.describe()))
         .collect()
 }
 

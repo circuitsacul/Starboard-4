@@ -6,6 +6,6 @@ use crate::interactions::commands::context::CommandCtx;
 
 #[async_trait]
 pub trait AppCommand {
-    fn info(&self) -> Command;
-    async fn execute(&self, mut ctx: CommandCtx) -> Result<(), String>;
+    fn describe(&self) -> Command;
+    async fn callback(&self, ctx: CommandCtx);
 }

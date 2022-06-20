@@ -9,7 +9,7 @@ pub struct PingCommand;
 
 #[async_trait]
 impl AppCommand for PingCommand {
-    fn info(&self) -> Command {
+    fn describe(&self) -> Command {
         CommandBuilder::new(
             "ping".to_string(),
             "Pong!".to_string(),
@@ -17,9 +17,8 @@ impl AppCommand for PingCommand {
         ).build()
     }
 
-    async fn execute(&self, ctx: CommandCtx) -> Result<(), String> {
+    async fn callback(&self, ctx: CommandCtx) {
         let client = ctx.bot.interaction_client().await.unwrap();
         println!("Got client: {:?}", client);
-        Ok(())
     }
 }
