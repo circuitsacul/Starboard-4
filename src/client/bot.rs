@@ -14,12 +14,10 @@ pub struct Starboard {
     pub cluster: Cluster,
     pub http: HttpClient,
     pub cache: RwLock<InMemoryCache>,
-    pub events: RwLock<Events>,
-    config: Config,
 }
 
 impl Starboard {
-    pub async fn new(config: Config) -> Res<Starboard> {
+    pub async fn new(config: Config) -> Res<(Events, Starboard)> {
         let scheme = ShardScheme::try_from((
             0..config.shards_per_cluster,
             config.shards_per_cluster * config.total_clusters,
@@ -39,12 +37,13 @@ impl Starboard {
             .resource_types(ResourceType::MESSAGE)
             .build();
 
-        Ok(Self {
-            cluster,
-            http,
-            cache: RwLock::new(cache),
-            events: RwLock::new(events),
-            config,
-        })
+        Ok((
+            events,
+            Self {
+                cluster,
+                http,
+                cache: RwLock::new(cache),
+            },
+        ))
     }
 }

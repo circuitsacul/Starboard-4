@@ -16,8 +16,8 @@ impl Config {
 
         Config {
             token,
-            shards_per_cluster: shards_per_cluster.parse::<u64>().unwrap(),
-            total_clusters: total_clusters.parse::<u64>().unwrap(),
+            shards_per_cluster: shards_per_cluster.parse().unwrap(),
+            total_clusters: total_clusters.parse().unwrap(),
         }
     }
 }

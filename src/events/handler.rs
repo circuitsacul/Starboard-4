@@ -1,11 +1,5 @@
-use std::sync::Arc;
+use crate::events::event::EventCtx;
 
-use twilight_gateway::Event;
-
-use crate::client::bot::Starboard;
-
-pub async fn handle_event(shard: u64, event: Event, bot: &Arc<Starboard>) {
-    bot.cache.write().await.update(&event);
-    let bot = Arc::clone(bot);
-    println!("Shard {}: {:?}", shard, event.kind());
+pub async fn handle_event(ctx: EventCtx) {
+    println!("Shard {}: {:?}", ctx.shard, ctx.event.kind());
 }
