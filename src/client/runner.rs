@@ -1,15 +1,15 @@
 use std::sync::Arc;
 
-use tokio::signal;
 use futures::stream::StreamExt;
+use tokio::signal;
 use twilight_gateway::cluster::Events;
 
 use crate::client::bot::Starboard;
-use crate::events::{EventCtx, handle_event};
+use crate::events::handle_event;
 
 async fn shutdown_handler(bot: Arc<Starboard>) {
     match signal::ctrl_c().await {
-        Ok(()) => {},
+        Ok(()) => {}
         Err(err) => eprintln!("Unable to listen for shutdown signal: {}", err),
     }
     println!("Shutting down bot...");
@@ -27,13 +27,6 @@ pub async fn run(mut events: Events, bot: Starboard) {
 
     // handle events
     while let Some((shard_id, event)) = events.next().await {
-        bot.cache.write().await.update(&event);
-
-        let ctx = EventCtx {
-            shard_id,
-            event,
-            bot: Arc::clone(&bot),
-        };
-        tokio::spawn(handle_event(ctx));
+        handle_event(shard_id, event, Arc::clone(&bot)).await;
     }
 }

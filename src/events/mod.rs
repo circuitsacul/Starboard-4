@@ -3,13 +3,20 @@ use std::sync::Arc;
 use twilight_gateway::Event;
 
 use crate::client::bot::Starboard;
+use crate::interactions::handle_interaction;
 
-pub struct EventCtx {
-    pub shard_id: u64,
-    pub event: Event,
-    pub bot: Arc<Starboard>,
+pub async fn handle_event(shard_id: u64, event: Event, bot: Arc<Starboard>) {
+    bot.cache.write().await.update(&event);
+
+    println!("Shard {}: {:?}", shard_id, event.kind());
+    tokio::spawn(internal_handle_event(shard_id, event, bot));
 }
 
-pub async fn handle_event(ctx: EventCtx) {
-    println!("Shard {}: {:?}", ctx.shard_id, ctx.event.kind());
+async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<Starboard>) {
+    match event {
+        Event::InteractionCreate(int) => {
+            handle_interaction(shard_id, int.0, bot).await
+        }
+        _ => {}
+    }
 }

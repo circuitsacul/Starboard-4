@@ -10,6 +10,7 @@ use twilight_http::Client as HttpClient;
 use crate::client::config::Config;
 use crate::utils::types::Res;
 
+#[derive(Debug)]
 pub struct Starboard {
     pub cluster: Cluster,
     pub http: HttpClient,
