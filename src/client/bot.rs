@@ -5,7 +5,8 @@ use twilight_gateway::{
     cluster::{Cluster, Events, ShardScheme},
     Intents,
 };
-use twilight_http::Client as HttpClient;
+use twilight_http::{Client as HttpClient, client::InteractionClient};
+use twilight_model::oauth::PartialApplication;
 
 use crate::client::config::Config;
 use crate::utils::types::Res;
@@ -15,6 +16,7 @@ pub struct Starboard {
     pub cluster: Cluster,
     pub http: HttpClient,
     pub cache: RwLock<InMemoryCache>,
+    pub app_info: RwLock<Option<PartialApplication>>,
 }
 
 impl Starboard {
@@ -44,7 +46,15 @@ impl Starboard {
                 cluster,
                 http,
                 cache: RwLock::new(cache),
+                app_info: RwLock::new(None),
             },
         ))
+    }
+
+    pub async fn interaction_client<'a>(&'a self) -> Option<InteractionClient<'a>> {
+        match self.app_info.read().await.clone() {
+            Some(info) => Some(self.http.interaction(info.id)),
+            None => None,
+        }
     }
 }

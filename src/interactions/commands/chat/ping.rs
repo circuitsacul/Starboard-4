@@ -18,7 +18,8 @@ impl AppCommand for PingCommand {
     }
 
     async fn execute(&self, ctx: CommandCtx) -> Result<(), String> {
-        println!("hello, world");
+        let client = ctx.bot.interaction_client().await.unwrap();
+        println!("Got client: {:?}", client);
         Ok(())
     }
 }

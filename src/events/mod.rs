@@ -15,7 +15,10 @@ pub async fn handle_event(shard_id: u64, event: Event, bot: Arc<Starboard>) {
 async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<Starboard>) {
     match event {
         Event::InteractionCreate(int) => {
-            handle_interaction(shard_id, int.0, bot).await
+            handle_interaction(shard_id, int.0, bot).await;
+        }
+        Event::Ready(info) => {
+            bot.app_info.write().await.replace(info.application);
         }
         _ => {}
     }
