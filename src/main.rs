@@ -1,7 +1,11 @@
-use starboard_rs::bot::Starboard;
-use starboard_rs::config::Config;
-use starboard_rs::types::Res;
-use starboard_rs::runner::run;
+pub mod utils;
+pub mod events;
+pub mod client;
+
+use crate::client::bot::Starboard;
+use crate::client::config::Config;
+use crate::client::runner::run;
+use crate::utils::types::Res;
 
 #[tokio::main]
 async fn main() -> Res {

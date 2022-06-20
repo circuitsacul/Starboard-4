@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use tokio::sync::RwLock;
 
 use twilight_cache_inmemory::{InMemoryCache, ResourceType};
 use twilight_gateway::{
@@ -7,14 +7,14 @@ use twilight_gateway::{
 };
 use twilight_http::Client as HttpClient;
 
-use crate::config::Config;
-use crate::types::Res;
+use crate::client::config::Config;
+use crate::utils::types::Res;
 
 pub struct Starboard {
-    pub cluster: Arc<Cluster>,
-    pub http: Arc<HttpClient>,
-    pub cache: InMemoryCache,
-    pub events: Events,
+    pub cluster: Cluster,
+    pub http: HttpClient,
+    pub cache: RwLock<InMemoryCache>,
+    pub events: RwLock<Events>,
     config: Config,
 }
 
@@ -40,10 +40,10 @@ impl Starboard {
             .build();
 
         Ok(Self {
-            cluster: Arc::new(cluster),
-            http: Arc::new(http),
-            cache,
-            events,
+            cluster,
+            http,
+            cache: RwLock::new(cache),
+            events: RwLock::new(events),
             config,
         })
     }
