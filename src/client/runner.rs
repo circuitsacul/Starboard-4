@@ -5,7 +5,7 @@ use futures::stream::StreamExt;
 use twilight_gateway::cluster::Events;
 
 use crate::client::bot::Starboard;
-use crate::events::event_context::EventCtx;
+use crate::events::context::EventCtx;
 use crate::events::handler;
 
 async fn shutdown_handler(bot: Arc<Starboard>) {
