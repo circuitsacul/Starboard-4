@@ -3,7 +3,7 @@ use std::sync::Arc;
 use twilight_gateway::Event;
 
 use crate::client::bot::Starboard;
-use crate::interactions::handle_interaction;
+use crate::interactions::handle::handle_interaction;
 
 pub async fn handle_event(shard_id: u64, event: Event, bot: Arc<Starboard>) {
     bot.cache.write().await.update(&event);
