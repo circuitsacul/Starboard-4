@@ -5,8 +5,7 @@ use futures::stream::StreamExt;
 use twilight_gateway::cluster::Events;
 
 use crate::client::bot::Starboard;
-use crate::events::context::EventCtx;
-use crate::events::handler;
+use crate::events::{EventCtx, handle_event};
 
 async fn shutdown_handler(bot: Arc<Starboard>) {
     match signal::ctrl_c().await {
@@ -35,6 +34,6 @@ pub async fn run(mut events: Events, bot: Starboard) {
             event,
             bot: Arc::clone(&bot),
         };
-        tokio::spawn(handler::handle_event(ctx));
+        tokio::spawn(handle_event(ctx));
     }
 }
