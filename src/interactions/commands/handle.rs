@@ -5,7 +5,7 @@ use twilight_model::application::interaction::ApplicationCommand;
 
 use crate::client::bot::Starboard;
 use crate::interactions::commands::chat;
-use crate::interactions::commands::command::AppCommand;
+use crate::interactions::commands::command::{AppCommand, GroupCommand};
 use crate::interactions::commands::context::CommandCtx;
 
 pub async fn handle_command(

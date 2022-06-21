@@ -12,3 +12,11 @@ pub trait AppCommand: CreateCommand + CommandModel + Send + Sync {
         Self::from_interaction(data)?.callback(ctx).await
     }
 }
+
+#[async_trait]
+pub trait GroupCommand: CreateCommand + CommandModel + Send + Sync {
+    async fn call_callback(&self, ctx: CommandCtx) -> Result<()>;
+    async fn handle(data: CommandInputData<'_>, ctx: CommandCtx) -> Result<()> {
+        Self::from_interaction(data)?.call_callback(ctx).await
+    }
+}
