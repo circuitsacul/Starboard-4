@@ -1,5 +1,5 @@
 mod chat;
-mod context;
 pub mod command;
-pub mod register;
+mod context;
 pub mod handle;
+pub mod register;

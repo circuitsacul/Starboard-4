@@ -1,7 +1,7 @@
-pub mod utils;
-pub mod events;
 pub mod client;
+pub mod events;
 pub mod interactions;
+pub mod utils;
 
 use crate::client::bot::Starboard;
 use crate::client::config::Config;

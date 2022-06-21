@@ -1,11 +1,10 @@
 use async_trait::async_trait;
 
-use twilight_model::application::command::Command;
+use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::interactions::commands::context::CommandCtx;
 
 #[async_trait]
-pub trait AppCommand: Send + Sync + 'static {
-    fn describe(&self) -> Command;
+pub trait AppCommand: CreateCommand + CommandModel {
     async fn callback(&self, ctx: CommandCtx);
 }
