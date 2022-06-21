@@ -9,7 +9,11 @@ use crate::interactions::commands::chat;
 use crate::interactions::commands::command::AppCommand;
 use crate::interactions::commands::context::CommandCtx;
 
-pub async fn handle_command(shard_id: u64, bot: Arc<Starboard>, command: Box<ApplicationCommand>) -> Result<()> {
+pub async fn handle_command(
+    shard_id: u64,
+    bot: Arc<Starboard>,
+    command: Box<ApplicationCommand>,
+) -> Result<()> {
     let ctx = CommandCtx {
         shard_id,
         bot: Arc::clone(&bot),

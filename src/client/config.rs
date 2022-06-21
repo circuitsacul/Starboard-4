@@ -11,7 +11,7 @@ impl Config {
     pub fn from_env() -> Self {
         match dotenv() {
             Ok(_) => {}
-            Err(why) => eprintln!("Failed to load .env: {}", why)
+            Err(why) => eprintln!("Failed to load .env: {}", why),
         };
         let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set");
         let shards_per_cluster = env::var("SHARDS_PER_CLUSTER").unwrap_or("1".to_string());

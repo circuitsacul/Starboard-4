@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use twilight_http::{Response, response::marker::EmptyBody};
+use twilight_http::{response::marker::EmptyBody, Response};
 use twilight_model::{
-    application::interaction::ApplicationCommand, http::interaction::{InteractionResponseData, InteractionResponse, InteractionResponseType},
+    application::interaction::ApplicationCommand,
+    http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType},
 };
 
 use crate::client::bot::Starboard;
@@ -26,6 +27,9 @@ impl CommandCtx {
                 data: Some(response),
                 kind: InteractionResponseType::ChannelMessageWithSource,
             },
-        ).exec().await.map_err(|e| e.into())
+        )
+        .exec()
+        .await
+        .map_err(|e| e.into())
     }
 }
