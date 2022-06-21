@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use twilight_interactions::command::CommandModel;
 use twilight_model::application::interaction::ApplicationCommand;
 
 use crate::client::bot::Starboard;
@@ -22,15 +21,8 @@ pub async fn handle_command(
 
     let data = ctx.command.data.clone().into();
     match ctx.command.data.name.as_str() {
-        "ping" => {
-            chat::ping::Ping::from_interaction(data)
-                .unwrap()
-                .callback(ctx)
-                .await?
-        }
-        _ => {
-            eprintln!("Unkown command: {}", ctx.command.data.name);
-        }
+        "ping" => chat::ping::Ping::handle(data, ctx).await?,
+        name => eprintln!("Unkown command: {}", name),
     };
 
     Ok(())
