@@ -12,7 +12,7 @@ pub struct Ping {}
 
 #[async_trait]
 impl AppCommand for Ping {
-    async fn callback(&self, ctx: CommandCtx) -> Result<()> {
+    async fn callback(self, ctx: CommandCtx) -> Result<()> {
         let resp = InteractionResponseDataBuilder::new()
             .content("Pong!".into())
             .build();

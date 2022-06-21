@@ -7,7 +7,7 @@ use crate::interactions::commands::context::CommandCtx;
 
 #[async_trait]
 pub trait AppCommand: CreateCommand + CommandModel + Send + Sync {
-    async fn callback(&self, ctx: CommandCtx) -> Result<()>;
+    async fn callback(self, ctx: CommandCtx) -> Result<()>;
     async fn handle(data: CommandInputData<'_>, ctx: CommandCtx) -> Result<()> {
         Self::from_interaction(data)?.callback(ctx).await
     }
