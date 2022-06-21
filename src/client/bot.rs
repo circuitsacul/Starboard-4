@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+use anyhow::{anyhow, Result};
 use tokio::sync::RwLock;
 use twilight_cache_inmemory::{InMemoryCache, ResourceType};
 use twilight_gateway::{
@@ -57,10 +58,10 @@ impl Starboard {
         ))
     }
 
-    pub async fn interaction_client<'a>(&'a self) -> Option<InteractionClient<'a>> {
+    pub async fn interaction_client<'a>(&'a self) -> Result<InteractionClient<'a>> {
         match self.application.read().await.clone() {
-            Some(info) => Some(self.http.interaction(info.id)),
-            None => None,
+            Some(info) => Ok(self.http.interaction(info.id)),
+            None => Err(anyhow!("interaction_client called before bot was ready.")),
         }
     }
 }

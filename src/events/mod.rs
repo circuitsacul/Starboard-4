@@ -14,14 +14,19 @@ pub async fn handle_event(shard_id: u64, event: Event, bot: Arc<Starboard>) {
 }
 
 async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<Starboard>) {
-    match event {
+    let ret = match event {
         Event::InteractionCreate(int) => {
-            handle_interaction(shard_id, int.0, bot).await;
+            handle_interaction(shard_id, int.0, bot).await
         }
         Event::Ready(info) => {
             bot.application.write().await.replace(info.application);
-            post_commands(bot).await;
+            post_commands(bot).await
         }
-        _ => {}
+        _ => {Ok(())}
+    };
+
+    match ret {
+        Ok(_) => {}
+        Err(why) => eprintln!("Error in event handler: {}", why)
     }
 }

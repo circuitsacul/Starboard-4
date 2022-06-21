@@ -1,6 +1,6 @@
 use async_trait::async_trait;
+use anyhow::Result;
 use twilight_interactions::command::{CommandModel, CreateCommand};
-use twilight_model::http::interaction::{InteractionResponse, InteractionResponseType};
 use twilight_util::builder::InteractionResponseDataBuilder;
 
 use crate::interactions::commands::command::AppCommand;
@@ -12,21 +12,13 @@ pub struct Ping {}
 
 #[async_trait]
 impl AppCommand for Ping {
-    async fn callback(&self, ctx: CommandCtx) {
-        let i = ctx.bot.interaction_client().await.unwrap();
+    async fn callback(&self, ctx: CommandCtx) -> Result<()> {
         let resp = InteractionResponseDataBuilder::new()
             .content("Pong!".into())
             .build();
-        let _ = i
-            .create_response(
-                ctx.command.id,
-                &ctx.command.token,
-                &InteractionResponse {
-                    data: Some(resp),
-                    kind: InteractionResponseType::ChannelMessageWithSource,
-                },
-            )
-            .exec()
-            .await;
+
+        ctx.respond(resp).await?;
+
+        Ok(())
     }
 }
