@@ -11,7 +11,6 @@ twilight-http = "0.11.0"
 twilight-cache-inmemory = "0.11.0"
 twilight-model = "0.11.0"
 twilight-util = { version = "0.11.0", features = ["builder"] }
-
 twilight-interactions = "0.11.0"
 
 async-trait = "0.1.56"
@@ -19,3 +18,4 @@ tokio = { version = "1.19.2", features = ["full"] }
 futures = "0.3.21"
 dotenv = "0.15.0"
 anyhow = "1.0.58"
+sqlx = { version = "0.6.0", features = ["macros", "postgres", "offline", "runtime-tokio-rustls"]}
