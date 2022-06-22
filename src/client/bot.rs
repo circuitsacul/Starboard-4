@@ -12,7 +12,6 @@ use twilight_http::client::{Client as HttpClient, InteractionClient};
 use twilight_model::oauth::PartialApplication;
 
 use crate::client::config::Config;
-use crate::utils::types::Res;
 
 pub struct Starboard {
     pub cluster: Cluster,
@@ -29,7 +28,7 @@ impl Debug for Starboard {
 }
 
 impl Starboard {
-    pub async fn new(config: Config) -> Res<(Events, Starboard)> {
+    pub async fn new(config: Config) -> Result<(Events, Starboard)> {
         let scheme = ShardScheme::try_from((
             0..config.shards_per_cluster,
             config.shards_per_cluster * config.total_clusters,
