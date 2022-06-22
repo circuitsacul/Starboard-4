@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+use sqlx::PgPool;
 use anyhow::{anyhow, Result};
 use tokio::sync::RwLock;
 use twilight_cache_inmemory::{InMemoryCache, ResourceType};
@@ -18,6 +19,7 @@ pub struct Starboard {
     pub http: HttpClient,
     pub cache: RwLock<InMemoryCache>,
     pub application: RwLock<Option<PartialApplication>>,
+    pub pool: PgPool,
 }
 
 impl Debug for Starboard {
@@ -47,6 +49,8 @@ impl Starboard {
             .resource_types(ResourceType::MESSAGE)
             .build();
 
+        let pool = PgPool::connect(&config.db_url).await?;
+
         Ok((
             events,
             Self {
@@ -54,6 +58,7 @@ impl Starboard {
                 http,
                 cache: RwLock::new(cache),
                 application: RwLock::new(None),
+                pool,
             },
         ))
     }

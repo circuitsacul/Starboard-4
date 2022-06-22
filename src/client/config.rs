@@ -5,6 +5,7 @@ pub struct Config {
     pub token: String,
     pub shards_per_cluster: u64,
     pub total_clusters: u64,
+    pub db_url: String,
 }
 
 impl Config {
@@ -16,11 +17,13 @@ impl Config {
         let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set");
         let shards_per_cluster = env::var("SHARDS_PER_CLUSTER").unwrap_or("1".to_string());
         let total_clusters = env::var("TOTAL_CLUSTERS").unwrap_or("1".to_string());
+        let db_url = env::var("DATABASE_URL").expect("No database url specified.");
 
         Config {
             token,
             shards_per_cluster: shards_per_cluster.parse().unwrap(),
             total_clusters: total_clusters.parse().unwrap(),
+            db_url,
         }
     }
 }
