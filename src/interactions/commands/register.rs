@@ -6,11 +6,20 @@ use twilight_interactions::command::CreateCommand;
 use crate::client::bot::Starboard;
 use crate::interactions::commands::chat;
 
-pub async fn post_commands(bot: Arc<Starboard>) -> Result<()> {
-    let inter_client = bot.interaction_client().await.unwrap();
+macro_rules! commands_to_create {
+    ($( $command: ty ),* ) => {
+        vec![
+            $(
+                <$command>::create_command().into(),
+            )*
+        ]
+    };
+}
 
-    let mut commands = Vec::new();
-    commands.push(chat::ping::Ping::create_command().into());
+pub async fn post_commands(bot: Arc<Starboard>) -> Result<()> {
+    let inter_client = bot.interaction_client().await?;
+
+    let commands = commands_to_create!(chat::ping::Ping);
 
     match inter_client.set_global_commands(&commands).exec().await {
         Ok(_) => println!("Successfully registered commands"),
