@@ -8,6 +8,19 @@ use crate::interactions::commands::chat;
 use crate::interactions::commands::command::{AppCommand, GroupCommand};
 use crate::interactions::commands::context::CommandCtx;
 
+macro_rules! match_commands {
+    ($ctx:expr, $($cmd_name:expr => $command:ty),*) => {
+        let data = $ctx.command.data.clone().into();
+        let name = $ctx.command.data.name.as_str();
+        match name {
+            $(
+                $cmd_name => <$command>::handle(data, $ctx).await?,
+            )*
+            unkown => eprintln!("Unkown command: {}", unkown),
+        }
+    };
+}
+
 pub async fn handle_command(
     shard_id: u64,
     bot: Arc<Starboard>,
@@ -19,11 +32,10 @@ pub async fn handle_command(
         command,
     };
 
-    let data = ctx.command.data.clone().into();
-    match ctx.command.data.name.as_str() {
-        "ping" => chat::ping::Ping::handle(data, ctx).await?,
-        name => eprintln!("Unkown command: {}", name),
-    };
+    match_commands!(
+        ctx,
+        "ping" => chat::ping::Ping
+    );
 
     Ok(())
 }
