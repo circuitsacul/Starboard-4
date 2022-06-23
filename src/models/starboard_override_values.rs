@@ -79,8 +79,6 @@ pub struct OverrideValues {
     #[serde(skip_serializing_if="OverrideField::is_default", default)]
     pub link_edits: OverrideField<bool>,
     #[serde(skip_serializing_if="OverrideField::is_default", default)]
-    pub private: OverrideField<bool>,
-    #[serde(skip_serializing_if="OverrideField::is_default", default)]
     pub xp_multiplier: OverrideField<f32>,
     #[serde(skip_serializing_if="OverrideField::is_default", default)]
     pub cooldown_enabled: OverrideField<bool>,
