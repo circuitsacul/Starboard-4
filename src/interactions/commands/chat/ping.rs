@@ -13,8 +13,13 @@ pub struct Ping {}
 #[async_trait]
 impl AppCommand for Ping {
     async fn callback(self, ctx: CommandCtx) -> Result<()> {
+        let latency = ctx.bot.cluster.info()[&ctx.shard_id].latency().average();
+        let millis = match latency {
+            None => "Unkown latency.".to_string(),
+            Some(duration) => format!("{}ms latency.", duration.as_millis()),
+        };
         let resp = InteractionResponseDataBuilder::new()
-            .content("Pong!".into())
+            .content(format!("Pong! {}", millis))
             .build();
 
         ctx.respond(resp).await?;
