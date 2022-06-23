@@ -1,21 +1,8 @@
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
 use serde_json;
 use sqlx::{query_as, PgPool};
 
-pub enum OverrideField<T> {
-    Default,
-    Override(T),
-}
-
-impl<T> Default for OverrideField<T> {
-    fn default() -> Self {
-        Self::Default
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct OverrideValues {} // todo
+use crate::models::OverrideValues;
 
 pub struct StarboardOverride {
     // serial
@@ -54,6 +41,6 @@ impl StarboardOverride {
     }
 
     pub fn get_overrides(&self) -> Result<OverrideValues> {
-        OverrideValues::deserialize(&self.overrides).map_err(|e| e.into())
+        serde_json::from_value(self.overrides.clone()).map_err(|e| e.into())
     }
 }

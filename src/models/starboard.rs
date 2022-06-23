@@ -1,5 +1,8 @@
 use anyhow::Result;
-use sqlx::{query_as, PgPool};
+use sqlx::{query, PgPool};
+
+use crate::generate_settings;
+use crate::models::StarboardSettings;
 
 pub struct Starboard {
     pub id: i32,
@@ -10,42 +13,21 @@ pub struct Starboard {
     pub webhook_id: Option<i64>,
     pub premium_locked: bool,
 
-    // General Style
-    pub display_emoji: Option<String>,
-    pub ping_author: bool,
-    pub use_server_profile: bool,
-    pub extra_embeds: bool,
-    pub use_webhook: bool,
+    pub settings: StarboardSettings,
+}
 
-    // Embed Style
-    pub color: Option<i32>,
-    pub jump_to_message: bool,
-    pub attachments_list: bool,
-    pub replied_to: bool,
-
-    // Requirements
-    pub required: i16,
-    pub required_remove: i16,
-    pub upvote_emojis: Vec<String>,
-    pub downvote_emojis: Vec<String>,
-    pub self_vote: bool,
-    pub allow_bots: bool,
-    pub require_image: bool,
-    pub older_than: i64,
-    pub newer_than: i64,
-
-    // Behavior
-    pub enabled: bool,
-    pub autoreact_upvote: bool,
-    pub autoreact_downvote: bool,
-    pub remove_invalid_reactions: bool,
-    pub link_deletes: bool,
-    pub link_edits: bool,
-    pub private: bool,
-    pub xp_multiplier: f32,
-    pub cooldown_enabled: bool,
-    pub cooldown_count: i16,
-    pub cooldown_period: i16,
+macro_rules! starboard_from_record {
+    ($record: expr) => {
+        Starboard {
+            id: $record.id,
+            name: $record.name,
+            channel_id: $record.channel_id,
+            guild_id: $record.guild_id,
+            webhook_id: $record.webhook_id,
+            premium_locked: $record.premium_locked,
+            settings: generate_settings!($record),
+        }
+    };
 }
 
 impl Starboard {
@@ -55,8 +37,7 @@ impl Starboard {
         channel_id: i64,
         guild_id: i64,
     ) -> Result<Self> {
-        query_as!(
-            Self,
+        let starboard = query!(
             r#"INSERT INTO STARBOARDS
             (name, channel_id, guild_id)
             VALUES ($1, $2, $3)
@@ -66,7 +47,8 @@ impl Starboard {
             guild_id,
         )
         .fetch_one(pool)
-        .await
-        .map_err(|e| e.into())
+        .await?;
+
+        Ok(starboard_from_record!(starboard))
     }
 }
