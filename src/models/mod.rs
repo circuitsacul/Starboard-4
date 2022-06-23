@@ -1,3 +1,6 @@
+#[macro_use]
+pub mod starboard_settings;
+
 pub mod autostar_channel;
 pub mod guild;
 pub mod member;
@@ -12,7 +15,6 @@ pub mod starboard_config;
 pub mod starboard_message;
 pub mod starboard_override;
 pub mod starboard_override_values;
-pub mod starboard_settings;
 pub mod user;
 pub mod vote;
 pub mod xprole;

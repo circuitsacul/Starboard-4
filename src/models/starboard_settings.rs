@@ -38,7 +38,6 @@ pub struct StarboardSettings {
     pub cooldown_period: i16,
 }
 
-#[macro_export]
 macro_rules! _generate_settings {
     ($has_settings: expr, $($name: ident),*) => {
         StarboardSettings {
@@ -49,40 +48,41 @@ macro_rules! _generate_settings {
     };
 }
 
-#[macro_export]
 macro_rules! generate_settings {
     ($has_settings: expr) => {
-        crate::_generate_settings!(
-            $has_settings,
-            display_emoji,
-            ping_author,
-            use_server_profile,
-            extra_embeds,
-            use_webhook,
-            color,
-            jump_to_message,
-            attachments_list,
-            replied_to,
-            required,
-            required_remove,
-            upvote_emojis,
-            downvote_emojis,
-            self_vote,
-            allow_bots,
-            require_image,
-            older_than,
-            newer_than,
-            enabled,
-            autoreact_upvote,
-            autoreact_downvote,
-            remove_invalid_reactions,
-            link_deletes,
-            link_edits,
-            xp_multiplier,
-            cooldown_enabled,
-            cooldown_count,
-            cooldown_period,
-            private
-        )
+        {
+            _generate_settings!(
+                $has_settings,
+                display_emoji,
+                ping_author,
+                use_server_profile,
+                extra_embeds,
+                use_webhook,
+                color,
+                jump_to_message,
+                attachments_list,
+                replied_to,
+                required,
+                required_remove,
+                upvote_emojis,
+                downvote_emojis,
+                self_vote,
+                allow_bots,
+                require_image,
+                older_than,
+                newer_than,
+                enabled,
+                autoreact_upvote,
+                autoreact_downvote,
+                remove_invalid_reactions,
+                link_deletes,
+                link_edits,
+                xp_multiplier,
+                cooldown_enabled,
+                cooldown_count,
+                cooldown_period,
+                private
+            )
+        }
     };
 }

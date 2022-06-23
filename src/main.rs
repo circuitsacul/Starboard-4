@@ -2,6 +2,7 @@ pub mod client;
 pub mod events;
 pub mod interactions;
 pub mod models;
+pub mod macros;
 
 use anyhow::Result;
 

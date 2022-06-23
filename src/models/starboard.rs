@@ -1,7 +1,6 @@
 use anyhow::Result;
 use sqlx::{query, PgPool};
 
-use crate::generate_settings;
 use crate::models::StarboardSettings;
 
 pub struct Starboard {

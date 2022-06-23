@@ -4,7 +4,7 @@ use twilight_model::application::interaction::application_command::InteractionCh
 
 use crate::interactions::commands::context::CommandCtx;
 use crate::models::AutoStarChannel;
-use crate::{assert_channel_is_textable, get_guild_id};
+use crate::{channel_is_textable, get_guild_id};
 
 #[derive(CommandModel, CreateCommand)]
 #[command(name = "create", desc = "Create an autostar channel.")]
@@ -17,7 +17,7 @@ pub struct CreateAutoStarChannel {
 
 impl CreateAutoStarChannel {
     pub async fn callback(self, ctx: CommandCtx) -> Result<()> {
-        assert_channel_is_textable!(ctx, self.channel);
+        channel_is_textable!(ctx, self.channel);
 
         AutoStarChannel::create(
             &ctx.bot.pool,
