@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::{PgPool, query_as};
+use sqlx::{query_as, PgPool};
 
 pub struct Starboard {
     pub id: i32,
@@ -49,7 +49,12 @@ pub struct Starboard {
 }
 
 impl Starboard {
-    pub async fn create(pool: &PgPool, name: &String, channel_id: i64, guild_id: i64) -> Result<Self> {
+    pub async fn create(
+        pool: &PgPool,
+        name: &String,
+        channel_id: i64,
+        guild_id: i64,
+    ) -> Result<Self> {
         query_as!(
             Self,
             r#"INSERT INTO STARBOARDS

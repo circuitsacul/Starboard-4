@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::{PgPool, query_as};
+use sqlx::{query_as, PgPool};
 
 pub struct PermRoleStarboard {
     pub permrole_id: i64,

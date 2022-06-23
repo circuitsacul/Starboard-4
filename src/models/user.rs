@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::{PgPool, query_as};
+use sqlx::{query_as, PgPool};
 
 pub struct User {
     pub user_id: i64,
