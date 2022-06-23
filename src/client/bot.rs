@@ -13,7 +13,7 @@ use twilight_model::oauth::PartialApplication;
 
 use crate::client::config::Config;
 
-pub struct Starboard {
+pub struct StarboardBot {
     pub cluster: Cluster,
     pub http: HttpClient,
     pub cache: RwLock<InMemoryCache>,
@@ -21,14 +21,14 @@ pub struct Starboard {
     pub pool: PgPool,
 }
 
-impl Debug for Starboard {
+impl Debug for StarboardBot {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Starboard")
     }
 }
 
-impl Starboard {
-    pub async fn new(config: Config) -> Result<(Events, Starboard)> {
+impl StarboardBot {
+    pub async fn new(config: Config) -> Result<(Events, StarboardBot)> {
         let scheme = ShardScheme::try_from((
             0..config.shards_per_cluster,
             config.shards_per_cluster * config.total_clusters,

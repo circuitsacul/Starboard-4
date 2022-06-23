@@ -4,10 +4,10 @@ use futures::stream::StreamExt;
 use tokio::signal;
 use twilight_gateway::cluster::Events;
 
-use crate::client::bot::Starboard;
+use crate::client::bot::StarboardBot;
 use crate::events::handle_event;
 
-async fn shutdown_handler(bot: Arc<Starboard>) {
+async fn shutdown_handler(bot: Arc<StarboardBot>) {
     match signal::ctrl_c().await {
         Ok(()) => {}
         Err(err) => eprintln!("Unable to listen for shutdown signal: {}", err),
@@ -17,7 +17,7 @@ async fn shutdown_handler(bot: Arc<Starboard>) {
     println!("Bot shut down.");
 }
 
-pub async fn run(mut events: Events, bot: Starboard) {
+pub async fn run(mut events: Events, bot: StarboardBot) {
     let bot = Arc::new(bot);
 
     // start the cluster

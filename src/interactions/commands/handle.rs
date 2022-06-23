@@ -3,7 +3,7 @@ use std::sync::Arc;
 use anyhow::Result;
 use twilight_model::application::interaction::ApplicationCommand;
 
-use crate::client::bot::Starboard;
+use crate::client::bot::StarboardBot;
 use crate::interactions::commands::chat;
 use crate::interactions::commands::command::{AppCommand, GroupCommand};
 use crate::interactions::commands::context::CommandCtx;
@@ -23,7 +23,7 @@ macro_rules! match_commands {
 
 pub async fn handle_command(
     shard_id: u64,
-    bot: Arc<Starboard>,
+    bot: Arc<StarboardBot>,
     command: Box<ApplicationCommand>,
 ) -> Result<()> {
     let ctx = CommandCtx {

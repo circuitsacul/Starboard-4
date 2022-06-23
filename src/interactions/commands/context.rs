@@ -7,12 +7,12 @@ use twilight_model::{
     http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType},
 };
 
-use crate::client::bot::Starboard;
+use crate::client::bot::StarboardBot;
 
 #[derive(Debug)]
 pub struct CommandCtx {
     pub shard_id: u64,
-    pub bot: Arc<Starboard>,
+    pub bot: Arc<StarboardBot>,
     pub command: Box<ApplicationCommand>,
 }
 
