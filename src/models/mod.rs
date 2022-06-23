@@ -8,6 +8,7 @@ pub mod permrole_starboard;
 pub mod posrole;
 pub mod posrole_member;
 pub mod starboard;
+pub mod starboard_config;
 pub mod starboard_message;
 pub mod starboard_override;
 pub mod starboard_override_values;
