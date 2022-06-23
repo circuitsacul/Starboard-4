@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
 use anyhow::Result;
+use twilight_interactions::command::CommandModel;
 use twilight_model::application::interaction::ApplicationCommand;
 
 use crate::client::bot::StarboardBot;
 use crate::interactions::commands::chat;
-use crate::interactions::commands::command::{AppCommand, GroupCommand};
 use crate::interactions::commands::context::CommandCtx;
 
 macro_rules! match_commands {
@@ -14,7 +14,7 @@ macro_rules! match_commands {
         let name = $ctx.command.data.name.as_str();
         match name {
             $(
-                $cmd_name => <$command>::handle(data, $ctx).await?,
+                $cmd_name => <$command>::from_interaction(data)?.callback($ctx).await?,
             )*
             unkown => eprintln!("Unkown command: {}", unkown),
         }
@@ -34,7 +34,8 @@ pub async fn handle_command(
 
     match_commands!(
         ctx,
-        "ping" => chat::ping::Ping
+        "ping" => chat::ping::Ping,
+        "autostar" => chat::autostar::AutoStar
     );
 
     Ok(())

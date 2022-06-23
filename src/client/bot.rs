@@ -45,7 +45,17 @@ impl StarboardBot {
 
         let http = HttpClient::new(config.token.clone());
         let cache = InMemoryCache::builder()
-            .resource_types(ResourceType::MESSAGE)
+            .resource_types(
+                ResourceType::USER
+                    | ResourceType::USER_CURRENT
+                    | ResourceType::MEMBER
+                    | ResourceType::MESSAGE
+                    | ResourceType::GUILD
+                    | ResourceType::CHANNEL
+                    | ResourceType::ROLE
+                    | ResourceType::EMOJI,
+            )
+            .message_cache_size(10_000)
             .build();
 
         let pool = PgPool::connect(&config.db_url).await?;

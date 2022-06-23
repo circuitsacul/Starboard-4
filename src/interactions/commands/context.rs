@@ -4,8 +4,10 @@ use anyhow::Result;
 use twilight_http::{response::marker::EmptyBody, Response};
 use twilight_model::{
     application::interaction::ApplicationCommand,
+    channel::message::MessageFlags,
     http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType},
 };
+use twilight_util::builder::InteractionResponseDataBuilder;
 
 use crate::client::bot::StarboardBot;
 
@@ -17,7 +19,11 @@ pub struct CommandCtx {
 }
 
 impl CommandCtx {
-    pub async fn respond(&self, response: InteractionResponseData) -> Result<Response<EmptyBody>> {
+    pub async fn respond(
+        &self,
+        response: InteractionResponseData,
+        defer: bool,
+    ) -> Result<Response<EmptyBody>> {
         let i = self.bot.interaction_client().await?;
 
         i.create_response(
@@ -25,11 +31,36 @@ impl CommandCtx {
             &self.command.token,
             &InteractionResponse {
                 data: Some(response),
-                kind: InteractionResponseType::ChannelMessageWithSource,
+                kind: match defer {
+                    false => InteractionResponseType::ChannelMessageWithSource,
+                    true => InteractionResponseType::DeferredChannelMessageWithSource,
+                },
             },
         )
         .exec()
         .await
         .map_err(|e| e.into())
+    }
+
+    pub async fn respond_str(
+        &self,
+        response: &str,
+        ephemeral: bool,
+    ) -> Result<Response<EmptyBody>> {
+        let mut data = InteractionResponseDataBuilder::new().content(response.into());
+        if ephemeral {
+            data = data.flags(MessageFlags::EPHEMERAL);
+        }
+
+        self.respond(data.build(), false).await
+    }
+
+    pub async fn defer(&self, ephemeral: bool) -> Result<Response<EmptyBody>> {
+        let mut data = InteractionResponseDataBuilder::new();
+        if ephemeral {
+            data = data.flags(MessageFlags::EPHEMERAL);
+        }
+
+        self.respond(data.build(), true).await
     }
 }
