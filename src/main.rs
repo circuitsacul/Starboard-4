@@ -1,6 +1,7 @@
 pub mod client;
 pub mod events;
 pub mod interactions;
+pub mod models;
 
 use anyhow::Result;
 

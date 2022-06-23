@@ -1,0 +1,837 @@
+{
+  "db": "PostgreSQL",
+  "006760f4474a6b75b702c9435760187e25cdc364cd2c11ecd807648029afe0a8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "xp",
+          "ordinal": 2,
+          "type_info": "Float4"
+        },
+        {
+          "name": "autoredeem_enabled",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "INSERT INTO members (user_id, guild_id) VALUES ($1, $2) RETURNING *"
+  },
+  "0503b7de215f55d8463a73b800bba7a9e1c48f91ba6d67e36c3b105f8b1a1484": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "required",
+          "ordinal": 2,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Int2"
+        ]
+      }
+    },
+    "query": "INSERT INTO xproles\n            (role_id, guild_id, required)\n            VALUES ($1, $2, $3)\n            RETURNING *"
+  },
+  "2ba33811711a776b21ed9f1aab88903c81d572838f9ec3c133112ed009efb20e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "channel_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "webhook_id",
+          "ordinal": 4,
+          "type_info": "Int8"
+        },
+        {
+          "name": "premium_locked",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "display_emoji",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "ping_author",
+          "ordinal": 7,
+          "type_info": "Bool"
+        },
+        {
+          "name": "use_server_profile",
+          "ordinal": 8,
+          "type_info": "Bool"
+        },
+        {
+          "name": "extra_embeds",
+          "ordinal": 9,
+          "type_info": "Bool"
+        },
+        {
+          "name": "use_webhook",
+          "ordinal": 10,
+          "type_info": "Bool"
+        },
+        {
+          "name": "color",
+          "ordinal": 11,
+          "type_info": "Int4"
+        },
+        {
+          "name": "jump_to_message",
+          "ordinal": 12,
+          "type_info": "Bool"
+        },
+        {
+          "name": "attachments_list",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "replied_to",
+          "ordinal": 14,
+          "type_info": "Bool"
+        },
+        {
+          "name": "required",
+          "ordinal": 15,
+          "type_info": "Int2"
+        },
+        {
+          "name": "required_remove",
+          "ordinal": 16,
+          "type_info": "Int2"
+        },
+        {
+          "name": "upvote_emojis",
+          "ordinal": 17,
+          "type_info": "TextArray"
+        },
+        {
+          "name": "downvote_emojis",
+          "ordinal": 18,
+          "type_info": "TextArray"
+        },
+        {
+          "name": "self_vote",
+          "ordinal": 19,
+          "type_info": "Bool"
+        },
+        {
+          "name": "allow_bots",
+          "ordinal": 20,
+          "type_info": "Bool"
+        },
+        {
+          "name": "require_image",
+          "ordinal": 21,
+          "type_info": "Bool"
+        },
+        {
+          "name": "older_than",
+          "ordinal": 22,
+          "type_info": "Int8"
+        },
+        {
+          "name": "newer_than",
+          "ordinal": 23,
+          "type_info": "Int8"
+        },
+        {
+          "name": "enabled",
+          "ordinal": 24,
+          "type_info": "Bool"
+        },
+        {
+          "name": "autoreact_upvote",
+          "ordinal": 25,
+          "type_info": "Bool"
+        },
+        {
+          "name": "autoreact_downvote",
+          "ordinal": 26,
+          "type_info": "Bool"
+        },
+        {
+          "name": "remove_invalid_reactions",
+          "ordinal": 27,
+          "type_info": "Bool"
+        },
+        {
+          "name": "link_deletes",
+          "ordinal": 28,
+          "type_info": "Bool"
+        },
+        {
+          "name": "link_edits",
+          "ordinal": 29,
+          "type_info": "Bool"
+        },
+        {
+          "name": "private",
+          "ordinal": 30,
+          "type_info": "Bool"
+        },
+        {
+          "name": "xp_multiplier",
+          "ordinal": 31,
+          "type_info": "Float4"
+        },
+        {
+          "name": "cooldown_enabled",
+          "ordinal": 32,
+          "type_info": "Bool"
+        },
+        {
+          "name": "cooldown_count",
+          "ordinal": 33,
+          "type_info": "Int2"
+        },
+        {
+          "name": "cooldown_period",
+          "ordinal": 34,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "INSERT INTO STARBOARDS\n            (name, channel_id, guild_id)\n            VALUES ($1, $2, $3)\n            RETURNING *"
+  },
+  "2bf3a1823b4e031451e9916594a0175322ed1ef321bd8377b94019a6b599ee61": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_bot",
+          "ordinal": 1,
+          "type_info": "Bool"
+        },
+        {
+          "name": "credits",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "donated_cents",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "patreon_status",
+          "ordinal": 4,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Bool"
+        ]
+      }
+    },
+    "query": "INSERT INTO users\n            (user_id, is_bot)\n            VALUES ($1, $2)\n            RETURNING *"
+  },
+  "4552d0c5b8ad79fe16b708e56156c44732fbe07ced963ac40908a3b6155f8838": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "channel_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "premium_locked",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "emojis",
+          "ordinal": 5,
+          "type_info": "TextArray"
+        },
+        {
+          "name": "min_chars",
+          "ordinal": 6,
+          "type_info": "Int2"
+        },
+        {
+          "name": "max_chars",
+          "ordinal": 7,
+          "type_info": "Int2"
+        },
+        {
+          "name": "require_image",
+          "ordinal": 8,
+          "type_info": "Bool"
+        },
+        {
+          "name": "delete_invalid",
+          "ordinal": 9,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "INSERT INTO aschannels\n                (name, channel_id, guild_id)\n                VALUES ($1, $2, $3)\n                RETURNING *"
+  },
+  "472bf7e641c8699849735a78b2174ae5fdceba022b505e8339bae1f66e49e6e8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "starboard_message_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "last_known_point_count",
+          "ordinal": 3,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO starboard_messages\n            (message_id, starboard_id)\n            VALUES ($1, $2)\n            RETURNING *"
+  },
+  "5a7c6d06bb7bc121a034f905c55ea3f431d2bb533c91e23f736caaf975798e0e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "obtain_xproles",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "give_votes",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "receive_votes",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "INSERT INTO permroles\n            (role_id, guild_id)\n            VALUES ($1, $2)\n            RETURNING *"
+  },
+  "6bf576e9da51a492320536dd5585fecaa261df00b3465050dc4030d274fcd45a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "patreon_id",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "discord_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "last_patreon_total_cents",
+          "ordinal": 2,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar"
+        ]
+      }
+    },
+    "query": "INSERT INTO patrons (patreon_id) VALUES ($1)\n            RETURNING *"
+  },
+  "7a19e3f59dc0cadbbc73567153274fac7187f3bb0e8e0e0ce30772f856f2d0ed": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "max_members",
+          "ordinal": 2,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "INSERT INTO posroles\n            (role_id, guild_id)\n            VALUES ($1, $2)\n            RETURNING *"
+  },
+  "7e14b14e400319e69ca7b7a581257ee46e1b60ee05872f90474bc3c107a47e08": {
+    "describe": {
+      "columns": [
+        {
+          "name": "guild_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "premium_end",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "INSERT INTO guilds (guild_id) VALUES ($1) RETURNING *"
+  },
+  "843c355ffb0acbd4e70a883ead71d8d03488e7e3cc22e60cd410996e81be759d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "target_author_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_downvote",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4",
+          "Int8",
+          "Int8",
+          "Bool"
+        ]
+      }
+    },
+    "query": "INSERT INTO VOTES\n            (message_id, starboard_id, user_id,\n                target_author_id, is_downvote)\n            VALUES ($1, $2, $3, $4, $5)\n            RETURNING *"
+  },
+  "c66e16c0479be2132e8339140c7826b315455db068de46eddbf1904c757e5d48": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "INSERT INTO posrole_members\n            (role_id, user_id)\n            VALUES ($1, $2)\n            RETURNING *"
+  },
+  "db47dd094d91342ad83996e3ebe7cacc85c7f77f1e7ecd0c9d8ba6914fb9ec8a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "permrole_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "give_votes",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "receive_votes",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO permrole_starboards\n            (permrole_id, starboard_id)\n            VALUES ($1, $2)\n            RETURNING *"
+  },
+  "e605d15eeb3e0939bc83e98b98b9ac9814bf2f0983ebdc30c235d8b530bf0ada": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "channel_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "author_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_nsfw",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "forced_to",
+          "ordinal": 5,
+          "type_info": "Int4Array"
+        },
+        {
+          "name": "trashed",
+          "ordinal": 6,
+          "type_info": "Bool"
+        },
+        {
+          "name": "trash_reason",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "frozen",
+          "ordinal": 8,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Bool"
+        ]
+      }
+    },
+    "query": "INSERT INTO messages (message_id, guild_id, channel_id,\n                author_id, is_nsfw)\n            VALUES ($1, $2, $3, $4, $5) RETURNING *"
+  },
+  "f35757e59b7666a44de2e4a26614896b218023e78aac4a4bf3e2f5badc000f35": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "channel_ids",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "overrides",
+          "ordinal": 5,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8",
+          "Text",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO overrides\n            (id, guild_id, name, starboard_id)\n            VALUES ($1, $2, $3, $4)\n            RETURNING *"
+  }
+}

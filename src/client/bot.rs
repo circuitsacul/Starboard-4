@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
-use sqlx::PgPool;
 use anyhow::{anyhow, Result};
+use sqlx::PgPool;
 use tokio::sync::RwLock;
 use twilight_cache_inmemory::{InMemoryCache, ResourceType};
 use twilight_gateway::{
