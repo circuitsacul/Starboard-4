@@ -62,7 +62,7 @@ impl StarboardConfig {
     pub fn new(starboard: Starboard, overrides: Vec<StarboardOverride>) -> Result<Self> {
         let mut settings = starboard.settings.clone();
         for ov in overrides.iter() {
-            update_from_override!(settings, ov.get_overrides().unwrap())
+            update_from_override!(settings, ov.get_overrides()?)
         }
 
         Ok(Self {
