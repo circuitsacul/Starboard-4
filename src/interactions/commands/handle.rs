@@ -27,7 +27,7 @@ pub async fn handle_command(
 ) -> anyhow::Result<()> {
     let ctx = CommandCtx {
         shard_id,
-        bot: Arc::clone(&bot),
+        bot,
         interaction,
     };
 
