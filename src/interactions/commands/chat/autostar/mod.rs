@@ -1,5 +1,6 @@
 pub mod create;
 pub mod delete;
+pub mod view;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
@@ -18,6 +19,8 @@ pub enum AutoStar {
     Create(create::CreateAutoStarChannel),
     #[command(name = "delete")]
     Delete(delete::DeleteAutoStarChannel),
+    #[command(name = "view")]
+    View(view::ViewAutoStarChannels),
 }
 
 impl AutoStar {
@@ -25,6 +28,7 @@ impl AutoStar {
         match self {
             Self::Create(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
+            Self::View(cmd) => cmd.callback(ctx).await,
         }
     }
 }
