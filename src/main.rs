@@ -6,11 +6,13 @@ pub mod models;
 pub mod utils;
 pub mod constants;
 
+use tokio::main;
+
 use crate::client::bot::StarboardBot;
 use crate::client::config::Config;
 use crate::client::runner::run;
 
-#[tokio::main]
+#[main]
 async fn main() -> anyhow::Result<()> {
     let config = Config::from_env();
     let (events, starboard) = StarboardBot::new(config).await?;
