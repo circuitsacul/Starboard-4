@@ -11,7 +11,9 @@ pub async fn handle_interaction(
     bot: Arc<StarboardBot>,
 ) -> anyhow::Result<()> {
     match interaction {
-        Interaction::ApplicationCommand(command) => handle_command(shard_id, bot, command).await?,
+        Interaction::ApplicationCommand(interaction) => {
+            handle_command(shard_id, bot, interaction).await?
+        }
         _ => {}
     }
 

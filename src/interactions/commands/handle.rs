@@ -9,8 +9,8 @@ use crate::interactions::commands::context::CommandCtx;
 
 macro_rules! match_commands {
     ($ctx:expr, $($cmd_name:expr => $command:ty),*) => {
-        let data = $ctx.command.data.clone().into();
-        let name = $ctx.command.data.name.as_str();
+        let data = $ctx.interaction.data.clone().into();
+        let name = $ctx.interaction.data.name.as_str();
         match name {
             $(
                 $cmd_name => <$command>::from_interaction(data)?.callback($ctx).await?,
@@ -23,12 +23,12 @@ macro_rules! match_commands {
 pub async fn handle_command(
     shard_id: u64,
     bot: Arc<StarboardBot>,
-    command: Box<ApplicationCommand>,
+    interaction: Box<ApplicationCommand>,
 ) -> anyhow::Result<()> {
     let ctx = CommandCtx {
         shard_id,
         bot: Arc::clone(&bot),
-        command,
+        interaction,
     };
 
     match_commands!(

@@ -14,7 +14,7 @@ use crate::client::bot::StarboardBot;
 pub struct CommandCtx {
     pub shard_id: u64,
     pub bot: Arc<StarboardBot>,
-    pub command: Box<ApplicationCommand>,
+    pub interaction: Box<ApplicationCommand>,
 }
 
 impl CommandCtx {
@@ -26,8 +26,8 @@ impl CommandCtx {
         let i = self.bot.interaction_client().await?;
 
         i.create_response(
-            self.command.id,
-            &self.command.token,
+            self.interaction.id,
+            &self.interaction.token,
             &InteractionResponse {
                 data: Some(response),
                 kind: match defer {

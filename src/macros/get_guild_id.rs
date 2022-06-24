@@ -3,7 +3,7 @@
 #[macro_export]
 macro_rules! get_guild_id {
     ($ctx: expr) => {
-        match $ctx.command.guild_id {
+        match $ctx.interaction.guild_id {
             None => {
                 $ctx.respond_str("Please invite me to the server first.", true)
                     .await?;
