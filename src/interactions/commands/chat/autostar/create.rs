@@ -27,16 +27,18 @@ impl CreateAutoStarChannel {
         let guild_id = get_guild_id!(ctx);
         create_maybe!(Guild, &ctx.bot.pool, guild_id)?;
 
-        AutoStarChannel::create(
-            &ctx.bot.pool,
-            &self.name,
-            unwrap_id!(self.channel.id),
-            guild_id,
+        let channel_id = unwrap_id!(self.channel.id);
+
+        AutoStarChannel::create(&ctx.bot.pool, &self.name, channel_id, guild_id).await?;
+
+        ctx.respond_str(
+            &format!(
+                "Created autostar channel '{}' in <#{}>.",
+                self.name, channel_id
+            ),
+            false,
         )
         .await?;
-
-        ctx.respond_str("Created autostar channel in", false)
-            .await?;
         Ok(())
     }
 }
