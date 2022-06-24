@@ -3,6 +3,8 @@ pub mod events;
 pub mod interactions;
 pub mod macros;
 pub mod models;
+pub mod utils;
+pub mod constants;
 
 use crate::client::bot::StarboardBot;
 use crate::client::config::Config;

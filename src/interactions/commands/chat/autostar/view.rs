@@ -3,6 +3,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::get_guild_id;
 use crate::interactions::commands::context::CommandCtx;
 use crate::models::AutoStarChannel;
+use crate::utils::embed;
 
 #[derive(CreateCommand, CommandModel)]
 #[command(name = "view", desc = "View your autostar channels.")]
@@ -19,7 +20,12 @@ impl ViewAutoStarChannels {
             let asc = AutoStarChannel::get_by_name(&ctx.bot.pool, name, guild_id).await?;
 
             if let Some(asc) = asc {
-                ctx.respond_str(&format!("{:?}", asc), false).await?;
+                let resp = ctx
+                    .build_resp()
+                    .embeds([embed::build().description(format!("{:#?}", asc)).build()])
+                    .build();
+
+                ctx.respond(resp).await?;
             } else {
                 ctx.respond_str("No autostar channels with that name were found.", true)
                     .await?;
@@ -27,12 +33,18 @@ impl ViewAutoStarChannels {
         } else {
             let asc = AutoStarChannel::list_by_guild(&ctx.bot.pool, guild_id).await?;
 
-            let msg = match asc.len() {
-                0 => ("This server has no autostar channels.".into(), true),
-                _ => (format!("{:?}", asc), false),
-            };
+            if asc.len() == 0 {
+                ctx.respond_str("This server has no autostar channels.", true)
+                    .await?;
+                return Ok(());
+            }
 
-            ctx.respond_str(&msg.0, msg.1).await?;
+            let resp = ctx
+                .build_resp()
+                .embeds([embed::build().description(format!("{:#?}", asc)).build()])
+                .build();
+
+            ctx.respond(resp).await?;
         }
 
         Ok(())

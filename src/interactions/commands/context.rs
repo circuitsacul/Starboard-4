@@ -18,27 +18,49 @@ pub struct CommandCtx {
 }
 
 impl CommandCtx {
-    pub async fn respond(
+    pub fn build_resp(&self) -> InteractionResponseDataBuilder {
+        InteractionResponseDataBuilder::new()
+    }
+
+    pub async fn raw_respond(
         &self,
-        response: InteractionResponseData,
-        defer: bool,
+        data: Option<InteractionResponseData>,
+        kind: InteractionResponseType,
     ) -> anyhow::Result<Response<EmptyBody>> {
         let i = self.bot.interaction_client().await?;
 
         i.create_response(
             self.interaction.id,
             &self.interaction.token,
-            &InteractionResponse {
-                data: Some(response),
-                kind: match defer {
-                    false => InteractionResponseType::ChannelMessageWithSource,
-                    true => InteractionResponseType::DeferredChannelMessageWithSource,
-                },
-            },
+            &InteractionResponse { data, kind },
         )
         .exec()
         .await
         .map_err(|e| e.into())
+    }
+
+    pub async fn defer(&self, ephemeral: bool) -> anyhow::Result<Response<EmptyBody>> {
+        let mut data = self.build_resp();
+        if ephemeral {
+            data = data.flags(MessageFlags::EPHEMERAL);
+        }
+
+        self.raw_respond(
+            Some(data.build()),
+            InteractionResponseType::DeferredChannelMessageWithSource,
+        )
+        .await
+    }
+
+    pub async fn respond(
+        &self,
+        data: InteractionResponseData,
+    ) -> anyhow::Result<Response<EmptyBody>> {
+        self.raw_respond(
+            Some(data),
+            InteractionResponseType::ChannelMessageWithSource,
+        )
+        .await
     }
 
     pub async fn respond_str(
@@ -46,20 +68,15 @@ impl CommandCtx {
         response: &str,
         ephemeral: bool,
     ) -> anyhow::Result<Response<EmptyBody>> {
-        let mut data = InteractionResponseDataBuilder::new().content(response.into());
+        let mut data = self.build_resp().content(response.into());
         if ephemeral {
             data = data.flags(MessageFlags::EPHEMERAL);
         }
 
-        self.respond(data.build(), false).await
-    }
-
-    pub async fn defer(&self, ephemeral: bool) -> anyhow::Result<Response<EmptyBody>> {
-        let mut data = InteractionResponseDataBuilder::new();
-        if ephemeral {
-            data = data.flags(MessageFlags::EPHEMERAL);
-        }
-
-        self.respond(data.build(), true).await
+        self.raw_respond(
+            Some(data.build()),
+            InteractionResponseType::ChannelMessageWithSource,
+        )
+        .await
     }
 }
