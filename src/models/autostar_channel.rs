@@ -35,4 +35,19 @@ impl AutoStarChannel {
         .await
         .map_err(|e| e.into())
     }
+
+    pub async fn delete(
+        pool: &sqlx::PgPool,
+        name: &String,
+        guild_id: i64,
+    ) -> sqlx::Result<sqlx::postgres::PgQueryResult> {
+        sqlx::query!(
+            "DELETE FROM autostar_channels
+            WHERE name=$1 AND guild_id=$2",
+            name,
+            guild_id,
+        )
+        .execute(pool)
+        .await
+    }
 }
