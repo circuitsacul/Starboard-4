@@ -5,7 +5,7 @@ macro_rules! get_guild_id {
     ($ctx: expr) => {
         match $ctx.command.guild_id {
             None => {
-                $ctx.respond_str("This command must be used in a server.", true)
+                $ctx.respond_str("Please invite me to the server first.", true)
                     .await?;
                 return Ok(());
             }
