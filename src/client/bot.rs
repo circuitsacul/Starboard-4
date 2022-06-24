@@ -1,6 +1,5 @@
 use std::fmt::Debug;
 
-use anyhow::{anyhow, Result};
 use sqlx::PgPool;
 use tokio::sync::RwLock;
 use twilight_cache_inmemory::{InMemoryCache, ResourceType};
@@ -28,7 +27,7 @@ impl Debug for StarboardBot {
 }
 
 impl StarboardBot {
-    pub async fn new(config: Config) -> Result<(Events, StarboardBot)> {
+    pub async fn new(config: Config) -> anyhow::Result<(Events, StarboardBot)> {
         let scheme = ShardScheme::try_from((
             0..config.shards_per_cluster,
             config.shards_per_cluster * config.total_clusters,
@@ -72,10 +71,12 @@ impl StarboardBot {
         ))
     }
 
-    pub async fn interaction_client<'a>(&'a self) -> Result<InteractionClient<'a>> {
+    pub async fn interaction_client<'a>(&'a self) -> anyhow::Result<InteractionClient<'a>> {
         match self.application.read().await.clone() {
             Some(info) => Ok(self.http.interaction(info.id)),
-            None => Err(anyhow!("interaction_client called before bot was ready.")),
+            None => Err(anyhow::anyhow!(
+                "interaction_client called before bot was ready."
+            )),
         }
     }
 }

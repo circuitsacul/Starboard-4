@@ -1,4 +1,3 @@
-use anyhow::Result;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::interactions::commands::context::CommandCtx;
@@ -8,7 +7,7 @@ use crate::interactions::commands::context::CommandCtx;
 pub struct Ping;
 
 impl Ping {
-    pub async fn callback(self, ctx: CommandCtx) -> Result<()> {
+    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
         let latency = ctx.bot.cluster.info()[&ctx.shard_id].latency().average();
         let millis = match latency {
             None => "Unkown latency.".to_string(),

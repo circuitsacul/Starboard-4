@@ -1,6 +1,5 @@
 pub mod create;
 
-use anyhow::Result;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::interactions::commands::context::CommandCtx;
@@ -19,7 +18,7 @@ pub enum AutoStar {
 }
 
 impl AutoStar {
-    pub async fn callback(self, ctx: CommandCtx) -> Result<()> {
+    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
         match self {
             Self::Create(cmd) => cmd.callback(ctx).await?,
         }

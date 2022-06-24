@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use anyhow::Result;
 use twilight_interactions::command::CommandModel;
 use twilight_model::application::interaction::ApplicationCommand;
 
@@ -25,7 +24,7 @@ pub async fn handle_command(
     shard_id: u64,
     bot: Arc<StarboardBot>,
     command: Box<ApplicationCommand>,
-) -> Result<()> {
+) -> anyhow::Result<()> {
     let ctx = CommandCtx {
         shard_id,
         bot: Arc::clone(&bot),

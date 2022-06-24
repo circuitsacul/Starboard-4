@@ -1,4 +1,3 @@
-use anyhow::Result;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::application::interaction::application_command::InteractionChannel;
 
@@ -17,7 +16,7 @@ pub struct CreateAutoStarChannel {
 }
 
 impl CreateAutoStarChannel {
-    pub async fn callback(self, ctx: CommandCtx) -> Result<()> {
+    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
         create_maybe!(Guild, &ctx.bot.pool, guild_id)?;
 
