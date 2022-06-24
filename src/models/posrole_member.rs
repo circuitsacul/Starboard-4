@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct PosRoleMember {
     pub role_id: i64,
     pub user_id: i64,

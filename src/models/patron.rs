@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Patron {
     pub patreon_id: String,
     pub discord_id: Option<i64>,

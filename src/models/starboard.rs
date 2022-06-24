@@ -1,5 +1,6 @@
 use crate::models::StarboardSettings;
 
+#[derive(Debug)]
 pub struct Starboard {
     pub id: i32,
     pub name: String,

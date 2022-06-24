@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct StarboardSettings {
     // General Style
     pub display_emoji: Option<String>,

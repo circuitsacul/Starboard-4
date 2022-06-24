@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct PermRoleStarboard {
     pub permrole_id: i64,
     pub starboard_id: i32,

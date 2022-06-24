@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 
+#[derive(Debug)]
 pub struct Guild {
     pub guild_id: i64,
     pub premium_end: Option<DateTime<Utc>>,

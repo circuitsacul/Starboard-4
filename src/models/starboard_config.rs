@@ -1,5 +1,6 @@
 use crate::models::{OverrideField, Starboard, StarboardOverride, StarboardSettings};
 
+#[derive(Debug)]
 pub struct StarboardConfig {
     pub starboard: Starboard,
     pub overrides: Vec<StarboardOverride>,

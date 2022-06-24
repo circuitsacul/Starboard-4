@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct StarboardMessage {
     pub message_id: i64,
     pub starboard_id: i32,

@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Message {
     pub message_id: i64,
     pub guild_id: i64,

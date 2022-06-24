@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct User {
     pub user_id: i64,
     pub is_bot: bool,

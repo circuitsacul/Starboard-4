@@ -1,5 +1,6 @@
 use crate::models::OverrideValues;
 
+#[derive(Debug)]
 pub struct StarboardOverride {
     // serial
     pub id: i32,

@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct AutoStarChannel {
     /// serial
     pub id: i32,
@@ -48,6 +49,33 @@ impl AutoStarChannel {
             guild_id,
         )
         .execute(pool)
+        .await
+    }
+
+    pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM autostar_channels
+            WHERE guild_id=$1",
+            guild_id,
+        )
+        .fetch_all(pool)
+        .await
+    }
+
+    pub async fn get_by_name(
+        pool: &sqlx::PgPool,
+        name: &String,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM autostar_channels
+            WHERE guild_id=$1 AND name=$2",
+            guild_id,
+            name,
+        )
+        .fetch_optional(pool)
         .await
     }
 }
