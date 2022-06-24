@@ -12,6 +12,7 @@ twilight-cache-inmemory = "0.11.0"
 twilight-model = "0.11.0"
 twilight-util = { version = "0.11.0", features = ["builder"] }
 twilight-interactions = "0.11.0"
+twilight-error = "0.11.4"
 
 async-trait = "0.1.56"
 tokio = { version = "1.19.2", features = ["full"] }

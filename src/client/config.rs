@@ -6,6 +6,7 @@ pub struct Config {
     pub shards_per_cluster: u64,
     pub total_clusters: u64,
     pub db_url: String,
+    pub error_channel: Option<u64>,
 }
 
 impl Config {
@@ -18,12 +19,16 @@ impl Config {
         let shards_per_cluster = env::var("SHARDS_PER_CLUSTER").unwrap_or("1".to_string());
         let total_clusters = env::var("TOTAL_CLUSTERS").unwrap_or("1".to_string());
         let db_url = env::var("DATABASE_URL").expect("No database url specified.");
+        let error_channel = env::var("ERROR_CHANNEL_ID")
+            .ok()
+            .map(|v| v.parse().expect("Invalid ID for error log channel."));
 
         Config {
             token,
             shards_per_cluster: shards_per_cluster.parse().unwrap(),
             total_clusters: total_clusters.parse().unwrap(),
             db_url,
+            error_channel,
         }
     }
 }

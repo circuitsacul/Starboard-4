@@ -14,17 +14,18 @@ pub async fn handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBot>) {
 }
 
 async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBot>) {
+    let clone = Arc::clone(&bot);
     let ret = match event {
-        Event::InteractionCreate(int) => handle_interaction(shard_id, int.0, bot).await,
+        Event::InteractionCreate(int) => handle_interaction(shard_id, int.0, clone).await,
         Event::Ready(info) => {
             bot.application.write().await.replace(info.application);
-            post_commands(bot).await
+            post_commands(clone).await
         }
         _ => Ok(()),
     };
 
     match ret {
         Ok(_) => {}
-        Err(why) => eprintln!("Error in event handler: {}", why),
+        Err(why) => bot.errors.handle(&bot.http, why).await,
     }
 }

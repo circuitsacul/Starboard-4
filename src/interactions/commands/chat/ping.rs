@@ -15,6 +15,6 @@ impl Ping {
         };
         ctx.respond_str(&format!("Pong! {}", millis), false).await?;
 
-        Ok(())
+        anyhow::bail!("test");
     }
 }

@@ -3,6 +3,7 @@ use std::fmt::Debug;
 use sqlx::PgPool;
 use tokio::sync::RwLock;
 use twilight_cache_inmemory::{InMemoryCache, ResourceType};
+use twilight_error::ErrorHandler;
 use twilight_gateway::{
     cluster::{Cluster, Events, ShardScheme},
     Intents,
@@ -18,6 +19,7 @@ pub struct StarboardBot {
     pub cache: RwLock<InMemoryCache>,
     pub application: RwLock<Option<PartialApplication>>,
     pub pool: PgPool,
+    pub errors: ErrorHandler,
 }
 
 impl Debug for StarboardBot {
@@ -28,6 +30,7 @@ impl Debug for StarboardBot {
 
 impl StarboardBot {
     pub async fn new(config: Config) -> anyhow::Result<(Events, StarboardBot)> {
+        // Setup gateway connection
         let scheme = ShardScheme::try_from((
             0..config.shards_per_cluster,
             config.shards_per_cluster * config.total_clusters,
@@ -42,7 +45,10 @@ impl StarboardBot {
             .build()
             .await?;
 
+        // Setup HTTP connection
         let http = HttpClient::new(config.token.clone());
+
+        // Setup cache
         let cache = InMemoryCache::builder()
             .resource_types(
                 ResourceType::USER
@@ -57,7 +63,14 @@ impl StarboardBot {
             .message_cache_size(10_000)
             .build();
 
+        // Setup database connection
         let pool = PgPool::connect(&config.db_url).await?;
+
+        // Setup error handling
+        let mut errors = ErrorHandler::new();
+        if let Some(channel_id) = config.error_channel {
+            errors.channel(channel_id.try_into().unwrap());
+        }
 
         Ok((
             events,
@@ -67,6 +80,7 @@ impl StarboardBot {
                 cache: RwLock::new(cache),
                 application: RwLock::new(None),
                 pool,
+                errors,
             },
         ))
     }
