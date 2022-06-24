@@ -3,17 +3,11 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::application::interaction::application_command::InteractionChannel;
 
 use crate::interactions::commands::context::CommandCtx;
-use crate::interactions::commands::permissions::manage_channels;
 use crate::models::{AutoStarChannel, Guild};
 use crate::{create_maybe, get_guild_id, unwrap_id};
 
 #[derive(CommandModel, CreateCommand)]
-#[command(
-    name = "create",
-    desc = "Create an autostar channel.",
-    dm_permission = false,
-    default_permissions = "manage_channels"
-)]
+#[command(name = "create", desc = "Create an autostar channel.")]
 pub struct CreateAutoStarChannel {
     /// The name of the autostar channel.
     name: String,

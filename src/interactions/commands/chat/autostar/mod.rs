@@ -4,14 +4,18 @@ use anyhow::Result;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::interactions::commands::context::CommandCtx;
-
-use create::CreateAutoStarChannel;
+use crate::interactions::commands::permissions::manage_channels;
 
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "autostar", desc = "Manage autostar channels.")]
+#[command(
+    name = "autostar",
+    desc = "Manage autostar channels.",
+    dm_permission = false,
+    default_permissions = "manage_channels"
+)]
 pub enum AutoStar {
     #[command(name = "create")]
-    Create(CreateAutoStarChannel),
+    Create(create::CreateAutoStarChannel),
 }
 
 impl AutoStar {
