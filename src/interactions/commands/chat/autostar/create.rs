@@ -19,7 +19,7 @@ impl CreateAutoStarChannel {
     pub async fn callback(self, ctx: CommandCtx) -> Result<()> {
         channel_is_textable!(ctx, self.channel);
         let guild_id = get_guild_id!(ctx);
-        create_maybe!(Guild, &ctx.bot.pool, guild_id);
+        create_maybe!(Guild, &ctx.bot.pool, guild_id)?;
 
         AutoStarChannel::create(
             &ctx.bot.pool,

@@ -1,7 +1,3 @@
-use anyhow::Result;
-use serde_json;
-use sqlx::{query_as, PgPool};
-
 use crate::models::OverrideValues;
 
 pub struct StarboardOverride {
@@ -18,13 +14,13 @@ pub struct StarboardOverride {
 
 impl StarboardOverride {
     pub async fn create(
-        pool: &PgPool,
+        pool: &sqlx::PgPool,
         id: i32,
         guild_id: i64,
         name: &String,
         starboard_id: i32,
-    ) -> Result<Self> {
-        query_as!(
+    ) -> sqlx::Result<Self> {
+        sqlx::query_as!(
             Self,
             r#"INSERT INTO overrides
             (id, guild_id, name, starboard_id)
@@ -40,7 +36,7 @@ impl StarboardOverride {
         .map_err(|e| e.into())
     }
 
-    pub fn get_overrides(&self) -> Result<OverrideValues> {
+    pub fn get_overrides(&self) -> serde_json::Result<OverrideValues> {
         serde_json::from_value(self.overrides.clone()).map_err(|e| e.into())
     }
 }

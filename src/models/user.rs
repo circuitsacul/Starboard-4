@@ -1,6 +1,3 @@
-use anyhow::Result;
-use sqlx::{query_as, PgPool};
-
 pub struct User {
     pub user_id: i64,
     pub is_bot: bool,
@@ -11,8 +8,8 @@ pub struct User {
 }
 
 impl User {
-    pub async fn create(pool: &PgPool, user_id: i64, is_bot: bool) -> Result<Self> {
-        query_as!(
+    pub async fn create(pool: &sqlx::PgPool, user_id: i64, is_bot: bool) -> sqlx::Result<Self> {
+        sqlx::query_as!(
             Self,
             r#"INSERT INTO users
             (user_id, is_bot)

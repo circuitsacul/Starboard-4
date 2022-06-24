@@ -1,6 +1,3 @@
-use anyhow::Result;
-use sqlx::{query, PgPool};
-
 use crate::models::StarboardSettings;
 
 pub struct Starboard {
@@ -31,12 +28,12 @@ macro_rules! starboard_from_record {
 
 impl Starboard {
     pub async fn create(
-        pool: &PgPool,
+        pool: &sqlx::PgPool,
         name: &String,
         channel_id: i64,
         guild_id: i64,
-    ) -> Result<Self> {
-        let starboard = query!(
+    ) -> sqlx::Result<Self> {
+        let starboard = sqlx::query!(
             r#"INSERT INTO STARBOARDS
             (name, channel_id, guild_id)
             VALUES ($1, $2, $3)

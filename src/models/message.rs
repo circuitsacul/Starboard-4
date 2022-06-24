@@ -1,6 +1,3 @@
-use anyhow::Result;
-use sqlx::{query_as, PgPool};
-
 pub struct Message {
     pub message_id: i64,
     pub guild_id: i64,
@@ -17,14 +14,14 @@ pub struct Message {
 
 impl Message {
     pub async fn create(
-        pool: &PgPool,
+        pool: &sqlx::PgPool,
         message_id: i64,
         guild_id: i64,
         channel_id: i64,
         author_id: i64,
         is_nsfw: bool,
-    ) -> Result<Self> {
-        query_as!(
+    ) -> sqlx::Result<Self> {
+        sqlx::query_as!(
             Self,
             r#"INSERT INTO messages (message_id, guild_id, channel_id,
                 author_id, is_nsfw)

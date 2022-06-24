@@ -1,6 +1,3 @@
-use anyhow::Result;
-use sqlx::{query_as, PgPool};
-
 pub struct Patron {
     pub patreon_id: String,
     pub discord_id: Option<i64>,
@@ -8,8 +5,8 @@ pub struct Patron {
 }
 
 impl Patron {
-    pub async fn create(pool: &PgPool, patreon_id: String) -> Result<Self> {
-        query_as!(
+    pub async fn create(pool: &sqlx::PgPool, patreon_id: String) -> sqlx::Result<Self> {
+        sqlx::query_as!(
             Self,
             r#"INSERT INTO patrons (patreon_id) VALUES ($1)
             RETURNING *"#,

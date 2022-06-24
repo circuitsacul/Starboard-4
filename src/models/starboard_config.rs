@@ -1,5 +1,3 @@
-use anyhow::Result;
-
 use crate::models::{OverrideField, Starboard, StarboardOverride, StarboardSettings};
 
 pub struct StarboardConfig {
@@ -59,7 +57,10 @@ macro_rules! update_from_override {
 }
 
 impl StarboardConfig {
-    pub fn new(starboard: Starboard, overrides: Vec<StarboardOverride>) -> Result<Self> {
+    pub fn new(
+        starboard: Starboard,
+        overrides: Vec<StarboardOverride>,
+    ) -> serde_json::Result<Self> {
         let mut settings = starboard.settings.clone();
         for ov in overrides.iter() {
             update_from_override!(settings, ov.get_overrides()?)

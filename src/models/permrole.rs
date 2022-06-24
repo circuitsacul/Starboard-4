@@ -1,6 +1,3 @@
-use anyhow::Result;
-use sqlx::{query_as, PgPool};
-
 pub struct PermRole {
     pub role_id: i64,
     pub guild_id: i64,
@@ -11,8 +8,8 @@ pub struct PermRole {
 }
 
 impl PermRole {
-    pub async fn create(pool: &PgPool, role_id: i64, guild_id: i64) -> Result<Self> {
-        query_as!(
+    pub async fn create(pool: &sqlx::PgPool, role_id: i64, guild_id: i64) -> sqlx::Result<Self> {
+        sqlx::query_as!(
             Self,
             r#"INSERT INTO permroles
             (role_id, guild_id)

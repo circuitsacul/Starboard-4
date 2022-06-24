@@ -1,7 +1,3 @@
-use anyhow::Result;
-
-use sqlx::{query_as, PgPool};
-
 pub struct AutoStarChannel {
     /// serial
     pub id: i32,
@@ -20,12 +16,12 @@ pub struct AutoStarChannel {
 
 impl AutoStarChannel {
     pub async fn create(
-        pool: &PgPool,
+        pool: &sqlx::PgPool,
         name: &String,
         channel_id: i64,
         guild_id: i64,
-    ) -> Result<Self> {
-        query_as!(
+    ) -> sqlx::Result<Self> {
+        sqlx::query_as!(
             Self,
             r#"INSERT INTO aschannels
                 (name, channel_id, guild_id)

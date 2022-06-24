@@ -1,6 +1,3 @@
-use anyhow::Result;
-use sqlx::{query_as, PgPool};
-
 pub struct Vote {
     pub message_id: i64,
     pub starboard_id: i32,
@@ -12,14 +9,14 @@ pub struct Vote {
 
 impl Vote {
     pub async fn create(
-        pool: &PgPool,
+        pool: &sqlx::PgPool,
         message_id: i64,
         starboard_id: i32,
         user_id: i64,
         target_author_id: i64,
         is_downvote: bool,
-    ) -> Result<Self> {
-        query_as!(
+    ) -> sqlx::Result<Self> {
+        sqlx::query_as!(
             Self,
             r#"INSERT INTO VOTES
             (message_id, starboard_id, user_id,

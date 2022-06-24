@@ -1,6 +1,4 @@
-use anyhow::Result;
 use chrono::{DateTime, Utc};
-use sqlx::{query_as, PgPool};
 
 pub struct Guild {
     pub guild_id: i64,
@@ -8,8 +6,8 @@ pub struct Guild {
 }
 
 impl Guild {
-    pub async fn create(pool: &PgPool, guild_id: i64) -> Result<Self> {
-        query_as!(
+    pub async fn create(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Self> {
+        sqlx::query_as!(
             Self,
             "INSERT INTO guilds (guild_id) VALUES ($1) RETURNING *",
             guild_id

@@ -1,14 +1,11 @@
-use anyhow::Result;
-use sqlx::{query_as, PgPool};
-
 pub struct PosRoleMember {
     pub role_id: i64,
     pub user_id: i64,
 }
 
 impl PosRoleMember {
-    pub async fn create(pool: &PgPool, role_id: i64, user_id: i64) -> Result<Self> {
-        query_as!(
+    pub async fn create(pool: &sqlx::PgPool, role_id: i64, user_id: i64) -> sqlx::Result<Self> {
+        sqlx::query_as!(
             Self,
             r#"INSERT INTO posrole_members
             (role_id, user_id)
