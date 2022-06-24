@@ -23,10 +23,8 @@ pub enum AutoStar {
 impl AutoStar {
     pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
         match self {
-            Self::Create(cmd) => cmd.callback(ctx).await?,
-            Self::Delete(cmd) => cmd.callback(ctx).await?,
+            Self::Create(cmd) => cmd.callback(ctx).await,
+            Self::Delete(cmd) => cmd.callback(ctx).await,
         }
-
-        Ok(())
     }
 }
