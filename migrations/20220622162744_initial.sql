@@ -155,7 +155,7 @@ CREATE TABLE permrole_starboards (
     PRIMARY KEY (permrole_id, starboard_id)
 );
 
-CREATE TABLE aschannels (
+CREATE TABLE autostar_channels (
     id SERIAL NOT NULL,
     name TEXT NOT NULL,
     channel_id BIGINT NOT NULL,
@@ -289,8 +289,8 @@ CREATE TABLE votes (
 
 -- indexes
 CREATE INDEX _btree_index_patrons__discord_id ON patrons USING BTREE ((discord_id));
-CREATE INDEX _btree_index_aschannels__guild_id_name ON aschannels USING BTREE ((guild_id), (name));
-CREATE INDEX _btree_index_aschannels__channel_id ON aschannels USING BTREE ((channel_id));
+CREATE INDEX _btree_index_aschannels__guild_id_name ON autostar_channels USING BTREE ((guild_id), (name));
+CREATE INDEX _btree_index_aschannels__channel_id ON autostar_channels USING BTREE ((channel_id));
 CREATE INDEX _btree_index_guilds__premium_end ON guilds USING BTREE ((premium_end));
 CREATE INDEX _btree_index_members__guild_id ON members USING BTREE ((guild_id));
 CREATE INDEX _btree_index_members__autoredeem_enabled ON members USING BTREE ((autoredeem_enabled));

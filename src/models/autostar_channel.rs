@@ -23,7 +23,7 @@ impl AutoStarChannel {
     ) -> sqlx::Result<Self> {
         sqlx::query_as!(
             Self,
-            r#"INSERT INTO aschannels
+            r#"INSERT INTO autostar_channels
                 (name, channel_id, guild_id)
                 VALUES ($1, $2, $3)
                 RETURNING *"#,
