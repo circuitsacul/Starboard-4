@@ -1,9 +1,9 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::get_guild_id;
 use crate::interactions::commands::context::CommandCtx;
 use crate::models::AutoStarChannel;
 use crate::utils::embed;
+use crate::{concat_format, get_guild_id};
 
 #[derive(CreateCommand, CommandModel)]
 #[command(name = "view", desc = "View your autostar channels.")]
@@ -20,10 +20,21 @@ impl ViewAutoStarChannels {
             let asc = AutoStarChannel::get_by_name(&ctx.bot.pool, name, guild_id).await?;
 
             if let Some(asc) = asc {
-                let resp = ctx
-                    .build_resp()
-                    .embeds([embed::build().description(format!("{:#?}", asc)).build()])
+                let asc_settings = concat_format!(
+                    "channel: <#{}>\n" <- asc.channel_id;
+                    "emojis: {:?}\n" <- asc.emojis;
+                    "min-chars: {}\n" <- asc.min_chars;
+                    "max-chars: {}\n" <- asc.max_chars.map(|v| v.to_string()).unwrap_or("none".to_string());
+                    "require-image: {}\n" <- asc.require_image;
+                    "delete-invalid: {}" <- asc.delete_invalid;
+                );
+
+                let emb = embed::build()
+                    .title(format!("Autostar Channel '{name}'"))
+                    .description(asc_settings)
                     .build();
+
+                let resp = ctx.build_resp().embeds([emb]).build();
 
                 ctx.respond(resp).await?;
             } else {
@@ -39,10 +50,12 @@ impl ViewAutoStarChannels {
                 return Ok(());
             }
 
-            let resp = ctx
-                .build_resp()
-                .embeds([embed::build().description(format!("{:#?}", asc)).build()])
-                .build();
+            let mut desc = String::new();
+            for a in asc.iter() {
+                desc.push_str(&format!("'{}' in <#{}>: {:?}\n", a.name, a.channel_id, a.emojis));
+            }
+            let emb = embed::build().title("Autostar Channels").description(desc).build();
+            let resp = ctx.build_resp().embeds([emb]).build();
 
             ctx.respond(resp).await?;
         }

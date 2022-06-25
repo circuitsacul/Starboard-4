@@ -1,10 +1,10 @@
 pub mod client;
+pub mod constants;
 pub mod events;
 pub mod interactions;
 pub mod macros;
 pub mod models;
 pub mod utils;
-pub mod constants;
 
 use tokio::main;
 
