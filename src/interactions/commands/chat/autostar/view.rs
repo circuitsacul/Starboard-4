@@ -52,9 +52,15 @@ impl ViewAutoStarChannels {
 
             let mut desc = String::new();
             for a in asc.iter() {
-                desc.push_str(&format!("'{}' in <#{}>: {:?}\n", a.name, a.channel_id, a.emojis));
+                desc.push_str(&format!(
+                    "'{}' in <#{}>: {:?}\n",
+                    a.name, a.channel_id, a.emojis
+                ));
             }
-            let emb = embed::build().title("Autostar Channels").description(desc).build();
+            let emb = embed::build()
+                .title("Autostar Channels")
+                .description(desc)
+                .build();
             let resp = ctx.build_resp().embeds([emb]).build();
 
             ctx.respond(resp).await?;

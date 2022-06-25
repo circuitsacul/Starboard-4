@@ -3,8 +3,7 @@ use std::env;
 
 pub struct Config {
     pub token: String,
-    pub shards_per_cluster: u64,
-    pub total_clusters: u64,
+    pub shards: u64,
     pub db_url: String,
     pub error_channel: Option<u64>,
 }
@@ -16,8 +15,10 @@ impl Config {
             Err(why) => eprintln!("Failed to load .env: {}", why),
         };
         let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set");
-        let shards_per_cluster = env::var("SHARDS_PER_CLUSTER").unwrap_or("1".to_string());
-        let total_clusters = env::var("TOTAL_CLUSTERS").unwrap_or("1".to_string());
+        let shards = env::var("SHARDS_PER_CLUSTER")
+            .unwrap_or("1".to_string())
+            .parse()
+            .unwrap();
         let db_url = env::var("DATABASE_URL").expect("No database url specified.");
         let error_channel = env::var("ERROR_CHANNEL_ID")
             .ok()
@@ -25,8 +26,7 @@ impl Config {
 
         Config {
             token,
-            shards_per_cluster: shards_per_cluster.parse().unwrap(),
-            total_clusters: total_clusters.parse().unwrap(),
+            shards,
             db_url,
             error_channel,
         }

@@ -31,10 +31,7 @@ impl Debug for StarboardBot {
 impl StarboardBot {
     pub async fn new(config: Config) -> anyhow::Result<(Events, StarboardBot)> {
         // Setup gateway connection
-        let scheme = ShardScheme::try_from((
-            0..config.shards_per_cluster,
-            config.shards_per_cluster * config.total_clusters,
-        ))?;
+        let scheme = ShardScheme::try_from((0..config.shards, config.shards))?;
         let intents = Intents::GUILDS
             | Intents::GUILD_MEMBERS
             | Intents::GUILD_MESSAGES
