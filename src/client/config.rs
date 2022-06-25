@@ -15,7 +15,7 @@ impl Config {
             Err(why) => eprintln!("Failed to load .env: {}", why),
         };
         let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set");
-        let shards = env::var("SHARDS_PER_CLUSTER")
+        let shards = env::var("SHARDS")
             .unwrap_or("1".to_string())
             .parse()
             .unwrap();
