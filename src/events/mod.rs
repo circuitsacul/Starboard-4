@@ -15,9 +15,14 @@ async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBo
     let clone = Arc::clone(&bot);
     let ret = match event {
         Event::InteractionCreate(int) => handle_interaction(shard_id, int.0, clone).await,
+        Event::ShardConnected(event) => Ok(println!("Shard {} connected.", event.shard_id)),
         Event::Ready(info) => {
-            bot.application.write().await.replace(info.application);
-            post_commands(clone).await
+            if bot.application.read().await.is_none() {
+                bot.application.write().await.replace(info.application);
+                post_commands(clone).await
+            } else {
+                Ok(())
+            }
         }
         _ => Ok(()),
     };
