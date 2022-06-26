@@ -72,6 +72,24 @@ impl AutoStarChannel {
         .await
     }
 
+    pub async fn rename(
+        pool: &sqlx::PgPool,
+        name: &String,
+        guild_id: i64,
+        new_name: &String,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "UPDATE autostar_channels SET name=$1 WHERE name=$2 AND guild_id=$3
+            RETURNING *",
+            new_name,
+            name,
+            guild_id,
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
     pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,

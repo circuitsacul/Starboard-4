@@ -1,5 +1,6 @@
 pub mod create;
 pub mod delete;
+pub mod rename;
 pub mod set_emojis;
 pub mod view;
 
@@ -24,6 +25,8 @@ pub enum AutoStar {
     View(view::ViewAutoStarChannels),
     #[command(name = "set-emojis")]
     SetEmojis(set_emojis::SetAutostarEmojis),
+    #[command(name = "rename")]
+    Rename(rename::RenameAutoStarChannel),
 }
 
 impl AutoStar {
@@ -33,6 +36,7 @@ impl AutoStar {
             Self::Delete(cmd) => cmd.callback(ctx).await,
             Self::View(cmd) => cmd.callback(ctx).await,
             Self::SetEmojis(cmd) => cmd.callback(ctx).await,
+            Self::Rename(cmd) => cmd.callback(ctx).await,
         }
     }
 }
