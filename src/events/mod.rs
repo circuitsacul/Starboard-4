@@ -3,6 +3,7 @@ use std::sync::Arc;
 use twilight_gateway::Event;
 
 use crate::client::bot::StarboardBot;
+use crate::core;
 use crate::interactions::commands::register::post_commands;
 use crate::interactions::handle::handle_interaction;
 
@@ -24,6 +25,7 @@ async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBo
                 Ok(())
             }
         }
+        Event::MessageCreate(event) => core::autostar::handle(clone, event).await,
         _ => Ok(()),
     };
 

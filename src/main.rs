@@ -1,5 +1,6 @@
 pub mod client;
 pub mod constants;
+pub mod core;
 pub mod events;
 pub mod interactions;
 pub mod macros;

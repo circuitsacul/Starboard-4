@@ -83,6 +83,16 @@ impl AutoStarChannel {
         .await
     }
 
+    pub async fn list_by_channel(pool: &sqlx::PgPool, channel_id: i64) -> sqlx::Result<Vec<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM autostar_channels WHERE channel_id = $1",
+            channel_id,
+        )
+        .fetch_all(pool)
+        .await
+    }
+
     pub async fn get_by_name(
         pool: &sqlx::PgPool,
         name: &String,

@@ -1,6 +1,7 @@
 use std::{str::FromStr, sync::Arc};
 
 use async_trait::async_trait;
+use twilight_http::request::channel::reaction::RequestReactionType;
 use twilight_mention::Mention;
 use twilight_model::id::{marker::EmojiMarker, Id};
 
@@ -28,11 +29,14 @@ pub trait EmojiCommon: Sized {
 }
 
 impl SimpleEmoji {
-    pub fn into_reactable(self) -> String {
+    pub fn reactable<'a>(&'a self) -> RequestReactionType<'a> {
         if self.is_custom {
-            format!("name:{}", self.raw)
+            RequestReactionType::Custom {
+                name: None,
+                id: self.as_id.unwrap(),
+            }
         } else {
-            self.raw
+            RequestReactionType::Unicode { name: &self.raw }
         }
     }
 }
