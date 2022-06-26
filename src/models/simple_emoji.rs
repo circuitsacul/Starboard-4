@@ -23,6 +23,7 @@ pub trait EmojiCommon: Sized {
         bot: &Arc<StarboardBot>,
         guild_id: i64,
     ) -> Self::FromOut;
+    fn into_stored(self) -> Self::Stored;
     fn from_stored(stored: Self::Stored) -> Self;
 }
 
@@ -69,6 +70,10 @@ impl EmojiCommon for SimpleEmoji {
             raw,
             as_id,
         }
+    }
+
+    fn into_stored(self) -> String {
+        self.raw
     }
 
     async fn from_user_input(
@@ -126,6 +131,14 @@ impl EmojiCommon for Vec<SimpleEmoji> {
         let mut arr = Vec::new();
         for piece in stored.into_iter() {
             arr.push(SimpleEmoji::from_stored(piece));
+        }
+        arr
+    }
+
+    fn into_stored(self) -> Vec<String> {
+        let mut arr = Vec::new();
+        for emoji in self {
+            arr.push(emoji.into_stored());
         }
         arr
     }

@@ -1,3 +1,5 @@
+use crate::models::{simple_emoji::EmojiCommon, SimpleEmoji};
+
 #[derive(Debug)]
 pub struct AutoStarChannel {
     /// serial
@@ -49,6 +51,24 @@ impl AutoStarChannel {
             guild_id,
         )
         .execute(pool)
+        .await
+    }
+
+    pub async fn set_emojis(
+        pool: &sqlx::PgPool,
+        name: &String,
+        guild_id: i64,
+        emojis: Vec<SimpleEmoji>,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "UPDATE autostar_channels SET emojis=$1 WHERE name=$2 AND guild_id=$3
+            RETURNING *",
+            &emojis.into_stored(),
+            name,
+            guild_id,
+        )
+        .fetch_optional(pool)
         .await
     }
 

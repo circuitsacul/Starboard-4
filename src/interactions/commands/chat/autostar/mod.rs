@@ -1,5 +1,6 @@
 pub mod create;
 pub mod delete;
+pub mod set_emojis;
 pub mod view;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
@@ -21,6 +22,8 @@ pub enum AutoStar {
     Delete(delete::DeleteAutoStarChannel),
     #[command(name = "view")]
     View(view::ViewAutoStarChannels),
+    #[command(name = "set-emojis")]
+    SetEmojis(set_emojis::SetAutostarEmojis),
 }
 
 impl AutoStar {
@@ -29,6 +32,7 @@ impl AutoStar {
             Self::Create(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
             Self::View(cmd) => cmd.callback(ctx).await,
+            Self::SetEmojis(cmd) => cmd.callback(ctx).await,
         }
     }
 }
