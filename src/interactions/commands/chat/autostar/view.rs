@@ -1,7 +1,8 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::interactions::commands::context::CommandCtx;
-use crate::models::AutoStarChannel;
+use crate::models::simple_emoji::EmojiIntoReadable;
+use crate::models::{AutoStarChannel, SimpleEmoji};
 use crate::utils::embed;
 use crate::{concat_format, get_guild_id};
 
@@ -22,7 +23,7 @@ impl ViewAutoStarChannels {
             if let Some(asc) = asc {
                 let asc_settings = concat_format!(
                     "channel: <#{}>\n" <- asc.channel_id;
-                    "emojis: {:?}\n" <- asc.emojis;
+                    "emojis: {}\n" <- Vec::<SimpleEmoji>::from_stored(asc.emojis).into_readable(&ctx.bot).await;
                     "min-chars: {}\n" <- asc.min_chars;
                     "max-chars: {}\n" <- asc.max_chars.map(|v| v.to_string()).unwrap_or("none".to_string());
                     "require-image: {}\n" <- asc.require_image;
@@ -51,10 +52,14 @@ impl ViewAutoStarChannels {
             }
 
             let mut desc = String::new();
-            for a in asc.iter() {
+            for a in asc.into_iter() {
                 desc.push_str(&format!(
-                    "'{}' in <#{}>: {:?}\n",
-                    a.name, a.channel_id, a.emojis
+                    "'{}' in <#{}>: {}\n",
+                    a.name,
+                    a.channel_id,
+                    Vec::<SimpleEmoji>::from_stored(a.emojis)
+                        .into_readable(&ctx.bot)
+                        .await
                 ));
             }
             let emb = embed::build()
