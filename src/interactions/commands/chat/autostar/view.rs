@@ -1,8 +1,8 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
+use crate::core::emoji::{EmojiCommon, SimpleEmoji};
 use crate::interactions::commands::context::CommandCtx;
-use crate::models::simple_emoji::EmojiCommon;
-use crate::models::{AutoStarChannel, SimpleEmoji};
+use crate::models::AutoStarChannel;
 use crate::utils::embed;
 use crate::{concat_format, get_guild_id};
 

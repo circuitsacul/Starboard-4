@@ -1,9 +1,10 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
+    core::emoji::{EmojiCommon, SimpleEmoji},
     get_guild_id,
     interactions::commands::context::CommandCtx,
-    models::{simple_emoji::EmojiCommon, AutoStarChannel, SimpleEmoji},
+    models::AutoStarChannel,
 };
 
 #[derive(CommandModel, CreateCommand)]

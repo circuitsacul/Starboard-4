@@ -1,4 +1,4 @@
-use crate::models::{simple_emoji::EmojiCommon, SimpleEmoji};
+use crate::core::emoji::{EmojiCommon, SimpleEmoji};
 
 #[derive(Debug)]
 pub struct AutoStarChannel {

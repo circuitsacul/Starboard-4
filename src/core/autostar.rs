@@ -4,7 +4,8 @@ use twilight_model::gateway::payload::incoming::MessageCreate;
 
 use crate::{
     client::bot::StarboardBot,
-    models::{simple_emoji::EmojiCommon, AutoStarChannel, SimpleEmoji},
+    core::emoji::{EmojiCommon, SimpleEmoji},
+    models::AutoStarChannel,
     unwrap_id,
 };
 
