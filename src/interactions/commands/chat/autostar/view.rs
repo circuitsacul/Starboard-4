@@ -23,7 +23,7 @@ impl ViewAutoStarChannels {
             if let Some(asc) = asc {
                 let asc_settings = concat_format!(
                     "channel: <#{}>\n" <- asc.channel_id;
-                    "emojis: {}\n" <- Vec::<SimpleEmoji>::from_stored(asc.emojis).into_readable(&ctx.bot).await;
+                    "emojis: {}\n" <- Vec::<SimpleEmoji>::from_stored(asc.emojis).into_readable(&ctx.bot, guild_id).await;
                     "min-chars: {}\n" <- asc.min_chars;
                     "max-chars: {}\n" <- asc.max_chars.map(|v| v.to_string()).unwrap_or("none".to_string());
                     "require-image: {}\n" <- asc.require_image;
@@ -58,7 +58,7 @@ impl ViewAutoStarChannels {
                     a.name,
                     a.channel_id,
                     Vec::<SimpleEmoji>::from_stored(a.emojis)
-                        .into_readable(&ctx.bot)
+                        .into_readable(&ctx.bot, guild_id)
                         .await
                 ));
             }
