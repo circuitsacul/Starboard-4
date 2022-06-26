@@ -43,14 +43,16 @@ impl AutoStarChannel {
         pool: &sqlx::PgPool,
         name: &String,
         guild_id: i64,
-    ) -> sqlx::Result<sqlx::postgres::PgQueryResult> {
-        sqlx::query!(
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
             "DELETE FROM autostar_channels
-            WHERE name=$1 AND guild_id=$2",
+            WHERE name=$1 AND guild_id=$2
+            RETURNING *",
             name,
             guild_id,
         )
-        .execute(pool)
+        .fetch_optional(pool)
         .await
     }
 

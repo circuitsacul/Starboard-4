@@ -15,7 +15,7 @@ impl DeleteAutoStarChannel {
     pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
         let ret = AutoStarChannel::delete(&ctx.bot.pool, &self.name, guild_id).await?;
-        if ret.rows_affected() == 0 {
+        if ret.is_none() {
             ctx.respond_str("No autostar channel with that name was found.", true)
                 .await?;
         } else {
