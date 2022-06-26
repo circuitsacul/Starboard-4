@@ -1,4 +1,4 @@
-// Attempt to create & return a model, otherwise return None
+/// Maps a duplicate error into a None value.
 #[macro_export]
 macro_rules! map_dup_none {
     ($future: expr) => {{
