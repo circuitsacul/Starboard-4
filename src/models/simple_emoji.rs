@@ -13,7 +13,7 @@ pub struct SimpleEmoji {
 }
 
 #[async_trait]
-pub trait EmojiIntoReadable: Sized {
+pub trait EmojiCommon: Sized {
     type FromOut;
     type Stored;
 
@@ -33,7 +33,7 @@ impl SimpleEmoji {
 }
 
 #[async_trait]
-impl EmojiIntoReadable for SimpleEmoji {
+impl EmojiCommon for SimpleEmoji {
     type FromOut = Option<Self>;
     type Stored = String;
 
@@ -81,7 +81,7 @@ impl EmojiIntoReadable for SimpleEmoji {
 }
 
 #[async_trait]
-impl EmojiIntoReadable for Vec<SimpleEmoji> {
+impl EmojiCommon for Vec<SimpleEmoji> {
     type FromOut = Self;
     type Stored = Vec<String>;
 
