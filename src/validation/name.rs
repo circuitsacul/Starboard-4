@@ -10,6 +10,7 @@ pub fn validate_name(name: &String) -> Result<String, String> {
 
     let filtered: String = name
         .replace(" ", "-")
+        .to_ascii_lowercase()
         .chars()
         .filter(|c| constants::VALID_NAME_CHARS.contains(c))
         .collect();
