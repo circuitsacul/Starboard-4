@@ -37,16 +37,28 @@ impl RenameAutoStarChannel {
 
         match ret {
             None => {
-                ctx.respond_str("An autostar channel with that name already exists.", true)
-                    .await?
+                ctx.respond_str(
+                    &format!(
+                        "An autostar channel with the name '{}' already exists.",
+                        new_name
+                    ),
+                    true,
+                )
+                .await?
             }
             Some(None) => {
                 ctx.respond_str("No autostar channel with that name was found.", true)
                     .await?
             }
             Some(Some(_)) => {
-                ctx.respond_str("Renamed the autostar channel.", false)
-                    .await?
+                ctx.respond_str(
+                    &format!(
+                        "Renamed the autostar channel from '{}' to '{}'.",
+                        self.current_name, new_name
+                    ),
+                    false,
+                )
+                .await?
             }
         };
 
