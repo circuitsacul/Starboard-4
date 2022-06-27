@@ -3,7 +3,7 @@ use twilight_model::application::interaction::application_command::InteractionCh
 
 use crate::interactions::commands::context::CommandCtx;
 use crate::models::{AutoStarChannel, Guild};
-use crate::{get_guild_id, map_dup_none, unwrap_id};
+use crate::{get_guild_id, map_dup_none, unwrap_id, validation};
 
 #[derive(CommandModel, CreateCommand)]
 #[command(name = "create", desc = "Create an autostar channel.")]
@@ -19,12 +19,19 @@ impl CreateAutoStarChannel {
     pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
         map_dup_none!(Guild::create(&ctx.bot.pool, guild_id))?;
-
         let channel_id = unwrap_id!(self.channel.id);
+
+        let name = match validation::name::validate_name(&self.name) {
+            Err(why) => {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
+            Ok(name) => name,
+        };
 
         let ret = map_dup_none!(AutoStarChannel::create(
             &ctx.bot.pool,
-            &self.name,
+            &name,
             channel_id,
             guild_id
         ))?;
@@ -34,10 +41,7 @@ impl CreateAutoStarChannel {
                 .await?;
         } else {
             ctx.respond_str(
-                &format!(
-                    "Created autostar channel '{}' in <#{}>.",
-                    self.name, channel_id
-                ),
+                &format!("Created autostar channel '{}' in <#{}>.", name, channel_id),
                 false,
             )
             .await?;

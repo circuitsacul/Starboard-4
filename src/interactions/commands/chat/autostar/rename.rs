@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     get_guild_id, interactions::commands::context::CommandCtx, map_dup_none,
-    models::AutoStarChannel,
+    models::AutoStarChannel, validation,
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -20,11 +20,19 @@ impl RenameAutoStarChannel {
     pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
 
+        let new_name = match validation::name::validate_name(&self.new_name) {
+            Err(why) => {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
+            Ok(name) => name,
+        };
+
         let ret = map_dup_none!(AutoStarChannel::rename(
             &ctx.bot.pool,
             &self.current_name,
             guild_id,
-            &self.new_name
+            &new_name
         ))?;
 
         match ret {
