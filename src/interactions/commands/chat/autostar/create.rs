@@ -46,6 +46,8 @@ impl CreateAutoStarChannel {
             )
             .await?;
         } else {
+            ctx.bot.autostar_channel_ids.insert(self.channel.id);
+
             ctx.respond_str(
                 &format!("Created autostar channel '{}' in <#{}>.", name, channel_id),
                 false,

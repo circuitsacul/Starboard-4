@@ -10,17 +10,28 @@ use crate::{
 };
 
 pub async fn handle(bot: Arc<StarboardBot>, event: Box<MessageCreate>) -> anyhow::Result<()> {
-    let guild_id: i64 = match event.guild_id {
-        None => return Ok(()),
-        Some(guild_id) => unwrap_id!(guild_id),
-    };
-    let channel_id = unwrap_id!(event.channel_id);
+    // Ignore DMs
+    if event.guild_id.is_none() {
+        return Ok(());
+    }
 
-    // TODO cache autostar channels per-guild
-    let asc = AutoStarChannel::list_by_channel(&bot.pool, channel_id).await?;
+    // Check the cache...
+    if !bot.autostar_channel_ids.contains(&event.channel_id) {
+        return Ok(());
+    }
 
-    // TODO handle settings
+    // Fetch the autostar channels
+    let asc = AutoStarChannel::list_by_channel(&bot.pool, unwrap_id!(event.channel_id)).await?;
+
+    // If none, remove the channel id from the cache
+    if asc.len() == 0 {
+        bot.autostar_channel_ids.remove(&event.channel_id);
+        return Ok(());
+    }
+
+    // Handle the autostar channels
     for a in asc.into_iter() {
+        // TODO handle settings
         for emoji in Vec::<SimpleEmoji>::from_stored(a.emojis) {
             let _ = bot
                 .http
@@ -29,5 +40,6 @@ pub async fn handle(bot: Arc<StarboardBot>, event: Box<MessageCreate>) -> anyhow
                 .await;
         }
     }
+
     Ok(())
 }

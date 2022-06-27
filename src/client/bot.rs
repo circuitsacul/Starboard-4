@@ -9,7 +9,10 @@ use twilight_gateway::{
     Intents,
 };
 use twilight_http::client::{Client as HttpClient, InteractionClient};
-use twilight_model::oauth::PartialApplication;
+use twilight_model::{
+    id::{marker::ChannelMarker, Id},
+    oauth::PartialApplication,
+};
 
 use crate::client::config::Config;
 
@@ -20,6 +23,7 @@ pub struct StarboardBot {
     pub application: RwLock<Option<PartialApplication>>,
     pub pool: PgPool,
     pub errors: ErrorHandler,
+    pub autostar_channel_ids: dashmap::DashSet<Id<ChannelMarker>>,
 }
 
 impl Debug for StarboardBot {
@@ -71,6 +75,18 @@ impl StarboardBot {
             errors.channel(channel_id.try_into().unwrap());
         }
 
+        // load autostar channels
+        let asc: Vec<_> = sqlx::query!("SELECT channel_id FROM autostar_channels")
+            .fetch_all(&pool)
+            .await?
+            .into_iter()
+            .map(|rec| Id::<ChannelMarker>::new(rec.channel_id as u64))
+            .collect();
+
+        let mut map = dashmap::DashSet::new();
+        map.extend(asc);
+
+        // Return the bot struct
         Ok((
             events,
             Self {
@@ -80,6 +96,7 @@ impl StarboardBot {
                 application: RwLock::new(None),
                 pool,
                 errors,
+                autostar_channel_ids: map,
             },
         ))
     }
