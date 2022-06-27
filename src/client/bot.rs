@@ -33,8 +33,10 @@ impl StarboardBot {
         // Setup gateway connection
         let scheme = ShardScheme::try_from((0..config.shards, config.shards))?;
         let intents = Intents::GUILDS
+            | Intents::GUILD_EMOJIS_AND_STICKERS
             | Intents::GUILD_MEMBERS
             | Intents::GUILD_MESSAGES
+            | Intents::MESSAGE_CONTENT
             | Intents::GUILD_MESSAGE_REACTIONS;
 
         let (cluster, events) = Cluster::builder(config.token.clone(), intents)
