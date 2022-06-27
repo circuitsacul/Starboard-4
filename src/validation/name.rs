@@ -12,7 +12,7 @@ pub fn validate_name(name: &String) -> Result<String, String> {
         .replace(" ", "-")
         .to_ascii_lowercase()
         .chars()
-        .filter(|c| constants::VALID_NAME_CHARS.contains(c))
+        .filter(|c| c.is_ascii_digit() || c.is_ascii_lowercase() || *c == '_' || *c == '-')
         .collect();
 
     if filtered.len() < 3 {
