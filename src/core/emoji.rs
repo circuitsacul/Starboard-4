@@ -48,7 +48,7 @@ impl EmojiCommon for SimpleEmoji {
 
     async fn into_readable(self, bot: &Arc<StarboardBot>, guild_id: i64) -> String {
         if self.is_custom {
-            match bot.cache.read().await.emoji(self.as_id.unwrap()) {
+            match bot.cache.emoji(self.as_id.unwrap()) {
                 None => self.raw,
                 Some(value) => {
                     if value.guild_id() == guild_id {
@@ -95,7 +95,7 @@ impl EmojiCommon for SimpleEmoji {
             let input: String = input.chars().filter(|c| c.is_digit(10)).collect();
             let as_id = Id::<EmojiMarker>::from_str(&input).ok()?;
 
-            match bot.cache.read().await.emoji(as_id) {
+            match bot.cache.emoji(as_id) {
                 None => return None,
                 Some(cached) => {
                     if cached.guild_id() == guild_id {

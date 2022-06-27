@@ -16,7 +16,7 @@ use crate::client::config::Config;
 pub struct StarboardBot {
     pub cluster: Cluster,
     pub http: HttpClient,
-    pub cache: RwLock<InMemoryCache>,
+    pub cache: InMemoryCache,
     pub application: RwLock<Option<PartialApplication>>,
     pub pool: PgPool,
     pub errors: ErrorHandler,
@@ -76,7 +76,7 @@ impl StarboardBot {
             Self {
                 cluster,
                 http,
-                cache: RwLock::new(cache),
+                cache,
                 application: RwLock::new(None),
                 pool,
                 errors,

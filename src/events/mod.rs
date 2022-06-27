@@ -8,7 +8,7 @@ use crate::interactions::commands::register::post_commands;
 use crate::interactions::handle::handle_interaction;
 
 pub async fn handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBot>) {
-    bot.cache.write().await.update(&event);
+    bot.cache.update(&event);
     tokio::spawn(internal_handle_event(shard_id, event, bot));
 }
 
