@@ -1,3 +1,5 @@
+use crate::models::helpers::settings::starboard::call_with_starboard_settings;
+use crate::models::starboard_settings::generate_settings;
 use crate::models::StarboardSettings;
 
 #[derive(Debug)]
@@ -22,7 +24,7 @@ macro_rules! starboard_from_record {
             guild_id: $record.guild_id,
             webhook_id: $record.webhook_id,
             premium_locked: $record.premium_locked,
-            settings: generate_settings!($record),
+            settings: call_with_starboard_settings!(generate_settings, $record),
         }
     };
 }
