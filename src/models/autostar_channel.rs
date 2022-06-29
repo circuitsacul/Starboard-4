@@ -141,34 +141,26 @@ impl UpdateAutoStarChannel {
         self.emojis = Some(emojis);
     }
 
-    pub fn set_min_chars(&mut self, value: i16) -> anyhow::Result<()> {
+    pub fn set_min_chars(&mut self, value: i16) {
         if value as u16 > constants::MAX_MIN_CHARS {
-            anyhow::bail!(format!(
-                "min-chars cannot be greater than {}.",
-                constants::MAX_MIN_CHARS
-            ));
+            panic!("Received min-chars that was greater than maxium.");
         } else if value < 0 {
-            anyhow::bail!("min-chars cannot be less than 0.".to_string())
+            panic!("Received min-chars that was less than 0.");
         }
 
         self.min_chars = Some(value);
-        Ok(())
     }
 
-    pub fn set_max_chars(&mut self, value: Option<i16>) -> anyhow::Result<()> {
+    pub fn set_max_chars(&mut self, value: Option<i16>) {
         if let Some(value) = value {
             if value as u16 > constants::MAX_MAX_CHARS {
-                anyhow::bail!(format!(
-                    "max-chars cannot be greater than {}.",
-                    constants::MAX_MAX_CHARS
-                ));
+                panic!("Received max-chars that was greater than maximum.");
             } else if value < 0 {
-                anyhow::bail!("max-chars cannot be less than 0.".to_string());
+                panic!("Recieved max-chars that was less than 0.");
             }
         }
 
         self.max_chars = Some(value);
-        Ok(())
     }
 
     pub fn set_require_image(&mut self, value: bool) {
