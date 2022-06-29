@@ -1,6 +1,9 @@
-use crate::core::emoji::{EmojiCommon, SimpleEmoji};
+use sqlx::FromRow;
 
-#[derive(Debug)]
+use super::helpers::query::build_update::build_update;
+use super::helpers::settings::autostar::call_with_autostar_settings;
+
+#[derive(Debug, FromRow)]
 pub struct AutoStarChannel {
     /// serial
     pub id: i32,
@@ -56,22 +59,8 @@ impl AutoStarChannel {
         .await
     }
 
-    pub async fn set_emojis(
-        pool: &sqlx::PgPool,
-        name: &String,
-        guild_id: i64,
-        emojis: Vec<SimpleEmoji>,
-    ) -> sqlx::Result<Option<Self>> {
-        sqlx::query_as!(
-            Self,
-            "UPDATE autostar_channels SET emojis=$1 WHERE name=$2 AND guild_id=$3
-            RETURNING *",
-            &emojis.into_stored(),
-            name,
-            guild_id,
-        )
-        .fetch_optional(pool)
-        .await
+    pub fn edit_settings() -> UpdateAutoStarChannel {
+        UpdateAutoStarChannel::new()
     }
 
     pub async fn rename(
@@ -127,5 +116,67 @@ impl AutoStarChannel {
         )
         .fetch_optional(pool)
         .await
+    }
+}
+
+#[derive(Default)]
+pub struct UpdateAutoStarChannel {
+    emojis: Option<Vec<String>>,
+    min_chars: Option<i16>,
+    max_chars: Option<Option<i16>>,
+    require_image: Option<bool>,
+    delete_invalid: Option<bool>,
+}
+
+impl UpdateAutoStarChannel {
+    fn new() -> Self {
+        Self {
+            ..Default::default()
+        }
+    }
+
+    pub fn set_emojis(&mut self, emojis: Vec<String>) {
+        self.emojis = Some(emojis);
+    }
+
+    pub fn set_min_chars(&mut self, value: i16) {
+        self.min_chars = Some(value);
+    }
+
+    pub fn set_max_chars(&mut self, value: Option<i16>) {
+        self.max_chars = Some(value);
+    }
+
+    pub fn set_require_image(&mut self, value: bool) {
+        self.require_image = Some(value);
+    }
+
+    pub fn set_delete_invalid(&mut self, value: bool) {
+        self.delete_invalid = Some(value);
+    }
+
+    pub async fn exec(
+        self,
+        pool: &sqlx::PgPool,
+        name: &String,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<AutoStarChannel>> {
+        let mut builder =
+            sqlx::QueryBuilder::<sqlx::Postgres>::new("UPDATE autostar_channels SET ");
+
+        call_with_autostar_settings!(build_update, self, builder);
+
+        builder
+            .push(" WHERE name=")
+            .push_bind(name)
+            .push(" AND guild_id=")
+            .push_bind(guild_id)
+            .push(" RETURNING *");
+
+        builder
+            .build()
+            .fetch_optional(pool)
+            .await
+            .map(|r| r.map(|r| AutoStarChannel::from_row(&r).unwrap()))
     }
 }

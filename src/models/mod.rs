@@ -3,6 +3,7 @@ pub mod starboard_settings;
 
 pub mod autostar_channel;
 pub mod guild;
+pub mod helpers;
 pub mod member;
 pub mod message;
 pub mod patron;
