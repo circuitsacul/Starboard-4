@@ -1,5 +1,7 @@
 use sqlx::FromRow;
 
+use crate::constants;
+
 use super::helpers::query::build_update::build_update;
 use super::helpers::settings::autostar::call_with_autostar_settings;
 
@@ -139,12 +141,34 @@ impl UpdateAutoStarChannel {
         self.emojis = Some(emojis);
     }
 
-    pub fn set_min_chars(&mut self, value: i16) {
+    pub fn set_min_chars(&mut self, value: i16) -> anyhow::Result<()> {
+        if value as u16 > constants::MAX_MIN_CHARS {
+            anyhow::bail!(format!(
+                "min-chars cannot be greater than {}.",
+                constants::MAX_MIN_CHARS
+            ));
+        } else if value < 0 {
+            anyhow::bail!("min-chars cannot be less than 0.".to_string())
+        }
+
         self.min_chars = Some(value);
+        Ok(())
     }
 
-    pub fn set_max_chars(&mut self, value: Option<i16>) {
+    pub fn set_max_chars(&mut self, value: Option<i16>) -> anyhow::Result<()> {
+        if let Some(value) = value {
+            if value as u16 > constants::MAX_MAX_CHARS {
+                anyhow::bail!(format!(
+                    "max-chars cannot be greater than {}.",
+                    constants::MAX_MAX_CHARS
+                ));
+            } else if value < 0 {
+                anyhow::bail!("max-chars cannot be less than 0.".to_string());
+            }
+        }
+
         self.max_chars = Some(value);
+        Ok(())
     }
 
     pub fn set_require_image(&mut self, value: bool) {

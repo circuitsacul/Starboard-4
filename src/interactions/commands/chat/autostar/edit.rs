@@ -15,10 +15,10 @@ pub struct EditAutoStar {
     /// The emojis to use. Use "none" to set to none.
     emojis: Option<String>,
     /// The minimum number of characters a message needs.
-    #[command(rename = "min-chars", min_value = 0)]
+    #[command(rename = "min-chars", min_value = 0, max_value = 5_000)]
     min_chars: Option<i64>,
     /// The maximum number of characters a message can have. Set to 0 to disable.
-    #[command(rename = "max-chars", min_value = 0)]
+    #[command(rename = "max-chars", min_value = 0, max_value = 5_000)]
     max_chars: Option<i64>,
     /// Whether or not a message must include an image.
     #[command(rename = "require-image")]
@@ -39,14 +39,14 @@ impl EditAutoStar {
             update.set_emojis(emojis.into_stored());
         }
         if let Some(val) = self.min_chars {
-            update.set_min_chars(val.try_into().unwrap());
+            update.set_min_chars(val.try_into().unwrap())?;
         }
         if let Some(val) = self.max_chars {
             update.set_max_chars(if val == 0 {
                 None
             } else {
                 Some(val.try_into().unwrap())
-            });
+            })?;
         }
         if let Some(val) = self.require_image {
             update.set_require_image(val);
