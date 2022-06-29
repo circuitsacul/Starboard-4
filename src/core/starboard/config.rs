@@ -1,4 +1,4 @@
-use crate::models::{OverrideField, Starboard, StarboardOverride, StarboardSettings};
+use crate::models::{Starboard, StarboardOverride, StarboardSettings};
 
 #[derive(Debug)]
 pub struct StarboardConfig {
@@ -12,8 +12,8 @@ macro_rules! _update_from_override {
         {
             $(
                 match $override.$field {
-                    OverrideField::Default => {},
-                    OverrideField::Value(value) => $settings.$field = value,
+                    Option::None => {},
+                    Option::Some(value) => $settings.$field = value,
                 }
             )*
         }

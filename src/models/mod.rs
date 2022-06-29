@@ -31,7 +31,7 @@ pub use posrole_member::PosRoleMember;
 pub use starboard::Starboard;
 pub use starboard_message::StarboardMessage;
 pub use starboard_override::StarboardOverride;
-pub use starboard_override_values::{OverrideField, OverrideValues};
+pub use starboard_override_values::OverrideValues;
 pub use starboard_settings::StarboardSettings;
 pub use user::User;
 pub use vote::Vote;

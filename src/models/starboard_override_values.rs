@@ -1,89 +1,68 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub enum OverrideField<T> {
-    Default,
-    Value(T),
-}
-
-impl<T> Default for OverrideField<T> {
-    fn default() -> Self {
-        Self::Default
-    }
-}
-
-impl<T> OverrideField<T> {
-    fn is_default(&self) -> bool {
-        match self {
-            Self::Default => true,
-            Self::Value(_) => false,
-        }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct OverrideValues {
     // General Style
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub display_emoji: OverrideField<Option<String>>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub ping_author: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub use_server_profile: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub extra_embeds: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub use_webhook: OverrideField<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub display_emoji: Option<Option<String>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub ping_author: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub use_server_profile: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub extra_embeds: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub use_webhook: Option<bool>,
 
     // Embed Style
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub color: OverrideField<Option<i32>>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub jump_to_message: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub attachments_list: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub replied_to: OverrideField<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub color: Option<Option<i32>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub jump_to_message: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub attachments_list: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub replied_to: Option<bool>,
 
     // Requirements
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub required: OverrideField<i16>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub required_remove: OverrideField<i16>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub upvote_emojis: OverrideField<Vec<String>>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub downvote_emojis: OverrideField<Vec<String>>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub self_vote: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub allow_bots: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub require_image: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub older_than: OverrideField<i64>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub newer_than: OverrideField<i64>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub required: Option<i16>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub required_remove: Option<i16>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub upvote_emojis: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub downvote_emojis: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub self_vote: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub allow_bots: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub require_image: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub older_than: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub newer_than: Option<i64>,
 
     // Behavior
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub enabled: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub autoreact_upvote: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub autoreact_downvote: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub remove_invalid_reactions: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub link_deletes: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub link_edits: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub xp_multiplier: OverrideField<f32>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub cooldown_enabled: OverrideField<bool>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub cooldown_count: OverrideField<i16>,
-    #[serde(skip_serializing_if = "OverrideField::is_default", default)]
-    pub cooldown_period: OverrideField<i16>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub enabled: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub autoreact_upvote: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub autoreact_downvote: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub remove_invalid_reactions: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub link_deletes: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub link_edits: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub xp_multiplier: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub cooldown_enabled: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub cooldown_count: Option<i16>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub cooldown_period: Option<i16>,
 }
