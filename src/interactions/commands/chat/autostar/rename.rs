@@ -4,7 +4,7 @@ use crate::{
     database::{validation, AutoStarChannel},
     get_guild_id,
     interactions::commands::context::CommandCtx,
-    map_dup_none,
+    map_dup_none, unwrap_id,
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -33,7 +33,7 @@ impl RenameAutoStarChannel {
         let ret = map_dup_none!(AutoStarChannel::rename(
             &ctx.bot.pool,
             &self.current_name,
-            guild_id,
+            unwrap_id!(guild_id),
             &new_name
         ))?;
 

@@ -9,7 +9,7 @@ macro_rules! get_guild_id {
                     .await?;
                 return Ok(());
             }
-            Some(value) => value.get().try_into().unwrap(),
+            Some(value) => value,
         }
     };
 }

@@ -2,7 +2,6 @@ use std::{fmt::Debug, sync::Arc};
 
 use sqlx::PgPool;
 use tokio::sync::RwLock;
-use twilight_cache_inmemory::{InMemoryCache, ResourceType};
 use twilight_error::ErrorHandler;
 use twilight_gateway::{
     cluster::{Cluster, Events, ShardScheme},
@@ -14,17 +13,17 @@ use twilight_model::{
     oauth::PartialApplication,
 };
 
+use crate::cache::cache::Cache;
 use crate::client::config::Config;
 
 #[derive(Clone)]
 pub struct StarboardBot {
     pub cluster: Arc<Cluster>,
     pub http: Arc<HttpClient>,
-    pub cache: Arc<InMemoryCache>,
+    pub cache: Cache,
     pub application: Arc<RwLock<Option<PartialApplication>>>,
     pub pool: Arc<PgPool>,
     pub errors: Arc<ErrorHandler>,
-    pub autostar_channel_ids: Arc<dashmap::DashSet<Id<ChannelMarker>>>,
 }
 
 impl Debug for StarboardBot {
@@ -52,20 +51,6 @@ impl StarboardBot {
         // Setup HTTP connection
         let http = HttpClient::new(config.token.clone());
 
-        // Setup cache
-        let cache = InMemoryCache::builder()
-            .resource_types(
-                ResourceType::USER
-                    | ResourceType::USER_CURRENT
-                    | ResourceType::MEMBER
-                    | ResourceType::GUILD
-                    | ResourceType::CHANNEL
-                    | ResourceType::ROLE
-                    | ResourceType::EMOJI,
-            )
-            .message_cache_size(10_000)
-            .build();
-
         // Setup database connection
         let pool = PgPool::connect(&config.db_url).await?;
 
@@ -86,17 +71,19 @@ impl StarboardBot {
         let mut map = dashmap::DashSet::new();
         map.extend(asc);
 
+        // Setup cache
+        let cache = Cache::new(map);
+
         // Return the bot struct
         Ok((
             events,
             Self {
                 cluster: Arc::new(cluster),
                 http: Arc::new(http),
-                cache: Arc::new(cache),
+                cache: cache,
                 application: Arc::new(RwLock::new(None)),
                 pool: Arc::new(pool),
                 errors: Arc::new(errors),
-                autostar_channel_ids: Arc::new(map),
             },
         ))
     }

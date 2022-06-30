@@ -4,7 +4,7 @@ use crate::core::emoji::{EmojiCommon, SimpleEmoji};
 use crate::database::AutoStarChannel;
 use crate::interactions::commands::context::CommandCtx;
 use crate::utils::embed;
-use crate::{concat_format, get_guild_id};
+use crate::{concat_format, get_guild_id, unwrap_id};
 
 #[derive(CreateCommand, CommandModel)]
 #[command(name = "view", desc = "View your autostar channels.")]
@@ -18,7 +18,8 @@ impl ViewAutoStarChannels {
         let guild_id = get_guild_id!(ctx);
 
         if let Some(name) = &self.name {
-            let asc = AutoStarChannel::get_by_name(&ctx.bot.pool, name, guild_id).await?;
+            let asc =
+                AutoStarChannel::get_by_name(&ctx.bot.pool, name, unwrap_id!(guild_id)).await?;
 
             if let Some(asc) = asc {
                 let asc_settings = concat_format!(
@@ -43,7 +44,7 @@ impl ViewAutoStarChannels {
                     .await?;
             }
         } else {
-            let asc = AutoStarChannel::list_by_guild(&ctx.bot.pool, guild_id).await?;
+            let asc = AutoStarChannel::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
 
             if asc.len() == 0 {
                 ctx.respond_str("This server has no autostar channels.", true)
