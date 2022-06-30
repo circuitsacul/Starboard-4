@@ -1,6 +1,6 @@
-use crate::models::helpers::settings::starboard::call_with_starboard_settings;
-use crate::models::starboard_settings::generate_settings;
-use crate::models::StarboardSettings;
+use crate::database::helpers::settings::starboard::call_with_starboard_settings;
+use crate::database::models::starboard_settings::generate_settings;
+use crate::database::StarboardSettings;
 
 #[derive(Debug)]
 pub struct Starboard {

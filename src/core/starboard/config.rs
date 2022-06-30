@@ -1,5 +1,5 @@
-use crate::models::helpers::settings::overrides::call_with_override_settings;
-use crate::models::{Starboard, StarboardOverride, StarboardSettings};
+use crate::database::helpers::settings::overrides::call_with_override_settings;
+use crate::database::{Starboard, StarboardOverride, StarboardSettings};
 
 #[derive(Debug)]
 pub struct StarboardConfig {

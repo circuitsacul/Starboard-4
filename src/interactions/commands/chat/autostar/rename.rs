@@ -1,8 +1,10 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    get_guild_id, interactions::commands::context::CommandCtx, map_dup_none,
-    models::AutoStarChannel, validation,
+    database::{validation, AutoStarChannel},
+    get_guild_id,
+    interactions::commands::context::CommandCtx,
+    map_dup_none,
 };
 
 #[derive(CreateCommand, CommandModel)]

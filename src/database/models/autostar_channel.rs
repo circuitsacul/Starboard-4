@@ -2,8 +2,9 @@ use sqlx::FromRow;
 
 use crate::constants;
 
-use super::helpers::query::build_update::build_update;
-use super::helpers::settings::autostar::call_with_autostar_settings;
+use crate::database::helpers::{
+    query::build_update::build_update, settings::autostar::call_with_autostar_settings,
+};
 
 #[derive(Debug, FromRow)]
 pub struct AutoStarChannel {

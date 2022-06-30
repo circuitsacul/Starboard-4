@@ -1,9 +1,9 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::application::interaction::application_command::InteractionChannel;
 
+use crate::database::{validation, AutoStarChannel, Guild};
 use crate::interactions::commands::context::CommandCtx;
-use crate::models::{AutoStarChannel, Guild};
-use crate::{get_guild_id, map_dup_none, unwrap_id, validation};
+use crate::{get_guild_id, map_dup_none, unwrap_id};
 
 #[derive(CommandModel, CreateCommand)]
 #[command(name = "create", desc = "Create an autostar channel.")]

@@ -3,7 +3,7 @@ use twilight_model::gateway::payload::incoming::MessageCreate;
 use crate::{
     client::bot::StarboardBot,
     core::emoji::{EmojiCommon, SimpleEmoji},
-    models::AutoStarChannel,
+    database::AutoStarChannel,
     unwrap_id,
 };
 

@@ -1,8 +1,8 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
+use crate::database::AutoStarChannel;
 use crate::get_guild_id;
 use crate::interactions::commands::context::CommandCtx;
-use crate::models::AutoStarChannel;
 
 #[derive(CreateCommand, CommandModel)]
 #[command(name = "delete", desc = "Delete an autostar channel.")]

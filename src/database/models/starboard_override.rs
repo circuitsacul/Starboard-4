@@ -1,4 +1,4 @@
-use crate::models::OverrideValues;
+use crate::database::OverrideValues;
 
 #[derive(Debug)]
 pub struct StarboardOverride {
