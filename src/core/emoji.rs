@@ -1,4 +1,4 @@
-use std::{str::FromStr, sync::Arc};
+use std::str::FromStr;
 
 use async_trait::async_trait;
 use twilight_http::request::channel::reaction::RequestReactionType;
@@ -18,12 +18,8 @@ pub trait EmojiCommon: Sized {
     type FromOut;
     type Stored;
 
-    async fn into_readable(self, bot: &Arc<StarboardBot>, guild_id: i64) -> String;
-    async fn from_user_input(
-        input: String,
-        bot: &Arc<StarboardBot>,
-        guild_id: i64,
-    ) -> Self::FromOut;
+    async fn into_readable(self, bot: &StarboardBot, guild_id: i64) -> String;
+    async fn from_user_input(input: String, bot: &StarboardBot, guild_id: i64) -> Self::FromOut;
     fn into_stored(self) -> Self::Stored;
     fn from_stored(stored: Self::Stored) -> Self;
 }
@@ -46,7 +42,7 @@ impl EmojiCommon for SimpleEmoji {
     type FromOut = Option<Self>;
     type Stored = String;
 
-    async fn into_readable(self, bot: &Arc<StarboardBot>, guild_id: i64) -> String {
+    async fn into_readable(self, bot: &StarboardBot, guild_id: i64) -> String {
         if self.is_custom {
             match bot.cache.emoji(self.as_id.unwrap()) {
                 None => self.raw,
@@ -80,11 +76,7 @@ impl EmojiCommon for SimpleEmoji {
         self.raw
     }
 
-    async fn from_user_input(
-        input: String,
-        bot: &Arc<StarboardBot>,
-        guild_id: i64,
-    ) -> Option<Self> {
+    async fn from_user_input(input: String, bot: &StarboardBot, guild_id: i64) -> Option<Self> {
         if emojis::get(&input).is_some() {
             Some(Self {
                 is_custom: false,
@@ -119,7 +111,7 @@ impl EmojiCommon for Vec<SimpleEmoji> {
     type FromOut = Self;
     type Stored = Vec<String>;
 
-    async fn into_readable(self, bot: &Arc<StarboardBot>, guild_id: i64) -> String {
+    async fn into_readable(self, bot: &StarboardBot, guild_id: i64) -> String {
         let mut arr = Vec::new();
         for emoji in self.into_iter() {
             arr.push(emoji.into_readable(bot, guild_id).await)
@@ -147,7 +139,7 @@ impl EmojiCommon for Vec<SimpleEmoji> {
         arr
     }
 
-    async fn from_user_input(input: String, bot: &Arc<StarboardBot>, guild_id: i64) -> Self {
+    async fn from_user_input(input: String, bot: &StarboardBot, guild_id: i64) -> Self {
         let mut arr = Vec::new();
         for piece in (&input).split(" ").into_iter() {
             let emoji = SimpleEmoji::from_user_input(piece.to_string(), bot, guild_id).await;

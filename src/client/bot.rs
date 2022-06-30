@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Arc};
 
 use sqlx::PgPool;
 use tokio::sync::RwLock;
@@ -16,14 +16,15 @@ use twilight_model::{
 
 use crate::client::config::Config;
 
+#[derive(Clone)]
 pub struct StarboardBot {
-    pub cluster: Cluster,
-    pub http: HttpClient,
-    pub cache: InMemoryCache,
-    pub application: RwLock<Option<PartialApplication>>,
-    pub pool: PgPool,
-    pub errors: ErrorHandler,
-    pub autostar_channel_ids: dashmap::DashSet<Id<ChannelMarker>>,
+    pub cluster: Arc<Cluster>,
+    pub http: Arc<HttpClient>,
+    pub cache: Arc<InMemoryCache>,
+    pub application: Arc<RwLock<Option<PartialApplication>>>,
+    pub pool: Arc<PgPool>,
+    pub errors: Arc<ErrorHandler>,
+    pub autostar_channel_ids: Arc<dashmap::DashSet<Id<ChannelMarker>>>,
 }
 
 impl Debug for StarboardBot {
@@ -57,7 +58,6 @@ impl StarboardBot {
                 ResourceType::USER
                     | ResourceType::USER_CURRENT
                     | ResourceType::MEMBER
-                    | ResourceType::MESSAGE
                     | ResourceType::GUILD
                     | ResourceType::CHANNEL
                     | ResourceType::ROLE
@@ -90,13 +90,13 @@ impl StarboardBot {
         Ok((
             events,
             Self {
-                cluster,
-                http,
-                cache,
-                application: RwLock::new(None),
-                pool,
-                errors,
-                autostar_channel_ids: map,
+                cluster: Arc::new(cluster),
+                http: Arc::new(http),
+                cache: Arc::new(cache),
+                application: Arc::new(RwLock::new(None)),
+                pool: Arc::new(pool),
+                errors: Arc::new(errors),
+                autostar_channel_ids: Arc::new(map),
             },
         ))
     }

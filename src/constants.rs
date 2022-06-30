@@ -1,5 +1,8 @@
 pub const BOT_COLOR: u32 = 0xFFE19C;
 
+// Cache size
+pub const MAX_MESSAGES: u64 = 10_000;
+
 // Common Validation
 pub const MAX_NAME_LENGTH: u32 = 32;
 

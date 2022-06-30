@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use twilight_interactions::command::CommandModel;
 use twilight_model::application::interaction::ApplicationCommand;
 
@@ -22,7 +20,7 @@ macro_rules! match_commands {
 
 pub async fn handle_command(
     shard_id: u64,
-    bot: Arc<StarboardBot>,
+    bot: StarboardBot,
     interaction: Box<ApplicationCommand>,
 ) -> anyhow::Result<()> {
     let ctx = CommandCtx {

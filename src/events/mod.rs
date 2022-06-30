@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use twilight_gateway::Event;
 use twilight_model::gateway::payload::outgoing::RequestGuildMembers;
 
@@ -8,15 +6,14 @@ use crate::core;
 use crate::interactions::commands::register::post_commands;
 use crate::interactions::handle::handle_interaction;
 
-pub async fn handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBot>) {
-    bot.cache.update(&event);
+pub async fn handle_event(shard_id: u64, event: Event, bot: StarboardBot) {
     tokio::spawn(internal_handle_event(shard_id, event, bot));
 }
 
-async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBot>) {
-    let clone = Arc::clone(&bot);
+async fn internal_handle_event(shard_id: u64, event: Event, bot: StarboardBot) {
+    bot.cache.update(&event);
 
-    let ret = tokio::spawn(match_events(shard_id, event, clone)).await;
+    let ret = tokio::spawn(match_events(shard_id, event, bot.clone())).await;
 
     match ret {
         Ok(ret) => match ret {
@@ -27,7 +24,7 @@ async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBo
     }
 }
 
-async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> anyhow::Result<()> {
+async fn match_events(shard_id: u64, event: Event, bot: StarboardBot) -> anyhow::Result<()> {
     match event {
         Event::InteractionCreate(int) => handle_interaction(shard_id, int.0, bot).await?,
         Event::ShardConnected(event) => println!("Shard {} connected.", event.shard_id),

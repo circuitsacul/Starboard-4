@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use twilight_http::{response::marker::EmptyBody, Response};
 use twilight_model::{
     application::interaction::ApplicationCommand,
@@ -13,7 +11,7 @@ use crate::client::bot::StarboardBot;
 #[derive(Debug)]
 pub struct CommandCtx {
     pub shard_id: u64,
-    pub bot: Arc<StarboardBot>,
+    pub bot: StarboardBot,
     pub interaction: Box<ApplicationCommand>,
 }
 

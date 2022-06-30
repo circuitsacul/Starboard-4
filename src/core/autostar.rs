@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
 use crate::{
@@ -9,7 +7,7 @@ use crate::{
     unwrap_id,
 };
 
-pub async fn handle(bot: Arc<StarboardBot>, event: Box<MessageCreate>) -> anyhow::Result<()> {
+pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Result<()> {
     // Ignore DMs
     if event.guild_id.is_none() {
         return Ok(());
