@@ -44,14 +44,26 @@ impl UpdateCache for MessageDeleteBulk {
 #[async_trait]
 impl UpdateCache for MessageUpdate {
     async fn update_cache(&self, cache: &Cache) {
-        if !cache.messages.contains_key(&self.id) {
-            return;
-        }
+        let cached = cache.messages.get(&self.id);
+
+        let cached = match cached {
+            None => return,
+            Some(msg) => msg,
+        };
+
+        let attachments = match &self.attachments {
+            Some(attachments) => attachments.clone(),
+            None => cached.attachments.clone(),
+        };
+        let embeds = match &self.embeds {
+            Some(embeds) => embeds.clone(),
+            None => cached.embeds.clone(),
+        };
 
         let message = CachedMessage {
             id: self.id,
-            attachments: self.attachments.clone().unwrap_or_default(),
-            embeds: self.embeds.clone().unwrap_or_default(),
+            attachments,
+            embeds,
         };
 
         cache.messages.insert(self.id, Arc::new(message)).await;
