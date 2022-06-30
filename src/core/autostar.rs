@@ -7,6 +7,8 @@ use crate::{
     unwrap_id,
 };
 
+use super::has_image::has_image;
+
 pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Result<()> {
     // Ignore DMs
     if event.guild_id.is_none() {
@@ -29,7 +31,17 @@ pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Res
 
     // Handle the autostar channels
     for a in asc.into_iter() {
-        // TODO handle settings
+        let status = get_status(&a, &event);
+
+        if matches!(status, Status::InvalidStay) {
+            continue;
+        }
+        if let Status::InvalidRemove(reasons) = status {
+            println!("{:?}", reasons);
+            let _ = bot.http.delete_message(event.channel_id, event.id).exec().await;
+            continue;
+        }
+
         for emoji in Vec::<SimpleEmoji>::from_stored(a.emojis) {
             let _ = bot
                 .http
@@ -40,4 +52,43 @@ pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Res
     }
 
     Ok(())
+}
+
+enum Status {
+    Valid,
+    InvalidStay,
+    InvalidRemove(Vec<String>),
+}
+
+fn get_status(asc: &AutoStarChannel, event: &Box<MessageCreate>) -> Status {
+    let mut invalid = Vec::new();
+
+    if asc.min_chars != 0 && event.content.len() < asc.min_chars as usize {
+        invalid.push(format!(
+            " - Your message must have at least {} characters.",
+            asc.min_chars
+        ));
+    }
+    if let Some(max_chars) = asc.max_chars {
+        if event.content.len() > max_chars as usize {
+            invalid.push(format!(
+                " - Your message cannot be longer than {} characters.",
+                max_chars,
+            ));
+        }
+    }
+    if asc.require_image {
+        if !has_image(&event.embeds, &event.attachments) {
+            todo!("Wait for a bit and check cache/http api for updated message with embeds.");
+            invalid.push(" - Your message must include an image.".to_string());
+        }
+    }
+
+    if invalid.is_empty() {
+        Status::Valid
+    } else if asc.delete_invalid {
+        Status::InvalidRemove(invalid)
+    } else {
+        Status::InvalidStay
+    }
 }
