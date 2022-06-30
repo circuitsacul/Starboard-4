@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
 use crate::{
@@ -31,14 +33,18 @@ pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Res
 
     // Handle the autostar channels
     for a in asc.into_iter() {
-        let status = get_status(&a, &event);
+        let status = get_status(&bot, &a, &event).await;
 
         if matches!(status, Status::InvalidStay) {
             continue;
         }
         if let Status::InvalidRemove(reasons) = status {
             println!("{:?}", reasons);
-            let _ = bot.http.delete_message(event.channel_id, event.id).exec().await;
+            let _ = bot
+                .http
+                .delete_message(event.channel_id, event.id)
+                .exec()
+                .await;
             continue;
         }
 
@@ -60,7 +66,11 @@ enum Status {
     InvalidRemove(Vec<String>),
 }
 
-fn get_status(asc: &AutoStarChannel, event: &Box<MessageCreate>) -> Status {
+async fn get_status(
+    bot: &StarboardBot,
+    asc: &AutoStarChannel,
+    event: &Box<MessageCreate>,
+) -> Status {
     let mut invalid = Vec::new();
 
     if asc.min_chars != 0 && event.content.len() < asc.min_chars as usize {
@@ -79,8 +89,25 @@ fn get_status(asc: &AutoStarChannel, event: &Box<MessageCreate>) -> Status {
     }
     if asc.require_image {
         if !has_image(&event.embeds, &event.attachments) {
-            todo!("Wait for a bit and check cache/http api for updated message with embeds.");
-            invalid.push(" - Your message must include an image.".to_string());
+            tokio::time::sleep(Duration::from_secs(3)).await;
+
+            let updated_msg = bot.cache.messages.get(&event.id);
+            let mut still_invalid = true;
+
+            if let Some(msg) = updated_msg {
+                if has_image(&msg.embeds, &msg.attachments) {
+                    still_invalid = false;
+                }
+            } else {
+                eprintln!(concat!(
+                    "Warning: autostar channel message was not cached. Likely means the cache is ",
+                    "being overwhelmed."
+                ))
+            }
+
+            if still_invalid {
+                invalid.push(" - Your message must include an image.".to_string());
+            }
         }
     }
 
