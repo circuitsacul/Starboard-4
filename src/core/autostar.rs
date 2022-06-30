@@ -14,7 +14,7 @@ pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Res
     }
 
     // Check the cache...
-    if !bot.autostar_channel_ids.contains(&event.channel_id) {
+    if !bot.cache.autostar_channel_ids.contains(&event.channel_id) {
         return Ok(());
     }
 
@@ -23,7 +23,7 @@ pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Res
 
     // If none, remove the channel id from the cache
     if asc.len() == 0 {
-        bot.autostar_channel_ids.remove(&event.channel_id);
+        bot.cache.autostar_channel_ids.remove(&event.channel_id);
         return Ok(());
     }
 

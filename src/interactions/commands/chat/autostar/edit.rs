@@ -5,6 +5,7 @@ use crate::{
     database::AutoStarChannel,
     get_guild_id,
     interactions::commands::context::CommandCtx,
+    unwrap_id,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -55,7 +56,9 @@ impl EditAutoStar {
             update.set_delete_invalid(val);
         }
 
-        let asc = update.exec(&ctx.bot.pool, &self.name, guild_id).await?;
+        let asc = update
+            .exec(&ctx.bot.pool, &self.name, unwrap_id!(guild_id))
+            .await?;
 
         if asc.is_none() {
             ctx.respond_str("No autostar channels with that name were found.", true)

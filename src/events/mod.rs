@@ -11,7 +11,7 @@ pub async fn handle_event(shard_id: u64, event: Event, bot: StarboardBot) {
 }
 
 async fn internal_handle_event(shard_id: u64, event: Event, bot: StarboardBot) {
-    bot.cache.update(&event);
+    bot.cache.update(&event).await;
 
     let ret = tokio::spawn(match_events(shard_id, event, bot.clone())).await;
 

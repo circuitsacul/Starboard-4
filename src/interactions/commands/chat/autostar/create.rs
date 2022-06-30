@@ -18,7 +18,7 @@ pub struct CreateAutoStarChannel {
 impl CreateAutoStarChannel {
     pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
-        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id))?;
+        map_dup_none!(Guild::create(&ctx.bot.pool, unwrap_id!(guild_id)))?;
         let channel_id = unwrap_id!(self.channel.id);
 
         let name = match validation::name::validate_name(&self.name) {
@@ -33,7 +33,7 @@ impl CreateAutoStarChannel {
             &ctx.bot.pool,
             &name,
             channel_id,
-            guild_id
+            unwrap_id!(guild_id),
         ))?;
 
         if ret.is_none() {
@@ -46,7 +46,7 @@ impl CreateAutoStarChannel {
             )
             .await?;
         } else {
-            ctx.bot.autostar_channel_ids.insert(self.channel.id);
+            ctx.bot.cache.autostar_channel_ids.insert(self.channel.id);
 
             ctx.respond_str(
                 &format!("Created autostar channel '{}' in <#{}>.", name, channel_id),

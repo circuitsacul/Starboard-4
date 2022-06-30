@@ -3,7 +3,10 @@ use std::str::FromStr;
 use async_trait::async_trait;
 use twilight_http::request::channel::reaction::RequestReactionType;
 use twilight_mention::Mention;
-use twilight_model::id::{marker::EmojiMarker, Id};
+use twilight_model::id::{
+    marker::{EmojiMarker, GuildMarker},
+    Id,
+};
 
 use crate::client::bot::StarboardBot;
 
@@ -18,8 +21,12 @@ pub trait EmojiCommon: Sized {
     type FromOut;
     type Stored;
 
-    async fn into_readable(self, bot: &StarboardBot, guild_id: i64) -> String;
-    async fn from_user_input(input: String, bot: &StarboardBot, guild_id: i64) -> Self::FromOut;
+    async fn into_readable(self, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> String;
+    async fn from_user_input(
+        input: String,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+    ) -> Self::FromOut;
     fn into_stored(self) -> Self::Stored;
     fn from_stored(stored: Self::Stored) -> Self;
 }
@@ -42,17 +49,12 @@ impl EmojiCommon for SimpleEmoji {
     type FromOut = Option<Self>;
     type Stored = String;
 
-    async fn into_readable(self, bot: &StarboardBot, guild_id: i64) -> String {
+    async fn into_readable(self, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> String {
         if self.is_custom {
-            match bot.cache.emoji(self.as_id.unwrap()) {
-                None => self.raw,
-                Some(value) => {
-                    if value.guild_id() == guild_id {
-                        value.id().mention().to_string()
-                    } else {
-                        self.raw
-                    }
-                }
+            let emoji_id = self.as_id.unwrap();
+            match bot.cache.guild_emoji_exists(guild_id, emoji_id) {
+                true => emoji_id.mention().to_string(),
+                false => self.raw,
             }
         } else {
             self.raw
@@ -76,7 +78,11 @@ impl EmojiCommon for SimpleEmoji {
         self.raw
     }
 
-    async fn from_user_input(input: String, bot: &StarboardBot, guild_id: i64) -> Option<Self> {
+    async fn from_user_input(
+        input: String,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+    ) -> Option<Self> {
         if emojis::get(&input).is_some() {
             Some(Self {
                 is_custom: false,
@@ -87,14 +93,8 @@ impl EmojiCommon for SimpleEmoji {
             let input: String = input.chars().filter(|c| c.is_digit(10)).collect();
             let as_id = Id::<EmojiMarker>::from_str(&input).ok()?;
 
-            match bot.cache.emoji(as_id) {
-                None => return None,
-                Some(cached) => {
-                    if cached.guild_id() == guild_id {
-                    } else {
-                        return None;
-                    }
-                }
+            if !bot.cache.guild_emoji_exists(guild_id, as_id) {
+                return None;
             }
 
             Some(Self {
@@ -111,7 +111,7 @@ impl EmojiCommon for Vec<SimpleEmoji> {
     type FromOut = Self;
     type Stored = Vec<String>;
 
-    async fn into_readable(self, bot: &StarboardBot, guild_id: i64) -> String {
+    async fn into_readable(self, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> String {
         let mut arr = Vec::new();
         for emoji in self.into_iter() {
             arr.push(emoji.into_readable(bot, guild_id).await)
@@ -139,7 +139,7 @@ impl EmojiCommon for Vec<SimpleEmoji> {
         arr
     }
 
-    async fn from_user_input(input: String, bot: &StarboardBot, guild_id: i64) -> Self {
+    async fn from_user_input(input: String, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> Self {
         let mut arr = Vec::new();
         for piece in (&input).split(" ").into_iter() {
             let emoji = SimpleEmoji::from_user_input(piece.to_string(), bot, guild_id).await;
