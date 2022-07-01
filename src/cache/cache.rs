@@ -25,11 +25,11 @@ pub struct Cache {
 }
 
 impl Cache {
-    pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>, message_cache_size: u64) -> Self {
+    pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
         Self {
             guild_emojis: Arc::new(DashMap::new()),
             messages: moka::future::Cache::builder()
-                .max_capacity(message_cache_size)
+                .max_capacity(constants::MAX_MESSAGES)
                 .build(),
             autostar_channel_ids: Arc::new(autostar_channel_ids),
             guild_autostar_channel_names: moka::future::Cache::builder()

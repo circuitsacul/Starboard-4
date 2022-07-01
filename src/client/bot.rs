@@ -13,8 +13,8 @@ use twilight_model::{
     oauth::PartialApplication,
 };
 
+use crate::cache::cache::Cache;
 use crate::client::config::Config;
-use crate::{cache::cache::Cache, constants};
 
 #[derive(Clone)]
 pub struct StarboardBot {
@@ -72,7 +72,7 @@ impl StarboardBot {
         map.extend(asc);
 
         // Setup cache
-        let cache = Cache::new(map, constants::MAX_MESSAGES);
+        let cache = Cache::new(map);
 
         // Return the bot struct
         Ok((
