@@ -12,6 +12,7 @@ use crate::{
 #[command(name = "edit", desc = "Set the emojis for an autostar channel.")]
 pub struct EditAutoStar {
     /// The name of the autostar channel to edit.
+    #[command(autocomplete = true)]
     name: String,
     /// The emojis to use. Use "none" to set to none.
     emojis: Option<String>,

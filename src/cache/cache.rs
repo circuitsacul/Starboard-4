@@ -7,6 +7,8 @@ use twilight_model::id::{
     Id,
 };
 
+use crate::constants;
+
 use super::{models::message::CachedMessage, update::UpdateCache};
 
 #[derive(Clone)]
@@ -17,6 +19,9 @@ pub struct Cache {
 
     // database side
     pub autostar_channel_ids: Arc<DashSet<Id<ChannelMarker>>>,
+
+    // autocomplete
+    pub guild_autostar_channel_names: moka::future::Cache<Id<GuildMarker>, Arc<Vec<String>>>,
 }
 
 impl Cache {
@@ -27,6 +32,9 @@ impl Cache {
                 .max_capacity(message_cache_size)
                 .build(),
             autostar_channel_ids: Arc::new(autostar_channel_ids),
+            guild_autostar_channel_names: moka::future::Cache::builder()
+                .max_capacity(constants::MAX_AUTOSTAR_NAMES)
+                .build(),
         }
     }
 

@@ -11,7 +11,7 @@ use crate::{
 #[command(name = "rename", desc = "Rename an autostar channel.")]
 pub struct RenameAutoStarChannel {
     /// The current name of the autostar channel.
-    #[command(rename = "current-name")]
+    #[command(rename = "current-name", autocomplete = true)]
     current_name: String,
     /// The new name for the autostar channel.
     #[command(rename = "new-name")]
@@ -53,6 +53,12 @@ impl RenameAutoStarChannel {
                     .await?
             }
             Some(Some(_)) => {
+                ctx.bot
+                    .cache
+                    .guild_autostar_channel_names
+                    .invalidate(&guild_id)
+                    .await;
+
                 ctx.respond_str(
                     &format!(
                         "Renamed the autostar channel from '{}' to '{}'.",

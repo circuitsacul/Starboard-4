@@ -8,6 +8,7 @@ use crate::{get_guild_id, unwrap_id};
 #[command(name = "delete", desc = "Delete an autostar channel.")]
 pub struct DeleteAutoStarChannel {
     /// The name of the autostar channel to delete.
+    #[command(autocomplete = true)]
     name: String,
 }
 
@@ -19,6 +20,11 @@ impl DeleteAutoStarChannel {
             ctx.respond_str("No autostar channel with that name was found.", true)
                 .await?;
         } else {
+            ctx.bot
+                .cache
+                .guild_autostar_channel_names
+                .invalidate(&guild_id)
+                .await;
             ctx.respond_str(&format!("Deleted autostar channel '{}'.", self.name), false)
                 .await?;
         }

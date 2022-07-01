@@ -10,6 +10,7 @@ use crate::{concat_format, get_guild_id, unwrap_id};
 #[command(name = "view", desc = "View your autostar channels.")]
 pub struct ViewAutoStarChannels {
     /// The name of the autostar channel to view. Leave blank to show all.
+    #[command(autocomplete = true)]
     name: Option<String>,
 }
 
