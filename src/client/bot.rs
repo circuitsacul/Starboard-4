@@ -12,6 +12,7 @@ use twilight_model::{
     id::{marker::ChannelMarker, Id},
     oauth::PartialApplication,
 };
+use twilight_standby::Standby;
 
 use crate::cache::cache::Cache;
 use crate::client::config::Config;
@@ -24,6 +25,7 @@ pub struct StarboardBot {
     pub application: Arc<RwLock<Option<PartialApplication>>>,
     pub pool: Arc<PgPool>,
     pub errors: Arc<ErrorHandler>,
+    pub standby: Arc<Standby>,
 }
 
 impl Debug for StarboardBot {
@@ -84,6 +86,7 @@ impl StarboardBot {
                 application: Arc::new(RwLock::new(None)),
                 pool: Arc::new(pool),
                 errors: Arc::new(errors),
+                standby: Arc::new(Standby::new()),
             },
         ))
     }
