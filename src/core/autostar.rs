@@ -49,7 +49,7 @@ pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Res
             if !event.author.bot {
                 let message = {
                     format!(
-                        "Your message <#{}> was deleted for the following reason(s):\n",
+                        "Your message in <#{}> was deleted for the following reason(s):\n",
                         event.channel_id
                     ) + &reasons.join("\n - ")
                 };
