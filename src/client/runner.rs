@@ -16,6 +16,10 @@ async fn shutdown_handler(bot: StarboardBot) {
 }
 
 pub async fn run(mut events: Events, bot: StarboardBot) {
+    if bot.config.development {
+        println!("Running bot in development mode.");
+    }
+
     // start the cluster
     let clone = bot.clone();
     tokio::spawn(async move { clone.cluster.up().await });

@@ -6,6 +6,7 @@ pub struct Config {
     pub shards: u64,
     pub db_url: String,
     pub error_channel: Option<u64>,
+    pub development: bool,
 }
 
 impl Config {
@@ -23,12 +24,17 @@ impl Config {
         let error_channel = env::var("ERROR_CHANNEL_ID")
             .ok()
             .map(|v| v.parse().expect("Invalid ID for error log channel."));
+        let development = env::var("DEVELOPMENT")
+            .unwrap_or("false".to_string())
+            .parse()
+            .expect("Invalid boolean for DEVELOPMENT.");
 
         Config {
             token,
             shards,
             db_url,
             error_channel,
+            development,
         }
     }
 }

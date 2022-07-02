@@ -26,6 +26,7 @@ pub struct StarboardBot {
     pub pool: Arc<PgPool>,
     pub errors: Arc<ErrorHandler>,
     pub standby: Arc<Standby>,
+    pub config: Arc<Config>,
 }
 
 impl Debug for StarboardBot {
@@ -87,6 +88,7 @@ impl StarboardBot {
                 pool: Arc::new(pool),
                 errors: Arc::new(errors),
                 standby: Arc::new(Standby::new()),
+                config: Arc::new(config),
             },
         ))
     }
