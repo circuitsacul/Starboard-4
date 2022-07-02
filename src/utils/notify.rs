@@ -1,4 +1,7 @@
-use twilight_model::id::{marker::UserMarker, Id};
+use twilight_model::{
+    application::component::{button::ButtonStyle, ActionRow, Button, Component},
+    id::{marker::UserMarker, Id},
+};
 
 use crate::client::bot::StarboardBot;
 
@@ -11,5 +14,22 @@ pub async fn notify(bot: &StarboardBot, user_id: Id<UserMarker>, message: &str) 
         Ok(create) => create,
     };
 
-    let _ = create.content(message).unwrap().exec().await;
+    let comp = Component::ActionRow(ActionRow {
+        components: vec![Component::Button(Button {
+            label: Some("Dismiss".to_string()),
+            url: None,
+            style: ButtonStyle::Secondary,
+            custom_id: Some("stateless::dismiss_notification".to_string()),
+            disabled: false,
+            emoji: None,
+        })],
+    });
+
+    let _ = create
+        .content(message)
+        .unwrap()
+        .components(&[comp])
+        .unwrap()
+        .exec()
+        .await;
 }
