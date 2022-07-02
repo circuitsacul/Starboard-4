@@ -7,6 +7,7 @@ use crate::{
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::AutoStarChannel,
     unwrap_id,
+    utils::notify,
 };
 
 use super::has_image::has_image;
@@ -39,12 +40,22 @@ pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Res
             continue;
         }
         if let Status::InvalidRemove(reasons) = status {
-            println!("{:?}", reasons);
             let _ = bot
                 .http
                 .delete_message(event.channel_id, event.id)
                 .exec()
                 .await;
+
+            if !event.author.bot {
+                let message = {
+                    format!(
+                        "Your message <#{}> was deleted for the following reason(s):\n",
+                        event.channel_id
+                    ) + &reasons.join("\n - ")
+                };
+                notify::notify(&bot, event.author.id, &message).await;
+            }
+
             continue;
         }
 
