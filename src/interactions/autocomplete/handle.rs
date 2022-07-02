@@ -72,7 +72,7 @@ pub async fn handle_autocomplete(
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 
-    let i = bot.interaction_client().await?;
+    let i = bot.interaction_client().await;
     let data = InteractionResponseDataBuilder::new()
         .choices(options)
         .build();

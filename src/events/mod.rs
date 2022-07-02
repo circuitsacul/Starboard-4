@@ -32,7 +32,7 @@ async fn match_events(shard_id: u64, event: Event, bot: StarboardBot) -> anyhow:
         Event::Ready(info) => {
             if bot.application.read().await.is_none() {
                 bot.application.write().await.replace(info.application);
-                post_commands(bot).await?;
+                post_commands(bot).await;
             }
         }
         Event::MessageCreate(event) => core::autostar::handle(bot, event).await?,

@@ -93,12 +93,10 @@ impl StarboardBot {
         ))
     }
 
-    pub async fn interaction_client<'a>(&'a self) -> anyhow::Result<InteractionClient<'a>> {
+    pub async fn interaction_client<'a>(&'a self) -> InteractionClient<'a> {
         match &*self.application.read().await {
-            Some(info) => Ok(self.http.interaction(info.id)),
-            None => Err(anyhow::anyhow!(
-                "interaction_client called before bot was ready."
-            )),
+            Some(info) => self.http.interaction(info.id),
+            None => panic!("interaction_client called before bot was ready."),
         }
     }
 }

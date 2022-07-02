@@ -25,7 +25,7 @@ impl CommandCtx {
         data: Option<InteractionResponseData>,
         kind: InteractionResponseType,
     ) -> anyhow::Result<Response<EmptyBody>> {
-        let i = self.bot.interaction_client().await?;
+        let i = self.bot.interaction_client().await;
 
         i.create_response(
             self.interaction.id,

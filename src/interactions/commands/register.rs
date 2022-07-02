@@ -13,8 +13,8 @@ macro_rules! commands_to_create {
     };
 }
 
-pub async fn post_commands(bot: StarboardBot) -> anyhow::Result<()> {
-    let inter_client = bot.interaction_client().await?;
+pub async fn post_commands(bot: StarboardBot) {
+    let inter_client = bot.interaction_client().await;
 
     let commands = commands_to_create!(chat::ping::Ping, chat::autostar::AutoStar);
 
@@ -22,6 +22,4 @@ pub async fn post_commands(bot: StarboardBot) -> anyhow::Result<()> {
         Ok(_) => println!("Successfully registered commands"),
         Err(e) => eprintln!("Failed to register commands: {}", e),
     }
-
-    Ok(())
 }
