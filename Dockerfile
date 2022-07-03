@@ -7,7 +7,6 @@ COPY sqlx-data.json sqlx-data.json
 RUN cargo install --path .
 
 FROM debian:buster-slim
-COPY .env .env
 RUN apt-get update && apt-get install -y ca-certificates
 COPY --from=builder /usr/local/cargo/bin/starboard /usr/local/bin/starboard
 CMD ["starboard"]
