@@ -1,15 +1,26 @@
 use futures::stream::StreamExt;
-use tokio::signal;
+use tokio::{
+    signal::unix::{signal, SignalKind},
+    sync::mpsc,
+};
 use twilight_gateway::cluster::Events;
 
 use crate::client::bot::StarboardBot;
 use crate::events::handle_event;
 
 async fn shutdown_handler(bot: StarboardBot) {
-    match signal::ctrl_c().await {
-        Ok(()) => {}
-        Err(err) => eprintln!("Unable to listen for shutdown signal: {}", err),
+    let (tx, mut rx) = mpsc::unbounded_channel();
+
+    for kind in [SignalKind::terminate(), SignalKind::interrupt()].into_iter() {
+        let sender = tx.clone();
+        let mut listener = signal(kind).unwrap();
+        tokio::spawn(async move {
+            listener.recv().await;
+            sender.send(()).expect("failed to send signal");
+        });
     }
+
+    rx.recv().await;
     println!("Shutting down bot...");
     bot.cluster.down();
     println!("Bot shut down.");

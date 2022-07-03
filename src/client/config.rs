@@ -20,7 +20,7 @@ impl Config {
             .unwrap_or("1".to_string())
             .parse()
             .unwrap();
-        let db_url = env::var("DATABASE_URL").expect("No database url specified.");
+        let db_url = env::var("SB_DATABASE_URL").expect("No database url specified.");
         let error_channel = env::var("ERROR_CHANNEL_ID")
             .ok()
             .map(|v| v.parse().expect("Invalid ID for error log channel."));
