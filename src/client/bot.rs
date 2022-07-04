@@ -57,6 +57,12 @@ impl StarboardBot {
         // Setup database connection
         let pool = PgPool::connect(&config.db_url).await?;
 
+        // run migrations
+        sqlx::migrate!()
+            .run(&pool)
+            .await
+            .expect("failed to run migrations");
+
         // Setup error handling
         let mut errors = ErrorHandler::new();
         if let Some(channel_id) = config.error_channel {
