@@ -7,14 +7,22 @@ WORKDIR /usr/src/starboard
 # is changed.
 RUN cargo search --limit 0
 
+# doing this allows caching of compiled dependencies
+COPY Cargo.toml Cargo.toml
+COPY Cargo.lock Cargo.lock
+RUN mkdir src
+RUN echo "fn main() { dbg!(1); }" > src/main.rs
+RUN cargo build --release
+RUN rm -r src && rm target/release/starboard
+
 # copy stuff over to the image that we need
+COPY build.rs build.rs
 COPY ./src ./src
 COPY ./migrations ./migrations
-COPY Cargo.toml Cargo.toml
 COPY sqlx-data.json sqlx-data.json
 
 # install starboard
-RUN cargo install --path .
+RUN cargo build --release
 
 # get rid of cargo
 FROM debian:buster-slim
@@ -23,7 +31,7 @@ FROM debian:buster-slim
 RUN apt-get update && apt-get install -y ca-certificates
 
 # copy starboard over from the builder
-COPY --from=builder /usr/local/cargo/bin/starboard /usr/local/bin/starboard
+COPY --from=builder /usr/src/starboard/target/release/starboard /usr/local/bin/starboard
 
 # run starboard
 CMD ["starboard"]
