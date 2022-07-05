@@ -35,7 +35,10 @@ async fn match_events(shard_id: u64, event: Event, bot: StarboardBot) -> anyhow:
                 post_commands(bot).await;
             }
         }
-        Event::MessageCreate(event) => core::autostar::handle(bot, event).await?,
+        Event::MessageCreate(event) => {
+            core::autostar::handle(&bot, &event).await?;
+            crate::owner::handle::handle_message(shard_id, &bot, &event).await;
+        }
         Event::GuildCreate(event) => {
             // Request members chunk
             bot.cluster

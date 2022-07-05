@@ -7,6 +7,7 @@ pub struct Config {
     pub db_url: String,
     pub error_channel: Option<u64>,
     pub development: bool,
+    pub owner_ids: Vec<u64>,
 }
 
 impl Config {
@@ -28,6 +29,11 @@ impl Config {
             .unwrap_or("false".to_string())
             .parse()
             .expect("Invalid boolean for DEVELOPMENT.");
+        let owner_ids = env::var("OWNER_IDS").ok().map(|var| {
+            var.split(",")
+                .map(|item| item.trim().parse().expect("invalid owner id"))
+                .collect()
+        });
 
         Config {
             token,
@@ -35,6 +41,7 @@ impl Config {
             db_url,
             error_channel,
             development,
+            owner_ids: owner_ids.unwrap_or_else(|| Vec::new()),
         }
     }
 }

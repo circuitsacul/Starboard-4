@@ -12,7 +12,7 @@ use crate::{
 
 use super::has_image::has_image;
 
-pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Result<()> {
+pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result<()> {
     // Ignore DMs
     if event.guild_id.is_none() {
         return Ok(());
@@ -34,7 +34,7 @@ pub async fn handle(bot: StarboardBot, event: Box<MessageCreate>) -> anyhow::Res
 
     // Handle the autostar channels
     for a in asc.into_iter() {
-        let status = get_status(&bot, &a, &event).await;
+        let status = get_status(&bot, &a, event).await;
 
         if matches!(status, Status::InvalidStay) {
             continue;
@@ -77,11 +77,7 @@ enum Status {
     InvalidRemove(Vec<String>),
 }
 
-async fn get_status(
-    bot: &StarboardBot,
-    asc: &AutoStarChannel,
-    event: &Box<MessageCreate>,
-) -> Status {
+async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCreate) -> Status {
     let mut invalid = Vec::new();
 
     if asc.min_chars != 0 && event.content.len() < asc.min_chars as usize {
