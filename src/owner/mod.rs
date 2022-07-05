@@ -1,4 +1,5 @@
 //! Prefix-based owner commands and utilities
 
-pub mod commands;
+mod commands;
 pub mod handle;
+mod code_block;
