@@ -14,29 +14,36 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
 
     for (code, meta) in blocks.iter() {
         let return_results = meta.get("return").is_some();
-        let total_execs = meta.get("runs").map(|v| v.parse().unwrap()).unwrap_or(1);
+        let total_execs = meta
+            .get("runs")
+            .map(|v| v.parse().unwrap())
+            .unwrap_or(1)
+            .max(1);
 
         let mut result = None;
         let mut execution_times = Vec::new();
         for _ in 0..total_execs {
-            let start = Instant::now();
-            match return_results {
+            let elapsed = match return_results {
                 true => {
                     let query = sqlx::query(&code);
                     // let query_str = format!(
                     //    "with result as ({code}) select json_agg(result) from result;"
                     //);
                     //let query = sqlx::query(&query_str);
+                    let start = Instant::now();
                     let rows = query.fetch_all(&*bot.pool).await?;
+                    let elapsed = start.elapsed();
                     result.replace(Some(rows.into_iter().map(|r| row_to_json(r)).collect()));
+                    elapsed
                 }
                 false => {
                     let query = sqlx::query(&code);
+                    let start = Instant::now();
                     query.execute(&*bot.pool).await?;
-                    result.replace(None);
+                    start.elapsed()
                 }
-            }
-            execution_times.push(start.elapsed());
+            };
+            execution_times.push(elapsed);
         }
 
         let result = SqlResult {
@@ -47,6 +54,13 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
     }
 
     println!("{:#?}", results);
+    println!(
+        "{:#?}",
+        results
+            .into_iter()
+            .map(|r| r.average_time())
+            .collect::<Vec<_>>()
+    );
     Ok(())
 }
 
@@ -67,11 +81,11 @@ struct SqlResult {
 }
 
 impl SqlResult {
-    pub fn average_time(&self) -> f64 {
-        self.execution_times
-            .iter()
-            .map(|d| d.as_secs_f64())
-            .sum::<f64>()
-            / self.execution_times.len() as f64
+    pub fn average_time(&self) -> Duration {
+        let mut total = Duration::new(0, 0);
+        for time in self.execution_times.iter() {
+            total += *time;
+        }
+        total.div_f64(self.execution_times.len() as f64)
     }
 }
