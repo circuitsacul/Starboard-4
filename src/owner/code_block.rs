@@ -1,6 +1,8 @@
-pub fn parse_code_blocks(content: &str) -> Vec<(String, String)> {
+use std::collections::HashMap;
+
+pub fn parse_code_blocks(content: &str) -> Vec<(String, HashMap<&str, &str>)> {
     let mut blocks = Vec::new();
-    let mut meta = "".to_string();
+    let mut current_meta = HashMap::new();
     let mut current_block = Vec::new();
     let mut in_block = false;
 
@@ -11,19 +13,21 @@ pub fn parse_code_blocks(content: &str) -> Vec<(String, String)> {
             if !in_block && !current_block.is_empty() {
                 blocks.push((
                     current_block.join("\n"),
-                    meta,
+                    current_meta,
                 ));
                 current_block.clear();
-                meta = "".to_string();
+                current_meta = HashMap::new();
             }
             continue;
         }
 
         if in_block {
-            current_block.push(line.to_string());
+            current_block.push(line);
         } else if line != "" {
-            meta.push_str(line);
-            meta.push_str("\n");
+            let split: Vec<_> = line.split("=").collect();
+            if split.len() == 2 {
+                current_meta.insert(split[0], split[1]);
+            }
         }
     }
 
