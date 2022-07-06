@@ -4,7 +4,11 @@ use crate::client::bot::StarboardBot;
 
 use super::commands;
 
-pub async fn handle_message(_shard_id: u64, bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result<()> {
+pub async fn handle_message(
+    _shard_id: u64,
+    bot: &StarboardBot,
+    event: &MessageCreate,
+) -> anyhow::Result<()> {
     // first check that this is a command being run by the bot owner
     if !bot.config.owner_ids.contains(&event.author.id.get()) {
         return Ok(());
@@ -26,7 +30,7 @@ pub async fn handle_message(_shard_id: u64, bot: &StarboardBot, event: &MessageC
     // match second token to a command, if any
     match tokens[1] {
         "sql" => commands::sql::run_sql(bot, event).await?,
-        _ => {},
+        _ => {}
     }
 
     Ok(())

@@ -11,10 +11,7 @@ pub fn parse_code_blocks(content: &str) -> Vec<(String, HashMap<&str, &str>)> {
         if line.starts_with("```") {
             in_block = !in_block;
             if !in_block && !current_block.is_empty() {
-                blocks.push((
-                    current_block.join("\n"),
-                    current_meta,
-                ));
+                blocks.push((current_block.join("\n"), current_meta));
                 current_block.clear();
                 current_meta = HashMap::new();
             }
