@@ -6,7 +6,7 @@ use std::{
 use sqlx::{postgres::PgRow, Column, Row};
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
-use crate::{client::bot::StarboardBot, owner::code_block::parse_code_blocks};
+use crate::{client::bot::StarboardBot, concat_format, owner::code_block::parse_code_blocks};
 
 pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result<()> {
     let blocks = parse_code_blocks(&event.content.strip_prefix("star sql").unwrap());
@@ -49,18 +49,26 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
         let result = SqlResult {
             execution_times,
             inspect: result.unwrap_or(None),
+            tag: meta.get("tag").unwrap_or_else(|| &"?query?").to_string(),
         };
         results.push(result);
     }
 
     println!("{:#?}", results);
-    println!(
-        "{:#?}",
-        results
-            .into_iter()
-            .map(|r| r.average_time())
-            .collect::<Vec<_>>()
-    );
+    let mut final_result = String::new();
+    for result in results {
+        final_result.push_str(&concat_format!(
+            "Query {} ran {} times, " <- result.tag, result.execution_times.len();
+            "with an average time of {:?}.\n" <- result.average_time();
+        ))
+    }
+
+    bot.http
+        .create_message(event.channel_id)
+        .content(&final_result)
+        .unwrap()
+        .exec()
+        .await?;
     Ok(())
 }
 
@@ -78,6 +86,7 @@ fn row_to_json(row: PgRow) -> HashMap<String, String> {
 struct SqlResult {
     pub execution_times: Vec<Duration>,
     pub inspect: Option<Vec<HashMap<String, String>>>,
+    pub tag: String,
 }
 
 impl SqlResult {
