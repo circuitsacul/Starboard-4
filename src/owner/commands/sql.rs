@@ -17,6 +17,7 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
     let blocks = parse_code_blocks(&event.content.strip_prefix("star sql").unwrap());
     let mut results = Vec::new();
 
+    let mut tx = bot.pool.begin().await?;
     for (code, meta) in blocks.iter() {
         let return_results = meta.get("return").is_some();
         let total_execs = meta
@@ -31,15 +32,14 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
             let elapsed = match return_results {
                 true => {
                     let start = Instant::now();
-                    let rows = bot.pool.fetch_all(code.as_str()).await?;
+                    let rows = tx.fetch_all(code.as_str()).await?;
                     let elapsed = start.elapsed();
                     result.replace(Some(rows.into_iter().map(|r| row_to_json(r)).collect()));
                     elapsed
                 }
                 false => {
-                    let query = sqlx::query(&code);
                     let start = Instant::now();
-                    query.execute(&*bot.pool).await?;
+                    tx.execute(code.as_str()).await?;
                     start.elapsed()
                 }
             };
