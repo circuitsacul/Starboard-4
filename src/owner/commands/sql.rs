@@ -3,12 +3,17 @@ use std::{
     time::{Duration, Instant},
 };
 
-use sqlx::{postgres::PgRow, Column, Row};
+use sqlx::{postgres::PgRow, Column, Executor, Row, ValueRef};
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
 use crate::{client::bot::StarboardBot, concat_format, owner::code_block::parse_code_blocks};
 
 pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result<()> {
+    bot.http
+        .create_typing_trigger(event.channel_id)
+        .exec()
+        .await?;
+
     let blocks = parse_code_blocks(&event.content.strip_prefix("star sql").unwrap());
     let mut results = Vec::new();
 
@@ -25,13 +30,8 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
         for _ in 0..total_execs {
             let elapsed = match return_results {
                 true => {
-                    let query = sqlx::query(&code);
-                    // let query_str = format!(
-                    //    "with result as ({code}) select json_agg(result) from result;"
-                    //);
-                    //let query = sqlx::query(&query_str);
                     let start = Instant::now();
-                    let rows = query.fetch_all(&*bot.pool).await?;
+                    let rows = bot.pool.fetch_all(code.as_str()).await?;
                     let elapsed = start.elapsed();
                     result.replace(Some(rows.into_iter().map(|r| row_to_json(r)).collect()));
                     elapsed
@@ -54,13 +54,26 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
         results.push(result);
     }
 
-    println!("{:#?}", results);
     let mut final_result = String::new();
     for result in results {
         final_result.push_str(&concat_format!(
             "Query {} ran {} times, " <- result.tag, result.execution_times.len();
             "with an average time of {:?}.\n" <- result.average_time();
-        ))
+        ));
+
+        if let Some(inspect) = result.inspect {
+            final_result.push_str("```rs\n");
+            let mut x = 0;
+            for row in inspect {
+                x += 1;
+                if x == 5 {
+                    final_result.push_str(" - and more...");
+                    break;
+                }
+                final_result.push_str(&format!(" - {:?}\n", row));
+            }
+            final_result.push_str("```\n")
+        }
     }
 
     bot.http
@@ -75,8 +88,12 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
 fn row_to_json(row: PgRow) -> HashMap<String, String> {
     let mut result = HashMap::new();
     for col in row.columns() {
-        let name = col.name();
-        result.insert(name.to_string(), name.to_string());
+        let value = row.try_get_raw(col.ordinal()).unwrap();
+        let value = match value.is_null() {
+            true => "NULL".to_string(),
+            false => value.as_str().unwrap().to_string(),
+        };
+        result.insert(col.name().to_string(), value);
     }
 
     result
