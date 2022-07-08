@@ -23,6 +23,17 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result
         return Ok(());
     }
 
+    // Check cooldown
+    if bot
+        .cooldowns
+        .autostar_send
+        .trigger(event.channel_id)
+        .await
+        .is_none()
+    {
+        return Ok(());
+    }
+
     // Fetch the autostar channels
     let asc = AutoStarChannel::list_by_channel(&bot.pool, unwrap_id!(event.channel_id)).await?;
 

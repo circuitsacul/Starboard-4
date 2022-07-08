@@ -17,6 +17,8 @@ use twilight_standby::Standby;
 use crate::cache::cache::Cache;
 use crate::client::config::Config;
 
+use super::cooldowns::Cooldowns;
+
 #[derive(Clone)]
 pub struct StarboardBot {
     pub cluster: Arc<Cluster>,
@@ -27,6 +29,7 @@ pub struct StarboardBot {
     pub errors: Arc<ErrorHandler>,
     pub standby: Arc<Standby>,
     pub config: Arc<Config>,
+    pub cooldowns: Arc<Cooldowns>,
 }
 
 impl Debug for StarboardBot {
@@ -95,6 +98,7 @@ impl StarboardBot {
                 errors: Arc::new(errors),
                 standby: Arc::new(Standby::new()),
                 config: Arc::new(config),
+                cooldowns: Arc::new(Cooldowns::new()),
             },
         ))
     }
