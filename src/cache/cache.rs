@@ -22,6 +22,7 @@ pub struct Cache {
 
     // autocomplete
     pub guild_autostar_channel_names: moka::future::Cache<Id<GuildMarker>, Arc<Vec<String>>>,
+    pub guild_starboard_names: moka::future::Cache<Id<GuildMarker>, Arc<Vec<String>>>,
 }
 
 impl Cache {
@@ -33,6 +34,9 @@ impl Cache {
                 .build(),
             autostar_channel_ids: Arc::new(autostar_channel_ids),
             guild_autostar_channel_names: moka::future::Cache::builder()
+                .max_capacity(constants::MAX_AUTOSTAR_NAMES)
+                .build(),
+            guild_starboard_names: moka::future::Cache::builder()
                 .max_capacity(constants::MAX_AUTOSTAR_NAMES)
                 .build(),
         }

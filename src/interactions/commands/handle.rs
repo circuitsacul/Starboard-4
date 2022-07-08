@@ -29,7 +29,8 @@ pub async fn handle_command(
     match_commands!(
         ctx,
         "ping" => chat::ping::Ping,
-        "autostar" => chat::autostar::AutoStar
+        "autostar" => chat::autostar::AutoStar,
+        "starboard" => chat::starboard::Starboard
     );
 
     Ok(())
