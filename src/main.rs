@@ -6,6 +6,7 @@ pub mod database;
 pub mod events;
 pub mod interactions;
 pub mod macros;
+pub mod owner;
 pub mod utils;
 
 use tokio::main;
