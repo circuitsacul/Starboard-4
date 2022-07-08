@@ -19,7 +19,7 @@ pub struct RenameAutoStarChannel {
 }
 
 impl RenameAutoStarChannel {
-    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
 
         let new_name = match validation::name::validate_name(&self.new_name) {

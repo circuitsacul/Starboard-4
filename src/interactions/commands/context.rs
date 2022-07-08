@@ -1,7 +1,7 @@
-use twilight_http::{response::marker::EmptyBody, Response};
+use twilight_http::Response;
 use twilight_model::{
     application::interaction::ApplicationCommand,
-    channel::message::MessageFlags,
+    channel::{message::MessageFlags, Message},
     http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType},
 };
 use twilight_util::builder::InteractionResponseDataBuilder;
@@ -13,31 +13,78 @@ pub struct CommandCtx {
     pub shard_id: u64,
     pub bot: StarboardBot,
     pub interaction: Box<ApplicationCommand>,
+    responded: bool,
 }
 
+type TwResult = Result<Response<Message>, twilight_http::Error>;
+
 impl CommandCtx {
+    pub fn new(shard_id: u64, bot: StarboardBot, interaction: Box<ApplicationCommand>) -> Self {
+        Self {
+            shard_id,
+            bot,
+            interaction,
+            responded: false,
+        }
+    }
+
     pub fn build_resp(&self) -> InteractionResponseDataBuilder {
         InteractionResponseDataBuilder::new()
     }
 
     pub async fn raw_respond(
-        &self,
+        &mut self,
         data: Option<InteractionResponseData>,
         kind: InteractionResponseType,
-    ) -> anyhow::Result<Response<EmptyBody>> {
+    ) -> TwResult {
         let i = self.bot.interaction_client().await;
 
-        i.create_response(
-            self.interaction.id,
-            &self.interaction.token,
-            &InteractionResponse { data, kind },
-        )
-        .exec()
-        .await
-        .map_err(|e| e.into())
+        if self.responded {
+            let mut followup = i.create_followup(&self.interaction.token);
+            let data = match data {
+                None => panic!("cannot followup without data"),
+                Some(data) => data,
+            };
+
+            if let Some(mentions) = &data.allowed_mentions {
+                followup = followup.allowed_mentions(Some(mentions));
+            }
+            if let Some(attachments) = &data.attachments {
+                followup = followup.attachments(attachments).unwrap();
+            }
+            if let Some(components) = &data.components {
+                followup = followup.components(components).unwrap();
+            }
+            if let Some(content) = &data.content {
+                followup = followup.content(content).unwrap();
+            }
+            if let Some(embeds) = &data.embeds {
+                followup = followup.embeds(embeds).unwrap();
+            }
+            if let Some(flags) = data.flags {
+                followup = followup.flags(flags);
+            }
+            if let Some(tts) = data.tts {
+                followup = followup.tts(tts);
+            }
+
+            followup.exec().await
+        } else {
+            i.create_response(
+                self.interaction.id,
+                &self.interaction.token,
+                &InteractionResponse { data, kind },
+            )
+            .exec()
+            .await?;
+
+            self.responded = true;
+
+            i.response(&self.interaction.token).exec().await
+        }
     }
 
-    pub async fn defer(&self, ephemeral: bool) -> anyhow::Result<Response<EmptyBody>> {
+    pub async fn defer(&mut self, ephemeral: bool) -> TwResult {
         let mut data = self.build_resp();
         if ephemeral {
             data = data.flags(MessageFlags::EPHEMERAL);
@@ -50,10 +97,7 @@ impl CommandCtx {
         .await
     }
 
-    pub async fn respond(
-        &self,
-        data: InteractionResponseData,
-    ) -> anyhow::Result<Response<EmptyBody>> {
+    pub async fn respond(&mut self, data: InteractionResponseData) -> TwResult {
         self.raw_respond(
             Some(data),
             InteractionResponseType::ChannelMessageWithSource,
@@ -61,11 +105,7 @@ impl CommandCtx {
         .await
     }
 
-    pub async fn respond_str(
-        &self,
-        response: &str,
-        ephemeral: bool,
-    ) -> anyhow::Result<Response<EmptyBody>> {
+    pub async fn respond_str(&mut self, response: &str, ephemeral: bool) -> TwResult {
         let mut data = self.build_resp().content(response.into());
         if ephemeral {
             data = data.flags(MessageFlags::EPHEMERAL);

@@ -31,7 +31,7 @@ pub struct EditAutoStar {
 }
 
 impl EditAutoStar {
-    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
 
         let mut update = AutoStarChannel::edit_settings();

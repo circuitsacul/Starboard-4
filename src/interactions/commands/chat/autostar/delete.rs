@@ -13,7 +13,7 @@ pub struct DeleteAutoStarChannel {
 }
 
 impl DeleteAutoStarChannel {
-    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
         let ret = AutoStarChannel::delete(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await?;
         if ret.is_none() {

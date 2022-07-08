@@ -23,11 +23,7 @@ pub async fn handle_command(
     bot: StarboardBot,
     interaction: Box<ApplicationCommand>,
 ) -> anyhow::Result<()> {
-    let ctx = CommandCtx {
-        shard_id,
-        bot,
-        interaction,
-    };
+    let ctx = CommandCtx::new(shard_id, bot, interaction);
 
     match_commands!(
         ctx,

@@ -16,7 +16,7 @@ pub struct CreateAutoStarChannel {
 }
 
 impl CreateAutoStarChannel {
-    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
         map_dup_none!(Guild::create(&ctx.bot.pool, unwrap_id!(guild_id)))?;
         let channel_id = unwrap_id!(self.channel.id);

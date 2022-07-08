@@ -15,7 +15,7 @@ pub struct ViewAutoStarChannels {
 }
 
 impl ViewAutoStarChannels {
-    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
 
         if let Some(name) = &self.name {
