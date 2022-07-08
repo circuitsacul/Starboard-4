@@ -11,9 +11,7 @@ pub mod utils;
 
 use tokio::main;
 
-use crate::client::bot::StarboardBot;
-use crate::client::config::Config;
-use crate::client::runner::run;
+use crate::client::{bot::StarboardBot, config::Config, runner::run};
 
 #[main]
 async fn main() -> anyhow::Result<()> {

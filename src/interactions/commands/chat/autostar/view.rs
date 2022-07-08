@@ -1,10 +1,14 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::core::emoji::{EmojiCommon, SimpleEmoji};
-use crate::database::AutoStarChannel;
-use crate::interactions::commands::context::CommandCtx;
-use crate::utils::embed;
-use crate::{concat_format, get_guild_id, unwrap_id};
+use crate::{
+    concat_format,
+    core::emoji::{EmojiCommon, SimpleEmoji},
+    database::AutoStarChannel,
+    get_guild_id,
+    interactions::commands::context::CommandCtx,
+    unwrap_id,
+    utils::embed,
+};
 
 #[derive(CreateCommand, CommandModel)]
 #[command(name = "view", desc = "View your autostar channels.")]

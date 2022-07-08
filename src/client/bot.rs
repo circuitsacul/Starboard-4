@@ -14,8 +14,7 @@ use twilight_model::{
 };
 use twilight_standby::Standby;
 
-use crate::cache::cache::Cache;
-use crate::client::config::Config;
+use crate::{cache::cache::Cache, client::config::Config};
 
 use super::cooldowns::Cooldowns;
 

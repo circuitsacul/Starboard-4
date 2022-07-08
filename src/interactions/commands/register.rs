@@ -1,7 +1,6 @@
 use twilight_interactions::command::CreateCommand;
 
-use crate::client::bot::StarboardBot;
-use crate::interactions::commands::chat;
+use crate::{client::bot::StarboardBot, interactions::commands::chat};
 
 macro_rules! commands_to_create {
     ($( $command: ty ),* ) => {

@@ -1,9 +1,10 @@
 use twilight_interactions::command::CommandModel;
 use twilight_model::application::interaction::ApplicationCommand;
 
-use crate::client::bot::StarboardBot;
-use crate::interactions::commands::chat;
-use crate::interactions::commands::context::CommandCtx;
+use crate::{
+    client::bot::StarboardBot,
+    interactions::commands::{chat, context::CommandCtx},
+};
 
 macro_rules! match_commands {
     ($ctx:expr, $($cmd_name:expr => $command:ty),*) => {

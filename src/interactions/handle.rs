@@ -2,9 +2,10 @@ use twilight_model::application::interaction::Interaction;
 
 use crate::client::bot::StarboardBot;
 
-use super::autocomplete::handle::handle_autocomplete;
-use super::commands::handle::handle_command;
-use super::components::handle::handle_component;
+use super::{
+    autocomplete::handle::handle_autocomplete, commands::handle::handle_command,
+    components::handle::handle_component,
+};
 
 pub async fn handle_interaction(
     shard_id: u64,

@@ -5,8 +5,7 @@ use tokio::{
 };
 use twilight_gateway::cluster::Events;
 
-use crate::client::bot::StarboardBot;
-use crate::events::handle_event;
+use crate::{client::bot::StarboardBot, events::handle_event};
 
 async fn shutdown_handler(bot: StarboardBot) {
     let (tx, mut rx) = mpsc::unbounded_channel();
