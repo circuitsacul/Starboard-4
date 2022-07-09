@@ -30,7 +30,7 @@ pub async fn handle_command(
         ctx,
         "ping" => chat::ping::Ping,
         "autostar" => chat::autostar::AutoStar,
-        "starboard" => chat::starboard::Starboard
+        "starboards" => chat::starboard::Starboard
     );
 
     Ok(())

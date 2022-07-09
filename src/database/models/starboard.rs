@@ -51,4 +51,31 @@ impl Starboard {
 
         Ok(starboard_from_record!(starboard))
     }
+
+    pub async fn delete(
+        pool: &sqlx::PgPool,
+        name: &String,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query!(
+            "DELETE FROM starboards WHERE name=$1 AND guild_id=$2
+            RETURNING *",
+            name,
+            guild_id,
+        )
+        .fetch_optional(pool)
+        .await
+        .map(|row| row.map(|row| starboard_from_record!(row)))
+    }
+
+    pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+        sqlx::query!("SELECT * FROM starboards WHERE guild_id=$1", guild_id,)
+            .fetch_all(pool)
+            .await
+            .map(|rows| {
+                rows.into_iter()
+                    .map(|row| starboard_from_record!(row))
+                    .collect()
+            })
+    }
 }

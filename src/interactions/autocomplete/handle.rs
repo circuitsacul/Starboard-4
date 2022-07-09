@@ -11,7 +11,9 @@ use twilight_util::builder::InteractionResponseDataBuilder;
 
 use crate::client::bot::StarboardBot;
 
-use super::autostar_name::autostar_name_autocomplete;
+use super::{
+    autostar_name::autostar_name_autocomplete, starboard_name::starboard_name_autocomplete,
+};
 
 pub fn option_is_sub(options: &Vec<ApplicationCommandAutocompleteDataOption>) -> bool {
     if options.len() != 1 {
@@ -65,10 +67,13 @@ pub async fn handle_autocomplete(
     interaction: Box<ApplicationCommandAutocomplete>,
 ) -> anyhow::Result<()> {
     let options = match qualified_name(&interaction).as_str() {
+        // autostar channels
         "autostar delete name" => autostar_name_autocomplete(&bot, &interaction).await?,
         "autostar view name" => autostar_name_autocomplete(&bot, &interaction).await?,
         "autostar edit name" => autostar_name_autocomplete(&bot, &interaction).await?,
         "autostar rename current-name" => autostar_name_autocomplete(&bot, &interaction).await?,
+        // starboards
+        "starboards delete name" => starboard_name_autocomplete(&bot, &interaction).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 
