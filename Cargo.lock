@@ -2001,9 +2001,9 @@ dependencies = [
 
 [[package]]
 name = "twilight-model"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e208e0d8dcda82fd6e1c892d0c03f24c3ecc18709f35f9b6969facf0050485c0"
+checksum = "da3881807717963c8fe0afc7ce4e6f64cc3c5ae3ec0a9ba4a13462b1367a266d"
 dependencies = [
  "bitflags",
  "serde",
