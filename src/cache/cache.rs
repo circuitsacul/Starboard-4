@@ -11,14 +11,13 @@ use crate::constants;
 
 use super::{models::message::CachedMessage, update::UpdateCache};
 
-#[derive(Clone)]
 pub struct Cache {
     // discord side
-    pub guild_emojis: Arc<DashMap<Id<GuildMarker>, DashSet<Id<EmojiMarker>>>>,
+    pub guild_emojis: DashMap<Id<GuildMarker>, DashSet<Id<EmojiMarker>>>,
     pub messages: moka::future::Cache<Id<MessageMarker>, Arc<CachedMessage>>,
 
     // database side
-    pub autostar_channel_ids: Arc<DashSet<Id<ChannelMarker>>>,
+    pub autostar_channel_ids: DashSet<Id<ChannelMarker>>,
 
     // autocomplete
     pub guild_autostar_channel_names: moka::future::Cache<Id<GuildMarker>, Arc<Vec<String>>>,
@@ -27,11 +26,11 @@ pub struct Cache {
 impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
         Self {
-            guild_emojis: Arc::new(DashMap::new()),
+            guild_emojis: DashMap::new(),
             messages: moka::future::Cache::builder()
                 .max_capacity(constants::MAX_MESSAGES)
                 .build(),
-            autostar_channel_ids: Arc::new(autostar_channel_ids),
+            autostar_channel_ids: autostar_channel_ids,
             guild_autostar_channel_names: moka::future::Cache::builder()
                 .max_capacity(constants::MAX_AUTOSTAR_NAMES)
                 .build(),

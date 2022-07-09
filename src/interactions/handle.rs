@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use twilight_model::application::interaction::Interaction;
 
 use crate::client::bot::StarboardBot;
@@ -10,7 +12,7 @@ use super::{
 pub async fn handle_interaction(
     shard_id: u64,
     interaction: Interaction,
-    bot: StarboardBot,
+    bot: Arc<StarboardBot>,
 ) -> anyhow::Result<()> {
     match interaction {
         Interaction::ApplicationCommand(interaction) => {

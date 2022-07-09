@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use twilight_http::Response;
 use twilight_model::{
     application::interaction::ApplicationCommand,
@@ -11,7 +13,7 @@ use crate::client::bot::StarboardBot;
 #[derive(Debug)]
 pub struct CommandCtx {
     pub shard_id: u64,
-    pub bot: StarboardBot,
+    pub bot: Arc<StarboardBot>,
     pub interaction: Box<ApplicationCommand>,
     responded: bool,
 }
@@ -19,7 +21,11 @@ pub struct CommandCtx {
 type TwResult = Result<Response<Message>, twilight_http::Error>;
 
 impl CommandCtx {
-    pub fn new(shard_id: u64, bot: StarboardBot, interaction: Box<ApplicationCommand>) -> Self {
+    pub fn new(
+        shard_id: u64,
+        bot: Arc<StarboardBot>,
+        interaction: Box<ApplicationCommand>,
+    ) -> Self {
         Self {
             shard_id,
             bot,
