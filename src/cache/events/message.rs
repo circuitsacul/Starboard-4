@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use async_trait::async_trait;
 use twilight_model::gateway::payload::incoming::{
     MessageCreate, MessageDelete, MessageDeleteBulk, MessageUpdate,
@@ -21,10 +19,7 @@ impl UpdateCache for MessageCreate {
             embeds: self.embeds.clone(),
         };
 
-        cache
-            .messages
-            .insert(message.id, Arc::new(message), 1)
-            .await;
+        cache.messages.insert(message.id, message, 1).await;
     }
 }
 
@@ -69,6 +64,6 @@ impl UpdateCache for MessageUpdate {
             embeds,
         };
 
-        cache.messages.insert(self.id, Arc::new(message), 1).await;
+        cache.messages.insert(self.id, message, 1).await;
     }
 }

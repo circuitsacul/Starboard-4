@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use dashmap::{DashMap, DashSet};
 use twilight_gateway::Event;
 use twilight_model::id::{
@@ -14,13 +12,13 @@ use super::{models::message::CachedMessage, update::UpdateCache};
 pub struct Cache {
     // discord side
     pub guild_emojis: DashMap<Id<GuildMarker>, DashSet<Id<EmojiMarker>>>,
-    pub messages: stretto::AsyncCache<Id<MessageMarker>, Arc<CachedMessage>>,
+    pub messages: stretto::AsyncCache<Id<MessageMarker>, CachedMessage>,
 
     // database side
     pub autostar_channel_ids: DashSet<Id<ChannelMarker>>,
 
     // autocomplete
-    pub guild_autostar_channel_names: stretto::AsyncCache<Id<GuildMarker>, Arc<Vec<String>>>,
+    pub guild_autostar_channel_names: stretto::AsyncCache<Id<GuildMarker>, Vec<String>>,
 }
 
 impl Cache {
