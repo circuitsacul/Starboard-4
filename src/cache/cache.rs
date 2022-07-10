@@ -25,18 +25,18 @@ impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
         Self {
             guild_emojis: DashMap::new(),
-            messages: stretto::AsyncCacheBuilder::new(
+            messages: stretto::AsyncCache::new(
                 (constants::MAX_MESSAGES * 10).try_into().unwrap(),
                 constants::MAX_MESSAGES.into(),
+                tokio::spawn,
             )
-            .finalize(tokio::spawn)
             .unwrap(),
             autostar_channel_ids,
-            guild_autostar_channel_names: stretto::AsyncCacheBuilder::new(
+            guild_autostar_channel_names: stretto::AsyncCache::new(
                 (constants::MAX_AUTOSTAR_NAMES * 10).try_into().unwrap(),
-                constants::MAX_MESSAGES.into(),
+                constants::MAX_AUTOSTAR_NAMES.into(),
+                tokio::spawn,
             )
-            .finalize(tokio::spawn)
             .unwrap(),
         }
     }
