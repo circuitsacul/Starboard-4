@@ -21,14 +21,17 @@ impl UpdateCache for MessageCreate {
             embeds: self.embeds.clone(),
         };
 
-        cache.messages.insert(message.id, Arc::new(message)).await;
+        cache
+            .messages
+            .insert(message.id, Arc::new(message), 1)
+            .await;
     }
 }
 
 #[async_trait]
 impl UpdateCache for MessageDelete {
     async fn update_cache(&self, cache: &Cache) {
-        cache.messages.invalidate(&self.id).await;
+        cache.messages.remove(&self.id).await;
     }
 }
 
@@ -36,7 +39,7 @@ impl UpdateCache for MessageDelete {
 impl UpdateCache for MessageDeleteBulk {
     async fn update_cache(&self, cache: &Cache) {
         for id in &self.ids {
-            cache.messages.invalidate(id).await;
+            cache.messages.remove(id).await;
         }
     }
 }
@@ -53,11 +56,11 @@ impl UpdateCache for MessageUpdate {
 
         let attachments = match &self.attachments {
             Some(attachments) => attachments.clone(),
-            None => cached.attachments.clone(),
+            None => cached.value().attachments.clone(),
         };
         let embeds = match &self.embeds {
             Some(embeds) => embeds.clone(),
-            None => cached.embeds.clone(),
+            None => cached.value().embeds.clone(),
         };
 
         let message = CachedMessage {
@@ -66,6 +69,6 @@ impl UpdateCache for MessageUpdate {
             embeds,
         };
 
-        cache.messages.insert(self.id, Arc::new(message)).await;
+        cache.messages.insert(self.id, Arc::new(message), 1).await;
     }
 }

@@ -14,26 +14,32 @@ use super::{models::message::CachedMessage, update::UpdateCache};
 pub struct Cache {
     // discord side
     pub guild_emojis: DashMap<Id<GuildMarker>, DashSet<Id<EmojiMarker>>>,
-    pub messages: moka::future::Cache<Id<MessageMarker>, Arc<CachedMessage>>,
+    pub messages: stretto::AsyncCache<Id<MessageMarker>, Arc<CachedMessage>>,
 
     // database side
     pub autostar_channel_ids: DashSet<Id<ChannelMarker>>,
 
     // autocomplete
-    pub guild_autostar_channel_names: moka::future::Cache<Id<GuildMarker>, Arc<Vec<String>>>,
+    pub guild_autostar_channel_names: stretto::AsyncCache<Id<GuildMarker>, Arc<Vec<String>>>,
 }
 
 impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
         Self {
             guild_emojis: DashMap::new(),
-            messages: moka::future::Cache::builder()
-                .max_capacity(constants::MAX_MESSAGES)
-                .build(),
-            autostar_channel_ids: autostar_channel_ids,
-            guild_autostar_channel_names: moka::future::Cache::builder()
-                .max_capacity(constants::MAX_AUTOSTAR_NAMES)
-                .build(),
+            messages: stretto::AsyncCacheBuilder::new(
+                (constants::MAX_MESSAGES * 10).try_into().unwrap(),
+                constants::MAX_MESSAGES.into(),
+            )
+            .finalize(tokio::spawn)
+            .unwrap(),
+            autostar_channel_ids,
+            guild_autostar_channel_names: stretto::AsyncCacheBuilder::new(
+                (constants::MAX_AUTOSTAR_NAMES * 10).try_into().unwrap(),
+                constants::MAX_MESSAGES.into(),
+            )
+            .finalize(tokio::spawn)
+            .unwrap(),
         }
     }
 

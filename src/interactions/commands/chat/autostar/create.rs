@@ -53,7 +53,7 @@ impl CreateAutoStarChannel {
             ctx.bot
                 .cache
                 .guild_autostar_channel_names
-                .invalidate(&guild_id)
+                .remove(&guild_id)
                 .await;
 
             ctx.respond_str(
