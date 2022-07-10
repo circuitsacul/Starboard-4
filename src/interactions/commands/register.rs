@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use twilight_interactions::command::CreateCommand;
 
 use crate::{client::bot::StarboardBot, interactions::commands::chat};
@@ -12,7 +14,7 @@ macro_rules! commands_to_create {
     };
 }
 
-pub async fn post_commands(bot: StarboardBot) {
+pub async fn post_commands(bot: Arc<StarboardBot>) {
     let inter_client = bot.interaction_client().await;
 
     let commands = commands_to_create!(chat::ping::Ping, chat::autostar::AutoStar);

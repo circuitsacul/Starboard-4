@@ -1,4 +1,4 @@
-use std::{fmt::Debug, sync::Arc};
+use std::fmt::Debug;
 
 use sqlx::PgPool;
 use tokio::sync::RwLock;
@@ -18,17 +18,16 @@ use crate::{cache::cache::Cache, client::config::Config};
 
 use super::cooldowns::Cooldowns;
 
-#[derive(Clone)]
 pub struct StarboardBot {
-    pub cluster: Arc<Cluster>,
-    pub http: Arc<HttpClient>,
+    pub cluster: Cluster,
+    pub http: HttpClient,
     pub cache: Cache,
-    pub application: Arc<RwLock<Option<PartialApplication>>>,
-    pub pool: Arc<PgPool>,
-    pub errors: Arc<ErrorHandler>,
-    pub standby: Arc<Standby>,
-    pub config: Arc<Config>,
-    pub cooldowns: Arc<Cooldowns>,
+    pub application: RwLock<Option<PartialApplication>>,
+    pub pool: PgPool,
+    pub errors: ErrorHandler,
+    pub standby: Standby,
+    pub config: Config,
+    pub cooldowns: Cooldowns,
 }
 
 impl Debug for StarboardBot {
@@ -89,15 +88,15 @@ impl StarboardBot {
         Ok((
             events,
             Self {
-                cluster: Arc::new(cluster),
-                http: Arc::new(http),
+                cluster: cluster,
+                http: http,
                 cache: cache,
-                application: Arc::new(RwLock::new(None)),
-                pool: Arc::new(pool),
-                errors: Arc::new(errors),
-                standby: Arc::new(Standby::new()),
-                config: Arc::new(config),
-                cooldowns: Arc::new(Cooldowns::new()),
+                application: RwLock::new(None),
+                pool: pool,
+                errors: errors,
+                standby: Standby::new(),
+                config: config,
+                cooldowns: Cooldowns::new(),
             },
         ))
     }

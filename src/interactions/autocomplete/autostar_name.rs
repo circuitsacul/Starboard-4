@@ -13,7 +13,7 @@ pub async fn autostar_name_autocomplete(
         .guild_autostar_channel_names
         .get(&interaction.guild_id.unwrap())
     {
-        Some(names) => (*names).clone(),
+        Some(names) => (*names.value()).clone(),
         None => {
             AutoStarChannel::list_by_guild(&bot.pool, unwrap_id!(interaction.guild_id.unwrap()))
                 .await?

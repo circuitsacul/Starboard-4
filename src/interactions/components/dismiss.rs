@@ -1,9 +1,11 @@
+use std::sync::Arc;
+
 use twilight_model::application::interaction::MessageComponentInteraction;
 
 use crate::client::bot::StarboardBot;
 
 pub async fn handle_dismiss(
-    bot: StarboardBot,
+    bot: Arc<StarboardBot>,
     interaction: Box<MessageComponentInteraction>,
 ) -> anyhow::Result<()> {
     assert!(interaction.is_dm());

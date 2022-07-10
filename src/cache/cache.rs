@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use dashmap::{DashMap, DashSet};
 use twilight_gateway::Event;
 use twilight_model::id::{
@@ -11,30 +9,35 @@ use crate::constants;
 
 use super::{models::message::CachedMessage, update::UpdateCache};
 
-#[derive(Clone)]
 pub struct Cache {
     // discord side
-    pub guild_emojis: Arc<DashMap<Id<GuildMarker>, DashSet<Id<EmojiMarker>>>>,
-    pub messages: moka::future::Cache<Id<MessageMarker>, Arc<CachedMessage>>,
+    pub guild_emojis: DashMap<Id<GuildMarker>, DashSet<Id<EmojiMarker>>>,
+    pub messages: stretto::AsyncCache<Id<MessageMarker>, CachedMessage>,
 
     // database side
-    pub autostar_channel_ids: Arc<DashSet<Id<ChannelMarker>>>,
+    pub autostar_channel_ids: DashSet<Id<ChannelMarker>>,
 
     // autocomplete
-    pub guild_autostar_channel_names: moka::future::Cache<Id<GuildMarker>, Arc<Vec<String>>>,
+    pub guild_autostar_channel_names: stretto::AsyncCache<Id<GuildMarker>, Vec<String>>,
 }
 
 impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
         Self {
-            guild_emojis: Arc::new(DashMap::new()),
-            messages: moka::future::Cache::builder()
-                .max_capacity(constants::MAX_MESSAGES)
-                .build(),
-            autostar_channel_ids: Arc::new(autostar_channel_ids),
-            guild_autostar_channel_names: moka::future::Cache::builder()
-                .max_capacity(constants::MAX_AUTOSTAR_NAMES)
-                .build(),
+            guild_emojis: DashMap::new(),
+            messages: stretto::AsyncCache::new(
+                (constants::MAX_MESSAGES * 10).try_into().unwrap(),
+                constants::MAX_MESSAGES.into(),
+                tokio::spawn,
+            )
+            .unwrap(),
+            autostar_channel_ids,
+            guild_autostar_channel_names: stretto::AsyncCache::new(
+                (constants::MAX_AUTOSTAR_NAMES * 10).try_into().unwrap(),
+                constants::MAX_AUTOSTAR_NAMES.into(),
+                tokio::spawn,
+            )
+            .unwrap(),
         }
     }
 
