@@ -49,7 +49,7 @@ impl CreateStarboard {
             ctx.bot
                 .cache
                 .guild_starboard_names
-                .invalidate(&guild_id)
+                .remove(&guild_id)
                 .await;
 
             ctx.respond_str(
