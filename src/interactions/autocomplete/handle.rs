@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use twilight_model::{
     application::interaction::{
         application_command_autocomplete::{
@@ -63,7 +65,7 @@ pub fn qualified_name(interaction: &Box<ApplicationCommandAutocomplete>) -> Stri
 }
 
 pub async fn handle_autocomplete(
-    bot: StarboardBot,
+    bot: Arc<StarboardBot>,
     interaction: Box<ApplicationCommandAutocomplete>,
 ) -> anyhow::Result<()> {
     let options = match qualified_name(&interaction).as_str() {

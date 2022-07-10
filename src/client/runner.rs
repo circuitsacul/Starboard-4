@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use futures::stream::StreamExt;
 use tokio::{
     signal::unix::{signal, SignalKind},
@@ -7,7 +9,7 @@ use twilight_gateway::cluster::Events;
 
 use crate::{client::bot::StarboardBot, events::handle_event};
 
-async fn shutdown_handler(bot: StarboardBot) {
+async fn shutdown_handler(bot: Arc<StarboardBot>) {
     let (tx, mut rx) = mpsc::unbounded_channel();
 
     for kind in [SignalKind::terminate(), SignalKind::interrupt()].into_iter() {
@@ -26,6 +28,8 @@ async fn shutdown_handler(bot: StarboardBot) {
 }
 
 pub async fn run(mut events: Events, bot: StarboardBot) {
+    let bot = Arc::new(bot);
+
     if bot.config.development {
         println!("Running bot in development mode.");
     }
