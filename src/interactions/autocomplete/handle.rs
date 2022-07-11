@@ -76,6 +76,7 @@ pub async fn handle_autocomplete(
         "autostar rename current-name" => autostar_name_autocomplete(&bot, &interaction).await?,
         // starboards
         "starboards delete name" => starboard_name_autocomplete(&bot, &interaction).await?,
+        "starboards view name" => starboard_name_autocomplete(&bot, &interaction).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 

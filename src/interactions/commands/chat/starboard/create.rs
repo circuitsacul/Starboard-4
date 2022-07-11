@@ -46,11 +46,7 @@ impl CreateStarboard {
             )
             .await?;
         } else {
-            ctx.bot
-                .cache
-                .guild_starboard_names
-                .remove(&guild_id)
-                .await;
+            ctx.bot.cache.guild_starboard_names.remove(&guild_id).await;
 
             ctx.respond_str(
                 &format!("Created starboard '{}' in <#{}>.", name, channel_id),

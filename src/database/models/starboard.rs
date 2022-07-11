@@ -68,6 +68,22 @@ impl Starboard {
         .map(|row| row.map(|row| starboard_from_record!(row)))
     }
 
+    pub async fn get_by_name(
+        pool: &sqlx::PgPool,
+        name: &str,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        let result = sqlx::query!(
+            "SELECT * FROM starboards WHERE name=$1 AND guild_id=$2",
+            name,
+            guild_id
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(result.map(|sb| starboard_from_record!(sb)))
+    }
+
     pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query!("SELECT * FROM starboards WHERE guild_id=$1", guild_id,)
             .fetch_all(pool)

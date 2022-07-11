@@ -1,5 +1,6 @@
 pub mod create;
 pub mod delete;
+pub mod view;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
@@ -17,6 +18,8 @@ pub enum Starboard {
     Create(create::CreateStarboard),
     #[command(name = "delete")]
     Delete(delete::DeleteStarboard),
+    #[command(name = "view")]
+    View(view::ViewStarboard),
 }
 
 impl Starboard {
@@ -24,6 +27,7 @@ impl Starboard {
         match self {
             Self::Create(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
+            Self::View(cmd) => cmd.callback(ctx).await,
         }
     }
 }

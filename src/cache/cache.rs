@@ -44,7 +44,7 @@ impl Cache {
                 constants::MAX_AUTOSTAR_NAMES.into(),
                 tokio::spawn,
             )
-            .unwrap()
+            .unwrap(),
         }
     }
 
