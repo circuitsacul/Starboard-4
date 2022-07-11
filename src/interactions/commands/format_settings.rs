@@ -4,41 +4,11 @@ use twilight_model::id::{marker::GuildMarker, Id};
 
 use crate::{
     client::bot::StarboardBot,
-    concat_format,
     core::{
         emoji::{EmojiCommon, SimpleEmoji},
         starboard::config::StarboardConfig,
     },
 };
-
-macro_rules! build_setting {
-    ($ov_values: expr, $setting: ident, $pretty_name: expr, $value: expr) => {{
-        let is_bold = match &$ov_values {
-            None => false,
-            Some(ov) => match ov.$setting {
-                None => false,
-                Some(_) => true,
-            },
-        };
-
-        let setting_name = match is_bold {
-            true => format!("**{}**", $pretty_name),
-            false => $pretty_name.to_string(),
-        };
-
-        format!("{}: {}", setting_name, $value)
-    }};
-}
-
-macro_rules! join_settings {
-    ($($setting: expr),*) => {{
-        let mut final_result = String::new();
-        $(
-            final_result.push_str(&$setting);
-        )*
-        final_result
-    }}
-}
 
 pub async fn format_settings(
     bot: &StarboardBot,
@@ -50,6 +20,31 @@ pub async fn format_settings(
         Some(ov) => Some(ov.get_overrides().unwrap()),
     };
 
+    macro_rules! settings {
+        ($($setting: ident, $pretty_name: expr, $value: expr;)*) => {{
+            let mut final_result = String::new();
+            $(
+                let is_bold = match &ov_values {
+                    None => false,
+                    Some(ov) => match ov.$setting {
+                        None => false,
+                        Some(_) => true,
+                    },
+                };
+
+                let setting_name = match is_bold {
+                    true => format!("**{}**", $pretty_name),
+                    false => $pretty_name.to_string(),
+                };
+
+                final_result.push_str(&format!("{}: {}\n", setting_name, $value));
+            )*
+            final_result
+        }};
+    }
+
+    let res = &config.resolved;
+
     let display_emoji = SimpleEmoji::from_stored(
         config
             .resolved
@@ -60,28 +55,68 @@ pub async fn format_settings(
     .into_readable(bot, guild_id)
     .await;
 
+    let upvote_emojis = Vec::<SimpleEmoji>::from_stored(res.upvote_emojis.clone())
+        .into_readable(bot, guild_id)
+        .await;
+    let downvote_emojis = Vec::<SimpleEmoji>::from_stored(res.downvote_emojis.clone())
+        .into_readable(bot, guild_id)
+        .await;
+
+    let cooldown = {
+        let is_bold = match &ov_values {
+            None => false,
+            Some(ov) => ov.cooldown_count.is_some() || ov.cooldown_period.is_some(),
+        };
+
+        let setting_name = match is_bold {
+            false => "cooldown",
+            true => "**cooldown**",
+        };
+
+        format!(
+            "{}: {} reactions per {} seconds\n",
+            setting_name, res.cooldown_count, res.cooldown_period
+        )
+    };
+
+    let behavior = settings!(
+        enabled, "enabled", res.enabled;
+        autoreact_upvote, "autoreact-upvote", res.autoreact_upvote;
+        autoreact_downvote, "autoreact-downvote", res.autoreact_downvote;
+        remove_invalid_reactions, "remove-invalid-reactions", res.remove_invalid_reactions;
+        link_deletes, "link-deletes", res.link_deletes;
+        link_edits, "link-edits", res.link_edits;
+        xp_multiplier, "xp-multiplier", res.xp_multiplier;
+        cooldown_enabled, "cooldown-enabled", res.cooldown_enabled;
+    ) + &cooldown
+        + &format!("private: {}", res.private);
+
     FormattedStarboardSettings {
-        style: join_settings!(build_setting!(
-            ov_values,
-            display_emoji,
-            "display-emoji",
-            display_emoji
-        )),
-        embed: concat_format!(
-            "color:";
+        style: settings!(
+            display_emoji, "display-emoji", display_emoji;
+            ping_author, "ping-author", res.ping_author;
+            use_server_profile, "use-server-profile", res.use_server_profile;
+            extra_embeds, "extra-embeds", res.extra_embeds;
+            use_webhook, "use-webhook", res.use_webhook;
         ),
-        requirements: join_settings!(build_setting!(
-            ov_values,
-            required,
-            "required",
-            config.resolved.required
-        )),
-        behavior: join_settings!(build_setting!(
-            ov_values,
-            autoreact_upvote,
-            "autoreact-upvote",
-            config.resolved.autoreact_upvote
-        )),
+        embed: settings!(
+            color, "color", res.color.unwrap_or(0); // todo
+            jump_to_message, "jump-to-message", res.jump_to_message;
+            attachments_list, "attachments-list", res.attachments_list;
+            replied_to, "replied-to", res.replied_to;
+        ),
+        requirements: settings!(
+            required, "required", res.required;
+            required_remove, "required-remove", res.required_remove;
+            upvote_emojis, "upvote-emojis", upvote_emojis;
+            downvote_emojis, "downvote-emojis", downvote_emojis;
+            self_vote, "self-vote", res.self_vote;
+            allow_bots, "allow-bots", res.allow_bots;
+            require_image, "require-image", res.require_image;
+            older_than, "older-than", res.older_than;
+            newer_than, "newer-than", res.newer_than;
+        ),
+        behavior,
     }
 }
 
