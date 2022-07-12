@@ -3,18 +3,16 @@ macro_rules! build_update {
         {
             let mut is_first = true;
             $(
-                if let Some(value) = $builder_struct.$arg {
-                    if !is_first {
-                        $builder_query.push(", ");
-                    } else {
-                        is_first = false;
-                    }
-
-                    $builder_query
-                        .push(stringify!($arg))
-                        .push("=")
-                        .push_bind(value);
+                if !is_first {
+                    $builder_query.push(", ");
+                } else {
+                    is_first = false;
                 }
+
+                $builder_query
+                    .push(stringify!($arg))
+                    .push("=")
+                    .push_bind($builder_struct.$arg);
             )+
 
             is_first

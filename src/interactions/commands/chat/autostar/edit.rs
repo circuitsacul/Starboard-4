@@ -34,32 +34,40 @@ impl EditAutoStar {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
 
-        let mut update = AutoStarChannel::edit_settings();
+        let asc =
+            AutoStarChannel::get_by_name(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await?;
+        let mut asc = match asc {
+            None => {
+                ctx.respond_str("No autostar channel with that name was found.", true)
+                    .await?;
+                return Ok(());
+            }
+            Some(asc) => asc,
+        };
 
         if let Some(val) = self.emojis {
-            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).await;
-            update.set_emojis(emojis.into_stored());
+            asc.emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
+                .await
+                .into_stored();
         }
         if let Some(val) = self.min_chars {
-            update.set_min_chars(val.try_into().unwrap());
+            asc.min_chars = val.try_into().unwrap();
         }
         if let Some(val) = self.max_chars {
-            update.set_max_chars(if val == -1 {
+            asc.max_chars = if val == -1 {
                 None
             } else {
                 Some(val.try_into().unwrap())
-            });
+            };
         }
         if let Some(val) = self.require_image {
-            update.set_require_image(val);
+            asc.require_image = val;
         }
         if let Some(val) = self.delete_invalid {
-            update.set_delete_invalid(val);
+            asc.delete_invalid = val;
         }
 
-        let asc = update
-            .exec(&ctx.bot.pool, &self.name, unwrap_id!(guild_id))
-            .await?;
+        let asc = asc.update_settings(&ctx.bot.pool).await?;
 
         if asc.is_none() {
             ctx.respond_str("No autostar channels with that name were found.", true)

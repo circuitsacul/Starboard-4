@@ -1,7 +1,5 @@
 use sqlx::FromRow;
 
-use crate::constants;
-
 use crate::database::helpers::{
     query::build_update::build_update, settings::autostar::call_with_autostar_settings,
 };
@@ -62,8 +60,24 @@ impl AutoStarChannel {
         .await
     }
 
-    pub fn edit_settings() -> UpdateAutoStarChannel {
-        UpdateAutoStarChannel::new()
+    pub async fn update_settings(self, pool: &sqlx::PgPool) -> sqlx::Result<Option<Self>> {
+        let mut builder =
+            sqlx::QueryBuilder::<sqlx::Postgres>::new("UPDATE autostar_channels SET ");
+
+        call_with_autostar_settings!(build_update, self, builder);
+
+        builder
+            .push(" WHERE name=")
+            .push_bind(self.name)
+            .push(" AND guild_id=")
+            .push_bind(self.guild_id)
+            .push(" RETURNING *");
+
+        builder
+            .build()
+            .fetch_optional(pool)
+            .await
+            .map(|r| r.map(|r| AutoStarChannel::from_row(&r).unwrap()))
     }
 
     pub async fn rename(
@@ -119,81 +133,5 @@ impl AutoStarChannel {
         )
         .fetch_optional(pool)
         .await
-    }
-}
-
-#[derive(Default)]
-pub struct UpdateAutoStarChannel {
-    emojis: Option<Vec<String>>,
-    min_chars: Option<i16>,
-    max_chars: Option<Option<i16>>,
-    require_image: Option<bool>,
-    delete_invalid: Option<bool>,
-}
-
-impl UpdateAutoStarChannel {
-    fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
-    }
-
-    pub fn set_emojis(&mut self, emojis: Vec<String>) {
-        self.emojis = Some(emojis);
-    }
-
-    pub fn set_min_chars(&mut self, value: i16) {
-        if value as u16 > constants::MAX_MIN_CHARS {
-            panic!("Received min-chars that was greater than maxium.");
-        } else if value < 0 {
-            panic!("Received min-chars that was less than 0.");
-        }
-
-        self.min_chars = Some(value);
-    }
-
-    pub fn set_max_chars(&mut self, value: Option<i16>) {
-        if let Some(value) = value {
-            if value as u16 > constants::MAX_MAX_CHARS {
-                panic!("Received max-chars that was greater than maximum.");
-            } else if value < 0 {
-                panic!("Recieved max-chars that was less than 0.");
-            }
-        }
-
-        self.max_chars = Some(value);
-    }
-
-    pub fn set_require_image(&mut self, value: bool) {
-        self.require_image = Some(value);
-    }
-
-    pub fn set_delete_invalid(&mut self, value: bool) {
-        self.delete_invalid = Some(value);
-    }
-
-    pub async fn exec(
-        self,
-        pool: &sqlx::PgPool,
-        name: &String,
-        guild_id: i64,
-    ) -> sqlx::Result<Option<AutoStarChannel>> {
-        let mut builder =
-            sqlx::QueryBuilder::<sqlx::Postgres>::new("UPDATE autostar_channels SET ");
-
-        call_with_autostar_settings!(build_update, self, builder);
-
-        builder
-            .push(" WHERE name=")
-            .push_bind(name)
-            .push(" AND guild_id=")
-            .push_bind(guild_id)
-            .push(" RETURNING *");
-
-        builder
-            .build()
-            .fetch_optional(pool)
-            .await
-            .map(|r| r.map(|r| AutoStarChannel::from_row(&r).unwrap()))
     }
 }
