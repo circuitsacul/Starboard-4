@@ -4,6 +4,7 @@ use twilight_model::id::{marker::GuildMarker, Id};
 
 use crate::{
     client::bot::StarboardBot,
+    constants,
     core::{
         emoji::{EmojiCommon, SimpleEmoji},
         starboard::config::StarboardConfig,
@@ -100,7 +101,9 @@ pub async fn format_settings(
             use_webhook, "use-webhook", res.use_webhook;
         ),
         embed: settings!(
-            color, "color", res.color.unwrap_or(0); // todo
+            color, "color", &format!(
+                "#{:X}", res.color.unwrap_or(constants::BOT_COLOR.try_into().unwrap())
+            );
             jump_to_message, "jump-to-message", res.jump_to_message;
             attachments_list, "attachments-list", res.attachments_list;
             replied_to, "replied-to", res.replied_to;
