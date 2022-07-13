@@ -38,7 +38,7 @@ pub struct StarboardSettings {
     pub cooldown_period: i16,
 }
 
-macro_rules! generate_settings {
+macro_rules! settings_from_record {
     ($has_settings: expr, $($name: ident),*) => {
         StarboardSettings {
             $(
@@ -47,5 +47,15 @@ macro_rules! generate_settings {
         }
     };
 }
+macro_rules! settings_from_row {
+    ($has_settings: expr, $($name: ident),*) => {
+        StarboardSettings {
+            $(
+                $name: $has_settings.get(stringify!($name)),
+            )*
+        }
+    };
+}
 
-pub(crate) use generate_settings;
+pub(crate) use settings_from_record;
+pub(crate) use settings_from_row;
