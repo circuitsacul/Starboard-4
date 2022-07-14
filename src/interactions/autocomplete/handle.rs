@@ -77,6 +77,7 @@ pub async fn handle_autocomplete(
         // starboards
         "starboards delete name" => starboard_name_autocomplete(&bot, &interaction).await?,
         "starboards view name" => starboard_name_autocomplete(&bot, &interaction).await?,
+        "starboards edit embed name" => starboard_name_autocomplete(&bot, &interaction).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 
