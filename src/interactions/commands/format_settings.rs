@@ -51,7 +51,7 @@ pub async fn format_settings(
             .resolved
             .display_emoji
             .clone()
-            .unwrap_or(":star:".to_string()),
+            .unwrap_or("none".to_string()),
     )
     .into_readable(bot, guild_id)
     .await;
