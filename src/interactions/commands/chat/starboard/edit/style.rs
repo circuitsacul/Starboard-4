@@ -54,7 +54,8 @@ impl EditGeneralStyle {
             } else {
                 emoji = match SimpleEmoji::from_user_input(val, &ctx.bot, guild_id).await {
                     None => {
-                        ctx.respond_str("Invalid emoji for `display-emoji`.", true).await?;
+                        ctx.respond_str("Invalid emoji for `display-emoji`.", true)
+                            .await?;
                         return Ok(());
                     }
                     Some(emoji) => Some(emoji),

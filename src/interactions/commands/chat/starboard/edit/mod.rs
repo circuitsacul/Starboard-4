@@ -1,4 +1,5 @@
 pub mod embed;
+pub mod requirements;
 pub mod style;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
@@ -12,6 +13,8 @@ pub enum EditStarboard {
     Embed(embed::EditEmbedStyle),
     #[command(name = "style")]
     Style(style::EditGeneralStyle),
+    #[command(name = "requirements")]
+    Requirements(requirements::EditRequirements),
 }
 
 impl EditStarboard {
@@ -19,6 +22,7 @@ impl EditStarboard {
         match self {
             Self::Embed(cmd) => cmd.callback(ctx).await,
             Self::Style(cmd) => cmd.callback(ctx).await,
+            Self::Requirements(cmd) => cmd.callback(ctx).await,
         }
     }
 }

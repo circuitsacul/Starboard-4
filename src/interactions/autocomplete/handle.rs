@@ -79,6 +79,9 @@ pub async fn handle_autocomplete(
         "starboards view name" => starboard_name_autocomplete(&bot, &interaction).await?,
         "starboards edit embed name" => starboard_name_autocomplete(&bot, &interaction).await?,
         "starboards edit style name" => starboard_name_autocomplete(&bot, &interaction).await?,
+        "starboards edit requirements name" => {
+            starboard_name_autocomplete(&bot, &interaction).await?
+        }
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 
