@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     core::emoji::{EmojiCommon, SimpleEmoji},
-    database::Starboard,
+    database::{validation::time_delta::parse_time_delta, Starboard},
     get_guild_id,
     interactions::commands::context::CommandCtx,
     unwrap_id,
@@ -44,11 +44,11 @@ pub struct EditRequirements {
     #[command(rename = "require-image")]
     require_image: Option<bool>,
     /// How old a post must be in order for it to be voted on (e.g.
-    /// "1 hour").
+    /// "1 hour"). Use 0 to disable.
     #[command(rename = "older-than")]
     older_than: Option<String>,
     /// How new a post must be in order for it to be voted on (e.g.
-    /// "1 hour").
+    /// "1 hour"). Use 0 to disable.
     #[command(rename = "newer-than")]
     newer_than: Option<String>,
 }
@@ -94,10 +94,24 @@ impl EditRequirements {
             starboard.settings.require_image = val;
         }
         if let Some(val) = self.older_than {
-            todo!("older than");
+            let delta = match parse_time_delta(&val) {
+                Err(why) => {
+                    ctx.respond_str(&why, true).await?;
+                    return Ok(());
+                }
+                Ok(delta) => delta,
+            };
+            starboard.settings.older_than = delta;
         }
         if let Some(val) = self.newer_than {
-            todo!("newer than");
+            let delta = match parse_time_delta(&val) {
+                Err(why) => {
+                    ctx.respond_str(&why, true).await?;
+                    return Ok(());
+                }
+                Ok(delta) => delta,
+            };
+            starboard.settings.newer_than = delta;
         }
 
         starboard.update_settings(&ctx.bot.pool).await?;

@@ -27,3 +27,6 @@ serde = "1.0.137"
 emojis = "0.4.0"
 dashmap = "5.3.4"
 stretto = { version = "0.5.1", features = ["async"] }
+regex = "1.6.0"
+lazy_static = "1.4.0"
+humantime = "2.1.0"
