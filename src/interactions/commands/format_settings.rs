@@ -1,5 +1,8 @@
 //! Utility for formatting starboard/override settings
 
+use std::{fmt::Debug, time::Duration};
+
+use humantime::format_duration;
 use twilight_model::id::{marker::GuildMarker, Id};
 
 use crate::{
@@ -63,6 +66,15 @@ pub async fn format_settings(
         .into_readable(bot, guild_id)
         .await;
 
+    let older_than = match res.older_than {
+        x if x <= 0 => "disabled".to_string(),
+        x => format_duration(Duration::from_secs(x.try_into().unwrap())).to_string(),
+    };
+    let newer_than = match res.newer_than {
+        x if x <= 0 => "disabled".to_string(),
+        x => format_duration(Duration::from_secs(x.try_into().unwrap())).to_string(),
+    };
+
     let cooldown = {
         let is_bold = match &ov_values {
             None => false,
@@ -116,8 +128,8 @@ pub async fn format_settings(
             self_vote, "self-vote", res.self_vote;
             allow_bots, "allow-bots", res.allow_bots;
             require_image, "require-image", res.require_image;
-            older_than, "older-than", res.older_than;
-            newer_than, "newer-than", res.newer_than;
+            older_than, "older-than", older_than;
+            newer_than, "newer-than", newer_than;
         ),
         behavior,
     }
