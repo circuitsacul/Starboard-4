@@ -1,3 +1,4 @@
+pub mod behavior;
 pub mod embed;
 pub mod requirements;
 pub mod style;
@@ -15,6 +16,8 @@ pub enum EditStarboard {
     Style(style::EditGeneralStyle),
     #[command(name = "requirements")]
     Requirements(requirements::EditRequirements),
+    #[command(name = "behavior")]
+    Behaviour(behavior::EditBehavior),
 }
 
 impl EditStarboard {
@@ -23,6 +26,7 @@ impl EditStarboard {
             Self::Embed(cmd) => cmd.callback(ctx).await,
             Self::Style(cmd) => cmd.callback(ctx).await,
             Self::Requirements(cmd) => cmd.callback(ctx).await,
+            Self::Behaviour(cmd) => cmd.callback(ctx).await,
         }
     }
 }

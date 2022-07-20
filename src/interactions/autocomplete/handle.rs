@@ -82,6 +82,7 @@ pub async fn handle_autocomplete(
         "starboards edit requirements name" => {
             starboard_name_autocomplete(&bot, &interaction).await?
         }
+        "starboards edit behavior name" => starboard_name_autocomplete(&bot, &interaction).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 
