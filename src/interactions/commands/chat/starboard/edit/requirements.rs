@@ -57,7 +57,7 @@ impl EditRequirements {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
         let mut starboard =
-            match Starboard::get_by_name(&ctx.bot.pool, &&self.name, unwrap_id!(guild_id)).await? {
+            match Starboard::get_by_name(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await? {
                 None => {
                     ctx.respond_str("No starboard with that name was found.", true)
                         .await?;
