@@ -1,3 +1,4 @@
+use lazy_static::lazy_static;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
@@ -82,7 +83,16 @@ impl EditBehavior {
             starboard.settings.cooldown_enabled = val;
         }
         if let Some(val) = self.cooldown {
-            todo!("cooldown");
+            // TODO: validation
+            let (capacity, period) = match parse_cooldown(&val) {
+                Err(why) => {
+                    ctx.respond_str(&why, true).await?;
+                    return Ok(());
+                }
+                Ok(val) => val,
+            };
+            starboard.settings.cooldown_count = capacity;
+            starboard.settings.cooldown_period = period;
         }
 
         starboard.update_settings(&ctx.bot.pool).await?;
@@ -94,4 +104,35 @@ impl EditBehavior {
 
         Ok(())
     }
+}
+
+fn parse_cooldown(inp: &str) -> Result<(i16, i16), String> {
+    lazy_static! {
+        static ref RE: regex::Regex =
+            regex::Regex::new(r#"(?P<count>\d+).+?(?P<secs>\d+)"#).unwrap();
+    }
+
+    let found = match RE.captures(inp) {
+        None => {
+            return Err(concat!(
+                "I couldn't parse the cooldown you passed. The ",
+                "correct format is `capacity/period` (e.x. `5/6`)."
+            )
+            .to_string())
+        }
+        Some(found) => found,
+    };
+
+    let capacity = found.name("count").unwrap().as_str();
+    let capacity: i16 = match capacity.parse() {
+        Err(_) => return Err(format!("{capacity} is not a valid number.")),
+        Ok(capacity) => capacity,
+    };
+    let period = found.name("secs").unwrap().as_str();
+    let period: i16 = match period.parse() {
+        Err(_) => return Err(format!("{period} is not a valid number.")),
+        Ok(period) => period,
+    };
+
+    Ok((capacity, period))
 }
