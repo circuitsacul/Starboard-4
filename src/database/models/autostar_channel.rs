@@ -1,7 +1,10 @@
 use sqlx::FromRow;
 
-use crate::database::helpers::{
-    query::build_update::build_update, settings::autostar::call_with_autostar_settings,
+use crate::{
+    constants,
+    database::helpers::{
+        query::build_update::build_update, settings::autostar::call_with_autostar_settings,
+    },
 };
 
 #[derive(Debug, FromRow)]
@@ -133,5 +136,50 @@ impl AutoStarChannel {
         )
         .fetch_optional(pool)
         .await
+    }
+
+    // validation
+    pub fn set_min_chars(&mut self, val: i16) -> Result<(), String> {
+        if let Some(max_chars) = self.max_chars {
+            if val > max_chars {
+                return Err("`min-chars` cannot be greater than `max-chars`.".to_string());
+            }
+        }
+
+        if val > constants::MAX_MIN_CHARS {
+            Err(format!(
+                "`min-chars` cannot be greater than {}.",
+                constants::MAX_MIN_CHARS
+            ))
+        } else if val < 0 {
+            Err("`min-chars` cannot be less than 0.".to_string())
+        } else {
+            self.min_chars = val;
+            Ok(())
+        }
+    }
+
+    pub fn set_max_chars(&mut self, val: Option<i16>) -> Result<(), String> {
+        match val {
+            None => {
+                self.max_chars = None;
+                Ok(())
+            }
+            Some(val) => {
+                if val < self.min_chars {
+                    Err("`max-chars` cannot be less than `min-chars.".to_string())
+                } else if val < 0 {
+                    Err("`max-chars` cannot be less than 0.".to_string())
+                } else if val > constants::MAX_MAX_CHARS {
+                    Err(format!(
+                        "`max-chars` cannot be greater than {}.",
+                        constants::MAX_MAX_CHARS
+                    ))
+                } else {
+                    self.max_chars = Some(val);
+                    Ok(())
+                }
+            }
+        }
     }
 }
