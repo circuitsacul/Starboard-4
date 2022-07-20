@@ -1,6 +1,11 @@
+use sqlx::Row;
+
 use crate::database::{
-    helpers::settings::starboard::call_with_starboard_settings,
-    models::starboard_settings::generate_settings, StarboardSettings,
+    helpers::{
+        query::build_update::build_update, settings::starboard::call_with_starboard_settings,
+    },
+    models::starboard_settings::{settings_from_record, settings_from_row},
+    StarboardSettings,
 };
 
 #[derive(Debug)]
@@ -25,7 +30,21 @@ macro_rules! starboard_from_record {
             guild_id: $record.guild_id,
             webhook_id: $record.webhook_id,
             premium_locked: $record.premium_locked,
-            settings: call_with_starboard_settings!(generate_settings, $record),
+            settings: call_with_starboard_settings!(settings_from_record, $record),
+        }
+    };
+}
+
+macro_rules! starboard_from_row {
+    ($record: expr) => {
+        Starboard {
+            id: $record.get("id"),
+            name: $record.get("name"),
+            channel_id: $record.get("channel_id"),
+            guild_id: $record.get("guild_id"),
+            webhook_id: $record.get("webhook_id"),
+            premium_locked: $record.get("premium_locked"),
+            settings: call_with_starboard_settings!(settings_from_row, $record),
         }
     };
 }
@@ -50,5 +69,67 @@ impl Starboard {
         .await?;
 
         Ok(starboard_from_record!(starboard))
+    }
+
+    pub async fn delete(
+        pool: &sqlx::PgPool,
+        name: &String,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query!(
+            "DELETE FROM starboards WHERE name=$1 AND guild_id=$2
+            RETURNING *",
+            name,
+            guild_id,
+        )
+        .fetch_optional(pool)
+        .await
+        .map(|row| row.map(|row| starboard_from_record!(row)))
+    }
+
+    pub async fn update_settings(self, pool: &sqlx::PgPool) -> sqlx::Result<Option<Self>> {
+        let mut builder = sqlx::QueryBuilder::<sqlx::Postgres>::new("UPDATE starboards SET ");
+
+        call_with_starboard_settings!(build_update, self.settings, builder);
+
+        builder
+            .push(" WHERE name=")
+            .push_bind(self.name)
+            .push(" AND guild_id=")
+            .push_bind(self.guild_id)
+            .push(" RETURNING *");
+
+        builder
+            .build()
+            .fetch_optional(pool)
+            .await
+            .map(|r| r.map(|r| starboard_from_row!(r)))
+    }
+
+    pub async fn get_by_name(
+        pool: &sqlx::PgPool,
+        name: &str,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        let result = sqlx::query!(
+            "SELECT * FROM starboards WHERE name=$1 AND guild_id=$2",
+            name,
+            guild_id
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(result.map(|sb| starboard_from_record!(sb)))
+    }
+
+    pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+        sqlx::query!("SELECT * FROM starboards WHERE guild_id=$1", guild_id,)
+            .fetch_all(pool)
+            .await
+            .map(|rows| {
+                rows.into_iter()
+                    .map(|row| starboard_from_record!(row))
+                    .collect()
+            })
     }
 }

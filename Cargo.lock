@@ -20,6 +20,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "aho-corasick"
+version = "0.7.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e37cfd5e7657ada45f742d6e99ca5788580b5c529dc78faf11ece6dc702656f"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "alloc-no-stdlib"
 version = "2.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -286,9 +295,9 @@ dependencies = [
 
 [[package]]
 name = "crypto-common"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5999502d32b9c48d492abe66392408144895020ec4709e549e840799f3bb74c0"
+checksum = "2ccfd8c0ee4cce11e45b3fd6f9d5e69e0cc62912aa6a0cb1bf4617b0eba5a12f"
 dependencies = [
  "generic-array",
  "typenum",
@@ -557,9 +566,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.12.1"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db0d4cf898abf0081f964436dc980e96670a0f36863e4b83aaacdb65c9d7ccc3"
+checksum = "607c8a29735385251a339424dd462993c0fed8fa09d378f259377df08c126022"
 dependencies = [
  "ahash",
 ]
@@ -648,6 +657,12 @@ name = "httpdate"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4a1e36c821dbe04574f602848a19f742f4fb3c98d40449f11bcad18d6b17421"
+
+[[package]]
+name = "humantime"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "hyper"
@@ -1081,6 +1096,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "regex"
+version = "1.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c4eb3267174b8c6c2f654116623910a0fef09c4753f8dd83db29c48a0df988b"
+dependencies = [
+ "aho-corasick",
+ "memchr",
+ "regex-syntax",
+]
+
+[[package]]
+name = "regex-syntax"
+version = "0.6.27"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3f87b73ce11b1619a3c6332f45341e0047173771e8b8b73f87bfeefb7b56244"
+
+[[package]]
 name = "ring"
 version = "0.16.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1412,6 +1444,9 @@ dependencies = [
  "dotenv",
  "emojis",
  "futures",
+ "humantime",
+ "lazy_static",
+ "regex",
  "serde",
  "serde_json",
  "sqlx",
@@ -2024,9 +2059,9 @@ dependencies = [
 
 [[package]]
 name = "webpki-roots"
-version = "0.22.3"
+version = "0.22.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44d8de8415c823c8abd270ad483c6feeac771fad964890779f9a8cb24fbbc1bf"
+checksum = "f1c760f0d366a6c24a02ed7816e23e691f5d92291f94d15e836006fd11b04daf"
 dependencies = [
  "webpki",
 ]

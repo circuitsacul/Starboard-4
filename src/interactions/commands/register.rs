@@ -17,7 +17,11 @@ macro_rules! commands_to_create {
 pub async fn post_commands(bot: Arc<StarboardBot>) {
     let inter_client = bot.interaction_client().await;
 
-    let commands = commands_to_create!(chat::ping::Ping, chat::autostar::AutoStar);
+    let commands = commands_to_create!(
+        chat::ping::Ping,
+        chat::autostar::AutoStar,
+        chat::starboard::Starboard
+    );
 
     match inter_client.set_global_commands(&commands).exec().await {
         Ok(_) => println!("Successfully registered commands"),

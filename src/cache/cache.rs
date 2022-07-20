@@ -19,6 +19,7 @@ pub struct Cache {
 
     // autocomplete
     pub guild_autostar_channel_names: stretto::AsyncCache<Id<GuildMarker>, Vec<String>>,
+    pub guild_starboard_names: stretto::AsyncCache<Id<GuildMarker>, Vec<String>>,
 }
 
 impl Cache {
@@ -33,6 +34,12 @@ impl Cache {
             .unwrap(),
             autostar_channel_ids,
             guild_autostar_channel_names: stretto::AsyncCache::new(
+                (constants::MAX_AUTOSTAR_NAMES * 10).try_into().unwrap(),
+                constants::MAX_AUTOSTAR_NAMES.into(),
+                tokio::spawn,
+            )
+            .unwrap(),
+            guild_starboard_names: stretto::AsyncCache::new(
                 (constants::MAX_AUTOSTAR_NAMES * 10).try_into().unwrap(),
                 constants::MAX_AUTOSTAR_NAMES.into(),
                 tokio::spawn,

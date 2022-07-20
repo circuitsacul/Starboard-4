@@ -15,3 +15,9 @@ pub const MAX_NAME_LENGTH: u32 = 32;
 // AutoStar Validation
 pub const MAX_MAX_CHARS: u16 = 5_000;
 pub const MAX_MIN_CHARS: u16 = 5_000;
+
+// Starboard Validation
+pub const MIN_REQUIRED: i16 = -1;
+pub const MAX_REQUIRED: u16 = 500;
+pub const MIN_REQUIRED_REMOVE: i16 = -500;
+pub const MAX_REQUIRED_REMOVE: i16 = 490;
