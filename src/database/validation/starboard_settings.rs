@@ -39,3 +39,19 @@ pub fn validate_required_remove(val: i16, required: i16) -> Result<(), String> {
         Ok(())
     }
 }
+
+pub fn validate_xp_multiplier(val: f32) -> Result<(), String> {
+    if val > constants::MAX_XP_MULTIPLIER {
+        Err(format!(
+            "`xp-multiplier` cannot be greater than {}.",
+            constants::MAX_XP_MULTIPLIER
+        ))
+    } else if val < constants::MIN_XP_MULTIPLIER {
+        Err(format!(
+            "`xp-multiplier` cannot be less than {}.",
+            constants::MIN_XP_MULTIPLIER
+        ))
+    } else {
+        Ok(())
+    }
+}

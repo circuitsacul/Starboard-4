@@ -2,7 +2,10 @@ use lazy_static::lazy_static;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::Starboard, get_guild_id, interactions::commands::context::CommandCtx, unwrap_id,
+    database::{validation, Starboard},
+    get_guild_id,
+    interactions::commands::context::CommandCtx,
+    unwrap_id,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -32,7 +35,7 @@ pub struct EditBehavior {
     /// If true, prevents /random and /moststarred from pulling from this starboard.
     private: Option<bool>,
     /// How much XP each upvote on this starboard counts for.
-    #[command(rename = "xp-multiplier")]
+    #[command(rename = "xp-multiplier", min_value = 10, max_value = 10)]
     xp_multiplier: Option<f64>,
     /// Whether to enable the per-user vote cooldown.
     #[command(rename = "cooldown-enabled")]
@@ -76,8 +79,12 @@ impl EditBehavior {
             starboard.settings.private = val;
         }
         if let Some(val) = self.xp_multiplier {
-            // TODO: validation
-            starboard.settings.xp_multiplier = val.to_string().parse().unwrap();
+            let val = val.to_string().parse().unwrap();
+            if let Err(why) = validation::starboard_settings::validate_xp_multiplier(val) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
+            starboard.settings.xp_multiplier = val;
         }
         if let Some(val) = self.cooldown_enabled {
             starboard.settings.cooldown_enabled = val;
