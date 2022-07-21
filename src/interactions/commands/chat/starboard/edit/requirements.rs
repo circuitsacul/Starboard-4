@@ -92,16 +92,30 @@ impl EditRequirements {
             starboard.settings.required_remove = val;
         }
         if let Some(val) = self.upvote_emojis {
-            starboard.settings.upvote_emojis =
-                Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
-                    .await
-                    .into_stored();
+            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
+                .await
+                .into_stored();
+            if let Err(why) = validation::starboard_settings::validate_vote_emojis(
+                &emojis,
+                &starboard.settings.downvote_emojis,
+            ) {
+                ctx.respond_str(why, true).await?;
+                return Ok(());
+            }
+            starboard.settings.upvote_emojis = emojis;
         }
         if let Some(val) = self.downvote_emojis {
-            starboard.settings.downvote_emojis =
-                Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
-                    .await
-                    .into_stored();
+            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
+                .await
+                .into_stored();
+            if let Err(why) = validation::starboard_settings::validate_vote_emojis(
+                &starboard.settings.upvote_emojis,
+                &emojis,
+            ) {
+                ctx.respond_str(why, true).await?;
+                return Ok(());
+            }
+            starboard.settings.downvote_emojis = emojis;
         }
         if let Some(val) = self.self_vote {
             starboard.settings.self_vote = val;

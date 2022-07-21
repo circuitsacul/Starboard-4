@@ -2,6 +2,8 @@
 //! starboards and overrides, but not elsewhere and thus don't deserve
 //! their own file.
 
+use std::collections::HashSet;
+
 use crate::constants;
 
 pub fn validate_required(val: i16, required_remove: i16) -> Result<(), String> {
@@ -69,6 +71,25 @@ pub fn validate_cooldown(capacity: i16, period: i16) -> Result<(), String> {
             "The period cannot be greater than {}.",
             constants::MAX_COOLDOWN_PERIOD
         ))
+    } else {
+        Ok(())
+    }
+}
+
+pub fn validate_vote_emojis(
+    upvote: &Vec<String>,
+    downvote: &Vec<String>,
+) -> Result<(), &'static str> {
+    let unique_upvote: HashSet<_> = upvote.iter().collect();
+    let unique_downvote: HashSet<_> = downvote.iter().collect();
+
+    if unique_upvote
+        .intersection(&unique_downvote)
+        .collect::<Vec<_>>()
+        .len()
+        > 0
+    {
+        Err("Upvote emojis and downvote emojis cannot share the same emojis.")
     } else {
         Ok(())
     }
