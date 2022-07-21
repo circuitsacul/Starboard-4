@@ -22,5 +22,5 @@ pub const MIN_REQUIRED: i16 = -1;
 pub const MAX_REQUIRED: i16 = 500;
 pub const MIN_REQUIRED_REMOVE: i16 = -500;
 pub const MAX_REQUIRED_REMOVE: i16 = 490;
-pub const MIN_XP_MULTIPLIER: f32 = -10;
-pub const MAX_XP_MULTIPLIER: f32 = 10;
+pub const MIN_XP_MULTIPLIER: f32 = -10.0;
+pub const MAX_XP_MULTIPLIER: f32 = 10.0;
