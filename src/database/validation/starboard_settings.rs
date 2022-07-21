@@ -55,3 +55,21 @@ pub fn validate_xp_multiplier(val: f32) -> Result<(), String> {
         Ok(())
     }
 }
+
+pub fn validate_cooldown(capacity: i16, period: i16) -> Result<(), String> {
+    if capacity <= 0 || period <= 0 {
+        Err("The capacity and period for the cooldown must be greater than 0.".to_string())
+    } else if capacity > constants::MAX_COOLDOWN_CAPACITY {
+        Err(format!(
+            "The capacity cannot be greater than {}.",
+            constants::MAX_COOLDOWN_CAPACITY
+        ))
+    } else if period > constants::MAX_COOLDOWN_PERIOD {
+        Err(format!(
+            "The period cannot be greater than {}.",
+            constants::MAX_COOLDOWN_PERIOD
+        ))
+    } else {
+        Ok(())
+    }
+}

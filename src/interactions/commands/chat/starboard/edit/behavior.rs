@@ -141,5 +141,6 @@ fn parse_cooldown(inp: &str) -> Result<(i16, i16), String> {
         Ok(period) => period,
     };
 
+    validation::starboard_settings::validate_cooldown(capacity, period)?;
     Ok((capacity, period))
 }
