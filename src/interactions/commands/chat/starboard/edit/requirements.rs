@@ -2,7 +2,10 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     core::emoji::{EmojiCommon, SimpleEmoji},
-    database::{validation::time_delta::parse_time_delta, Starboard},
+    database::{
+        validation::{self, time_delta::parse_time_delta},
+        Starboard,
+    },
     get_guild_id,
     interactions::commands::context::CommandCtx,
     unwrap_id,
@@ -67,22 +70,52 @@ impl EditRequirements {
             };
 
         if let Some(val) = self.required {
-            starboard.settings.required = val.try_into().unwrap();
+            let val = val.try_into().unwrap();
+            if let Err(why) = validation::starboard_settings::validate_required(
+                val,
+                starboard.settings.required_remove,
+            ) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
+            starboard.settings.required = val;
         }
         if let Some(val) = self.required_remove {
-            starboard.settings.required_remove = val.try_into().unwrap();
+            let val = val.try_into().unwrap();
+            if let Err(why) = validation::starboard_settings::validate_required_remove(
+                val,
+                starboard.settings.required,
+            ) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
+            starboard.settings.required_remove = val;
         }
         if let Some(val) = self.upvote_emojis {
-            starboard.settings.upvote_emojis =
-                Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
-                    .await
-                    .into_stored();
+            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
+                .await
+                .into_stored();
+            if let Err(why) = validation::starboard_settings::validate_vote_emojis(
+                &emojis,
+                &starboard.settings.downvote_emojis,
+            ) {
+                ctx.respond_str(why, true).await?;
+                return Ok(());
+            }
+            starboard.settings.upvote_emojis = emojis;
         }
         if let Some(val) = self.downvote_emojis {
-            starboard.settings.downvote_emojis =
-                Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
-                    .await
-                    .into_stored();
+            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
+                .await
+                .into_stored();
+            if let Err(why) = validation::starboard_settings::validate_vote_emojis(
+                &starboard.settings.upvote_emojis,
+                &emojis,
+            ) {
+                ctx.respond_str(why, true).await?;
+                return Ok(());
+            }
+            starboard.settings.downvote_emojis = emojis;
         }
         if let Some(val) = self.self_vote {
             starboard.settings.self_vote = val;

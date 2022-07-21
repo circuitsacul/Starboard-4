@@ -106,6 +106,24 @@ impl Starboard {
             .map(|r| r.map(|r| starboard_from_row!(r)))
     }
 
+    pub async fn rename(
+        pool: &sqlx::PgPool,
+        name: &String,
+        guild_id: i64,
+        new_name: &String,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query!(
+            "UPDATE starboards SET name=$1 WHERE name=$2 AND guild_id=$3
+            RETURNING *",
+            new_name,
+            name,
+            guild_id,
+        )
+        .fetch_optional(pool)
+        .await
+        .map(|r| r.map(|r| starboard_from_record!(r)))
+    }
+
     pub async fn get_by_name(
         pool: &sqlx::PgPool,
         name: &str,
