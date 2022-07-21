@@ -24,16 +24,13 @@ pub struct EditRequirements {
     /// The number of upvotes a message needs.
     #[command(min_value=-1, max_value=500)]
     required: Option<i64>,
-    /// If a message is already on the starboard, how few
-    /// points the message can have before it is removed.
+    /// If a message is already on the starboard, how few points the message can have before it is removed.
     #[command(rename="required-remove", min_value=-500, max_value=490)]
     required_remove: Option<i64>,
-    /// The emojis that can be used to upvote a post. Use 'none' to
-    /// remove all.
+    /// The emojis that can be used to upvote a post. Use 'none' to remove all.
     #[command(rename = "upvote-emojis")]
     upvote_emojis: Option<String>,
-    /// The emojis that can be used to downvote a post. Use 'none'
-    /// to remove all.
+    /// The emojis that can be used to downvote a post. Use 'none' to remove all.
     #[command(rename = "downvote-emojis")]
     downvote_emojis: Option<String>,
     /// Whether to allow users to vote on their own posts.
@@ -42,16 +39,13 @@ pub struct EditRequirements {
     /// Whether to allow bot messages to be on the starboard.
     #[command(rename = "allow-bots")]
     allow_bots: Option<bool>,
-    /// Whether to require posts to have an image to appear on
-    /// the starboard.
+    /// Whether to require posts to have an image to appear on the starboard.
     #[command(rename = "require-image")]
     require_image: Option<bool>,
-    /// How old a post must be in order for it to be voted on (e.g.
-    /// "1 hour"). Use 0 to disable.
+    /// How old a post must be in order for it to be voted on (e.g. "1 hour"). Use 0 to disable.
     #[command(rename = "older-than")]
     older_than: Option<String>,
-    /// How new a post must be in order for it to be voted on (e.g.
-    /// "1 hour"). Use 0 to disable.
+    /// How new a post must be in order for it to be voted on (e.g. "1 hour"). Use 0 to disable.
     #[command(rename = "newer-than")]
     newer_than: Option<String>,
 }
