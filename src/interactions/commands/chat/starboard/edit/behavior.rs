@@ -90,7 +90,6 @@ impl EditBehavior {
             starboard.settings.cooldown_enabled = val;
         }
         if let Some(val) = self.cooldown {
-            // TODO: validation
             let (capacity, period) = match parse_cooldown(&val) {
                 Err(why) => {
                     ctx.respond_str(&why, true).await?;
