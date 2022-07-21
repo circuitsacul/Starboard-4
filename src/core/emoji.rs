@@ -83,6 +83,13 @@ impl EmojiCommon for SimpleEmoji {
         bot: &StarboardBot,
         guild_id: Id<GuildMarker>,
     ) -> Option<Self> {
+        // Get rid of the Variation-Selector-16 codepoint that is sometimes present in user
+        // input. https://emojipedia.org/variation-selector-16/
+        let input = input
+            .strip_suffix("\u{fe0f}")
+            .map(|s| s.to_string())
+            .unwrap_or(input);
+
         if emojis::get(&input).is_some() {
             Some(Self {
                 is_custom: false,

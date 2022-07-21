@@ -11,13 +11,18 @@ pub const AUTOSTAR_COOLDOWN: (u32, Duration) = (5, Duration::from_secs(20));
 
 // Common Validation
 pub const MAX_NAME_LENGTH: u32 = 32;
+pub const MIN_NAME_LENGTH: u32 = 3;
 
 // AutoStar Validation
-pub const MAX_MAX_CHARS: u16 = 5_000;
-pub const MAX_MIN_CHARS: u16 = 5_000;
+pub const MAX_MAX_CHARS: i16 = 5_000;
+pub const MAX_MIN_CHARS: i16 = 5_000;
 
 // Starboard Validation
 pub const MIN_REQUIRED: i16 = -1;
-pub const MAX_REQUIRED: u16 = 500;
+pub const MAX_REQUIRED: i16 = 500;
 pub const MIN_REQUIRED_REMOVE: i16 = -500;
 pub const MAX_REQUIRED_REMOVE: i16 = 490;
+pub const MIN_XP_MULTIPLIER: f32 = -10.0;
+pub const MAX_XP_MULTIPLIER: f32 = 10.0;
+pub const MAX_COOLDOWN_CAPACITY: i16 = 3600; // seconds in an hour
+pub const MAX_COOLDOWN_PERIOD: i16 = MAX_COOLDOWN_CAPACITY;
