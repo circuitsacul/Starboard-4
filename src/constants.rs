@@ -19,6 +19,6 @@ pub const MAX_MIN_CHARS: i16 = 5_000;
 
 // Starboard Validation
 pub const MIN_REQUIRED: i16 = -1;
-pub const MAX_REQUIRED: u16 = 500;
+pub const MAX_REQUIRED: i16 = 500;
 pub const MIN_REQUIRED_REMOVE: i16 = -500;
 pub const MAX_REQUIRED_REMOVE: i16 = 490;
