@@ -316,6 +316,52 @@
     },
     "query": "SELECT * FROM starboards WHERE name=$1 AND guild_id=$2"
   },
+  "201fa92c2d9fd3a0cd3f8267daa254f20b065d76f31f64aa6b44184428517f46": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "target_author_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_downvote",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "DELETE FROM votes WHERE message_id=$1 AND starboard_id=$2 AND user_id=$3\n            RETURNING *"
+  },
   "234c6ea2740620a51ee59fd0dcbe4a54fa4be45c02312f69c7bdfa81e9e43ee3": {
     "describe": {
       "columns": [
@@ -1710,6 +1756,53 @@
       }
     },
     "query": "SELECT * FROM autostar_channels\n            WHERE guild_id=$1 AND name=$2"
+  },
+  "be21d40e95f0802820a267c9544930b10a9df068d2f8e3e5a9a7e546195b8c32": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "target_author_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_downvote",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Bool",
+          "Int8",
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE votes SET is_downvote=$1 WHERE\n            message_id=$2 AND starboard_id=$3 AND\n            user_id=$4 RETURNING *"
   },
   "c66e16c0479be2132e8339140c7826b315455db068de46eddbf1904c757e5d48": {
     "describe": {

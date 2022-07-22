@@ -1,3 +1,5 @@
+use crate::map_dup_none;
+
 #[derive(Debug)]
 pub struct Vote {
     pub message_id: i64,
@@ -17,7 +19,7 @@ impl Vote {
         target_author_id: i64,
         is_downvote: bool,
     ) -> sqlx::Result<Self> {
-        sqlx::query_as!(
+        let create = map_dup_none!(sqlx::query_as!(
             Self,
             r#"INSERT INTO VOTES
             (message_id, starboard_id, user_id,
@@ -30,8 +32,41 @@ impl Vote {
             target_author_id,
             is_downvote,
         )
+        .fetch_one(pool))?;
+
+        if let Some(create) = create {
+            return Ok(create);
+        }
+
+        sqlx::query_as!(
+            Self,
+            r#"UPDATE votes SET is_downvote=$1 WHERE
+            message_id=$2 AND starboard_id=$3 AND
+            user_id=$4 RETURNING *"#,
+            is_downvote,
+            message_id,
+            starboard_id,
+            user_id,
+        )
         .fetch_one(pool)
         .await
-        .map_err(|e| e.into())
+    }
+
+    pub async fn delete(
+        pool: &sqlx::PgPool,
+        message_id: i64,
+        starboard_id: i32,
+        user_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "DELETE FROM votes WHERE message_id=$1 AND starboard_id=$2 AND user_id=$3
+            RETURNING *",
+            message_id,
+            starboard_id,
+            user_id,
+        )
+        .fetch_optional(pool)
+        .await
     }
 }
