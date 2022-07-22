@@ -14,12 +14,11 @@ impl UpdateCache for MessageCreate {
         }
 
         let message = CachedMessage {
-            id: self.id,
             attachments: self.attachments.clone(),
             embeds: self.embeds.clone(),
         };
 
-        cache.messages.insert(message.id, message, 1).await;
+        cache.messages.insert(self.id, message, 1).await;
     }
 }
 
@@ -59,7 +58,6 @@ impl UpdateCache for MessageUpdate {
         };
 
         let message = CachedMessage {
-            id: self.id,
             attachments,
             embeds,
         };
