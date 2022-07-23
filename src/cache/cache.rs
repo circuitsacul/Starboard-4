@@ -5,7 +5,10 @@ use twilight_model::id::{
     Id,
 };
 
-use crate::constants;
+use crate::{
+    constants,
+    utils::async_dash::{AsyncDashMap, AsyncDashSet},
+};
 
 use super::{
     models::{guild::CachedGuild, message::CachedMessage},
@@ -14,12 +17,12 @@ use super::{
 
 pub struct Cache {
     // discord side
-    pub guilds: DashMap<Id<GuildMarker>, CachedGuild>,
-    pub channel_nsfws: DashMap<Id<ChannelMarker>, bool>,
+    pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
+    pub channel_nsfws: AsyncDashMap<Id<ChannelMarker>, bool>,
     pub messages: stretto::AsyncCache<Id<MessageMarker>, CachedMessage>,
 
     // database side
-    pub autostar_channel_ids: DashSet<Id<ChannelMarker>>,
+    pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
 
     // autocomplete
     pub guild_autostar_channel_names: stretto::AsyncCache<Id<GuildMarker>, Vec<String>>,
@@ -29,15 +32,15 @@ pub struct Cache {
 impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
         Self {
-            guilds: DashMap::new(),
-            channel_nsfws: DashMap::new(),
+            guilds: DashMap::new().into(),
+            channel_nsfws: DashMap::new().into(),
             messages: stretto::AsyncCache::new(
                 (constants::MAX_MESSAGES * 10).try_into().unwrap(),
                 constants::MAX_MESSAGES.into(),
                 tokio::spawn,
             )
             .unwrap(),
-            autostar_channel_ids,
+            autostar_channel_ids: autostar_channel_ids.into(),
             guild_autostar_channel_names: stretto::AsyncCache::new(
                 (constants::MAX_AUTOSTAR_NAMES * 10).try_into().unwrap(),
                 constants::MAX_AUTOSTAR_NAMES.into(),
@@ -71,9 +74,9 @@ impl Cache {
 
     // helper methods
     pub fn guild_emoji_exists(&self, guild_id: Id<GuildMarker>, emoji_id: Id<EmojiMarker>) -> bool {
-        match self.guilds.get(&guild_id) {
+        self.guilds.with(&guild_id, |_, guild| match guild {
             None => false,
             Some(guild) => guild.emojis.contains(&emoji_id),
-        }
+        })
     }
 }

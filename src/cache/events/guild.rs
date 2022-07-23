@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use dashmap::DashSet;
 use twilight_model::gateway::payload::incoming::{GuildCreate, GuildDelete, GuildEmojisUpdate};
 
 use crate::cache::{cache::Cache, models::guild::CachedGuild, update::UpdateCache};
@@ -7,7 +8,12 @@ use crate::cache::{cache::Cache, models::guild::CachedGuild, update::UpdateCache
 impl UpdateCache for GuildCreate {
     async fn update_cache(&self, cache: &Cache) {
         let guild = CachedGuild {
-            emojis: self.emojis.iter().map(|e| e.id).collect(),
+            emojis: self
+                .emojis
+                .iter()
+                .map(|e| e.id)
+                .collect::<DashSet<_>>()
+                .into(),
         };
         cache.guilds.insert(self.id, guild);
 

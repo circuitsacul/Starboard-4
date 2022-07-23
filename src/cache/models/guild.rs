@@ -1,6 +1,7 @@
-use dashmap::DashSet;
 use twilight_model::id::{marker::EmojiMarker, Id};
 
+use crate::utils::async_dash::AsyncDashSet;
+
 pub struct CachedGuild {
-    pub emojis: DashSet<Id<EmojiMarker>>,
+    pub emojis: AsyncDashSet<Id<EmojiMarker>>,
 }
