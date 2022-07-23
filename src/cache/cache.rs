@@ -42,14 +42,14 @@ impl Cache {
             .unwrap(),
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_autostar_channel_names: stretto::AsyncCache::new(
-                (constants::MAX_AUTOSTAR_NAMES * 10).try_into().unwrap(),
-                constants::MAX_AUTOSTAR_NAMES.into(),
+                (constants::MAX_NAMES * 10).try_into().unwrap(),
+                constants::MAX_NAMES.into(),
                 tokio::spawn,
             )
             .unwrap(),
             guild_starboard_names: stretto::AsyncCache::new(
-                (constants::MAX_AUTOSTAR_NAMES * 10).try_into().unwrap(),
-                constants::MAX_AUTOSTAR_NAMES.into(),
+                (constants::MAX_NAMES * 10).try_into().unwrap(),
+                constants::MAX_NAMES.into(),
                 tokio::spawn,
             )
             .unwrap(),
