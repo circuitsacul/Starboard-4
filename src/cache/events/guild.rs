@@ -10,6 +10,13 @@ impl UpdateCache for GuildCreate {
         cache
             .guild_emojis
             .insert(self.id, self.emojis.iter().map(|e| e.id).collect());
+
+        // update channel nsfws
+        for channel in self.channels.iter() {
+            if let Some(nsfw) = channel.nsfw {
+                cache.channel_nsfws.insert(channel.id, nsfw);
+            }
+        }
     }
 }
 

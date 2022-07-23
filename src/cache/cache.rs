@@ -12,6 +12,7 @@ use super::{models::message::CachedMessage, update::UpdateCache};
 pub struct Cache {
     // discord side
     pub guild_emojis: DashMap<Id<GuildMarker>, DashSet<Id<EmojiMarker>>>,
+    pub channel_nsfws: DashMap<Id<ChannelMarker>, bool>,
     pub messages: stretto::AsyncCache<Id<MessageMarker>, CachedMessage>,
 
     // database side
@@ -26,6 +27,7 @@ impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
         Self {
             guild_emojis: DashMap::new(),
+            channel_nsfws: DashMap::new(),
             messages: stretto::AsyncCache::new(
                 (constants::MAX_MESSAGES * 10).try_into().unwrap(),
                 constants::MAX_MESSAGES.into(),
@@ -57,6 +59,9 @@ impl Cache {
             Event::GuildCreate(event) => event.update_cache(self).await,
             Event::GuildDelete(event) => event.update_cache(self).await,
             Event::GuildEmojisUpdate(event) => event.update_cache(self).await,
+            Event::ChannelCreate(event) => event.update_cache(self).await,
+            Event::ChannelDelete(event) => event.update_cache(self).await,
+            Event::ChannelUpdate(event) => event.update_cache(self).await,
             _ => {}
         }
     }
