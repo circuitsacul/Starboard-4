@@ -7,11 +7,14 @@ use twilight_model::id::{
 
 use crate::constants;
 
-use super::{models::message::CachedMessage, update::UpdateCache};
+use super::{
+    models::{guild::CachedGuild, message::CachedMessage},
+    update::UpdateCache,
+};
 
 pub struct Cache {
     // discord side
-    pub guild_emojis: DashMap<Id<GuildMarker>, DashSet<Id<EmojiMarker>>>,
+    pub guilds: DashMap<Id<GuildMarker>, CachedGuild>,
     pub channel_nsfws: DashMap<Id<ChannelMarker>, bool>,
     pub messages: stretto::AsyncCache<Id<MessageMarker>, CachedMessage>,
 
@@ -26,7 +29,7 @@ pub struct Cache {
 impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
         Self {
-            guild_emojis: DashMap::new(),
+            guilds: DashMap::new(),
             channel_nsfws: DashMap::new(),
             messages: stretto::AsyncCache::new(
                 (constants::MAX_MESSAGES * 10).try_into().unwrap(),
@@ -68,12 +71,9 @@ impl Cache {
 
     // helper methods
     pub fn guild_emoji_exists(&self, guild_id: Id<GuildMarker>, emoji_id: Id<EmojiMarker>) -> bool {
-        match self.guild_emojis.get(&guild_id) {
+        match self.guilds.get(&guild_id) {
             None => false,
-            Some(guild_emojis) => match guild_emojis.get(&emoji_id) {
-                None => false,
-                Some(_) => true,
-            },
+            Some(guild) => guild.emojis.contains(&emoji_id),
         }
     }
 }
