@@ -1,3 +1,5 @@
+use std::{error::Error, fmt::Display};
+
 use twilight_model::id::{
     marker::{ChannelMarker, GuildMarker},
     Id,
@@ -69,10 +71,22 @@ impl StarboardConfig {
     }
 }
 
+#[derive(Debug)]
 pub enum SqlxOrSerdeError {
     Sqlx(sqlx::Error),
     Serde(serde_json::Error),
 }
+
+impl Display for SqlxOrSerdeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Sqlx(err) => err.fmt(f),
+            Self::Serde(err) => err.fmt(f),
+        }
+    }
+}
+
+impl Error for SqlxOrSerdeError {}
 
 impl From<sqlx::Error> for SqlxOrSerdeError {
     fn from(err: sqlx::Error) -> Self {
