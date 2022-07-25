@@ -33,6 +33,10 @@ where
     pub fn with<R>(&self, key: &K, f: impl FnOnce(&K, &Option<Ref<K, V>>) -> R) -> R {
         f(key, &self.map.get(key))
     }
+
+    pub fn contains_key(&self, key: &K) -> bool {
+        self.map.contains_key(key)
+    }
 }
 
 pub struct AsyncDashSet<K> {
