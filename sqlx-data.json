@@ -1169,6 +1169,74 @@
     },
     "query": "UPDATE autostar_channels SET name=$1 WHERE name=$2 AND guild_id=$3\n            RETURNING *"
   },
+  "62dfbdacb72b9b8d9dba195684068e31c3daddf4e9682041c8a87697c9bebd7d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "channel_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "author_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_nsfw",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "forced_to",
+          "ordinal": 5,
+          "type_info": "Int4Array"
+        },
+        {
+          "name": "trashed",
+          "ordinal": 6,
+          "type_info": "Bool"
+        },
+        {
+          "name": "trash_reason",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "frozen",
+          "ordinal": 8,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM messages WHERE message_id=$1"
+  },
   "6b5b308d63aea59fd9add4f55683542950d367bcea2800e55f0e1f059cc575e8": {
     "describe": {
       "columns": [
@@ -2054,6 +2122,44 @@
       }
     },
     "query": "SELECT * FROM starboards WHERE guild_id=$1"
+  },
+  "d199f08a2ada23a1b5bf29fc97a3f14fa479f58b382ba51f264aa6234234f42b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "starboard_message_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "last_known_point_count",
+          "ordinal": 3,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM starboard_messages WHERE\n            starboard_message_id=$1"
   },
   "d1ea348f247afd449131c6450d242e23a52fd553e1ff59e7bdaf456ce6f5c94f": {
     "describe": {

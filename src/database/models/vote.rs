@@ -18,7 +18,7 @@ impl Vote {
         user_id: i64,
         target_author_id: i64,
         is_downvote: bool,
-    ) -> sqlx::Result<Self> {
+    ) -> sqlx::Result<Option<Self>> {
         let create = map_dup_none!(sqlx::query_as!(
             Self,
             r#"INSERT INTO VOTES
@@ -35,7 +35,7 @@ impl Vote {
         .fetch_one(pool))?;
 
         if let Some(create) = create {
-            return Ok(create);
+            return Ok(Some(create));
         }
 
         sqlx::query_as!(
@@ -48,7 +48,7 @@ impl Vote {
             starboard_id,
             user_id,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 
