@@ -1,7 +1,7 @@
 use dashmap::{DashMap, DashSet};
 use twilight_gateway::Event;
 use twilight_model::id::{
-    marker::{ChannelMarker, EmojiMarker, GuildMarker, MessageMarker},
+    marker::{ChannelMarker, EmojiMarker, GuildMarker, MessageMarker, UserMarker},
     Id,
 };
 
@@ -11,13 +11,14 @@ use crate::{
 };
 
 use super::{
-    models::{guild::CachedGuild, message::CachedMessage},
+    models::{guild::CachedGuild, message::CachedMessage, user::CachedUser},
     update::UpdateCache,
 };
 
 pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
+    pub users: AsyncDashMap<Id<UserMarker>, CachedUser>,
     pub channel_nsfws: AsyncDashMap<Id<ChannelMarker>, bool>,
     pub messages: stretto::AsyncCache<Id<MessageMarker>, CachedMessage>,
 
@@ -33,6 +34,7 @@ impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
         Self {
             guilds: DashMap::new().into(),
+            users: DashMap::new().into(),
             channel_nsfws: DashMap::new().into(),
             messages: stretto::AsyncCache::new(
                 (constants::MAX_MESSAGES * 10).try_into().unwrap(),
@@ -65,6 +67,8 @@ impl Cache {
             Event::GuildCreate(event) => event.update_cache(self).await,
             Event::GuildDelete(event) => event.update_cache(self).await,
             Event::GuildEmojisUpdate(event) => event.update_cache(self).await,
+            Event::MemberChunk(event) => event.update_cache(self).await,
+            Event::MemberAdd(event) => event.update_cache(self).await,
             Event::ChannelCreate(event) => event.update_cache(self).await,
             Event::ChannelDelete(event) => event.update_cache(self).await,
             Event::ChannelUpdate(event) => event.update_cache(self).await,
