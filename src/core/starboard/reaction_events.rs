@@ -33,8 +33,26 @@ pub async fn handle_reaction_add(
     let orig_msg = Message::get_original(&bot.pool, unwrap_id!(event.message_id)).await?;
     let orig_msg = match orig_msg {
         None => {
-            // author data (todo)
-            todo!();
+            // author data
+            let (author_is_bot, author_id) = {
+                let orig_msg_obj = bot
+                    .cache
+                    .fog_message(&bot, event.channel_id, event.message_id)
+                    .await;
+                let (author_is_bot, author_id) = bot
+                    .cache
+                    .users
+                    .with(&orig_msg_obj.value().author_id, |author_id, user| {
+                        (user.as_ref().map(|u| u.is_bot), unwrap_id!(author_id))
+                    });
+                match author_is_bot {
+                    None => return Ok(()),
+                    Some(is_bot) => (is_bot, author_id),
+                }
+            };
+
+            map_dup_none!(User::create(&bot.pool, author_id, author_is_bot))?;
+            map_dup_none!(Member::create(&bot.pool, author_id, unwrap_id!(guild_id)))?;
 
             // message
             let orig = map_dup_none!(Message::create(
@@ -42,8 +60,8 @@ pub async fn handle_reaction_add(
                 unwrap_id!(event.message_id),
                 unwrap_id!(guild_id),
                 unwrap_id!(event.channel_id),
-                0,
-                false,
+                author_id,
+                author_is_bot,
             ))?;
 
             match orig {
@@ -92,6 +110,7 @@ pub async fn handle_reaction_add(
                 unwrap_id!(guild_id)
             ))?;
 
+            // create the votes
             for config in upvote {
                 Vote::create(
                     &bot.pool,

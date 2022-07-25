@@ -1,4 +1,5 @@
 use dashmap::{DashMap, DashSet};
+use stretto::ValueRef;
 use twilight_gateway::Event;
 use twilight_model::id::{
     marker::{ChannelMarker, EmojiMarker, GuildMarker, MessageMarker, UserMarker},
@@ -6,6 +7,7 @@ use twilight_model::id::{
 };
 
 use crate::{
+    client::bot::StarboardBot,
     constants,
     utils::async_dash::{AsyncDashMap, AsyncDashSet},
 };
@@ -82,5 +84,31 @@ impl Cache {
             None => false,
             Some(guild) => guild.emojis.contains(&emoji_id),
         })
+    }
+
+    // "fetch or get" methods
+    pub async fn fog_message(
+        &self,
+        bot: &StarboardBot,
+        channel_id: Id<ChannelMarker>,
+        message_id: Id<MessageMarker>,
+    ) -> ValueRef<CachedMessage> {
+        if let Some(cached) = self.messages.get(&message_id) {
+            return cached;
+        }
+
+        let msg = bot
+            .http
+            .message(channel_id, message_id)
+            .exec()
+            .await
+            .unwrap()
+            .model()
+            .await
+            .unwrap();
+        self.messages.insert(message_id, msg.into(), 1).await;
+
+        self.messages.wait().await.unwrap();
+        self.messages.get(&message_id).unwrap()
     }
 }

@@ -14,6 +14,7 @@ impl UpdateCache for MessageCreate {
         }
 
         let message = CachedMessage {
+            author_id: self.author.id,
             attachments: self.attachments.clone(),
             embeds: self.embeds.clone(),
         };
@@ -58,6 +59,7 @@ impl UpdateCache for MessageUpdate {
         };
 
         let message = CachedMessage {
+            author_id: cached.value().author_id,
             attachments,
             embeds,
         };
