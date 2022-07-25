@@ -100,7 +100,8 @@ pub async fn handle_reaction_add(
                     reactor_user_id,
                     orig_msg.author_id,
                     false,
-                ).await?;
+                )
+                .await?;
             }
             for config in downvote {
                 Vote::create(
@@ -110,7 +111,8 @@ pub async fn handle_reaction_add(
                     reactor_user_id,
                     orig_msg.author_id,
                     true,
-                ).await?;
+                )
+                .await?;
             }
 
             Ok(())

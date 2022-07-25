@@ -40,10 +40,7 @@ impl Message {
         .map_err(|e| e.into())
     }
 
-    pub async fn get_original(
-        pool: &sqlx::PgPool,
-        message_id: i64,
-    ) -> sqlx::Result<Option<Self>> {
+    pub async fn get_original(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
         if let Some(sb_msg) = StarboardMessage::get(pool, message_id).await? {
             sqlx::query_as!(
                 Self,

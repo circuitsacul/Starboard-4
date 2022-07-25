@@ -26,10 +26,7 @@ impl StarboardMessage {
         .map_err(|e| e.into())
     }
 
-    pub async fn get(
-        pool: &sqlx::PgPool,
-        message_id: i64,
-    ) -> sqlx::Result<Option<Self>> {
+    pub async fn get(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM starboard_messages WHERE
