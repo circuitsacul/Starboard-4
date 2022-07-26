@@ -16,13 +16,6 @@ impl UpdateCache for GuildCreate {
                 .into(),
         };
         cache.guilds.insert(self.id, guild);
-
-        // update channel nsfws
-        for channel in self.channels.iter() {
-            if let Some(nsfw) = channel.nsfw {
-                cache.channel_nsfws.insert(channel.id, nsfw);
-            }
-        }
     }
 }
 

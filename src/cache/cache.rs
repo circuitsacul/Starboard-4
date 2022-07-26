@@ -21,7 +21,6 @@ pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
     pub users: AsyncDashMap<Id<UserMarker>, CachedUser>,
-    pub channel_nsfws: AsyncDashMap<Id<ChannelMarker>, bool>,
     pub messages: stretto::AsyncCache<Id<MessageMarker>, CachedMessage>,
 
     // database side
@@ -37,7 +36,6 @@ impl Cache {
         Self {
             guilds: DashMap::new().into(),
             users: DashMap::new().into(),
-            channel_nsfws: DashMap::new().into(),
             messages: stretto::AsyncCache::new(
                 (constants::MAX_MESSAGES * 10).try_into().unwrap(),
                 constants::MAX_MESSAGES.into(),
@@ -71,9 +69,6 @@ impl Cache {
             Event::GuildEmojisUpdate(event) => event.update_cache(self).await,
             Event::MemberChunk(event) => event.update_cache(self).await,
             Event::MemberAdd(event) => event.update_cache(self).await,
-            Event::ChannelCreate(event) => event.update_cache(self).await,
-            Event::ChannelDelete(event) => event.update_cache(self).await,
-            Event::ChannelUpdate(event) => event.update_cache(self).await,
             _ => {}
         }
     }
