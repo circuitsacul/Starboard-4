@@ -119,7 +119,7 @@ pub async fn handle_reaction_add(
     let emoji = SimpleEmoji::from(event.emoji.clone());
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
     let status =
-        VoteStatus::get_vote_status(bot, &emoji, &configs, event.message_id, event.channel_id)
+        VoteStatus::get_vote_status(bot, &emoji, configs, event.message_id, event.channel_id)
             .await;
 
     match status {
@@ -198,7 +198,7 @@ pub async fn handle_reaction_remove(
     let emoji = SimpleEmoji::from(event.emoji.clone());
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
     let status =
-        VoteStatus::get_vote_status(&bot, &emoji, &configs, event.message_id, event.channel_id)
+        VoteStatus::get_vote_status(&bot, &emoji, configs, event.message_id, event.channel_id)
             .await;
 
     match status {

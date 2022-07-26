@@ -10,26 +10,26 @@ use crate::{client::bot::StarboardBot, core::emoji::SimpleEmoji};
 use super::config::StarboardConfig;
 
 #[derive(Debug)]
-pub enum VoteStatus<'a> {
+pub enum VoteStatus {
     Ignore,
     Remove,
-    Valid((Vec<&'a StarboardConfig>, Vec<&'a StarboardConfig>)),
+    Valid((Vec<StarboardConfig>, Vec<StarboardConfig>)),
 }
 
-impl VoteStatus<'_> {
-    pub async fn get_vote_status<'a>(
+impl VoteStatus {
+    pub async fn get_vote_status(
         _bot: &StarboardBot,
         emoji: &SimpleEmoji,
-        configs: &'a Vec<StarboardConfig>,
+        configs: Vec<StarboardConfig>,
         _message_id: Id<MessageMarker>,
         _channel_id: Id<ChannelMarker>,
-    ) -> VoteStatus<'a> {
+    ) -> VoteStatus {
         let mut invalid_exists = false;
         let mut allow_remove = true;
 
         let mut upvote = Vec::new();
         let mut downvote = Vec::new();
-        for config in configs.iter() {
+        for config in configs.into_iter() {
             // skip disabled configurations
             if !config.resolved.enabled || config.starboard.premium_locked {
                 continue;
