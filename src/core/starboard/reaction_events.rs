@@ -9,7 +9,7 @@ use crate::{
     map_dup_none, unwrap_id,
 };
 
-use super::{config::StarboardConfig, vote_status::VoteStatus};
+use super::{config::StarboardConfig, handle::RefreshMessage, vote_status::VoteStatus};
 
 pub async fn handle_reaction_add(
     bot: &StarboardBot,
@@ -119,8 +119,7 @@ pub async fn handle_reaction_add(
     let emoji = SimpleEmoji::from(event.emoji.clone());
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
     let status =
-        VoteStatus::get_vote_status(bot, &emoji, configs, event.message_id, event.channel_id)
-            .await;
+        VoteStatus::get_vote_status(bot, &emoji, configs, event.message_id, event.channel_id).await;
 
     match status {
         VoteStatus::Ignore => Ok(()),
@@ -153,7 +152,7 @@ pub async fn handle_reaction_add(
             ))?;
 
             // create the votes
-            for config in upvote {
+            for config in upvote.iter() {
                 Vote::create(
                     &bot.pool,
                     orig_msg.message_id,
@@ -164,7 +163,7 @@ pub async fn handle_reaction_add(
                 )
                 .await?;
             }
-            for config in downvote {
+            for config in downvote.iter() {
                 Vote::create(
                     &bot.pool,
                     orig_msg.message_id,
@@ -175,6 +174,12 @@ pub async fn handle_reaction_add(
                 )
                 .await?;
             }
+
+            let all_configs: Vec<_> = upvote.into_iter().chain(downvote).collect();
+            let mut refresh = RefreshMessage::new(&bot, event.message_id);
+            refresh.set_configs(all_configs);
+            refresh.set_sql_message(orig_msg);
+            refresh.refresh().await?;
 
             Ok(())
         }
@@ -204,9 +209,15 @@ pub async fn handle_reaction_remove(
     match status {
         VoteStatus::Valid((upvote, downvote)) => {
             let user_id = unwrap_id!(event.user_id);
-            for config in upvote.iter().chain(&downvote) {
+            let all_configs: Vec<_> = upvote.into_iter().chain(downvote).collect();
+            for config in all_configs.iter() {
                 Vote::delete(&bot.pool, orig.message_id, config.starboard.id, user_id).await?;
             }
+
+            let mut refresh = RefreshMessage::new(&bot, event.message_id);
+            refresh.set_sql_message(orig);
+            refresh.set_configs(all_configs);
+            refresh.refresh().await?;
 
             Ok(())
         }

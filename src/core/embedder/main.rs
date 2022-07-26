@@ -4,7 +4,7 @@ use crate::client::bot::StarboardBot;
 
 use super::Embedder;
 
-impl Embedder {
+impl Embedder<'_> {
     pub fn get_top_text(&self) -> String {
         "Hello".to_string()
     }

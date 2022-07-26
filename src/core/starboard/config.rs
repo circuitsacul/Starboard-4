@@ -1,5 +1,3 @@
-use std::{error::Error, fmt::Display};
-
 use twilight_model::id::{
     marker::{ChannelMarker, GuildMarker},
     Id,
@@ -11,6 +9,7 @@ use crate::{
         helpers::settings::overrides::call_with_override_settings, Starboard, StarboardOverride,
         StarboardSettings,
     },
+    errors::StarboardError,
     unwrap_id,
 };
 
@@ -55,7 +54,7 @@ impl StarboardConfig {
         bot: &StarboardBot,
         guild_id: Id<GuildMarker>,
         channel_id: Id<ChannelMarker>,
-    ) -> Result<Vec<Self>, SqlxOrSerdeError> {
+    ) -> Result<Vec<Self>, StarboardError> {
         let starboards = Starboard::list_by_guild(&bot.pool, unwrap_id!(guild_id)).await?;
         let mut configs = Vec::new();
 
@@ -68,34 +67,5 @@ impl StarboardConfig {
         }
 
         Ok(configs)
-    }
-}
-
-#[derive(Debug)]
-pub enum SqlxOrSerdeError {
-    Sqlx(sqlx::Error),
-    Serde(serde_json::Error),
-}
-
-impl Display for SqlxOrSerdeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Sqlx(err) => err.fmt(f),
-            Self::Serde(err) => err.fmt(f),
-        }
-    }
-}
-
-impl Error for SqlxOrSerdeError {}
-
-impl From<sqlx::Error> for SqlxOrSerdeError {
-    fn from(err: sqlx::Error) -> Self {
-        Self::Sqlx(err)
-    }
-}
-
-impl From<serde_json::Error> for SqlxOrSerdeError {
-    fn from(err: serde_json::Error) -> Self {
-        Self::Serde(err)
     }
 }

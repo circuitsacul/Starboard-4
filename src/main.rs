@@ -3,6 +3,7 @@ pub mod client;
 pub mod constants;
 pub mod core;
 pub mod database;
+pub mod errors;
 pub mod events;
 pub mod interactions;
 pub mod macros;

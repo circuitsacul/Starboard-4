@@ -1676,6 +1676,27 @@
     },
     "query": "INSERT INTO VOTES\n            (message_id, starboard_id, user_id,\n                target_author_id, is_downvote)\n            VALUES ($1, $2, $3, $4, $5)\n            RETURNING *"
   },
+  "94fb8ddf71c63a97b616fad7736ae4c47ed8841ff760d7186e4b7af1cbdbe2d2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT COUNT(*) as count FROM votes WHERE message_id=$1 AND starboard_id=$2\n            AND is_downvote=true"
+  },
   "9635824a823e99710292996d88e8288aa1a52a3ce6a1185fb0b45917bc418b0a": {
     "describe": {
       "columns": [
@@ -2122,6 +2143,27 @@
       }
     },
     "query": "SELECT * FROM starboards WHERE guild_id=$1"
+  },
+  "cb9b3ce9131ac41057770317c912a7c71f79dfc2818f9d0f547acb9939516027": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT COUNT(*) as count FROM votes WHERE message_id=$1 AND starboard_id=$2\n            AND is_downvote=false"
   },
   "d199f08a2ada23a1b5bf29fc97a3f14fa479f58b382ba51f264aa6234234f42b": {
     "describe": {

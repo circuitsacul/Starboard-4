@@ -52,6 +52,33 @@ impl Vote {
         .await
     }
 
+    pub async fn count(
+        pool: &sqlx::PgPool,
+        message_id: i64,
+        starboard_id: i32,
+    ) -> sqlx::Result<i32> {
+        let upvotes = sqlx::query!(
+            "SELECT COUNT(*) as count FROM votes WHERE message_id=$1 AND starboard_id=$2
+            AND is_downvote=false",
+            message_id,
+            starboard_id
+        )
+        .fetch_one(pool)
+        .await?;
+        let downvotes = sqlx::query!(
+            "SELECT COUNT(*) as count FROM votes WHERE message_id=$1 AND starboard_id=$2
+            AND is_downvote=true",
+            message_id,
+            starboard_id
+        )
+        .fetch_one(pool)
+        .await?;
+
+        Ok({ upvotes.count.unwrap() - downvotes.count.unwrap() }
+            .try_into()
+            .unwrap())
+    }
+
     pub async fn delete(
         pool: &sqlx::PgPool,
         message_id: i64,
