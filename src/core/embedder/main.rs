@@ -6,7 +6,7 @@ use super::Embedder;
 
 impl Embedder<'_> {
     pub fn get_top_text(&self) -> String {
-        "Hello".to_string()
+        self.points.to_string()
     }
 
     pub async fn send(
