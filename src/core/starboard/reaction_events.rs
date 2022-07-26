@@ -66,19 +66,10 @@ pub async fn handle_reaction_add(
                     .model()
                     .await?;
 
-                // if by some miracle nsfw is Some...
                 if let Some(nsfw) = channel.nsfw {
                     nsfw
                 } else {
-                    // hopefully it's because this is a thread
-                    if !channel.kind.is_thread() {
-                        // not much we can do at this point really
-                        panic!("Non-thread channel had no `nsfw` parameter.");
-                    }
-
-                    // is a thread, should have a parent_id
-                    // yes we have to make another fetch
-                    // don't you just love discord sometimes
+                    assert!(channel.kind.is_thread());
                     let parent = bot
                         .http
                         .channel(channel.parent_id.unwrap())
@@ -86,13 +77,9 @@ pub async fn handle_reaction_add(
                         .await?
                         .model()
                         .await?;
-                    if let Some(nsfw) = parent.nsfw {
-                        nsfw
-                    } else {
-                        // either a major bug, or discord pushed a breaking api change
-                        // probably both
-                        panic!("Parent of thread had no `nsfw` parameter.");
-                    }
+                    parent
+                        .nsfw
+                        .expect("Parent of thread had no `nsfw` parameter.")
                 }
             };
 
