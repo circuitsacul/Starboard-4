@@ -11,6 +11,15 @@ where
     set: AsyncDashSet<T>,
 }
 
+impl<T> Default for DashSetLock<T>
+where
+    T: Eq + Hash + Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T> DashSetLock<T>
 where
     T: Eq + Hash + Clone,
@@ -42,9 +51,9 @@ where
         let guard = Self { lock, key };
         if guard.lock() {
             // the key was already in the set
-            None
-        } else {
             Some(guard)
+        } else {
+            None
         }
     }
 
