@@ -6,7 +6,6 @@ use crate::{
     client::bot::StarboardBot,
     core::emoji::SimpleEmoji,
     database::{Member, Message, User, Vote},
-    macros::get_guild_id,
     map_dup_none, unwrap_id,
 };
 
