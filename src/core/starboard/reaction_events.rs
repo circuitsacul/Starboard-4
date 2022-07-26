@@ -38,11 +38,15 @@ pub async fn handle_reaction_add(
                 let orig_msg_obj = bot
                     .cache
                     .fog_message(&bot, event.channel_id, event.message_id)
-                    .await;
+                    .await?;
+                let orig_msg_obj = match orig_msg_obj.value() {
+                    None => return Ok(()),
+                    Some(obj) => obj,
+                };
                 let (author_is_bot, author_id) = bot
                     .cache
                     .users
-                    .with(&orig_msg_obj.value().author_id, |author_id, user| {
+                    .with(&orig_msg_obj.author_id, |author_id, user| {
                         (user.as_ref().map(|u| u.is_bot), unwrap_id!(author_id))
                     });
                 match author_is_bot {

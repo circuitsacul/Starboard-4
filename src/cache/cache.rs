@@ -9,7 +9,11 @@ use twilight_model::id::{
 use crate::{
     client::bot::StarboardBot,
     constants,
-    utils::async_dash::{AsyncDashMap, AsyncDashSet},
+    errors::StarboardResult,
+    utils::{
+        async_dash::{AsyncDashMap, AsyncDashSet},
+        get_status::get_status,
+    },
 };
 
 use super::{
@@ -21,7 +25,7 @@ pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
     pub users: AsyncDashMap<Id<UserMarker>, CachedUser>,
-    pub messages: stretto::AsyncCache<Id<MessageMarker>, CachedMessage>,
+    pub messages: stretto::AsyncCache<Id<MessageMarker>, Option<CachedMessage>>,
 
     // database side
     pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
@@ -87,23 +91,26 @@ impl Cache {
         bot: &StarboardBot,
         channel_id: Id<ChannelMarker>,
         message_id: Id<MessageMarker>,
-    ) -> ValueRef<CachedMessage> {
+    ) -> StarboardResult<ValueRef<Option<CachedMessage>>> {
         if let Some(cached) = self.messages.get(&message_id) {
-            return cached;
+            return Ok(cached);
         }
 
-        let msg = bot
-            .http
-            .message(channel_id, message_id)
-            .exec()
-            .await
-            .unwrap()
-            .model()
-            .await
-            .unwrap();
-        self.messages.insert(message_id, msg.into(), 1).await;
+        let msg = bot.http.message(channel_id, message_id).exec().await;
+        let msg = match msg {
+            Err(why) => {
+                if get_status(&why) == Some(404) {
+                    None
+                } else {
+                    return Err(why.into());
+                }
+            }
+            Ok(msg) => Some(msg.model().await.unwrap().into()),
+        };
+
+        self.messages.insert(message_id, msg, 1).await;
 
         self.messages.wait().await.unwrap();
-        self.messages.get(&message_id).unwrap()
+        Ok(self.messages.get(&message_id).unwrap())
     }
 }

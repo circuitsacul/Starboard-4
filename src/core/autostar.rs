@@ -112,9 +112,12 @@ async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCr
             let updated_msg = bot.cache.messages.get(&event.id);
             let mut still_invalid = true;
 
-            // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
             if let Some(msg) = updated_msg {
-                if has_image(&msg.value().embeds, &msg.value().attachments) {
+                let msg = match msg.value() {
+                    None => return Status::InvalidStay,
+                    Some(msg) => msg,
+                };
+                if has_image(&msg.embeds, &msg.attachments) {
                     still_invalid = false;
                 }
             } else {
