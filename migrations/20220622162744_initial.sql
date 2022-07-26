@@ -245,7 +245,7 @@ CREATE TABLE messages (
 CREATE TABLE starboard_messages (
     message_id BIGINT NOT NULL,
     starboard_id INTEGER NOT NULL,
-    starboard_message_id BIGINT,
+    starboard_message_id BIGINT NOT NULL,
     last_known_point_count SMALLINT NOT NULL DEFAULT 0,
 
     FOREIGN KEY (message_id) REFERENCES messages (message_id)

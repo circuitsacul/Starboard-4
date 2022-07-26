@@ -105,7 +105,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             } else {
                 StarboardMessage::set_last_point_count(
                     &self.refresh.bot.pool,
-                    sb_msg.starboard_message_id.unwrap(),
+                    sb_msg.starboard_message_id,
                     points.try_into().unwrap(),
                 )
                 .await?;
@@ -114,7 +114,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             let ret = embedder
                 .edit(
                     &self.refresh.bot,
-                    Id::new(sb_msg.starboard_message_id.unwrap().try_into().unwrap()),
+                    Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
                 )
                 .await;
 
@@ -130,7 +130,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         was_404 = true;
                         StarboardMessage::delete(
                             &self.refresh.bot.pool,
-                            sb_msg.starboard_message_id.unwrap(),
+                            sb_msg.starboard_message_id,
                         )
                         .await?;
                     }

@@ -2,7 +2,7 @@
 pub struct StarboardMessage {
     pub message_id: i64,
     pub starboard_id: i32,
-    pub starboard_message_id: Option<i64>,
+    pub starboard_message_id: i64,
     pub last_known_point_count: i16,
 }
 
