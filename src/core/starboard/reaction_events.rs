@@ -6,6 +6,7 @@ use crate::{
     client::bot::StarboardBot,
     core::emoji::SimpleEmoji,
     database::{Member, Message, User, Vote},
+    macros::get_guild_id,
     map_dup_none, unwrap_id,
 };
 
@@ -182,10 +183,37 @@ pub async fn handle_reaction_add(
 }
 
 pub async fn handle_reaction_remove(
-    _bot: &StarboardBot,
-    _event: Box<ReactionRemove>,
+    bot: &StarboardBot,
+    event: Box<ReactionRemove>,
 ) -> anyhow::Result<()> {
-    todo!()
+    let guild_id = match event.guild_id {
+        None => return Ok(()),
+        Some(guild_id) => guild_id,
+    };
+
+    let orig = match Message::get_original(&bot.pool, unwrap_id!(event.message_id)).await? {
+        None => return Ok(()),
+        Some(orig) => orig,
+    };
+
+    let emoji = SimpleEmoji::from(event.emoji.clone());
+    let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
+    let status =
+        VoteStatus::get_vote_status(&bot, &emoji, &configs, event.message_id, event.channel_id)
+            .await;
+
+    match status {
+        VoteStatus::Valid((upvote, downvote)) => {
+            let user_id = unwrap_id!(event.user_id);
+            for config in upvote.iter().chain(&downvote) {
+                Vote::delete(&bot.pool, orig.message_id, config.starboard.id, user_id).await?;
+            }
+
+            Ok(())
+        }
+        VoteStatus::Ignore => Ok(()),
+        VoteStatus::Remove => Ok(()),
+    }
 }
 
 pub async fn handle_reaction_remove_all(
