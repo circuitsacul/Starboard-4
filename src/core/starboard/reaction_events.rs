@@ -54,6 +54,48 @@ pub async fn handle_reaction_add(
             map_dup_none!(User::create(&bot.pool, author_id, author_is_bot))?;
             map_dup_none!(Member::create(&bot.pool, author_id, unwrap_id!(guild_id)))?;
 
+            // all this work just to check if a channel/thread is nsfw
+            // thanks discord
+            let is_nsfw = {
+                // first, we need to fetch the channel from discord.
+                let channel = bot
+                    .http
+                    .channel(event.channel_id)
+                    .exec()
+                    .await?
+                    .model()
+                    .await?;
+
+                // if by some miracle nsfw is Some...
+                if let Some(nsfw) = channel.nsfw {
+                    nsfw
+                } else {
+                    // hopefully it's because this is a thread
+                    if !channel.kind.is_thread() {
+                        // not much we can do at this point really
+                        panic!("Non-thread channel had no `nsfw` parameter.");
+                    }
+
+                    // is a thread, should have a parent_id
+                    // yes we have to make another fetch
+                    // don't you just love discord sometimes
+                    let parent = bot
+                        .http
+                        .channel(channel.parent_id.unwrap())
+                        .exec()
+                        .await?
+                        .model()
+                        .await?;
+                    if let Some(nsfw) = parent.nsfw {
+                        nsfw
+                    } else {
+                        // either a major bug, or discord pushed a breaking api change
+                        // probably both
+                        panic!("Parent of thread had no `nsfw` parameter.");
+                    }
+                }
+            };
+
             // message
             let orig = map_dup_none!(Message::create(
                 &bot.pool,
@@ -61,7 +103,7 @@ pub async fn handle_reaction_add(
                 unwrap_id!(guild_id),
                 unwrap_id!(event.channel_id),
                 author_id,
-                author_is_bot,
+                is_nsfw,
             ))?;
 
             match orig {
