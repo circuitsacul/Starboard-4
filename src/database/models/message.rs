@@ -1,3 +1,5 @@
+use crate::database::StarboardMessage;
+
 #[derive(Debug)]
 pub struct Message {
     pub message_id: i64,
@@ -36,5 +38,25 @@ impl Message {
         .fetch_one(pool)
         .await
         .map_err(|e| e.into())
+    }
+
+    pub async fn get_original(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
+        if let Some(sb_msg) = StarboardMessage::get(pool, message_id).await? {
+            sqlx::query_as!(
+                Self,
+                "SELECT * FROM messages WHERE message_id=$1",
+                sb_msg.message_id,
+            )
+            .fetch_optional(pool)
+            .await
+        } else {
+            sqlx::query_as!(
+                Self,
+                "SELECT * FROM messages WHERE message_id=$1",
+                message_id,
+            )
+            .fetch_optional(pool)
+            .await
+        }
     }
 }

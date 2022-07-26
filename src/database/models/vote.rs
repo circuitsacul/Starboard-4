@@ -1,3 +1,5 @@
+use crate::map_dup_none;
+
 #[derive(Debug)]
 pub struct Vote {
     pub message_id: i64,
@@ -16,8 +18,8 @@ impl Vote {
         user_id: i64,
         target_author_id: i64,
         is_downvote: bool,
-    ) -> sqlx::Result<Self> {
-        sqlx::query_as!(
+    ) -> sqlx::Result<Option<Self>> {
+        let create = map_dup_none!(sqlx::query_as!(
             Self,
             r#"INSERT INTO VOTES
             (message_id, starboard_id, user_id,
@@ -30,8 +32,68 @@ impl Vote {
             target_author_id,
             is_downvote,
         )
-        .fetch_one(pool)
+        .fetch_one(pool))?;
+
+        if let Some(create) = create {
+            return Ok(Some(create));
+        }
+
+        sqlx::query_as!(
+            Self,
+            r#"UPDATE votes SET is_downvote=$1 WHERE
+            message_id=$2 AND starboard_id=$3 AND
+            user_id=$4 RETURNING *"#,
+            is_downvote,
+            message_id,
+            starboard_id,
+            user_id,
+        )
+        .fetch_optional(pool)
         .await
-        .map_err(|e| e.into())
+    }
+
+    pub async fn count(
+        pool: &sqlx::PgPool,
+        message_id: i64,
+        starboard_id: i32,
+    ) -> sqlx::Result<i32> {
+        let upvotes = sqlx::query!(
+            "SELECT COUNT(*) as count FROM votes WHERE message_id=$1 AND starboard_id=$2
+            AND is_downvote=false",
+            message_id,
+            starboard_id
+        )
+        .fetch_one(pool)
+        .await?;
+        let downvotes = sqlx::query!(
+            "SELECT COUNT(*) as count FROM votes WHERE message_id=$1 AND starboard_id=$2
+            AND is_downvote=true",
+            message_id,
+            starboard_id
+        )
+        .fetch_one(pool)
+        .await?;
+
+        Ok({ upvotes.count.unwrap() - downvotes.count.unwrap() }
+            .try_into()
+            .unwrap())
+    }
+
+    pub async fn delete(
+        pool: &sqlx::PgPool,
+        message_id: i64,
+        starboard_id: i32,
+        user_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "DELETE FROM votes WHERE message_id=$1 AND starboard_id=$2 AND user_id=$3
+            RETURNING *",
+            message_id,
+            starboard_id,
+            user_id,
+        )
+        .fetch_optional(pool)
+        .await
     }
 }

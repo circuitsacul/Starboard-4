@@ -21,7 +21,10 @@ pub async fn test_starboard_embed(bot: &StarboardBot, event: &MessageCreate) -> 
         .unwrap();
     let config = StarboardConfig::new(sb, Vec::new())?;
 
-    let e = Embedder { points: 1, config };
+    let e = Embedder {
+        points: 1,
+        config: &config,
+    };
     e.send(bot).await?;
 
     Ok(())

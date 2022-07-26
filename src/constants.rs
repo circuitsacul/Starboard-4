@@ -4,7 +4,7 @@ pub const BOT_COLOR: u32 = 0xFFE19C;
 
 // Cache size
 pub const MAX_MESSAGES: u32 = 10_000;
-pub const MAX_AUTOSTAR_NAMES: u32 = 100;
+pub const MAX_NAMES: u32 = 100;
 
 // Cooldowns
 pub const AUTOSTAR_COOLDOWN: (u32, Duration) = (5, Duration::from_secs(20));

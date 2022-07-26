@@ -3,9 +3,12 @@ use std::str::FromStr;
 use async_trait::async_trait;
 use twilight_http::request::channel::reaction::RequestReactionType;
 use twilight_mention::Mention;
-use twilight_model::id::{
-    marker::{EmojiMarker, GuildMarker},
-    Id,
+use twilight_model::{
+    channel::ReactionType,
+    id::{
+        marker::{EmojiMarker, GuildMarker},
+        Id,
+    },
 };
 
 use crate::client::bot::StarboardBot;
@@ -13,7 +16,7 @@ use crate::client::bot::StarboardBot;
 pub struct SimpleEmoji {
     pub is_custom: bool,
     pub raw: String,
-    as_id: Option<Id<EmojiMarker>>,
+    pub as_id: Option<Id<EmojiMarker>>,
 }
 
 #[async_trait]
@@ -155,5 +158,22 @@ impl EmojiCommon for Vec<SimpleEmoji> {
             }
         }
         arr
+    }
+}
+
+impl From<ReactionType> for SimpleEmoji {
+    fn from(reaction: ReactionType) -> Self {
+        match reaction {
+            ReactionType::Custom { id, .. } => SimpleEmoji {
+                is_custom: true,
+                raw: id.to_string(),
+                as_id: Some(id),
+            },
+            ReactionType::Unicode { name } => SimpleEmoji {
+                is_custom: false,
+                raw: name,
+                as_id: None,
+            },
+        }
     }
 }
