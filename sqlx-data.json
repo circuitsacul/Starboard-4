@@ -2406,6 +2406,44 @@
     },
     "query": "INSERT INTO messages (message_id, guild_id, channel_id,\n                author_id, is_nsfw)\n            VALUES ($1, $2, $3, $4, $5) RETURNING *"
   },
+  "e9e76e4a6a8d54a55c8a4fae15d8f7db699e77cc99182ed49ad2398838b65cc0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "starboard_message_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "last_known_point_count",
+          "ordinal": 3,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "DELETE FROM starboard_messages WHERE starboard_message_id=$1\n            RETURNING *"
+  },
   "f35757e59b7666a44de2e4a26614896b218023e78aac4a4bf3e2f5badc000f35": {
     "describe": {
       "columns": [

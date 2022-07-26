@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use twilight_http::error::ErrorType;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
@@ -110,28 +111,53 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 .await?;
             }
 
-            embedder
+            let ret = embedder
                 .edit(
                     &self.refresh.bot,
                     Id::new(sb_msg.starboard_message_id.unwrap().try_into().unwrap()),
                 )
-                .await?;
-        } else {
-            let msg = embedder
-                .send(&self.refresh.bot)
-                .await?
-                .model()
-                .await
-                .unwrap();
-            StarboardMessage::create(
-                &self.refresh.bot.pool,
-                orig.message_id,
-                unwrap_id!(msg.id),
-                self.config.starboard.id,
-                points,
-            )
-            .await?;
+                .await;
+
+            if let Err(why) = ret {
+                let mut was_404 = false;
+                if let ErrorType::Response {
+                    body: _,
+                    error: _,
+                    status,
+                } = why.kind()
+                {
+                    if status.get() == 404 {
+                        was_404 = true;
+                        StarboardMessage::delete(
+                            &self.refresh.bot.pool,
+                            sb_msg.starboard_message_id.unwrap(),
+                        )
+                        .await?;
+                    }
+                }
+
+                if !was_404 {
+                    return Err(why.into());
+                }
+            } else {
+                return Ok(());
+            }
         }
+
+        let msg = embedder
+            .send(&self.refresh.bot)
+            .await?
+            .model()
+            .await
+            .unwrap();
+        StarboardMessage::create(
+            &self.refresh.bot.pool,
+            orig.message_id,
+            unwrap_id!(msg.id),
+            self.config.starboard.id,
+            points,
+        )
+        .await?;
 
         Ok(())
     }

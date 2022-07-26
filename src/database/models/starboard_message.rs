@@ -31,6 +31,20 @@ impl StarboardMessage {
         .map_err(|e| e.into())
     }
 
+    pub async fn delete(
+        pool: &sqlx::PgPool,
+        starboard_message_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "DELETE FROM starboard_messages WHERE starboard_message_id=$1
+            RETURNING *",
+            starboard_message_id,
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
     pub async fn get(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
