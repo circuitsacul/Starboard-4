@@ -438,6 +438,45 @@
     },
     "query": "INSERT INTO autostar_channels\n                (name, channel_id, guild_id)\n                VALUES ($1, $2, $3)\n                RETURNING *"
   },
+  "26ba63804320b440dba9096dedb959767348c0ad53144f02220af3f7255cb5d6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "starboard_message_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "last_known_point_count",
+          "ordinal": 3,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int2",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE starboard_messages SET last_known_point_count=$1 WHERE starboard_message_id=$2\n            RETURNING *"
+  },
   "2ba33811711a776b21ed9f1aab88903c81d572838f9ec3c133112ed009efb20e": {
     "describe": {
       "columns": [
@@ -933,45 +972,6 @@
       }
     },
     "query": "DELETE FROM starboards WHERE name=$1 AND guild_id=$2\n            RETURNING *"
-  },
-  "472bf7e641c8699849735a78b2174ae5fdceba022b505e8339bae1f66e49e6e8": {
-    "describe": {
-      "columns": [
-        {
-          "name": "message_id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        },
-        {
-          "name": "starboard_id",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "starboard_message_id",
-          "ordinal": 2,
-          "type_info": "Int8"
-        },
-        {
-          "name": "last_known_point_count",
-          "ordinal": 3,
-          "type_info": "Int2"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        true,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int4"
-        ]
-      }
-    },
-    "query": "INSERT INTO starboard_messages\n            (message_id, starboard_id)\n            VALUES ($1, $2)\n            RETURNING *"
   },
   "49d63a74ba11ef0279ae492c469cd578a6c97e81fe63715ef999e39f74a433d5": {
     "describe": {
@@ -1771,6 +1771,47 @@
     },
     "query": "SELECT * FROM autostar_channels WHERE channel_id = $1"
   },
+  "9dad93f96c1564677617a97044b59d8c62f5f1eca0de3ad975843575e2835b31": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "starboard_message_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "last_known_point_count",
+          "ordinal": 3,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4",
+          "Int8",
+          "Int2"
+        ]
+      }
+    },
+    "query": "INSERT INTO starboard_messages\n            (message_id, starboard_id, starboard_message_id, last_known_point_count)\n            VALUES ($1, $2, $3, $4)\n            RETURNING *"
+  },
   "b9667c059530d0e333f589f9f58d015417a9a88f49fbd2a50acc4d834e9aff40": {
     "describe": {
       "columns": [
@@ -2417,5 +2458,44 @@
       }
     },
     "query": "INSERT INTO overrides\n            (id, guild_id, name, starboard_id)\n            VALUES ($1, $2, $3, $4)\n            RETURNING *"
+  },
+  "f82801c420e139303f7a931b601b5d95be61de8607350bbd7d2c9729723623e9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "starboard_message_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "last_known_point_count",
+          "ordinal": 3,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM starboard_messages WHERE starboard_id=$1 AND message_id=$2"
   }
 }

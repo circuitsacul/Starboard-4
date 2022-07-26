@@ -5,7 +5,7 @@ use twilight_model::id::{marker::MessageMarker, Id};
 use crate::{
     client::bot::StarboardBot,
     core::embedder::Embedder,
-    database::{Message as DbMessage, Vote},
+    database::{Message as DbMessage, StarboardMessage, Vote},
     errors::StarboardResult,
     unwrap_id,
 };
@@ -77,24 +77,72 @@ impl RefreshMessage<'_> {
 }
 
 struct RefreshStarboard<'this, 'bot> {
-    refresh: &'this RefreshMessage<'bot>,
+    refresh: &'this mut RefreshMessage<'bot>,
     config: &'this StarboardConfig,
 }
 
 impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
-    pub fn new(refresh: &'this RefreshMessage<'bot>, config: &'this StarboardConfig) -> Self {
+    pub fn new(refresh: &'this mut RefreshMessage<'bot>, config: &'this StarboardConfig) -> Self {
         Self { refresh, config }
     }
 
-    pub async fn refresh(&self) -> StarboardResult<()> {
+    pub async fn refresh(&mut self) -> StarboardResult<()> {
+        let orig = self.refresh.get_sql_message().await?;
         let points = Vote::count(
             &self.refresh.bot.pool,
-            unwrap_id!(self.refresh.message_id),
+            orig.message_id,
             self.config.starboard.id,
         )
         .await?;
+
         let embedder = Embedder::new(points, &self.config);
-        embedder.send(&self.refresh.bot).await?;
+        let sb_msg = self.get_starboard_message().await?;
+
+        if let Some(sb_msg) = sb_msg {
+            if points == sb_msg.last_known_point_count as i32 {
+                return Ok(());
+            } else {
+                StarboardMessage::set_last_point_count(
+                    &self.refresh.bot.pool,
+                    sb_msg.starboard_message_id.unwrap(),
+                    points.try_into().unwrap(),
+                )
+                .await?;
+            }
+
+            embedder
+                .edit(
+                    &self.refresh.bot,
+                    Id::new(sb_msg.starboard_message_id.unwrap().try_into().unwrap()),
+                )
+                .await?;
+        } else {
+            let msg = embedder
+                .send(&self.refresh.bot)
+                .await?
+                .model()
+                .await
+                .unwrap();
+            StarboardMessage::create(
+                &self.refresh.bot.pool,
+                orig.message_id,
+                unwrap_id!(msg.id),
+                self.config.starboard.id,
+                points,
+            )
+            .await?;
+        }
+
         Ok(())
+    }
+
+    async fn get_starboard_message(&mut self) -> sqlx::Result<Option<StarboardMessage>> {
+        let orig = self.refresh.get_sql_message().await?;
+        StarboardMessage::get_by_starboard(
+            &self.refresh.bot.pool,
+            orig.message_id,
+            self.config.starboard.id,
+        )
+        .await
     }
 }
