@@ -59,4 +59,14 @@ impl Message {
             .await
         }
     }
+
+    pub async fn get(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM messages WHERE message_id=$1",
+            message_id,
+        )
+        .fetch_optional(pool)
+        .await
+    }
 }

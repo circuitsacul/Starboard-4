@@ -99,7 +99,7 @@ pub async fn handle_reaction_add(
 
             match orig {
                 Some(msg) => msg,
-                None => Message::get_original(&bot.pool, unwrap_id!(event.message_id))
+                None => Message::get(&bot.pool, unwrap_id!(event.message_id))
                     .await?
                     .unwrap(),
             }
