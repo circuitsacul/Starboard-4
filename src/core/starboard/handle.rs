@@ -35,10 +35,18 @@ impl RefreshMessage<'_> {
     }
 
     pub async fn refresh(&mut self) -> StarboardResult<()> {
+        let orig = self.get_sql_message().await?;
+        let guard = self.bot.locks.post_update_lock.lock(orig.message_id);
+        if guard.is_none() {
+            return Ok(());
+        }
+
         let configs = self.get_configs().await?;
         for c in configs.iter() {
             RefreshStarboard::new(self, c).refresh().await?;
         }
+
+        std::mem::drop(guard);
         Ok(())
     }
 

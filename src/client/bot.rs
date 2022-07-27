@@ -16,7 +16,7 @@ use twilight_standby::Standby;
 
 use crate::{cache::cache::Cache, client::config::Config};
 
-use super::cooldowns::Cooldowns;
+use super::{cooldowns::Cooldowns, locks::Locks};
 
 pub struct StarboardBot {
     pub cluster: Cluster,
@@ -28,6 +28,7 @@ pub struct StarboardBot {
     pub standby: Standby,
     pub config: Config,
     pub cooldowns: Cooldowns,
+    pub locks: Locks,
 }
 
 impl Debug for StarboardBot {
@@ -88,15 +89,16 @@ impl StarboardBot {
         Ok((
             events,
             Self {
-                cluster: cluster,
-                http: http,
-                cache: cache,
+                cluster,
+                http,
+                cache,
                 application: RwLock::new(None),
-                pool: pool,
-                errors: errors,
+                pool,
+                errors,
                 standby: Standby::new(),
-                config: config,
+                config,
                 cooldowns: Cooldowns::new(),
+                locks: Locks::new(),
             },
         ))
     }
