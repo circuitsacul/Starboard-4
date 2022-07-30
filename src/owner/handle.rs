@@ -31,6 +31,18 @@ pub async fn handle_message(
     match tokens[1] {
         "sql" => commands::sql::run_sql(bot, event).await?,
         "embed" => commands::embed_test::test_starboard_embed(bot, event).await?,
+        "threads" => {
+            println!(
+                "{} threads",
+                bot.cache
+                    .guilds
+                    .with(&event.guild_id.unwrap(), |_, guild| guild
+                        .as_ref()
+                        .unwrap()
+                        .active_thread_parents
+                        .len())
+            )
+        }
         _ => {}
     }
 
