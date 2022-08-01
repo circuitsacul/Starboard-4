@@ -9,7 +9,7 @@ edition = "2021"
 twilight-gateway = "0.11.0"
 twilight-http = "0.11.0"
 twilight-model = "0.11.2"
-twilight-util = { version = "0.11.0", features = ["builder"] }
+twilight-util = { version = "0.12.1", features = ["builder"] }
 twilight-interactions = "0.11.0"
 twilight-error = "0.11.4"
 twilight-mention = "0.11.0"
