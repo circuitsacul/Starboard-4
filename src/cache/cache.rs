@@ -1,9 +1,12 @@
 use dashmap::{DashMap, DashSet};
 use stretto::ValueRef;
 use twilight_gateway::Event;
-use twilight_model::id::{
-    marker::{ChannelMarker, EmojiMarker, GuildMarker, MessageMarker, UserMarker},
-    Id,
+use twilight_model::{
+    channel::Channel,
+    id::{
+        marker::{ChannelMarker, EmojiMarker, GuildMarker, MessageMarker, UserMarker},
+        Id,
+    },
 };
 
 use crate::{
@@ -119,5 +122,109 @@ impl Cache {
 
         self.messages.wait().await.unwrap();
         Ok(self.messages.get(&message_id).unwrap())
+    }
+
+    async fn get_channel_or_thread_parent(
+        &self,
+        bot: &StarboardBot,
+        channel_id: Id<ChannelMarker>,
+    ) -> StarboardResult<Option<Channel>> {
+        async fn get_channel(
+            bot: &StarboardBot,
+            channel_id: Id<ChannelMarker>,
+        ) -> StarboardResult<Option<Channel>> {
+            let channel = bot.http.channel(channel_id).exec().await;
+            let channel = match channel {
+                Ok(channel) => channel,
+                Err(why) => {
+                    return match get_status(&why) {
+                        Some(404) => Ok(None),
+                        _ => Err(why.into()),
+                    }
+                }
+            };
+            Ok(Some(channel.model().await.unwrap()))
+        }
+
+        let channel = match get_channel(bot, channel_id).await? {
+            None => return Ok(None),
+            Some(channel) => channel,
+        };
+        if channel.kind.is_thread() {
+            get_channel(bot, channel.parent_id.unwrap()).await
+        } else {
+            Ok(Some(channel))
+        }
+    }
+
+    pub async fn fog_channel_nsfw(
+        &self,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+        channel_id: Id<ChannelMarker>,
+    ) -> StarboardResult<Option<bool>> {
+        // First, check for the cached value.
+        enum CachedResult {
+            NotCached(Id<ChannelMarker>),
+            Cached(bool),
+            None,
+        }
+
+        let is_nsfw = self.guilds.with(&guild_id, |_, guild| {
+            // get the guild from the cache
+            let guild = match guild {
+                None => return CachedResult::None,
+                Some(guild) => guild,
+            };
+
+            // check if the channel_id is a known thread, and use the parent_id
+            // if it is.
+            let channel_id = match guild.active_thread_parents.get(&channel_id) {
+                None => channel_id,
+                Some(parent_id) => *parent_id,
+            };
+
+            // check the cached nsfw/sfw channel list
+            if guild.nsfw_channels.contains(&channel_id) {
+                CachedResult::Cached(true)
+            } else if guild.sfw_channels.contains(&channel_id) {
+                CachedResult::Cached(false)
+            } else {
+                // return the parent_id, in case the channel_id was originally
+                // a thread. This isn't gauaranteed to be a parent channel - it
+                // could be a thread if the thread wasn't cached.
+                CachedResult::NotCached(channel_id)
+            }
+        });
+
+        // handle the result
+        let channel_id = match is_nsfw {
+            CachedResult::None => return Ok(None),
+            CachedResult::Cached(is_nsfw) => return Ok(Some(is_nsfw)),
+            CachedResult::NotCached(channel_id) => channel_id,
+        };
+
+        // fetch the data from discord
+        let parent = match self.get_channel_or_thread_parent(bot, channel_id).await? {
+            None => return Ok(None),
+            Some(parent) => parent,
+        };
+        // since this is 100% going to be a parent channel, and since discord always
+        // includes the `nsfw` parameter for channels fetched over the api, this
+        // should be safe.
+        let is_nsfw = parent.nsfw.unwrap();
+
+        // cache the value
+        println!("Made an api call.");
+        self.guilds.alter(&guild_id, |_, mut guild| {
+            if is_nsfw {
+                guild.nsfw_channels.insert(parent.id);
+            } else {
+                guild.sfw_channels.insert(parent.id);
+            }
+            guild
+        });
+
+        Ok(Some(is_nsfw))
     }
 }
