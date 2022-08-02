@@ -32,6 +32,7 @@ pub struct Cache {
 
     // database side
     pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
+    pub guild_vote_emojis: AsyncDashMap<i64, Vec<String>>,
 
     // autocomplete
     pub guild_autostar_channel_names: stretto::AsyncCache<Id<GuildMarker>, Vec<String>>,
@@ -50,6 +51,7 @@ impl Cache {
             )
             .unwrap(),
             autostar_channel_ids: autostar_channel_ids.into(),
+            guild_vote_emojis: DashMap::new().into(),
             guild_autostar_channel_names: stretto::AsyncCache::new(
                 (constants::MAX_NAMES * 10).try_into().unwrap(),
                 constants::MAX_NAMES.into(),
@@ -95,7 +97,6 @@ impl Cache {
         })
     }
 
-    // "fetch or get" methods
     pub async fn fog_message(
         &self,
         bot: &StarboardBot,

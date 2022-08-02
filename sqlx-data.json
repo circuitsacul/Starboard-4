@@ -748,6 +748,26 @@
     },
     "query": "INSERT INTO users\n            (user_id, is_bot)\n            VALUES ($1, $2)\n            RETURNING *"
   },
+  "3b91600c3d4a4dde62ffdfc767aea020f62c286b4072bf89f32f2a346646b265": {
+    "describe": {
+      "columns": [
+        {
+          "name": "array",
+          "ordinal": 0,
+          "type_info": "TextArray"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT ARRAY (\n                    SELECT unnest(upvote_emojis || downvote_emojis)\n                    FROM starboards\n                    WHERE guild_id=$1\n                )"
+  },
   "3d80c09db40235cdb95e62e6aec95fcb75aae0b927b8e0d171bacd4954fb5f7b": {
     "describe": {
       "columns": [
