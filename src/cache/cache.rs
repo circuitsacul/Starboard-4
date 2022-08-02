@@ -124,7 +124,7 @@ impl Cache {
         Ok(self.messages.get(&message_id).unwrap())
     }
 
-    async fn get_channel_or_thread_parent(
+    async fn fetch_channel_or_thread_parent(
         &self,
         bot: &StarboardBot,
         channel_id: Id<ChannelMarker>,
@@ -205,7 +205,7 @@ impl Cache {
         };
 
         // fetch the data from discord
-        let parent = match self.get_channel_or_thread_parent(bot, channel_id).await? {
+        let parent = match self.fetch_channel_or_thread_parent(bot, channel_id).await? {
             None => return Ok(None),
             Some(parent) => parent,
         };
