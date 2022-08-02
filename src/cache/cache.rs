@@ -215,7 +215,6 @@ impl Cache {
         let is_nsfw = parent.nsfw.unwrap();
 
         // cache the value
-        println!("Made an api call.");
         self.guilds.alter(&guild_id, |_, mut guild| {
             if is_nsfw {
                 guild.nsfw_channels.insert(parent.id);
