@@ -69,7 +69,7 @@ impl StarboardConfig {
         Ok(configs)
     }
 
-    pub async fn is_guild_vote_emojis(
+    pub async fn is_guild_vote_emoji(
         bot: &StarboardBot,
         guild_id: i64,
         emoji_raw: &String,
