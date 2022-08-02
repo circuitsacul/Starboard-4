@@ -58,34 +58,11 @@ pub async fn handle_reaction_add(
             map_dup_none!(User::create(&bot.pool, author_id, author_is_bot))?;
             map_dup_none!(Member::create(&bot.pool, author_id, unwrap_id!(guild_id)))?;
 
-            // all this work just to check if a channel/thread is nsfw
-            // thanks discord
-            let is_nsfw = {
-                // first, we need to fetch the channel from discord.
-                let channel = bot
-                    .http
-                    .channel(event.channel_id)
-                    .exec()
-                    .await?
-                    .model()
-                    .await?;
-
-                if let Some(nsfw) = channel.nsfw {
-                    nsfw
-                } else {
-                    assert!(channel.kind.is_thread());
-                    let parent = bot
-                        .http
-                        .channel(channel.parent_id.unwrap())
-                        .exec()
-                        .await?
-                        .model()
-                        .await?;
-                    parent
-                        .nsfw
-                        .expect("Parent of thread had no `nsfw` parameter.")
-                }
-            };
+            let is_nsfw = bot
+                .cache
+                .fog_channel_nsfw(bot, guild_id, event.channel_id)
+                .await?
+                .unwrap();
 
             // message
             let orig = map_dup_none!(Message::create(
