@@ -5,7 +5,7 @@ use twilight_model::gateway::payload::incoming::{
 use crate::{
     client::bot::StarboardBot,
     core::emoji::SimpleEmoji,
-    database::{Guild, Member, Message, User, Vote},
+    database::{Member, Message, User, Vote},
     map_dup_none, unwrap_id,
 };
 
@@ -32,7 +32,7 @@ pub async fn handle_reaction_add(
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
 
-    if !Guild::is_vote_emoji(bot, unwrap_id!(guild_id), &emoji.raw).await? {
+    if !StarboardConfig::is_guild_vote_emojis(bot, unwrap_id!(guild_id), &emoji.raw).await? {
         return Ok(());
     }
 
