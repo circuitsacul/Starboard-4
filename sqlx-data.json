@@ -2334,6 +2334,56 @@
     },
     "query": "INSERT INTO permrole_starboards\n            (permrole_id, starboard_id)\n            VALUES ($1, $2)\n            RETURNING *"
   },
+  "e0d3435ac460506de5e62af8dea8bf9151a123a5e958a706241e15206499076c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "channel_ids",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "overrides",
+          "ordinal": 5,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM overrides WHERE starboard_id=$1"
+  },
   "e605d15eeb3e0939bc83e98b98b9ac9814bf2f0983ebdc30c235d8b530bf0ada": {
     "describe": {
       "columns": [

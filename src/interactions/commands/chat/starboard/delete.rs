@@ -25,6 +25,10 @@ impl DeleteStarboard {
                 .guild_autostar_channel_names
                 .remove(&guild_id)
                 .await;
+            ctx.bot
+                .cache
+                .guild_vote_emojis
+                .remove(&unwrap_id!(guild_id));
             ctx.respond_str(&format!("Deleted starboard '{}'.", self.name), false)
                 .await?;
         }

@@ -54,6 +54,19 @@ impl StarboardOverride {
         .await
     }
 
+    pub async fn list_by_starboard(
+        pool: &sqlx::PgPool,
+        starboard_id: i32,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM overrides WHERE starboard_id=$1",
+            starboard_id,
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
     pub fn get_overrides(&self) -> serde_json::Result<OverrideValues> {
         serde_json::from_value(self.overrides.clone()).map_err(|e| e.into())
     }

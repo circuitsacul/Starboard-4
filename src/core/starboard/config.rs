@@ -9,7 +9,7 @@ use crate::{
         helpers::settings::overrides::call_with_override_settings, Starboard, StarboardOverride,
         StarboardSettings,
     },
-    errors::StarboardError,
+    errors::{StarboardError, StarboardResult},
     unwrap_id,
 };
 
@@ -67,5 +67,41 @@ impl StarboardConfig {
         }
 
         Ok(configs)
+    }
+
+    pub async fn is_guild_vote_emoji(
+        bot: &StarboardBot,
+        guild_id: i64,
+        emoji_raw: &String,
+    ) -> StarboardResult<bool> {
+        if let Some(is_vote_emoji) = bot.cache.guild_vote_emojis.with(&guild_id, |_, emojis| {
+            emojis.as_ref().map(|emojis| emojis.contains(emoji_raw))
+        }) {
+            Ok(is_vote_emoji)
+        } else {
+            let mut emojis = Vec::new();
+            let starboards = Starboard::list_by_guild(&bot.pool, guild_id).await?;
+            for sb in starboards {
+                emojis.extend(sb.settings.upvote_emojis);
+                emojis.extend(sb.settings.downvote_emojis);
+
+                let configs = StarboardOverride::list_by_starboard(&bot.pool, sb.id).await?;
+                for c in configs {
+                    let ov = c.get_overrides()?;
+                    if let Some(upvote_emojis) = ov.upvote_emojis {
+                        emojis.extend(upvote_emojis);
+                    }
+                    if let Some(downvote_emojis) = ov.downvote_emojis {
+                        emojis.extend(downvote_emojis);
+                    }
+                }
+            }
+
+            let is_vote_emoji = emojis.contains(emoji_raw);
+            // cache the value
+            bot.cache.guild_vote_emojis.insert(guild_id, emojis);
+
+            Ok(is_vote_emoji)
+        }
     }
 }

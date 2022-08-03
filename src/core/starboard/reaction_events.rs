@@ -30,6 +30,12 @@ pub async fn handle_reaction_add(
         return Ok(());
     }
 
+    let emoji = SimpleEmoji::from(event.emoji.clone());
+
+    if !StarboardConfig::is_guild_vote_emoji(bot, unwrap_id!(guild_id), &emoji.raw).await? {
+        return Ok(());
+    }
+
     let orig_msg = Message::get_original(&bot.pool, unwrap_id!(event.message_id)).await?;
     let orig_msg = match orig_msg {
         None => {
@@ -84,7 +90,6 @@ pub async fn handle_reaction_add(
         Some(msg) => msg,
     };
 
-    let emoji = SimpleEmoji::from(event.emoji.clone());
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
     let status =
         VoteStatus::get_vote_status(bot, &emoji, configs, event.message_id, event.channel_id).await;

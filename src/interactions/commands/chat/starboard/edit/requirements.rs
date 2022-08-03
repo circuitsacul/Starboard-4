@@ -97,6 +97,12 @@ impl EditRequirements {
                 return Ok(());
             }
             starboard.settings.upvote_emojis = emojis;
+
+            // delete cached value
+            ctx.bot
+                .cache
+                .guild_vote_emojis
+                .remove(&unwrap_id!(guild_id));
         }
         if let Some(val) = self.downvote_emojis {
             let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
@@ -110,6 +116,12 @@ impl EditRequirements {
                 return Ok(());
             }
             starboard.settings.downvote_emojis = emojis;
+
+            // delete cached value
+            ctx.bot
+                .cache
+                .guild_vote_emojis
+                .remove(&unwrap_id!(guild_id));
         }
         if let Some(val) = self.self_vote {
             starboard.settings.self_vote = val;
