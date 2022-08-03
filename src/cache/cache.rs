@@ -10,6 +10,7 @@ use twilight_model::{
 };
 
 use crate::{
+    cache::models::channel::CachedChannel,
     client::bot::StarboardBot,
     constants,
     errors::StarboardResult,
@@ -186,16 +187,13 @@ impl Cache {
             };
 
             // check the cached nsfw/sfw channel list
-            if guild.nsfw_channels.contains(&channel_id) {
-                CachedResult::Cached(true)
-            } else if guild.sfw_channels.contains(&channel_id) {
-                CachedResult::Cached(false)
-            } else {
-                // return the parent_id, in case the channel_id was originally
-                // a thread. This isn't gauaranteed to be a parent channel - it
-                // could be a thread if the thread wasn't cached.
-                CachedResult::NotCached(channel_id)
+            if let Some(channel) = guild.channels.get(&channel_id) {
+                if let Some(nsfw) = channel.is_nsfw {
+                    return CachedResult::Cached(nsfw);
+                }
             }
+
+            CachedResult::NotCached(channel_id)
         });
 
         // handle the result
@@ -217,11 +215,10 @@ impl Cache {
 
         // cache the value
         self.guilds.alter(&guild_id, |_, mut guild| {
-            if is_nsfw {
-                guild.nsfw_channels.insert(parent.id);
-            } else {
-                guild.sfw_channels.insert(parent.id);
-            }
+            guild.channels.insert(
+                parent.id,
+                CachedChannel::from_channel(guild.channels.get(&parent.id), &parent),
+            );
             guild
         });
 
