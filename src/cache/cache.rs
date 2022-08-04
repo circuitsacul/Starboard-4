@@ -10,6 +10,7 @@ use twilight_model::{
 };
 
 use crate::{
+    cache::models::channel::CachedChannel,
     client::bot::StarboardBot,
     constants,
     errors::StarboardResult,
@@ -95,6 +96,54 @@ impl Cache {
             None => false,
             Some(guild) => guild.emojis.contains(&emoji_id),
         })
+    }
+
+    pub async fn qualified_channel_ids(
+        &self,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+        channel_id: Id<ChannelMarker>,
+    ) -> StarboardResult<Vec<Id<ChannelMarker>>> {
+        let mut current_channel_id = Some(channel_id);
+        let mut channel_ids = Vec::new();
+
+        while let Some(channel_id) = current_channel_id {
+            channel_ids.push(channel_id);
+
+            let must_fetch = self.guilds.with(&guild_id, |_, guild| {
+                let guild = guild.as_ref().unwrap();
+
+                if let Some(thread_parent_id) = guild.active_thread_parents.get(&channel_id) {
+                    current_channel_id = Some(thread_parent_id.to_owned());
+                    return false;
+                }
+
+                if let Some(channel) = guild.channels.get(&channel_id) {
+                    if let Some(parent_id) = channel.parent_id {
+                        current_channel_id = Some(parent_id);
+                    } else {
+                        current_channel_id = None;
+                    }
+                    return false;
+                }
+
+                true
+            });
+
+            if must_fetch {
+                let channel = bot
+                    .http
+                    .channel(channel_id)
+                    .exec()
+                    .await?
+                    .model()
+                    .await
+                    .unwrap();
+                current_channel_id = channel.parent_id;
+            }
+        }
+
+        Ok(channel_ids)
     }
 
     pub async fn fog_message(
@@ -186,16 +235,13 @@ impl Cache {
             };
 
             // check the cached nsfw/sfw channel list
-            if guild.nsfw_channels.contains(&channel_id) {
-                CachedResult::Cached(true)
-            } else if guild.sfw_channels.contains(&channel_id) {
-                CachedResult::Cached(false)
-            } else {
-                // return the parent_id, in case the channel_id was originally
-                // a thread. This isn't gauaranteed to be a parent channel - it
-                // could be a thread if the thread wasn't cached.
-                CachedResult::NotCached(channel_id)
+            if let Some(channel) = guild.channels.get(&channel_id) {
+                if let Some(nsfw) = channel.is_nsfw {
+                    return CachedResult::Cached(nsfw);
+                }
             }
+
+            CachedResult::NotCached(channel_id)
         });
 
         // handle the result
@@ -217,11 +263,10 @@ impl Cache {
 
         // cache the value
         self.guilds.alter(&guild_id, |_, mut guild| {
-            if is_nsfw {
-                guild.nsfw_channels.insert(parent.id);
-            } else {
-                guild.sfw_channels.insert(parent.id);
-            }
+            guild.channels.insert(
+                parent.id,
+                CachedChannel::from_channel(guild.channels.get(&parent.id), &parent),
+            );
             guild
         });
 

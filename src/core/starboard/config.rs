@@ -58,10 +58,16 @@ impl StarboardConfig {
         let starboards = Starboard::list_by_guild(&bot.pool, unwrap_id!(guild_id)).await?;
         let mut configs = Vec::new();
 
-        let channel_id = unwrap_id!(channel_id);
+        let channel_ids: Vec<i64> = bot
+            .cache
+            .qualified_channel_ids(bot, guild_id, channel_id).await?
+            .into_iter()
+            .map(|cid| unwrap_id!(cid))
+            .collect();
+
         for sb in starboards.into_iter() {
             let overrides =
-                StarboardOverride::list_by_starboard_and_channel(&bot.pool, sb.id, channel_id)
+                StarboardOverride::list_by_starboard_and_channels(&bot.pool, sb.id, &channel_ids)
                     .await?;
             configs.push(Self::new(sb, overrides)?);
         }

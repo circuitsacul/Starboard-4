@@ -5,9 +5,11 @@ use twilight_model::id::{
     Id,
 };
 
+use super::channel::CachedChannel;
+
 pub struct CachedGuild {
     pub emojis: HashSet<Id<EmojiMarker>>,
-    pub nsfw_channels: HashSet<Id<ChannelMarker>>,
-    pub sfw_channels: HashSet<Id<ChannelMarker>>,
+    /// all textable channels except for threads
+    pub channels: HashMap<Id<ChannelMarker>, CachedChannel>,
     pub active_thread_parents: HashMap<Id<ChannelMarker>, Id<ChannelMarker>>,
 }

@@ -37,18 +37,18 @@ impl StarboardOverride {
         .map_err(|e| e.into())
     }
 
-    pub async fn list_by_starboard_and_channel(
+    pub async fn list_by_starboard_and_channels(
         pool: &sqlx::PgPool,
         starboard_id: i32,
-        channel_id: i64,
+        channel_ids: &[i64],
     ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             r#"SELECT * FROM overrides
             WHERE starboard_id=$1 AND
-            channel_ids && array[$2]::bigint[]"#,
+            channel_ids && $2::bigint[]"#,
             starboard_id,
-            channel_id,
+            channel_ids,
         )
         .fetch_all(pool)
         .await
