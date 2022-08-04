@@ -98,6 +98,54 @@ impl Cache {
         })
     }
 
+    pub async fn qualified_channel_ids(
+        &self,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+        channel_id: Id<ChannelMarker>,
+    ) -> StarboardResult<Vec<Id<ChannelMarker>>> {
+        let mut current_channel_id = Some(channel_id);
+        let mut channel_ids = Vec::new();
+
+        while let Some(channel_id) = current_channel_id {
+            channel_ids.push(channel_id);
+
+            let must_fetch = self.guilds.with(&guild_id, |_, guild| {
+                let guild = guild.as_ref().unwrap();
+
+                if let Some(thread_parent_id) = guild.active_thread_parents.get(&channel_id) {
+                    current_channel_id = Some(thread_parent_id.to_owned());
+                    return false;
+                }
+
+                if let Some(channel) = guild.channels.get(&channel_id) {
+                    if let Some(parent_id) = channel.parent_id {
+                        current_channel_id = Some(parent_id);
+                    } else {
+                        current_channel_id = None;
+                    }
+                    return false;
+                }
+
+                true
+            });
+
+            if must_fetch {
+                let channel = bot
+                    .http
+                    .channel(channel_id)
+                    .exec()
+                    .await?
+                    .model()
+                    .await
+                    .unwrap();
+                current_channel_id = channel.parent_id;
+            }
+        }
+
+        Ok(channel_ids)
+    }
+
     pub async fn fog_message(
         &self,
         bot: &StarboardBot,
