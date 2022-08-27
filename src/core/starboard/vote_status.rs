@@ -1,7 +1,7 @@
 //! tool for checking if a vote is valid
 
 use twilight_model::id::{
-    marker::{ChannelMarker, MessageMarker},
+    marker::{ChannelMarker, MessageMarker, UserMarker},
     Id,
 };
 
@@ -21,8 +21,10 @@ impl VoteStatus {
         _bot: &StarboardBot,
         emoji: &SimpleEmoji,
         configs: Vec<StarboardConfig>,
+        reactor_id: Id<UserMarker>,
         _message_id: Id<MessageMarker>,
         _channel_id: Id<ChannelMarker>,
+        message_author_id: Id<UserMarker>,
     ) -> VoteStatus {
         let mut invalid_exists = false;
         let mut allow_remove = true;
@@ -50,7 +52,26 @@ impl VoteStatus {
             }
 
             // check settings
-            // TODO
+            let is_valid;
+
+            // settings to check:
+            // - self_vote (done)
+            // - allow_bots
+            // - require_image
+            // - older_than
+            // - newer_than
+
+            // self-vote
+            if !config.resolved.self_vote && reactor_id == message_author_id {
+                is_valid = false;
+            } else {
+                is_valid = true;
+            }
+
+            if !is_valid {
+                invalid_exists = true;
+                continue;
+            }
 
             // add to corresponding list
             if is_downvote {

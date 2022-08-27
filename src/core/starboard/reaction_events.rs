@@ -1,5 +1,8 @@
-use twilight_model::gateway::payload::incoming::{
-    ReactionAdd, ReactionRemove, ReactionRemoveAll, ReactionRemoveEmoji,
+use twilight_model::{
+    gateway::payload::incoming::{
+        ReactionAdd, ReactionRemove, ReactionRemoveAll, ReactionRemoveEmoji,
+    },
+    id::Id,
 };
 
 use crate::{
@@ -91,8 +94,16 @@ pub async fn handle_reaction_add(
     };
 
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
-    let status =
-        VoteStatus::get_vote_status(bot, &emoji, configs, event.message_id, event.channel_id).await;
+    let status = VoteStatus::get_vote_status(
+        bot,
+        &emoji,
+        configs,
+        Id::new(event.user_id.try_into().unwrap()),
+        Id::new(orig_msg.message_id.try_into().unwrap()),
+        Id::new(orig_msg.channel_id.try_into().unwrap()),
+        Id::new(orig_msg.author_id.try_into().unwrap()),
+    )
+    .await;
 
     match status {
         VoteStatus::Ignore => Ok(()),
@@ -175,9 +186,16 @@ pub async fn handle_reaction_remove(
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
-    let status =
-        VoteStatus::get_vote_status(&bot, &emoji, configs, event.message_id, event.channel_id)
-            .await;
+    let status = VoteStatus::get_vote_status(
+        &bot,
+        &emoji,
+        configs,
+        Id::new(event.user_id.try_into().unwrap()),
+        Id::new(orig.message_id.try_into().unwrap()),
+        Id::new(orig.channel_id.try_into().unwrap()),
+        Id::new(orig.author_id.try_into().unwrap()),
+    )
+    .await;
 
     match status {
         VoteStatus::Valid((upvote, downvote)) => {
