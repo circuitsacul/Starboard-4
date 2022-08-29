@@ -2547,6 +2547,50 @@
     },
     "query": "INSERT INTO overrides\n            (id, guild_id, name, starboard_id)\n            VALUES ($1, $2, $3, $4)\n            RETURNING *"
   },
+  "f593aa1cbdba23466e32e06ffbd59144e044dfad3f355cdb385b6941d28580ea": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_bot",
+          "ordinal": 1,
+          "type_info": "Bool"
+        },
+        {
+          "name": "credits",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "donated_cents",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "patreon_status",
+          "ordinal": 4,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM users WHERE user_id=$1"
+  },
   "f82801c420e139303f7a931b601b5d95be61de8607350bbd7d2c9729723623e9": {
     "describe": {
       "columns": [

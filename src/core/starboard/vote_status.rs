@@ -25,6 +25,7 @@ impl VoteStatus {
         _message_id: Id<MessageMarker>,
         _channel_id: Id<ChannelMarker>,
         message_author_id: Id<UserMarker>,
+        message_author_is_bot: bool,
     ) -> VoteStatus {
         let mut invalid_exists = false;
         let mut allow_remove = true;
@@ -56,13 +57,17 @@ impl VoteStatus {
 
             // settings to check:
             // - self_vote (done)
-            // - allow_bots
+            // - allow_bots (done)
             // - require_image
             // - older_than
             // - newer_than
+            // alow need to check permroles
 
-            // self-vote
             if !config.resolved.self_vote && reactor_id == message_author_id {
+                // self-vote
+                is_valid = false;
+            } else if !config.resolved.allow_bots && message_author_is_bot {
+                // allow-bots
                 is_valid = false;
             } else {
                 is_valid = true;
