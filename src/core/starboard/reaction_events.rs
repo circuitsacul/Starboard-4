@@ -49,15 +49,15 @@ pub async fn handle_reaction_add(
                     None => return Ok(()),
                     Some(obj) => obj,
                 };
-                let (author_is_bot, author_id) = bot
-                    .cache
-                    .users
-                    .with(&orig_msg_obj.author_id, |author_id, user| {
-                        (user.as_ref().map(|u| u.is_bot), unwrap_id!(author_id))
+
+                bot.cache.ensure_user(&bot, orig_msg_obj.author_id).await?;
+                let cached_author_is_bot =
+                    bot.cache.users.with(&orig_msg_obj.author_id, |_, user| {
+                        user.as_ref().map(|u| u.is_bot)
                     });
-                match author_is_bot {
-                    None => return Ok(()),
-                    Some(is_bot) => (is_bot, author_id),
+                match cached_author_is_bot {
+                    None => panic!("No cached user after ensuring."),
+                    Some(is_bot) => (is_bot, unwrap_id!(orig_msg_obj.author_id)),
                 }
             };
 

@@ -146,6 +146,22 @@ impl Cache {
         Ok(channel_ids)
     }
 
+    pub async fn ensure_user(
+        &self,
+        bot: &StarboardBot,
+        user_id: Id<UserMarker>,
+    ) -> StarboardResult<()> {
+        if self.users.contains_key(&user_id) {
+            return Ok(());
+        }
+
+        let user = bot.http.user(user_id).exec().await?.model().await.unwrap();
+
+        self.users.insert(user_id, (&user).into());
+
+        Ok(())
+    }
+
     pub async fn fog_message(
         &self,
         bot: &StarboardBot,
