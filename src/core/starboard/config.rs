@@ -60,7 +60,8 @@ impl StarboardConfig {
 
         let channel_ids: Vec<i64> = bot
             .cache
-            .qualified_channel_ids(bot, guild_id, channel_id).await?
+            .qualified_channel_ids(bot, guild_id, channel_id)
+            .await?
             .into_iter()
             .map(|cid| unwrap_id!(cid))
             .collect();
