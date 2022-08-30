@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use twilight_http::error::ErrorType;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
@@ -9,6 +8,7 @@ use crate::{
     database::{Message as DbMessage, StarboardMessage, Vote},
     errors::StarboardResult,
     unwrap_id,
+    utils::get_status::get_status,
 };
 
 use super::config::StarboardConfig;
@@ -127,24 +127,10 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 .await;
 
             if let Err(why) = ret {
-                let mut was_404 = false;
-                if let ErrorType::Response {
-                    body: _,
-                    error: _,
-                    status,
-                } = why.kind()
-                {
-                    if status.get() == 404 {
-                        was_404 = true;
-                        StarboardMessage::delete(
-                            &self.refresh.bot.pool,
-                            sb_msg.starboard_message_id,
-                        )
+                if matches!(get_status(&why), Some(404)) {
+                    StarboardMessage::delete(&self.refresh.bot.pool, sb_msg.starboard_message_id)
                         .await?;
-                    }
-                }
-
-                if !was_404 {
+                } else {
                     return Err(why.into());
                 }
             } else {
