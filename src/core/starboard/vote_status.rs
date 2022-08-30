@@ -5,7 +5,11 @@ use twilight_model::id::{
     Id,
 };
 
-use crate::{client::bot::StarboardBot, core::emoji::SimpleEmoji};
+use crate::{
+    client::bot::StarboardBot,
+    core::{emoji::SimpleEmoji, has_image::has_image},
+    errors::StarboardResult,
+};
 
 use super::config::StarboardConfig;
 
@@ -18,15 +22,29 @@ pub enum VoteStatus {
 
 impl VoteStatus {
     pub async fn get_vote_status(
-        _bot: &StarboardBot,
+        bot: &StarboardBot,
         emoji: &SimpleEmoji,
         configs: Vec<StarboardConfig>,
         reactor_id: Id<UserMarker>,
-        _message_id: Id<MessageMarker>,
-        _channel_id: Id<ChannelMarker>,
+        message_id: Id<MessageMarker>,
+        channel_id: Id<ChannelMarker>,
         message_author_id: Id<UserMarker>,
         message_author_is_bot: bool,
-    ) -> VoteStatus {
+        message_has_image: Option<bool>,
+    ) -> StarboardResult<VoteStatus> {
+        let message_has_image = match message_has_image {
+            Some(val) => Some(val),
+            None => match bot
+                .cache
+                .fog_message(&bot, channel_id, message_id)
+                .await?
+                .value()
+            {
+                Some(msg) => Some(has_image(&msg.embeds, &msg.attachments)),
+                None => None,
+            },
+        };
+
         let mut invalid_exists = false;
         let mut allow_remove = true;
 
@@ -69,6 +87,9 @@ impl VoteStatus {
             } else if !config.resolved.allow_bots && message_author_is_bot {
                 // allow-bots
                 is_valid = false;
+            } else if config.resolved.require_image && !matches!(message_has_image, Some(true)) {
+                // require-image
+                is_valid = false;
             } else {
                 is_valid = true;
             }
@@ -87,12 +108,12 @@ impl VoteStatus {
         }
         if upvote.is_empty() && downvote.is_empty() {
             if invalid_exists && allow_remove {
-                VoteStatus::Remove
+                Ok(VoteStatus::Remove)
             } else {
-                VoteStatus::Ignore
+                Ok(VoteStatus::Ignore)
             }
         } else {
-            VoteStatus::Valid((upvote, downvote))
+            Ok(VoteStatus::Valid((upvote, downvote)))
         }
     }
 }

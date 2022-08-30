@@ -109,8 +109,9 @@ pub async fn handle_reaction_add(
         Id::new(orig_msg.channel_id.try_into().unwrap()),
         Id::new(orig_msg.author_id.try_into().unwrap()),
         author_is_bot,
+        None,
     )
-    .await;
+    .await?;
 
     match status {
         VoteStatus::Ignore => Ok(()),
@@ -203,8 +204,9 @@ pub async fn handle_reaction_remove(
         Id::new(orig.channel_id.try_into().unwrap()),
         Id::new(orig.author_id.try_into().unwrap()),
         author.is_bot,
+        None,
     )
-    .await;
+    .await?;
 
     match status {
         VoteStatus::Valid((upvote, downvote)) => {
