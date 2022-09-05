@@ -1495,10 +1495,10 @@ dependencies = [
  "tokio",
  "twilight-error",
  "twilight-gateway",
- "twilight-http",
+ "twilight-http 0.13.0",
  "twilight-interactions",
  "twilight-mention",
- "twilight-model",
+ "twilight-model 0.12.3",
  "twilight-standby",
  "twilight-util",
 ]
@@ -1765,8 +1765,8 @@ version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbbb56a96fb7a469c01cac72a25ea3ebd23208bdc594d58049c4e437aabb215c"
 dependencies = [
- "twilight-http",
- "twilight-model",
+ "twilight-http 0.12.2",
+ "twilight-model 0.12.3",
 ]
 
 [[package]]
@@ -1787,8 +1787,8 @@ dependencies = [
  "tokio-tungstenite",
  "tracing",
  "twilight-gateway-queue",
- "twilight-http",
- "twilight-model",
+ "twilight-http 0.12.2",
+ "twilight-model 0.12.3",
  "url",
 ]
 
@@ -1800,7 +1800,7 @@ checksum = "acbb9002e25edd2ffea0d5590554309e196a16c05564754bb28585a388eb320b"
 dependencies = [
  "tokio",
  "tracing",
- "twilight-http",
+ "twilight-http 0.12.2",
 ]
 
 [[package]]
@@ -1818,9 +1818,29 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
- "twilight-http-ratelimiting",
- "twilight-model",
- "twilight-validate",
+ "twilight-http-ratelimiting 0.12.2",
+ "twilight-model 0.12.3",
+ "twilight-validate 0.12.1",
+]
+
+[[package]]
+name = "twilight-http"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35d52f07b516fb6c8e2b36ff0a6353781bf0a108b4cffd638d256aa2fdda02f8"
+dependencies = [
+ "brotli",
+ "hyper",
+ "hyper-rustls",
+ "percent-encoding",
+ "rand",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "twilight-http-ratelimiting 0.13.1",
+ "twilight-model 0.13.2",
+ "twilight-validate 0.13.1",
 ]
 
 [[package]]
@@ -1836,13 +1856,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "twilight-http-ratelimiting"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b75d1f386856ab4e769d26f31c76f6eacd55ae6125d288d1fc68c75632012f9e"
+dependencies = [
+ "futures-util",
+ "http",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "twilight-interactions"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18f650670e5c7e0745122433cd68dbc97cc9a84125837297d7072b02435dd0f5"
 dependencies = [
  "twilight-interactions-derive",
- "twilight-model",
+ "twilight-model 0.12.3",
 ]
 
 [[package]]
@@ -1862,7 +1894,7 @@ version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ff7be31740ca70e904e58b479eef765b3781ad1385be4d21cf937f3adcc0f83"
 dependencies = [
- "twilight-model",
+ "twilight-model 0.12.3",
 ]
 
 [[package]]
@@ -1870,6 +1902,20 @@ name = "twilight-model"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6cc404f553bab715eaebabadb01f5ab1c21f518929852b8f09507c2c7a9d37fa"
+dependencies = [
+ "bitflags",
+ "serde",
+ "serde-value",
+ "serde_repr",
+ "time 0.3.14",
+ "tracing",
+]
+
+[[package]]
+name = "twilight-model"
+version = "0.13.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60367fe4ab87ac8ebd31077add81282cb99cc8519060834d5fed77521ab2d97b"
 dependencies = [
  "bitflags",
  "serde",
@@ -1889,7 +1935,7 @@ dependencies = [
  "futures-util",
  "tokio",
  "tracing",
- "twilight-model",
+ "twilight-model 0.12.3",
 ]
 
 [[package]]
@@ -1898,8 +1944,8 @@ version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b70d18462269ead0abd8e66b7a1656911457af44d9a7f9873d8e7b64235a4227"
 dependencies = [
- "twilight-model",
- "twilight-validate",
+ "twilight-model 0.12.3",
+ "twilight-validate 0.12.1",
 ]
 
 [[package]]
@@ -1908,7 +1954,16 @@ version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e002f0075b0d8beb5971563a9beeb932256d6a5080ca07939bc505e3bf085161"
 dependencies = [
- "twilight-model",
+ "twilight-model 0.12.3",
+]
+
+[[package]]
+name = "twilight-validate"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c17e502d312ae4c78ff55fe55c0ad23d68e3a4394591c16ed350e3d362d9826"
+dependencies = [
+ "twilight-model 0.13.2",
 ]
 
 [[package]]
