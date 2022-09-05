@@ -4,7 +4,7 @@ use twilight_model::application::interaction::application_command::InteractionCh
 use crate::{
     database::{validation, AutoStarChannel, Guild},
     get_guild_id,
-    interactions::commands::context::CommandCtx,
+    interactions::context::CommandCtx,
     map_dup_none, unwrap_id,
 };
 

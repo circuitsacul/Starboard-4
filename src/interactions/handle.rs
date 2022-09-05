@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use twilight_model::application::interaction::Interaction;
+use twilight_model::application::interaction::{Interaction, InteractionData, InteractionType};
 
 use crate::client::bot::StarboardBot;
 
 use super::{
     autocomplete::handle::handle_autocomplete, commands::handle::handle_command,
-    components::handle::handle_component,
+    components::handle::handle_component, context::Ctx,
 };
 
 pub async fn handle_interaction(
@@ -14,14 +14,24 @@ pub async fn handle_interaction(
     interaction: Interaction,
     bot: Arc<StarboardBot>,
 ) -> anyhow::Result<()> {
-    match interaction {
-        Interaction::ApplicationCommand(interaction) => {
-            handle_command(shard_id, bot, interaction).await?
+    match interaction.data {
+        Some(InteractionData::ApplicationCommand(ref data)) => {
+            let data = data.to_owned();
+            let ctx = Ctx::new(shard_id, bot, interaction, data);
+            if matches!(
+                ctx.interaction.kind,
+                InteractionType::ApplicationCommandAutocomplete
+            ) {
+                handle_autocomplete(ctx).await?;
+            } else {
+                handle_command(ctx).await?;
+            }
         }
-        Interaction::ApplicationCommandAutocomplete(interaction) => {
-            handle_autocomplete(bot, interaction).await?
+        Some(InteractionData::MessageComponent(ref data)) => {
+            let data = data.to_owned();
+            let ctx = Ctx::new(shard_id, bot, interaction, data);
+            handle_component(ctx).await?;
         }
-        Interaction::MessageComponent(interaction) => handle_component(bot, interaction).await?,
         _ => {}
     }
 

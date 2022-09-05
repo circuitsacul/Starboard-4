@@ -4,7 +4,7 @@ use crate::{
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::AutoStarChannel,
     get_guild_id,
-    interactions::commands::context::CommandCtx,
+    interactions::context::CommandCtx,
     unwrap_id,
 };
 

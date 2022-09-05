@@ -1,20 +1,14 @@
-use twilight_model::application::{
-    command::CommandOptionChoice, interaction::ApplicationCommandAutocomplete,
-};
+use twilight_model::application::command::CommandOptionChoice;
 
-use crate::{client::bot::StarboardBot, database::Starboard, unwrap_id};
+use crate::{database::Starboard, interactions::context::CommandCtx, unwrap_id};
 
 pub async fn starboard_name_autocomplete(
-    bot: &StarboardBot,
-    interaction: &Box<ApplicationCommandAutocomplete>,
+    ctx: &CommandCtx,
 ) -> anyhow::Result<Vec<CommandOptionChoice>> {
-    let names: Vec<String> = match bot
-        .cache
-        .guild_autostar_channel_names
-        .get(&interaction.guild_id.unwrap())
-    {
+    let guild_id = ctx.interaction.guild_id.unwrap();
+    let names: Vec<String> = match ctx.bot.cache.guild_autostar_channel_names.get(&guild_id) {
         Some(names) => (*names.value()).clone(),
-        None => Starboard::list_by_guild(&bot.pool, unwrap_id!(interaction.guild_id.unwrap()))
+        None => Starboard::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id))
             .await?
             .into_iter()
             .map(|a| a.name)

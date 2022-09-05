@@ -1,6 +1,6 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::interactions::commands::context::CommandCtx;
+use crate::interactions::context::CommandCtx;
 
 #[derive(CreateCommand, CommandModel)]
 #[command(name = "ping", desc = "Pong!")]

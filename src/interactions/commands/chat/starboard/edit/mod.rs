@@ -5,7 +5,7 @@ pub mod style;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::interactions::commands::context::CommandCtx;
+use crate::interactions::context::CommandCtx;
 
 #[derive(CommandModel, CreateCommand)]
 #[command(name = "edit", desc = "Edit a starboard")]

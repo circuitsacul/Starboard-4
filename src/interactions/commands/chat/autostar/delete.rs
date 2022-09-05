@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::AutoStarChannel, get_guild_id, interactions::commands::context::CommandCtx, unwrap_id,
+    database::AutoStarChannel, get_guild_id, interactions::context::CommandCtx, unwrap_id,
 };
 
 #[derive(CreateCommand, CommandModel)]

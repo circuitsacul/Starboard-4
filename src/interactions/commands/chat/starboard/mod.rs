@@ -6,7 +6,7 @@ pub mod view;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::interactions::commands::{context::CommandCtx, permissions::manage_channels};
+use crate::interactions::{commands::permissions::manage_channels, context::CommandCtx};
 
 #[derive(CommandModel, CreateCommand)]
 #[command(

@@ -4,7 +4,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     database::{validation, Starboard},
     get_guild_id,
-    interactions::commands::context::CommandCtx,
+    interactions::context::CommandCtx,
     unwrap_id,
 };
 
