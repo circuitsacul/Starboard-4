@@ -1,9 +1,12 @@
 //! tool for checking if a vote is valid
 
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use twilight_model::id::{
     marker::{ChannelMarker, MessageMarker, UserMarker},
     Id,
 };
+use twilight_util::snowflake::Snowflake;
 
 use crate::{
     client::bot::StarboardBot,
@@ -74,12 +77,24 @@ impl VoteStatus {
             let is_valid;
 
             // settings to check:
-            // - self_vote (done)
-            // - allow_bots (done)
+            // - self_vote
+            // - allow_bots
             // - require_image
             // - older_than
             // - newer_than
             // alow need to check permroles
+
+            let message_age: i64 = {
+                let now = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis();
+                let created_at = message_id.timestamp();
+
+                ((now - created_at as u128) / 1000).try_into().unwrap()
+            };
+            let older_than = config.resolved.older_than;
+            let newer_than = config.resolved.newer_than;
 
             if !config.resolved.self_vote && reactor_id == message_author_id {
                 // self-vote
@@ -89,6 +104,12 @@ impl VoteStatus {
                 is_valid = false;
             } else if config.resolved.require_image && !matches!(message_has_image, Some(true)) {
                 // require-image
+                is_valid = false;
+            } else if older_than != 0 && message_age < older_than {
+                // older-than
+                is_valid = false;
+            } else if newer_than != 0 && message_age > newer_than {
+                // newer-than
                 is_valid = false;
             } else {
                 is_valid = true;
