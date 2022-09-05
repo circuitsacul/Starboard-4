@@ -23,4 +23,10 @@ impl User {
         .await
         .map_err(|e| e.into())
     }
+
+    pub async fn get(pool: &sqlx::PgPool, user_id: i64) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(Self, "SELECT * FROM users WHERE user_id=$1", user_id,)
+            .fetch_optional(pool)
+            .await
+    }
 }

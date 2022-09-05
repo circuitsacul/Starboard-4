@@ -1,5 +1,8 @@
-use twilight_model::gateway::payload::incoming::{
-    ReactionAdd, ReactionRemove, ReactionRemoveAll, ReactionRemoveEmoji,
+use twilight_model::{
+    gateway::payload::incoming::{
+        ReactionAdd, ReactionRemove, ReactionRemoveAll, ReactionRemoveEmoji,
+    },
+    id::Id,
 };
 
 use crate::{
@@ -37,7 +40,7 @@ pub async fn handle_reaction_add(
     }
 
     let orig_msg = Message::get_original(&bot.pool, unwrap_id!(event.message_id)).await?;
-    let orig_msg = match orig_msg {
+    let (orig_msg, author_is_bot) = match orig_msg {
         None => {
             // author data
             let (author_is_bot, author_id) = {
@@ -81,18 +84,34 @@ pub async fn handle_reaction_add(
             ))?;
 
             match orig {
-                Some(msg) => msg,
-                None => Message::get(&bot.pool, unwrap_id!(event.message_id))
-                    .await?
-                    .unwrap(),
+                Some(msg) => (msg, author_is_bot),
+                None => {
+                    let msg = Message::get(&bot.pool, unwrap_id!(event.message_id))
+                        .await?
+                        .unwrap();
+                    (msg, author_is_bot)
+                }
             }
         }
-        Some(msg) => msg,
+        Some(msg) => {
+            let user = User::get(&bot.pool, msg.author_id).await?.unwrap();
+            (msg, user.is_bot)
+        }
     };
 
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
-    let status =
-        VoteStatus::get_vote_status(bot, &emoji, configs, event.message_id, event.channel_id).await;
+    let status = VoteStatus::get_vote_status(
+        bot,
+        &emoji,
+        configs,
+        Id::new(event.user_id.try_into().unwrap()),
+        Id::new(orig_msg.message_id.try_into().unwrap()),
+        Id::new(orig_msg.channel_id.try_into().unwrap()),
+        Id::new(orig_msg.author_id.try_into().unwrap()),
+        author_is_bot,
+        None,
+    )
+    .await?;
 
     match status {
         VoteStatus::Ignore => Ok(()),
@@ -172,12 +191,22 @@ pub async fn handle_reaction_remove(
         None => return Ok(()),
         Some(orig) => orig,
     };
+    let author = User::get(&bot.pool, orig.author_id).await?.unwrap();
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
-    let status =
-        VoteStatus::get_vote_status(&bot, &emoji, configs, event.message_id, event.channel_id)
-            .await;
+    let status = VoteStatus::get_vote_status(
+        &bot,
+        &emoji,
+        configs,
+        Id::new(event.user_id.try_into().unwrap()),
+        Id::new(orig.message_id.try_into().unwrap()),
+        Id::new(orig.channel_id.try_into().unwrap()),
+        Id::new(orig.author_id.try_into().unwrap()),
+        author.is_bot,
+        None,
+    )
+    .await?;
 
     match status {
         VoteStatus::Valid((upvote, downvote)) => {
