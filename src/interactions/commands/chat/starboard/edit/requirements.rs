@@ -7,7 +7,7 @@ use crate::{
         Starboard,
     },
     get_guild_id,
-    interactions::commands::context::CommandCtx,
+    interactions::context::CommandCtx,
     unwrap_id,
 };
 

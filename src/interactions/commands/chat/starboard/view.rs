@@ -5,7 +5,7 @@ use crate::{
     core::starboard::config::StarboardConfig,
     database::Starboard,
     get_guild_id,
-    interactions::commands::{context::CommandCtx, format_settings::format_settings},
+    interactions::{commands::format_settings::format_settings, context::CommandCtx},
     unwrap_id,
     utils::embed,
 };

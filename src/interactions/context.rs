@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use twilight_http::Response;
 use twilight_model::{
-    application::interaction::ApplicationCommand,
+    application::interaction::{
+        application_command::CommandData, message_component::MessageComponentInteractionData,
+        Interaction,
+    },
     channel::{message::MessageFlags, Message},
     http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType},
 };
@@ -10,26 +13,27 @@ use twilight_util::builder::InteractionResponseDataBuilder;
 
 use crate::client::bot::StarboardBot;
 
+pub type CommandCtx = Ctx<Box<CommandData>>;
+pub type ComponentCtx = Ctx<MessageComponentInteractionData>;
+
 #[derive(Debug)]
-pub struct CommandCtx {
+pub struct Ctx<T> {
     pub shard_id: u64,
     pub bot: Arc<StarboardBot>,
-    pub interaction: Box<ApplicationCommand>,
+    pub interaction: Interaction,
+    pub data: T,
     responded: bool,
 }
 
 type TwResult = Result<Response<Message>, twilight_http::Error>;
 
-impl CommandCtx {
-    pub fn new(
-        shard_id: u64,
-        bot: Arc<StarboardBot>,
-        interaction: Box<ApplicationCommand>,
-    ) -> Self {
+impl<T> Ctx<T> {
+    pub fn new(shard_id: u64, bot: Arc<StarboardBot>, interaction: Interaction, data: T) -> Self {
         Self {
             shard_id,
             bot,
             interaction,
+            data,
             responded: false,
         }
     }
@@ -112,7 +116,7 @@ impl CommandCtx {
     }
 
     pub async fn respond_str(&mut self, response: &str, ephemeral: bool) -> TwResult {
-        let mut data = self.build_resp().content(response.into());
+        let mut data = self.build_resp().content(response);
         if ephemeral {
             data = data.flags(MessageFlags::EPHEMERAL);
         }

@@ -1,17 +1,12 @@
-use std::sync::Arc;
+use crate::interactions::context::ComponentCtx;
 
-use twilight_model::application::interaction::MessageComponentInteraction;
+pub async fn handle_dismiss(ctx: &ComponentCtx) -> anyhow::Result<()> {
+    assert!(ctx.interaction.is_dm());
+    let message = ctx.interaction.message.as_ref().unwrap();
 
-use crate::client::bot::StarboardBot;
-
-pub async fn handle_dismiss(
-    bot: Arc<StarboardBot>,
-    interaction: Box<MessageComponentInteraction>,
-) -> anyhow::Result<()> {
-    assert!(interaction.is_dm());
-
-    bot.http
-        .delete_message(interaction.message.channel_id, interaction.message.id)
+    ctx.bot
+        .http
+        .delete_message(message.channel_id, message.id)
         .exec()
         .await?;
 

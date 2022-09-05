@@ -1,8 +1,6 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::{
-    database::Starboard, get_guild_id, interactions::commands::context::CommandCtx, unwrap_id,
-};
+use crate::{database::Starboard, get_guild_id, interactions::context::CommandCtx, unwrap_id};
 
 #[derive(CreateCommand, CommandModel)]
 #[command(name = "delete", desc = "Delete a starboard.")]
