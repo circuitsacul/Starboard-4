@@ -21,7 +21,6 @@ impl User {
         )
         .fetch_one(pool)
         .await
-        .map_err(|e| e.into())
     }
 
     pub async fn get(pool: &sqlx::PgPool, user_id: i64) -> sqlx::Result<Option<Self>> {

@@ -37,7 +37,6 @@ impl Message {
         )
         .fetch_one(pool)
         .await
-        .map_err(|e| e.into())
     }
 
     pub async fn get_original(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {

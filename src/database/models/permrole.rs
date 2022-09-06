@@ -21,6 +21,5 @@ impl PermRole {
         )
         .fetch_one(pool)
         .await
-        .map_err(|e| e.into())
     }
 }
