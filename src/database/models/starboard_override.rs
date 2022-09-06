@@ -34,7 +34,6 @@ impl StarboardOverride {
         )
         .fetch_one(pool)
         .await
-        .map_err(|e| e.into())
     }
 
     pub async fn list_by_starboard_and_channels(
@@ -68,6 +67,6 @@ impl StarboardOverride {
     }
 
     pub fn get_overrides(&self) -> serde_json::Result<OverrideValues> {
-        serde_json::from_value(self.overrides.clone()).map_err(|e| e.into())
+        serde_json::from_value(self.overrides.clone())
     }
 }

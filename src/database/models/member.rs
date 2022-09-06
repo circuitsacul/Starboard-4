@@ -16,6 +16,5 @@ impl Member {
         )
         .fetch_one(pool)
         .await
-        .map_err(|e| e.into())
     }
 }

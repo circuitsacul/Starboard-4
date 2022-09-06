@@ -43,7 +43,6 @@ impl AutoStarChannel {
         )
         .fetch_one(pool)
         .await
-        .map_err(|e| e.into())
     }
 
     pub async fn delete(
