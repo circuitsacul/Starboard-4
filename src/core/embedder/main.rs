@@ -5,8 +5,13 @@ use crate::client::bot::StarboardBot;
 use super::Embedder;
 
 impl Embedder<'_> {
-    pub fn get_top_text(&self) -> String {
-        self.points.to_string()
+    pub fn get_top_text(&self, trashed: bool) -> String {
+        let point_str = self.points.to_string();
+        if trashed {
+            format!("trashed message {}", point_str)
+        } else {
+            point_str
+        }
     }
 
     pub async fn send(
@@ -18,7 +23,7 @@ impl Embedder<'_> {
             .create_message(Id::new(
                 self.config.starboard.channel_id.try_into().unwrap(),
             ))
-            .content(&self.get_top_text())
+            .content(&self.get_top_text(false))
             .unwrap()
             .exec()
             .await
@@ -28,6 +33,7 @@ impl Embedder<'_> {
         &self,
         bot: &StarboardBot,
         message_id: Id<MessageMarker>,
+        trashed: bool,
     ) -> Result<twilight_http::Response<twilight_model::channel::Message>, twilight_http::Error>
     {
         bot.http
@@ -35,7 +41,7 @@ impl Embedder<'_> {
                 Id::new(self.config.starboard.channel_id.try_into().unwrap()),
                 message_id,
             )
-            .content(Some(&self.get_top_text()))
+            .content(Some(&self.get_top_text(trashed)))
             .unwrap()
             .exec()
             .await

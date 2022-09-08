@@ -11,7 +11,10 @@ use crate::{
     utils::get_status::get_status,
 };
 
-use super::config::StarboardConfig;
+use super::{
+    config::StarboardConfig,
+    msg_status::{get_message_status, MessageStatus},
+};
 
 pub struct RefreshMessage<'bot> {
     bot: &'bot StarboardBot,
@@ -96,6 +99,22 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
     }
 
     pub async fn refresh(&mut self) -> StarboardResult<()> {
+        // I use a loop because recursion inside async functions requires another crate :(
+        let mut tries = 0;
+        loop {
+            if tries == 2 {
+                return Ok(());
+            }
+            tries += 1;
+            let retry = self.refresh_one().await?;
+            match retry {
+                true => continue,
+                false => return Ok(()),
+            }
+        }
+    }
+
+    async fn refresh_one(&mut self) -> StarboardResult<bool> {
         let orig = self.refresh.get_sql_message().await?;
         let points = Vote::count(
             &self.refresh.bot.pool,
@@ -107,9 +126,11 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         let embedder = Embedder::new(points, &self.config);
         let sb_msg = self.get_starboard_message().await?;
 
+        let action = get_message_status(&self.refresh.bot, &self.config, &orig, points).await?;
+
         if let Some(sb_msg) = sb_msg {
             if points == sb_msg.last_known_point_count as i32 {
-                return Ok(());
+                return Ok(false);
             } else {
                 StarboardMessage::set_last_point_count(
                     &self.refresh.bot.pool,
@@ -119,41 +140,82 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 .await?;
             }
 
-            let ret = embedder
-                .edit(
-                    &self.refresh.bot,
-                    Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
-                )
-                .await;
+            let (ret, retry_on_err, delete_on_ok) = match action {
+                MessageStatus::Remove => {
+                    let ret = self
+                        .refresh
+                        .bot
+                        .http
+                        .delete_message(
+                            Id::new(self.config.starboard.channel_id.try_into().unwrap()),
+                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
+                        )
+                        .exec()
+                        .await;
+                    (ret.map(|_| ()), false, true)
+                }
+                MessageStatus::Send | MessageStatus::NoAction => {
+                    let ret = embedder
+                        .edit(
+                            &self.refresh.bot,
+                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
+                            false,
+                        )
+                        .await;
+                    (ret.map(|_| ()), true, false)
+                }
+                MessageStatus::Trash => {
+                    let ret = embedder
+                        .edit(
+                            &self.refresh.bot,
+                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
+                            true,
+                        )
+                        .await;
+                    (ret.map(|_| ()), false, false)
+                }
+            };
 
             if let Err(why) = ret {
                 if matches!(get_status(&why), Some(404)) {
                     StarboardMessage::delete(&self.refresh.bot.pool, sb_msg.starboard_message_id)
                         .await?;
+                    return Ok(retry_on_err);
                 } else {
                     return Err(why.into());
                 }
             } else {
-                return Ok(());
+                if delete_on_ok {
+                    StarboardMessage::delete(&self.refresh.bot.pool, sb_msg.starboard_message_id)
+                        .await?;
+                }
+                Ok(false)
             }
+        } else {
+            match action {
+                MessageStatus::Remove | MessageStatus::Trash | MessageStatus::NoAction => {
+                    return Ok(false)
+                }
+                MessageStatus::Send => {}
+            }
+
+            let msg = embedder
+                .send(&self.refresh.bot)
+                .await?
+                .model()
+                .await
+                .unwrap();
+            StarboardMessage::create(
+                &self.refresh.bot.pool,
+                orig.message_id,
+                unwrap_id!(msg.id),
+                self.config.starboard.id,
+                points,
+            )
+            .await?;
+
+            Ok(false)
         }
-
-        let msg = embedder
-            .send(&self.refresh.bot)
-            .await?
-            .model()
-            .await
-            .unwrap();
-        StarboardMessage::create(
-            &self.refresh.bot.pool,
-            orig.message_id,
-            unwrap_id!(msg.id),
-            self.config.starboard.id,
-            points,
-        )
-        .await?;
-
-        Ok(())
     }
 
     async fn get_starboard_message(&mut self) -> sqlx::Result<Option<StarboardMessage>> {
