@@ -13,12 +13,7 @@ impl UpdateCache for MessageCreate {
             return;
         }
 
-        let message = CachedMessage {
-            author_id: self.author.id,
-            attachments: self.attachments.clone(),
-            embeds: self.embeds.clone(),
-        };
-
+        let message = CachedMessage::from(&self.0);
         cache.messages.insert(self.id, Some(message), 1).await;
     }
 }
@@ -65,11 +60,16 @@ impl UpdateCache for MessageUpdate {
             Some(embeds) => embeds.clone(),
             None => cached.embeds.clone(),
         };
+        let raw_content = match &self.content {
+            Some(content) => content.clone(),
+            None => cached.raw_content.clone(),
+        };
 
         let message = CachedMessage {
             author_id: cached.author_id,
             attachments,
             embeds,
+            raw_content,
         };
 
         cache.messages.insert(self.id, Some(message), 1).await;
