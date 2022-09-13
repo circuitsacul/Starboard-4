@@ -3,6 +3,7 @@ use std::sync::Arc;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
+    cache::models::message::CachedMessage,
     client::bot::StarboardBot,
     core::embedder::Embedder,
     database::{Message as DbMessage, StarboardMessage, Vote},
@@ -21,6 +22,7 @@ pub struct RefreshMessage<'bot> {
     /// The id of the inputted message. May or may not be the original.
     message_id: Id<MessageMarker>,
     sql_message: Option<Arc<DbMessage>>,
+    orig_message: Option<Arc<Option<CachedMessage>>>,
     configs: Option<Arc<Vec<StarboardConfig>>>,
 }
 
@@ -34,6 +36,7 @@ impl RefreshMessage<'_> {
             message_id,
             configs: None,
             sql_message: None,
+            orig_message: None,
         }
     }
 
@@ -85,6 +88,29 @@ impl RefreshMessage<'_> {
 
         Ok(self.sql_message.as_ref().unwrap().clone())
     }
+
+    pub fn set_orig_message(&mut self, message: Arc<Option<CachedMessage>>) {
+        self.orig_message.replace(message);
+    }
+
+    async fn get_orig_message(&mut self) -> StarboardResult<Arc<Option<CachedMessage>>> {
+        if self.orig_message.is_none() {
+            let sql_message = self.get_sql_message().await?;
+            let orig_message = self
+                .bot
+                .cache
+                .fog_message(
+                    self.bot,
+                    Id::new(sql_message.channel_id.try_into().unwrap()),
+                    Id::new(sql_message.message_id.try_into().unwrap()),
+                )
+                .await?;
+
+            self.set_orig_message(orig_message);
+        }
+
+        Ok(self.orig_message.as_ref().unwrap().clone())
+    }
 }
 
 struct RefreshStarboard<'this, 'bot> {
@@ -122,7 +148,8 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         )
         .await?;
 
-        let embedder = Embedder::new(points, &self.config);
+        let orig_message = self.refresh.get_orig_message().await?;
+        let embedder = Embedder::new(points, &self.config, orig_message);
         let sb_msg = self.get_starboard_message().await?;
 
         let action = get_message_status(&self.refresh.bot, &self.config, &orig, points).await?;
