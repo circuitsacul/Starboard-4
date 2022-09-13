@@ -49,7 +49,6 @@ impl RefreshMessage<'_> {
             RefreshStarboard::new(self, c).refresh().await?;
         }
 
-        std::mem::drop(guard);
         Ok(())
     }
 
