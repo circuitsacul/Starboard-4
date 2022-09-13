@@ -1,5 +1,6 @@
+use std::sync::Arc;
+
 use dashmap::{DashMap, DashSet};
-use stretto::ValueRef;
 use twilight_gateway::Event;
 use twilight_model::{
     channel::Channel,
@@ -29,7 +30,7 @@ pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
     pub users: AsyncDashMap<Id<UserMarker>, CachedUser>,
-    pub messages: stretto::AsyncCache<Id<MessageMarker>, Option<CachedMessage>>,
+    pub messages: stretto::AsyncCache<Id<MessageMarker>, Arc<Option<CachedMessage>>>,
 
     // database side
     pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
@@ -167,9 +168,9 @@ impl Cache {
         bot: &StarboardBot,
         channel_id: Id<ChannelMarker>,
         message_id: Id<MessageMarker>,
-    ) -> StarboardResult<ValueRef<Option<CachedMessage>>> {
+    ) -> StarboardResult<Arc<Option<CachedMessage>>> {
         if let Some(cached) = self.messages.get(&message_id) {
-            return Ok(cached);
+            return Ok(cached.value().clone());
         }
 
         let msg = bot.http.message(channel_id, message_id).exec().await;
@@ -184,10 +185,10 @@ impl Cache {
             Ok(msg) => Some(msg.model().await.unwrap().into()),
         };
 
-        self.messages.insert(message_id, msg, 1).await;
+        self.messages.insert(message_id, Arc::new(msg), 1).await;
 
         self.messages.wait().await.unwrap();
-        Ok(self.messages.get(&message_id).unwrap())
+        Ok(self.messages.get(&message_id).unwrap().value().clone())
     }
 
     async fn fetch_channel_or_thread_parent(

@@ -37,12 +37,7 @@ impl VoteStatus {
     ) -> StarboardResult<VoteStatus> {
         let message_has_image = match message_has_image {
             Some(val) => Some(val),
-            None => match bot
-                .cache
-                .fog_message(&bot, channel_id, message_id)
-                .await?
-                .value()
-            {
+            None => match &*bot.cache.fog_message(&bot, channel_id, message_id).await? {
                 Some(msg) => Some(has_image(&msg.embeds, &msg.attachments)),
                 None => None,
             },

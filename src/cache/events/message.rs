@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use twilight_model::gateway::payload::incoming::{
     MessageCreate, MessageDelete, MessageDeleteBulk, MessageUpdate,
@@ -14,14 +16,17 @@ impl UpdateCache for MessageCreate {
         }
 
         let message = CachedMessage::from(&self.0);
-        cache.messages.insert(self.id, Some(message), 1).await;
+        cache
+            .messages
+            .insert(self.id, Arc::new(Some(message)), 1)
+            .await;
     }
 }
 
 #[async_trait]
 impl UpdateCache for MessageDelete {
     async fn update_cache(&self, cache: &Cache) {
-        cache.messages.insert(self.id, None, 1).await;
+        cache.messages.insert(self.id, Arc::new(None), 1).await;
     }
 }
 
@@ -29,7 +34,7 @@ impl UpdateCache for MessageDelete {
 impl UpdateCache for MessageDeleteBulk {
     async fn update_cache(&self, cache: &Cache) {
         for id in &self.ids {
-            cache.messages.insert(id.clone(), None, 1).await;
+            cache.messages.insert(id.clone(), Arc::new(None), 1).await;
         }
     }
 }
@@ -37,14 +42,16 @@ impl UpdateCache for MessageDeleteBulk {
 #[async_trait]
 impl UpdateCache for MessageUpdate {
     async fn update_cache(&self, cache: &Cache) {
-        let cached = cache.messages.get(&self.id);
+        let cached = {
+            let cached = cache.messages.get(&self.id);
 
-        let cached = match cached {
-            None => return,
-            Some(ref msg) => msg.value(),
+            match cached {
+                None => return,
+                Some(ref msg) => msg.value().clone(),
+            }
         };
 
-        let cached = match cached {
+        let cached = match &*cached {
             None => {
                 cache.messages.remove(&self.id).await;
                 return;
@@ -72,6 +79,9 @@ impl UpdateCache for MessageUpdate {
             raw_content,
         };
 
-        cache.messages.insert(self.id, Some(message), 1).await;
+        cache
+            .messages
+            .insert(self.id, Arc::new(Some(message)), 1)
+            .await;
     }
 }
