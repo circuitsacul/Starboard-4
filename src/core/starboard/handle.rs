@@ -149,7 +149,8 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         .await?;
 
         let orig_message = self.refresh.get_orig_message().await?;
-        let embedder = Embedder::new(points, &self.config, orig_message);
+        let sql_message = self.refresh.get_sql_message().await?;
+        let embedder = Embedder::new(points, &self.config, orig_message, sql_message);
         let sb_msg = self.get_starboard_message().await?;
 
         let action = get_message_status(&self.refresh.bot, &self.config, &orig, points).await?;
@@ -180,25 +181,14 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         .await;
                     (ret.map(|_| ()), false, true)
                 }
-                MessageStatus::Send | MessageStatus::NoAction => {
+                MessageStatus::Send | MessageStatus::NoAction | MessageStatus::Trash => {
                     let ret = embedder
                         .edit(
                             &self.refresh.bot,
                             Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
-                            false,
                         )
                         .await;
                     (ret.map(|_| ()), true, false)
-                }
-                MessageStatus::Trash => {
-                    let ret = embedder
-                        .edit(
-                            &self.refresh.bot,
-                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
-                            true,
-                        )
-                        .await;
-                    (ret.map(|_| ()), false, false)
                 }
             };
 

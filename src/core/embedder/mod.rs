@@ -1,4 +1,7 @@
-mod config;
-mod main;
+pub mod attachment;
+mod builder;
+mod handle;
+mod parser;
 
-pub use config::Embedder;
+pub use attachment::AttachmentHandle;
+pub use handle::Embedder;
