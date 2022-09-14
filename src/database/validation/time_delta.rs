@@ -3,8 +3,8 @@ use std::borrow::Cow;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-fn normalize_unit<'a>(unit: &'a str) -> &'a str {
-    let unit = unit.strip_suffix("s").unwrap_or(unit);
+fn normalize_unit(unit: &str) -> &str {
+    let unit = unit.strip_suffix('s').unwrap_or(unit);
     match unit {
         "second" => "s",
         "minute" => "m",
@@ -37,7 +37,7 @@ pub fn parse_time_delta(inp: &str) -> Result<i64, String> {
 
     let mut seconds = 0;
     let mut carry = None;
-    for raw_token in inp.trim().split(" ").map(|t| t.trim()) {
+    for raw_token in inp.trim().split(' ').map(|t| t.trim()) {
         let token;
         if let Some(carry_val) = carry {
             token = Cow::Owned(format!("{}{}", carry_val, raw_token));

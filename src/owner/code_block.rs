@@ -20,8 +20,8 @@ pub fn parse_code_blocks(content: &str) -> Vec<(String, HashMap<&str, &str>)> {
 
         if in_block {
             current_block.push(line);
-        } else if line != "" {
-            let split: Vec<_> = line.split("=").collect();
+        } else if !line.is_empty() {
+            let split: Vec<_> = line.split('=').collect();
             if split.len() == 2 {
                 current_meta.insert(split[0], split[1]);
             }

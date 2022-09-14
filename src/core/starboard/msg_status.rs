@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 use std::convert::TryInto;
 
 use twilight_model::id::Id;

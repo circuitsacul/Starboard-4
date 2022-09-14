@@ -25,10 +25,7 @@ pub struct RefreshMessage<'bot> {
 }
 
 impl RefreshMessage<'_> {
-    pub fn new<'bot>(
-        bot: &'bot StarboardBot,
-        message_id: Id<MessageMarker>,
-    ) -> RefreshMessage<'bot> {
+    pub fn new(bot: &StarboardBot, message_id: Id<MessageMarker>) -> RefreshMessage {
         RefreshMessage {
             bot,
             message_id,
@@ -123,22 +120,21 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         )
         .await?;
 
-        let embedder = Embedder::new(points, &self.config);
+        let embedder = Embedder::new(points, self.config);
         let sb_msg = self.get_starboard_message().await?;
 
-        let action = get_message_status(&self.refresh.bot, &self.config, &orig, points).await?;
+        let action = get_message_status(self.refresh.bot, self.config, &orig, points).await?;
 
         if let Some(sb_msg) = sb_msg {
             if points == sb_msg.last_known_point_count as i32 {
                 return Ok(false);
-            } else {
-                StarboardMessage::set_last_point_count(
-                    &self.refresh.bot.pool,
-                    sb_msg.starboard_message_id,
-                    points.try_into().unwrap(),
-                )
-                .await?;
             }
+            StarboardMessage::set_last_point_count(
+                &self.refresh.bot.pool,
+                sb_msg.starboard_message_id,
+                points.try_into().unwrap(),
+            )
+            .await?;
 
             let (ret, retry_on_err, delete_on_ok) = match action {
                 MessageStatus::Remove => {
@@ -157,7 +153,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 MessageStatus::Send | MessageStatus::NoAction => {
                     let ret = embedder
                         .edit(
-                            &self.refresh.bot,
+                            self.refresh.bot,
                             Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
                             false,
                         )
@@ -167,7 +163,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 MessageStatus::Trash => {
                     let ret = embedder
                         .edit(
-                            &self.refresh.bot,
+                            self.refresh.bot,
                             Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
                             true,
                         )
@@ -180,9 +176,9 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 if matches!(get_status(&why), Some(404)) {
                     StarboardMessage::delete(&self.refresh.bot.pool, sb_msg.starboard_message_id)
                         .await?;
-                    return Ok(retry_on_err);
+                    Ok(retry_on_err)
                 } else {
-                    return Err(why.into());
+                    Err(why.into())
                 }
             } else {
                 if delete_on_ok {
@@ -200,7 +196,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             }
 
             let msg = embedder
-                .send(&self.refresh.bot)
+                .send(self.refresh.bot)
                 .await?
                 .model()
                 .await

@@ -6,14 +6,17 @@ pub fn parse_color(input: &str) -> Result<i32, &str> {
     // - 0x<code>
     // - <code>
 
-    let parsed = input.trim_start_matches("0x").trim_start_matches("#");
+    let parsed = input.trim_start_matches("0x").trim_start_matches('#');
     let parsed = i32::from_str_radix(parsed, 16);
 
     match parsed {
-        Ok(val) => match val > MAX_HEX_COLOR {
-            false => Ok(val),
-            true => Err("Color code was too large. Maximum value is `#FFFFFF`."),
-        },
+        Ok(val) => {
+            if val > MAX_HEX_COLOR {
+                Err("Color code was too large. Maximum value is `#FFFFFF`.")
+            } else {
+                Ok(val)
+            }
+        }
         Err(_) => Err("Invalid color code. Please pass something like `#FFE19C`."),
     }
 }

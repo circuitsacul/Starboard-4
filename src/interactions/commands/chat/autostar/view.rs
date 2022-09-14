@@ -51,7 +51,7 @@ impl ViewAutoStarChannels {
         } else {
             let asc = AutoStarChannel::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
 
-            if asc.len() == 0 {
+            if asc.is_empty() {
                 ctx.respond_str("This server has no autostar channels.", true)
                     .await?;
                 return Ok(());

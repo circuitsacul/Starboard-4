@@ -68,7 +68,7 @@ impl ViewStarboard {
             } else {
                 let mut final_result = String::new();
 
-                for sb in starboards.into_iter() {
+                for sb in starboards {
                     final_result.push_str(&format!("'{}' in <#{}>\n", sb.name, sb.channel_id))
                 }
 
