@@ -73,6 +73,9 @@ impl VoteStatus {
                 allow_remove = false;
             }
 
+            // check settings
+            let is_valid;
+
             // settings to check:
             // - self_vote
             // - allow_bots
@@ -93,10 +96,24 @@ impl VoteStatus {
             let older_than = config.resolved.older_than;
             let newer_than = config.resolved.newer_than;
 
-            let is_valid = !((!config.resolved.self_vote && reactor_id == message_author_id)
-                || (!config.resolved.allow_bots && message_author_is_bot)
-                || (config.resolved.require_image && !matches!(message_has_image, Some(true)))
-                || (older_than != 0 && (message_age < older_than || message_age > newer_than)));
+            if !config.resolved.self_vote && reactor_id == message_author_id {
+                // self-vote
+                is_valid = false;
+            } else if !config.resolved.allow_bots && message_author_is_bot {
+                // allow-bots
+                is_valid = false;
+            } else if config.resolved.require_image && !matches!(message_has_image, Some(true)) {
+                // require-image
+                is_valid = false;
+            } else if older_than != 0 && message_age < older_than {
+                // older-than
+                is_valid = false;
+            } else if newer_than != 0 && message_age > newer_than {
+                // newer-than
+                is_valid = false;
+            } else {
+                is_valid = true;
+            }
 
             if !is_valid {
                 invalid_exists = true;
