@@ -31,12 +31,11 @@ pub async fn notify(bot: &StarboardBot, user_id: Id<UserMarker>, message: &str) 
         })],
     });
 
-    create
+    let _ = create
         .content(message)
         .unwrap()
         .components(&[comp])
         .unwrap()
         .exec()
-        .await
-        .expect("");
+        .await;
 }
