@@ -76,18 +76,14 @@ pub fn validate_cooldown(capacity: i16, period: i16) -> Result<(), String> {
     }
 }
 
-pub fn validate_vote_emojis(
-    upvote: &Vec<String>,
-    downvote: &Vec<String>,
-) -> Result<(), &'static str> {
+pub fn validate_vote_emojis(upvote: &[String], downvote: &[String]) -> Result<(), &'static str> {
     let unique_upvote: HashSet<_> = upvote.iter().collect();
     let unique_downvote: HashSet<_> = downvote.iter().collect();
 
     if unique_upvote
         .intersection(&unique_downvote)
-        .collect::<Vec<_>>()
-        .len()
-        > 0
+        .next()
+        .is_some()
     {
         Err("Upvote emojis and downvote emojis cannot share the same emojis.")
     } else {

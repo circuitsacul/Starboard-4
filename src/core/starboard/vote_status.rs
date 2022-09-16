@@ -39,7 +39,7 @@ impl VoteStatus {
             Some(val) => Some(val),
             None => match bot
                 .cache
-                .fog_message(&bot, channel_id, message_id)
+                .fog_message(bot, channel_id, message_id)
                 .await?
                 .value()
             {
@@ -53,7 +53,7 @@ impl VoteStatus {
 
         let mut upvote = Vec::new();
         let mut downvote = Vec::new();
-        for config in configs.into_iter() {
+        for config in configs {
             // skip disabled configurations
             if !config.resolved.enabled || config.starboard.premium_locked {
                 continue;
@@ -122,9 +122,9 @@ impl VoteStatus {
 
             // add to corresponding list
             if is_downvote {
-                downvote.push(config)
+                downvote.push(config);
             } else {
-                upvote.push(config)
+                upvote.push(config);
             }
         }
         if upvote.is_empty() && downvote.is_empty() {

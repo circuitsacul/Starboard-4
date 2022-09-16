@@ -27,7 +27,7 @@ where
     }
 
     pub fn alter(&self, key: &K, f: impl FnOnce(&K, V) -> V) {
-        self.map.alter(key, f)
+        self.map.alter(key, f);
     }
 
     pub fn with<R>(&self, key: &K, f: impl FnOnce(&K, &Option<Ref<K, V>>) -> R) -> R {

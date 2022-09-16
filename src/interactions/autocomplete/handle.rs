@@ -28,11 +28,11 @@ pub fn qualified_name(ctx: &CommandCtx) -> String {
 
     if let Some(sub_options) = get_sub_options(&ctx.data.options) {
         let sub = &ctx.data.options[0];
-        name.push_str(" ");
+        name.push(' ');
         name.push_str(&sub.name);
-        if let Some(subsub_options) = get_sub_options(&sub_options) {
+        if let Some(subsub_options) = get_sub_options(sub_options) {
             let subcommand = &sub_options[0];
-            name.push_str(" ");
+            name.push(' ');
             name.push_str(&subcommand.name);
             options = Some(subsub_options);
         } else {
@@ -44,7 +44,7 @@ pub fn qualified_name(ctx: &CommandCtx) -> String {
 
     for option in options.unwrap() {
         if matches!(option.value, CommandOptionValue::Focused(_, _)) {
-            name.push_str(" ");
+            name.push(' ');
             name.push_str(&option.name);
             return name;
         }

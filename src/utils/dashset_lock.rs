@@ -71,6 +71,6 @@ where
     T: Eq + Hash + Clone,
 {
     fn drop(&mut self) {
-        self.release()
+        self.release();
     }
 }
