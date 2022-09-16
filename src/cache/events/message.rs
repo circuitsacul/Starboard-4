@@ -34,7 +34,7 @@ impl UpdateCache for MessageDelete {
 impl UpdateCache for MessageDeleteBulk {
     async fn update_cache(&self, cache: &Cache) {
         for id in &self.ids {
-            cache.messages.insert(id.clone(), None, 1).await;
+            cache.messages.insert(*id, None, 1).await;
         }
     }
 }

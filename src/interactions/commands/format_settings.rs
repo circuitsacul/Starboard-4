@@ -19,10 +19,10 @@ pub async fn format_settings(
     guild_id: Id<GuildMarker>,
     config: &StarboardConfig,
 ) -> FormattedStarboardSettings {
-    let ov_values = match config.overrides.get(0) {
-        None => None,
-        Some(ov) => Some(ov.get_overrides().unwrap()),
-    };
+    let ov_values = config
+        .overrides
+        .get(0)
+        .map(|ov| ov.get_overrides().unwrap());
 
     macro_rules! settings {
         ($($setting: ident, $pretty_name: expr, $value: expr;)*) => {{
@@ -54,7 +54,7 @@ pub async fn format_settings(
             .resolved
             .display_emoji
             .clone()
-            .unwrap_or("none".to_string()),
+            .unwrap_or_else(|| "none".to_string()),
     )
     .into_readable(bot, guild_id)
     .await;
@@ -114,7 +114,7 @@ pub async fn format_settings(
         ),
         embed: settings!(
             color, "color", &format!(
-                "#{:X}", res.color.unwrap_or(constants::BOT_COLOR.try_into().unwrap())
+                "#{:X}", res.color.unwrap_or_else(|| constants::BOT_COLOR.try_into().unwrap())
             );
             jump_to_message, "jump-to-message", res.jump_to_message;
             attachments_list, "attachments-list", res.attachments_list;

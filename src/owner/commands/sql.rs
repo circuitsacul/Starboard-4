@@ -42,7 +42,7 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
         let result = SqlResult {
             execution_times,
             inspect: result.unwrap_or(None),
-            tag: (*meta.get("tag").unwrap_or(&"?query?")).to_string(),
+            tag: meta.get("tag").unwrap_or(&"?query?").to_string(),
         };
         results.push(result);
     }

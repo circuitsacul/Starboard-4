@@ -93,7 +93,7 @@ impl StarboardConfig {
                 emojis.extend(sb.settings.downvote_emojis);
 
                 let configs = StarboardOverride::list_by_starboard(&bot.pool, sb.id).await?;
-                for c in configs {
+                if let Some(c) = configs {
                     let ov = c.get_overrides()?;
                     if let Some(upvote_emojis) = ov.upvote_emojis {
                         emojis.extend(upvote_emojis);

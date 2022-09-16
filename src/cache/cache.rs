@@ -114,7 +114,7 @@ impl Cache {
                 let guild = guild.as_ref().unwrap();
 
                 if let Some(thread_parent_id) = guild.active_thread_parents.get(&channel_id) {
-                    current_channel_id = Some(thread_parent_id.to_owned());
+                    current_channel_id = Some(*thread_parent_id);
                     return false;
                 }
 
