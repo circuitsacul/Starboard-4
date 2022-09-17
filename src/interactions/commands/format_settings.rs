@@ -28,17 +28,14 @@ pub async fn format_settings(
         ($($setting: ident, $pretty_name: expr, $value: expr;)*) => {{
             let mut final_result = String::new();
             $(
-                let is_bold = match &ov_values {
-                    None => false,
-                    Some(ov) => match ov.$setting {
-                        None => false,
-                        Some(_) => true,
-                    },
-                };
+                let is_bold = ov_values.as_ref().map_or(false, |ov| {
+                    ov.$setting.is_some()
+                });
 
-                let setting_name = match is_bold {
-                    true => format!("**{}**", $pretty_name),
-                    false => $pretty_name.to_string(),
+                let setting_name = if is_bold {
+                    format!("**{}**", $pretty_name)
+                } else {
+                    $pretty_name.to_string()
                 };
 
                 final_result.push_str(&format!("{}: {}\n", setting_name, $value));
@@ -66,25 +63,23 @@ pub async fn format_settings(
         .into_readable(bot, guild_id)
         .await;
 
-    let older_than = match res.older_than {
-        x if x <= 0 => "disabled".to_string(),
-        x => format_duration(Duration::from_secs(x as u64)).to_string(),
+    let older_than = if res.older_than <= 0 {
+        "disabled".to_string()
+    } else {
+        format_duration(Duration::from_secs(res.older_than as u64)).to_string()
     };
-    let newer_than = match res.newer_than {
-        x if x <= 0 => "disabled".to_string(),
-        x => format_duration(Duration::from_secs(x as u64)).to_string(),
+    let newer_than = if res.newer_than <= 0 {
+        "disabled".to_string()
+    } else {
+        format_duration(Duration::from_secs(res.newer_than as u64)).to_string()
     };
 
     let cooldown = {
-        let is_bold = match &ov_values {
-            None => false,
-            Some(ov) => ov.cooldown_count.is_some() || ov.cooldown_period.is_some(),
-        };
+        let is_bold = ov_values.as_ref().map_or(false, |ov| {
+            ov.cooldown_count.is_some() || ov.cooldown_period.is_some()
+        });
 
-        let setting_name = match is_bold {
-            false => "cooldown",
-            true => "**cooldown**",
-        };
+        let setting_name = if is_bold { "**cooldown**" } else { "cooldown" };
 
         format!(
             "{}: {} reactions per {} seconds\n",
