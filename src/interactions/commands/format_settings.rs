@@ -56,10 +56,10 @@ pub async fn format_settings(
     .into_readable(bot, guild_id)
     .await;
 
-    let upvote_emojis = Vec::<SimpleEmoji>::from_stored(res.upvote_emojis.clone())
+    let upvote_emojis = Vec::from_stored(res.upvote_emojis.clone())
         .into_readable(bot, guild_id)
         .await;
-    let downvote_emojis = Vec::<SimpleEmoji>::from_stored(res.downvote_emojis.clone())
+    let downvote_emojis = Vec::from_stored(res.downvote_emojis.clone())
         .into_readable(bot, guild_id)
         .await;
 
