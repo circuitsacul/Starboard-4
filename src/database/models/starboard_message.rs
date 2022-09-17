@@ -14,7 +14,7 @@ impl StarboardMessage {
         starboard_id: i32,
         last_known_point_count: i32,
     ) -> sqlx::Result<Self> {
-        let point_count: i16 = last_known_point_count.try_into().unwrap();
+        let point_count = last_known_point_count as i16;
         sqlx::query_as!(
             Self,
             r#"INSERT INTO starboard_messages

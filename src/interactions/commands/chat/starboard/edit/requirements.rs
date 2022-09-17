@@ -64,7 +64,7 @@ impl EditRequirements {
             };
 
         if let Some(val) = self.required {
-            let val = val.try_into().unwrap();
+            let val = val as i16;
             if let Err(why) = validation::starboard_settings::validate_required(
                 val,
                 starboard.settings.required_remove,
@@ -75,7 +75,7 @@ impl EditRequirements {
             starboard.settings.required = val;
         }
         if let Some(val) = self.required_remove {
-            let val = val.try_into().unwrap();
+            let val = val as i16;
             if let Err(why) = validation::starboard_settings::validate_required_remove(
                 val,
                 starboard.settings.required,

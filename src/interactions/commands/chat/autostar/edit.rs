@@ -51,18 +51,14 @@ impl EditAutoStar {
                 .into_stored();
         }
         if let Some(val) = self.min_chars {
-            let min_chars = val.try_into().unwrap();
+            let min_chars = val as i16;
             if let Err(why) = asc.set_min_chars(min_chars) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
         }
         if let Some(val) = self.max_chars {
-            let max_chars = if val == -1 {
-                None
-            } else {
-                Some(val.try_into().unwrap())
-            };
+            let max_chars = if val == -1 { None } else { Some(val as i16) };
             if let Err(why) = asc.set_max_chars(max_chars) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());

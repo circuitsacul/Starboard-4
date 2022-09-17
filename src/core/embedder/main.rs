@@ -20,9 +20,7 @@ impl Embedder<'_> {
     ) -> Result<twilight_http::Response<twilight_model::channel::Message>, twilight_http::Error>
     {
         bot.http
-            .create_message(Id::new(
-                self.config.starboard.channel_id.try_into().unwrap(),
-            ))
+            .create_message(Id::new(self.config.starboard.channel_id as u64))
             .content(&self.get_top_text(false))
             .unwrap()
             .exec()
@@ -38,7 +36,7 @@ impl Embedder<'_> {
     {
         bot.http
             .update_message(
-                Id::new(self.config.starboard.channel_id.try_into().unwrap()),
+                Id::new(self.config.starboard.channel_id as u64),
                 message_id,
             )
             .content(Some(&self.get_top_text(trashed)))
