@@ -91,7 +91,7 @@ impl EmojiCommon for SimpleEmoji {
         // input. https://emojipedia.org/variation-selector-16/
         let input = input
             .strip_suffix('\u{fe0f}')
-            .map_or((&input).to_string(), |s| s.to_string());
+            .map_or_else(|| input.to_string(), |s| s.to_string());
 
         if emojis::get(&input).is_some() {
             Some(Self {
@@ -151,7 +151,7 @@ impl EmojiCommon for Vec<SimpleEmoji> {
 
     async fn from_user_input(input: String, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> Self {
         let mut arr = Vec::new();
-        for piece in (&input).split(' ') {
+        for piece in input.split(' ') {
             let emoji = SimpleEmoji::from_user_input(piece.to_string(), bot, guild_id).await;
             if let Some(emoji) = emoji {
                 arr.push(emoji);

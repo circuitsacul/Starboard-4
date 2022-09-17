@@ -18,7 +18,7 @@ impl Config {
         };
         let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set");
         let shards = env::var("SHARDS")
-            .unwrap_or("1".to_string())
+            .unwrap_or_else(|_| "1".to_string())
             .parse()
             .unwrap();
         let db_url = env::var("SB_DATABASE_URL").expect("No database url specified.");
@@ -26,7 +26,7 @@ impl Config {
             .ok()
             .map(|v| v.parse().expect("Invalid ID for error log channel."));
         let development = env::var("DEVELOPMENT")
-            .unwrap_or("false".to_string())
+            .unwrap_or_else(|_| "false".to_string())
             .parse()
             .expect("Invalid boolean for DEVELOPMENT.");
         let owner_ids = env::var("OWNER_IDS").ok().map(|var| {

@@ -58,8 +58,8 @@ impl RefreshMessage<'_> {
     async fn get_configs(&mut self) -> sqlx::Result<Arc<Vec<StarboardConfig>>> {
         if self.configs.is_none() {
             let msg = self.get_sql_message().await?;
-            let guild_id = Id::new(msg.guild_id.try_into().unwrap());
-            let channel_id = Id::new(msg.channel_id.try_into().unwrap());
+            let guild_id = Id::new(msg.guild_id as u64);
+            let channel_id = Id::new(msg.channel_id as u64);
 
             let configs = StarboardConfig::list_for_channel(self.bot, guild_id, channel_id)
                 .await
@@ -132,7 +132,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             StarboardMessage::set_last_point_count(
                 &self.refresh.bot.pool,
                 sb_msg.starboard_message_id,
-                points.try_into().unwrap(),
+                points as i16,
             )
             .await?;
 
@@ -143,8 +143,8 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         .bot
                         .http
                         .delete_message(
-                            Id::new(self.config.starboard.channel_id.try_into().unwrap()),
-                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
+                            Id::new(self.config.starboard.channel_id as u64),
+                            Id::new(sb_msg.starboard_message_id as u64),
                         )
                         .exec()
                         .await;
@@ -154,7 +154,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                     let ret = embedder
                         .edit(
                             self.refresh.bot,
-                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
+                            Id::new(sb_msg.starboard_message_id as u64),
                             false,
                         )
                         .await;
@@ -164,7 +164,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                     let ret = embedder
                         .edit(
                             self.refresh.bot,
-                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
+                            Id::new(sb_msg.starboard_message_id as u64),
                             true,
                         )
                         .await;

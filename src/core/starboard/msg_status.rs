@@ -1,5 +1,3 @@
-use std::convert::TryInto;
-
 use twilight_model::id::Id;
 
 use crate::{client::bot::StarboardBot, database::Message as DbMessage, errors::StarboardResult};
@@ -20,8 +18,8 @@ pub async fn get_message_status(
     message: &DbMessage,
     points: i32,
 ) -> StarboardResult<MessageStatus> {
-    let guild_id = Id::new(starboard_config.starboard.guild_id.try_into().unwrap());
-    let sb_channel_id = Id::new(starboard_config.starboard.channel_id.try_into().unwrap());
+    let guild_id = Id::new(starboard_config.starboard.guild_id as u64);
+    let sb_channel_id = Id::new(starboard_config.starboard.channel_id as u64);
     let sb_is_nsfw = bot
         .cache
         .fog_channel_nsfw(bot, guild_id, sb_channel_id)

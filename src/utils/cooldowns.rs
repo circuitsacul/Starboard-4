@@ -68,6 +68,15 @@ where
     }
 }
 
+impl<K> Default for FlexibleMapping<K>
+where
+    K: Hash + Eq + Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct JumpingWindow {
     last_reset: Instant,
     period: Duration,

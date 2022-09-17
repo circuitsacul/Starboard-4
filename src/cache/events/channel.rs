@@ -18,7 +18,7 @@ impl UpdateCache for ChannelCreate {
                 .insert(self.id, CachedChannel::from_channel(channel, self));
 
             guild
-        })
+        });
     }
 }
 
@@ -32,14 +32,13 @@ impl UpdateCache for ChannelDelete {
 
         cache.guilds.alter(&guild_id, |_, mut guild| {
             guild.channels.remove(&self.id);
-            guild.active_thread_parents = guild
-                .active_thread_parents
-                .into_iter()
-                .filter(|(_, channel_id)| channel_id != &self.id)
-                .collect();
 
             guild
-        })
+                .active_thread_parents
+                .retain(|_, &mut channel_id| channel_id != self.id);
+
+            guild
+        });
     }
 }
 
@@ -58,6 +57,6 @@ impl UpdateCache for ChannelUpdate {
                 .insert(self.id, CachedChannel::from_channel(channel, self));
 
             guild
-        })
+        });
     }
 }

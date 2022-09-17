@@ -14,8 +14,7 @@ pub async fn notify(bot: &StarboardBot, user_id: Id<UserMarker>, message: &str) 
         return;
     }
 
-    let create = dm::dm(bot, user_id).await;
-    let create = match create {
+    let create = match dm::dm(bot, user_id).await {
         Err(_) => return,
         Ok(create) => create,
     };
