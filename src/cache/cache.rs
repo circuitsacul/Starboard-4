@@ -46,7 +46,7 @@ impl Cache {
             guilds: DashMap::new().into(),
             users: DashMap::new().into(),
             messages: stretto::AsyncCache::new(
-                (constants::MAX_MESSAGES * 10).try_into().unwrap(),
+                (constants::MAX_MESSAGES * 10) as usize,
                 constants::MAX_MESSAGES.into(),
                 tokio::spawn,
             )
@@ -54,13 +54,13 @@ impl Cache {
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_vote_emojis: DashMap::new().into(),
             guild_autostar_channel_names: stretto::AsyncCache::new(
-                (constants::MAX_NAMES * 10).try_into().unwrap(),
+                (constants::MAX_NAMES * 10) as usize,
                 constants::MAX_NAMES.into(),
                 tokio::spawn,
             )
             .unwrap(),
             guild_starboard_names: stretto::AsyncCache::new(
-                (constants::MAX_NAMES * 10).try_into().unwrap(),
+                (constants::MAX_NAMES * 10) as usize,
                 constants::MAX_NAMES.into(),
                 tokio::spawn,
             )

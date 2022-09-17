@@ -68,11 +68,11 @@ pub async fn format_settings(
 
     let older_than = match res.older_than {
         x if x <= 0 => "disabled".to_string(),
-        x => format_duration(Duration::from_secs(x.try_into().unwrap())).to_string(),
+        x => format_duration(Duration::from_secs(x as u64)).to_string(),
     };
     let newer_than = match res.newer_than {
         x if x <= 0 => "disabled".to_string(),
-        x => format_duration(Duration::from_secs(x.try_into().unwrap())).to_string(),
+        x => format_duration(Duration::from_secs(x as u64)).to_string(),
     };
 
     let cooldown = {
@@ -114,7 +114,7 @@ pub async fn format_settings(
         ),
         embed: settings!(
             color, "color", &format!(
-                "#{:X}", res.color.unwrap_or_else(|| constants::BOT_COLOR.try_into().unwrap())
+                "#{:X}", res.color.unwrap_or(constants::BOT_COLOR as i32)
             );
             jump_to_message, "jump-to-message", res.jump_to_message;
             attachments_list, "attachments-list", res.attachments_list;
