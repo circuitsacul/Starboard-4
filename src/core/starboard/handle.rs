@@ -27,10 +27,7 @@ pub struct RefreshMessage<'bot> {
 }
 
 impl RefreshMessage<'_> {
-    pub fn new<'bot>(
-        bot: &'bot StarboardBot,
-        message_id: Id<MessageMarker>,
-    ) -> RefreshMessage<'bot> {
+    pub fn new(bot: &StarboardBot, message_id: Id<MessageMarker>) -> RefreshMessage {
         RefreshMessage {
             bot,
             message_id,
@@ -63,8 +60,8 @@ impl RefreshMessage<'_> {
     async fn get_configs(&mut self) -> sqlx::Result<Arc<Vec<StarboardConfig>>> {
         if self.configs.is_none() {
             let msg = self.get_sql_message().await?;
-            let guild_id = Id::new(msg.guild_id.try_into().unwrap());
-            let channel_id = Id::new(msg.channel_id.try_into().unwrap());
+            let guild_id = Id::new(msg.guild_id as u64);
+            let channel_id = Id::new(msg.channel_id as u64);
 
             let configs = StarboardConfig::list_for_channel(self.bot, guild_id, channel_id)
                 .await
@@ -150,22 +147,21 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
 
         let orig_message = self.refresh.get_orig_message().await?;
         let sql_message = self.refresh.get_sql_message().await?;
-        let embedder = Embedder::new(points, &self.config, orig_message, sql_message);
+        let embedder = Embedder::new(points, self.config, orig_message, sql_message);
         let sb_msg = self.get_starboard_message().await?;
 
-        let action = get_message_status(&self.refresh.bot, &self.config, &orig, points).await?;
+        let action = get_message_status(self.refresh.bot, self.config, &orig, points).await?;
 
         if let Some(sb_msg) = sb_msg {
             if points == sb_msg.last_known_point_count as i32 {
                 return Ok(false);
-            } else {
-                StarboardMessage::set_last_point_count(
-                    &self.refresh.bot.pool,
-                    sb_msg.starboard_message_id,
-                    points.try_into().unwrap(),
-                )
-                .await?;
             }
+            StarboardMessage::set_last_point_count(
+                &self.refresh.bot.pool,
+                sb_msg.starboard_message_id,
+                points as i16,
+            )
+            .await?;
 
             let (ret, retry_on_err, delete_on_ok) = match action {
                 MessageStatus::Remove => {
@@ -174,8 +170,8 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         .bot
                         .http
                         .delete_message(
-                            Id::new(self.config.starboard.channel_id.try_into().unwrap()),
-                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
+                            Id::new(self.config.starboard.channel_id as u64),
+                            Id::new(sb_msg.starboard_message_id as u64),
                         )
                         .exec()
                         .await;
@@ -184,21 +180,34 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 MessageStatus::Send | MessageStatus::NoAction | MessageStatus::Trash => {
                     let ret = embedder
                         .edit(
-                            &self.refresh.bot,
+                            self.refresh.bot,
                             Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
                         )
                         .await;
                     (ret.map(|_| ()), true, false)
                 }
+<<<<<<< HEAD
+=======
+                MessageStatus::Trash => {
+                    let ret = embedder
+                        .edit(
+                            self.refresh.bot,
+                            Id::new(sb_msg.starboard_message_id as u64),
+                            true,
+                        )
+                        .await;
+                    (ret.map(|_| ()), false, false)
+                }
+>>>>>>> main
             };
 
             if let Err(why) = ret {
                 if matches!(get_status(&why), Some(404)) {
                     StarboardMessage::delete(&self.refresh.bot.pool, sb_msg.starboard_message_id)
                         .await?;
-                    return Ok(retry_on_err);
+                    Ok(retry_on_err)
                 } else {
-                    return Err(why.into());
+                    Err(why.into())
                 }
             } else {
                 if delete_on_ok {
@@ -216,7 +225,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             }
 
             let msg = embedder
-                .send(&self.refresh.bot)
+                .send(self.refresh.bot)
                 .await?
                 .model()
                 .await

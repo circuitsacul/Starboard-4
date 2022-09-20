@@ -103,7 +103,7 @@ impl StarboardBot {
         ))
     }
 
-    pub async fn interaction_client<'a>(&'a self) -> InteractionClient<'a> {
+    pub async fn interaction_client(&self) -> InteractionClient {
         match &*self.application.read().await {
             Some(info) => self.http.interaction(info.id),
             None => panic!("interaction_client called before bot was ready."),

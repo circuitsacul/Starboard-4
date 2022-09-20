@@ -16,12 +16,12 @@ pub async fn autostar_name_autocomplete(
     };
 
     let mut arr = Vec::new();
-    for name in names.into_iter() {
+    for name in names {
         arr.push(CommandOptionChoice::String {
             name: name.clone(),
             name_localizations: None,
             value: name,
-        })
+        });
     }
 
     Ok(arr)

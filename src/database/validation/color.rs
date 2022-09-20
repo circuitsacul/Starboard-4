@@ -6,7 +6,7 @@ pub fn parse_color(input: &str) -> Result<i32, &str> {
     // - 0x<code>
     // - <code>
 
-    let parsed = input.trim_start_matches("0x").trim_start_matches("#");
+    let parsed = input.trim_start_matches("0x").trim_start_matches('#');
     let parsed = i32::from_str_radix(parsed, 16);
 
     match parsed {

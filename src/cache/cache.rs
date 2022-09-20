@@ -47,7 +47,7 @@ impl Cache {
             guilds: DashMap::new().into(),
             users: DashMap::new().into(),
             messages: stretto::AsyncCache::new(
-                (constants::MAX_MESSAGES * 10).try_into().unwrap(),
+                (constants::MAX_MESSAGES * 10) as usize,
                 constants::MAX_MESSAGES.into(),
                 tokio::spawn,
             )
@@ -55,13 +55,13 @@ impl Cache {
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_vote_emojis: DashMap::new().into(),
             guild_autostar_channel_names: stretto::AsyncCache::new(
-                (constants::MAX_NAMES * 10).try_into().unwrap(),
+                (constants::MAX_NAMES * 10) as usize,
                 constants::MAX_NAMES.into(),
                 tokio::spawn,
             )
             .unwrap(),
             guild_starboard_names: stretto::AsyncCache::new(
-                (constants::MAX_NAMES * 10).try_into().unwrap(),
+                (constants::MAX_NAMES * 10) as usize,
                 constants::MAX_NAMES.into(),
                 tokio::spawn,
             )
@@ -93,9 +93,10 @@ impl Cache {
 
     // helper methods
     pub fn guild_emoji_exists(&self, guild_id: Id<GuildMarker>, emoji_id: Id<EmojiMarker>) -> bool {
-        self.guilds.with(&guild_id, |_, guild| match guild {
-            None => false,
-            Some(guild) => guild.emojis.contains(&emoji_id),
+        self.guilds.with(&guild_id, |_, guild| {
+            guild
+                .as_ref()
+                .map_or(false, |guild| guild.emojis.contains(&emoji_id))
         })
     }
 
@@ -115,7 +116,7 @@ impl Cache {
                 let guild = guild.as_ref().unwrap();
 
                 if let Some(thread_parent_id) = guild.active_thread_parents.get(&channel_id) {
-                    current_channel_id = Some(thread_parent_id.to_owned());
+                    current_channel_id = Some(*thread_parent_id);
                     return false;
                 }
 
@@ -246,10 +247,10 @@ impl Cache {
 
             // check if the channel_id is a known thread, and use the parent_id
             // if it is.
-            let channel_id = match guild.active_thread_parents.get(&channel_id) {
-                None => channel_id,
-                Some(parent_id) => *parent_id,
-            };
+            let channel_id = guild
+                .active_thread_parents
+                .get(&channel_id)
+                .map_or(channel_id, |&parent_id| parent_id);
 
             // check the cached nsfw/sfw channel list
             if let Some(channel) = guild.channels.get(&channel_id) {

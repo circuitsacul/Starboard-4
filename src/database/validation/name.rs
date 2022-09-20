@@ -9,16 +9,14 @@ pub fn validate_name(name: &String) -> Result<String, String> {
     }
 
     let filtered: String = name
-        .replace(" ", "-")
+        .replace(' ', "-")
         .to_ascii_lowercase()
         .chars()
         .filter(|c| c.is_ascii_digit() || c.is_ascii_lowercase() || *c == '_' || *c == '-')
         .collect();
 
     if filtered.len() < 3 {
-        return Err(
-            "The name must be at least 3 characters (special characters are excluded).".to_string(),
-        );
+        Err("The name must be at least 3 characters (special characters are excluded).".to_string())
     } else {
         Ok(filtered)
     }

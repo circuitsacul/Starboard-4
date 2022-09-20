@@ -35,7 +35,7 @@ pub trait EmojiCommon: Sized {
 }
 
 impl SimpleEmoji {
-    pub fn reactable<'a>(&'a self) -> RequestReactionType<'a> {
+    pub fn reactable(&self) -> RequestReactionType {
         if self.is_custom {
             RequestReactionType::Custom {
                 name: None,
@@ -55,9 +55,10 @@ impl EmojiCommon for SimpleEmoji {
     async fn into_readable(self, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> String {
         if self.is_custom {
             let emoji_id = self.as_id.unwrap();
-            match bot.cache.guild_emoji_exists(guild_id, emoji_id) {
-                true => emoji_id.mention().to_string(),
-                false => self.raw,
+            if bot.cache.guild_emoji_exists(guild_id, emoji_id) {
+                emoji_id.mention().to_string()
+            } else {
+                self.raw
             }
         } else {
             self.raw
@@ -89,9 +90,8 @@ impl EmojiCommon for SimpleEmoji {
         // Get rid of the Variation-Selector-16 codepoint that is sometimes present in user
         // input. https://emojipedia.org/variation-selector-16/
         let input = input
-            .strip_suffix("\u{fe0f}")
-            .map(|s| s.to_string())
-            .unwrap_or(input);
+            .strip_suffix('\u{fe0f}')
+            .map_or_else(|| input.to_string(), |s| s.to_string());
 
         if emojis::get(&input).is_some() {
             Some(Self {
@@ -100,7 +100,7 @@ impl EmojiCommon for SimpleEmoji {
                 as_id: None,
             })
         } else {
-            let input: String = input.chars().filter(|c| c.is_digit(10)).collect();
+            let input: String = input.chars().filter(char::is_ascii_digit).collect();
             let as_id = Id::<EmojiMarker>::from_str(&input).ok()?;
 
             if !bot.cache.guild_emoji_exists(guild_id, as_id) {
@@ -123,10 +123,10 @@ impl EmojiCommon for Vec<SimpleEmoji> {
 
     async fn into_readable(self, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> String {
         let mut arr = Vec::new();
-        for emoji in self.into_iter() {
-            arr.push(emoji.into_readable(bot, guild_id).await)
+        for emoji in self {
+            arr.push(emoji.into_readable(bot, guild_id).await);
         }
-        if arr.len() == 0 {
+        if arr.is_empty() {
             "no emojis".to_string()
         } else {
             arr.join(", ")
@@ -135,7 +135,7 @@ impl EmojiCommon for Vec<SimpleEmoji> {
 
     fn from_stored(stored: Self::Stored) -> Self {
         let mut arr = Vec::new();
-        for piece in stored.into_iter() {
+        for piece in stored {
             arr.push(SimpleEmoji::from_stored(piece));
         }
         arr
@@ -151,10 +151,10 @@ impl EmojiCommon for Vec<SimpleEmoji> {
 
     async fn from_user_input(input: String, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> Self {
         let mut arr = Vec::new();
-        for piece in (&input).split(" ").into_iter() {
+        for piece in input.split(' ') {
             let emoji = SimpleEmoji::from_user_input(piece.to_string(), bot, guild_id).await;
             if let Some(emoji) = emoji {
-                arr.push(emoji)
+                arr.push(emoji);
             }
         }
         arr

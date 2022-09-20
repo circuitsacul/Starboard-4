@@ -56,13 +56,13 @@ impl StarboardOverride {
     pub async fn list_by_starboard(
         pool: &sqlx::PgPool,
         starboard_id: i32,
-    ) -> sqlx::Result<Option<Self>> {
+    ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM overrides WHERE starboard_id=$1",
             starboard_id,
         )
-        .fetch_optional(pool)
+        .fetch_all(pool)
         .await
     }
 

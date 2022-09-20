@@ -14,34 +14,27 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
         .exec()
         .await?;
 
-    let blocks = parse_code_blocks(&event.content.strip_prefix("star sql").unwrap());
+    let blocks = parse_code_blocks(event.content.strip_prefix("star sql").unwrap());
     let mut results = Vec::new();
 
     let mut tx = bot.pool.begin().await?;
-    for (code, meta) in blocks.iter() {
+    for (code, meta) in &blocks {
         let return_results = meta.get("return").is_some();
-        let total_execs = meta
-            .get("runs")
-            .map(|v| v.parse().unwrap())
-            .unwrap_or(1)
-            .max(1);
+        let total_execs = meta.get("runs").map_or(1, |v| v.parse().unwrap()).max(1);
 
         let mut result = None;
         let mut execution_times = Vec::new();
         for _ in 0..total_execs {
-            let elapsed = match return_results {
-                true => {
-                    let start = Instant::now();
-                    let rows = tx.fetch_all(code.as_str()).await?;
-                    let elapsed = start.elapsed();
-                    result.replace(Some(rows.into_iter().map(|r| row_to_json(r)).collect()));
-                    elapsed
-                }
-                false => {
-                    let start = Instant::now();
-                    tx.execute(code.as_str()).await?;
-                    start.elapsed()
-                }
+            let elapsed = if return_results {
+                let start = Instant::now();
+                let rows = tx.fetch_all(code.as_str()).await?;
+                let elapsed = start.elapsed();
+                result.replace(Some(rows.into_iter().map(row_to_json).collect()));
+                elapsed
+            } else {
+                let start = Instant::now();
+                tx.execute(code.as_str()).await?;
+                start.elapsed()
             };
             execution_times.push(elapsed);
         }
@@ -49,7 +42,7 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
         let result = SqlResult {
             execution_times,
             inspect: result.unwrap_or(None),
-            tag: meta.get("tag").unwrap_or_else(|| &"?query?").to_string(),
+            tag: meta.get("tag").unwrap_or(&"?query?").to_string(),
         };
         results.push(result);
     }
@@ -72,7 +65,7 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
                 }
                 final_result.push_str(&format!(" - {:?}\n", row));
             }
-            final_result.push_str("```\n")
+            final_result.push_str("```\n");
         }
     }
 
@@ -89,9 +82,10 @@ fn row_to_json(row: PgRow) -> HashMap<String, String> {
     let mut result = HashMap::new();
     for col in row.columns() {
         let value = row.try_get_raw(col.ordinal()).unwrap();
-        let value = match value.is_null() {
-            true => "NULL".to_string(),
-            false => value.as_str().unwrap().to_string(),
+        let value = if value.is_null() {
+            "NULL".to_string()
+        } else {
+            value.as_str().unwrap().to_string()
         };
         result.insert(col.name().to_string(), value);
     }
@@ -109,7 +103,7 @@ struct SqlResult {
 impl SqlResult {
     pub fn average_time(&self) -> Duration {
         let mut total = Duration::new(0, 0);
-        for time in self.execution_times.iter() {
+        for time in &self.execution_times {
             total += *time;
         }
         total.div_f64(self.execution_times.len() as f64)

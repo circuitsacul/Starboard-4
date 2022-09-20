@@ -7,15 +7,14 @@ use crate::client::bot::StarboardBot;
 
 use super::dm;
 
-pub async fn notify(bot: &StarboardBot, user_id: Id<UserMarker>, message: &str) -> () {
+pub async fn notify(bot: &StarboardBot, user_id: Id<UserMarker>, message: &str) {
     if bot.config.development {
         println!("Development, skipping notification:");
         println!("{}", message);
         return;
     }
 
-    let create = dm::dm(bot, user_id).await;
-    let create = match create {
+    let create = match dm::dm(bot, user_id).await {
         Err(_) => return,
         Ok(create) => create,
     };

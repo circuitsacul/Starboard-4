@@ -12,7 +12,7 @@ use crate::{client::bot::StarboardBot, events::handle_event};
 async fn shutdown_handler(bot: Arc<StarboardBot>) {
     let (tx, mut rx) = mpsc::unbounded_channel();
 
-    for kind in [SignalKind::terminate(), SignalKind::interrupt()].into_iter() {
+    for kind in [SignalKind::terminate(), SignalKind::interrupt()] {
         let sender = tx.clone();
         let mut listener = signal(kind).unwrap();
         tokio::spawn(async move {

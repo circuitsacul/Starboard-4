@@ -22,7 +22,7 @@ impl UpdateCache for ThreadCreate {
         cache.guilds.alter(&guild_id, |_, mut guild| {
             guild.active_thread_parents.insert(self.id, parent_id);
             guild
-        })
+        });
     }
 }
 
@@ -32,7 +32,7 @@ impl UpdateCache for ThreadDelete {
         cache.guilds.alter(&self.guild_id, |_, mut guild| {
             guild.active_thread_parents.remove(&self.id);
             guild
-        })
+        });
     }
 }
 
@@ -60,7 +60,7 @@ impl UpdateCache for ThreadUpdate {
             }
 
             guild
-        })
+        });
     }
 }
 
@@ -84,7 +84,7 @@ impl UpdateCache for ThreadListSync {
                     .filter(|(_, parent_id)| !channel_ids.contains(parent_id))
                     .collect();
 
-                for thread in self.threads.iter() {
+                for thread in &self.threads {
                     if let Some(parent_id) = thread.parent_id {
                         threads.insert(thread.id, parent_id);
                     }
@@ -94,6 +94,6 @@ impl UpdateCache for ThreadListSync {
             }
 
             guild
-        })
+        });
     }
 }

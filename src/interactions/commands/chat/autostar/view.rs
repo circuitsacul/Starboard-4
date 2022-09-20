@@ -31,7 +31,7 @@ impl ViewAutoStarChannels {
                     "channel: <#{}>\n" <- asc.channel_id;
                     "emojis: {}\n" <- Vec::<SimpleEmoji>::from_stored(asc.emojis).into_readable(&ctx.bot, guild_id).await;
                     "min-chars: {}\n" <- asc.min_chars;
-                    "max-chars: {}\n" <- asc.max_chars.map(|v| v.to_string()).unwrap_or("none".to_string());
+                    "max-chars: {}\n" <- asc.max_chars.map(|v| v.to_string()).unwrap_or_else(|| "none".to_string());
                     "require-image: {}\n" <- asc.require_image;
                     "delete-invalid: {}" <- asc.delete_invalid;
                 );
@@ -51,7 +51,7 @@ impl ViewAutoStarChannels {
         } else {
             let asc = AutoStarChannel::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
 
-            if asc.len() == 0 {
+            if asc.is_empty() {
                 ctx.respond_str("This server has no autostar channels.", true)
                     .await?;
                 return Ok(());

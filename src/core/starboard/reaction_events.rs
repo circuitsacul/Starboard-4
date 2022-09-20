@@ -46,14 +46,14 @@ pub async fn handle_reaction_add(
             let (author_is_bot, author_id) = {
                 let orig_msg_obj = bot
                     .cache
-                    .fog_message(&bot, event.channel_id, event.message_id)
+                    .fog_message(bot, event.channel_id, event.message_id)
                     .await?;
                 let orig_msg_obj = match &*orig_msg_obj {
                     None => return Ok(()),
                     Some(obj) => obj,
                 };
 
-                bot.cache.ensure_user(&bot, orig_msg_obj.author_id).await?;
+                bot.cache.ensure_user(bot, orig_msg_obj.author_id).await?;
                 let cached_author_is_bot =
                     bot.cache.users.with(&orig_msg_obj.author_id, |_, user| {
                         user.as_ref().map(|u| u.is_bot)
@@ -105,9 +105,9 @@ pub async fn handle_reaction_add(
         &emoji,
         configs,
         Id::new(event.user_id.try_into().unwrap()),
-        Id::new(orig_msg.message_id.try_into().unwrap()),
-        Id::new(orig_msg.channel_id.try_into().unwrap()),
-        Id::new(orig_msg.author_id.try_into().unwrap()),
+        Id::new(orig_msg.message_id as u64),
+        Id::new(orig_msg.channel_id as u64),
+        Id::new(orig_msg.author_id as u64),
         author_is_bot,
         None,
     )
@@ -144,7 +144,7 @@ pub async fn handle_reaction_add(
             ))?;
 
             // create the votes
-            for config in upvote.iter() {
+            for config in &upvote {
                 Vote::create(
                     &bot.pool,
                     orig_msg.message_id,
@@ -155,7 +155,7 @@ pub async fn handle_reaction_add(
                 )
                 .await?;
             }
-            for config in downvote.iter() {
+            for config in &downvote {
                 Vote::create(
                     &bot.pool,
                     orig_msg.message_id,
@@ -168,7 +168,7 @@ pub async fn handle_reaction_add(
             }
 
             let all_configs: Vec<_> = upvote.into_iter().chain(downvote).collect();
-            let mut refresh = RefreshMessage::new(&bot, event.message_id);
+            let mut refresh = RefreshMessage::new(bot, event.message_id);
             refresh.set_configs(all_configs);
             refresh.set_sql_message(orig_msg);
             refresh.refresh().await?;
@@ -196,13 +196,13 @@ pub async fn handle_reaction_remove(
     let emoji = SimpleEmoji::from(event.emoji.clone());
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
     let status = VoteStatus::get_vote_status(
-        &bot,
+        bot,
         &emoji,
         configs,
         Id::new(event.user_id.try_into().unwrap()),
-        Id::new(orig.message_id.try_into().unwrap()),
-        Id::new(orig.channel_id.try_into().unwrap()),
-        Id::new(orig.author_id.try_into().unwrap()),
+        Id::new(orig.message_id as u64),
+        Id::new(orig.channel_id as u64),
+        Id::new(orig.author_id as u64),
         author.is_bot,
         None,
     )
@@ -212,19 +212,18 @@ pub async fn handle_reaction_remove(
         VoteStatus::Valid((upvote, downvote)) => {
             let user_id = unwrap_id!(event.user_id);
             let all_configs: Vec<_> = upvote.into_iter().chain(downvote).collect();
-            for config in all_configs.iter() {
+            for config in &all_configs {
                 Vote::delete(&bot.pool, orig.message_id, config.starboard.id, user_id).await?;
             }
 
-            let mut refresh = RefreshMessage::new(&bot, event.message_id);
+            let mut refresh = RefreshMessage::new(bot, event.message_id);
             refresh.set_sql_message(orig);
             refresh.set_configs(all_configs);
             refresh.refresh().await?;
 
             Ok(())
         }
-        VoteStatus::Ignore => Ok(()),
-        VoteStatus::Remove => Ok(()),
+        VoteStatus::Ignore | VoteStatus::Remove => Ok(()),
     }
 }
 

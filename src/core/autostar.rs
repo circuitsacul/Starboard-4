@@ -38,14 +38,14 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result
     let asc = AutoStarChannel::list_by_channel(&bot.pool, unwrap_id!(event.channel_id)).await?;
 
     // If none, remove the channel id from the cache
-    if asc.len() == 0 {
+    if asc.is_empty() {
         bot.cache.autostar_channel_ids.remove(&event.channel_id);
         return Ok(());
     }
 
     // Handle the autostar channels
-    for a in asc.into_iter() {
-        let status = get_status(&bot, &a, event).await;
+    for a in asc {
+        let status = get_status(bot, &a, event).await;
 
         if matches!(status, Status::InvalidStay) {
             continue;
@@ -64,7 +64,7 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result
                         event.channel_id
                     ) + &reasons.join("\n - ")
                 };
-                notify::notify(&bot, event.author.id, &message).await;
+                notify::notify(bot, event.author.id, &message).await;
             }
 
             continue;
@@ -105,12 +105,11 @@ async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCr
             ));
         }
     }
-    if asc.require_image {
-        if !has_image(&event.embeds, &event.attachments) {
-            tokio::time::sleep(Duration::from_secs(3)).await;
+    if asc.require_image && !has_image(&event.embeds, &event.attachments) {
+        tokio::time::sleep(Duration::from_secs(3)).await;
 
-            let updated_msg = bot.cache.messages.get(&event.id);
-            let mut still_invalid = true;
+        let updated_msg = bot.cache.messages.get(&event.id);
+        let mut still_invalid = true;
 
             if let Some(msg) = updated_msg {
                 let msg = msg.value().clone();
@@ -128,9 +127,8 @@ async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCr
                 ))
             }
 
-            if still_invalid {
-                invalid.push(" - Your message must include an image.".to_string());
-            }
+        if still_invalid {
+            invalid.push(" - Your message must include an image.".to_string());
         }
     }
 
