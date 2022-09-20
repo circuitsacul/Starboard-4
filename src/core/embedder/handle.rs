@@ -34,7 +34,7 @@ impl<'config> Embedder<'config> {
 
 impl Embedder<'_> {
     fn build(&self) -> BuiltStarboardEmbed {
-        BuiltStarboardEmbed::build(&self)
+        BuiltStarboardEmbed::build(self)
     }
 
     pub async fn send(

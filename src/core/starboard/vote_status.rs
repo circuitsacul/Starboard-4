@@ -37,10 +37,13 @@ impl VoteStatus {
     ) -> StarboardResult<VoteStatus> {
         let message_has_image = match message_has_image {
             Some(val) => Some(val),
-            None => match &*bot.cache.fog_message(&bot, channel_id, message_id).await? {
-                Some(msg) => Some(has_image(&msg.embeds, &msg.attachments)),
-                None => None,
-            },
+            None => bot
+                .cache
+                .fog_message(bot, channel_id, message_id)
+                .await?
+                .as_ref()
+                .as_ref()
+                .map(|msg| has_image(&msg.embeds, &msg.attachments)),
         };
 
         let mut invalid_exists = false;
@@ -77,10 +80,7 @@ impl VoteStatus {
             }
 
             // message age in seconds
-            let message_age: i64 = {
-                let created_at = message_id.timestamp() as u128;
-                ((now - created_at) / 1000) as i64
-            };
+            let message_age = ((now - message_id.timestamp() as u128) / 1000) as i64;
 
             let min_age = config.resolved.older_than;
             let max_age = config.resolved.newer_than;
@@ -116,16 +116,13 @@ impl VoteStatus {
         let mut upvote = Vec::new();
         let mut downvote = Vec::new();
 
-        configs
-            .into_iter()
-            .filter_map(eval_config)
-            .for_each(|(config, vote_type)| {
-                if vote_type == VoteType::Upvote {
-                    upvote.push(config)
-                } else {
-                    downvote.push(config)
-                }
-            });
+        for (config, vote_type) in configs.into_iter().filter_map(eval_config) {
+            if vote_type == VoteType::Upvote {
+                upvote.push(config);
+            } else {
+                downvote.push(config);
+            }
+        }
 
         if upvote.is_empty() && downvote.is_empty() {
             if invalid_exists && allow_remove {

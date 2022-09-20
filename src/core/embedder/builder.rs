@@ -31,7 +31,7 @@ impl BuiltStarboardEmbed {
             }
             Some(orig) => orig,
         };
-        let parsed = ParsedMessage::parse(handle, &orig);
+        let parsed = ParsedMessage::parse(handle, orig);
 
         let embeds = vec![Self::build_primary_embed(handle, orig, &parsed)];
         Self::Full(FullBuiltStarboardEmbed {

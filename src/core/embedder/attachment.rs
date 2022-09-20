@@ -26,11 +26,8 @@ impl AttachmentHandle {
     }
 
     pub fn as_embed(&self) -> Option<Embed> {
-        if let Some(image) = self.embedable_image() {
-            Some(EmbedBuilder::new().image(image).validate().unwrap().build())
-        } else {
-            None
-        }
+        self.embedable_image()
+            .map(|image| EmbedBuilder::new().image(image).validate().unwrap().build())
     }
 
     pub fn url_list_item(&self) -> String {
@@ -49,10 +46,8 @@ pub trait VecAttachments {
 impl VecAttachments for Vec<AttachmentHandle> {
     fn into_attachments(self) -> Vec<Attachment> {
         let mut attachments = Vec::new();
-        let mut current_id = 0;
-        for attachment in self {
-            attachments.push(attachment.into_attachment(current_id));
-            current_id += 1;
+        for (current_id, attachment) in self.into_iter().enumerate() {
+            attachments.push(attachment.into_attachment(current_id as u64));
         }
         attachments
     }
