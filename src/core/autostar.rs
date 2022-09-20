@@ -111,21 +111,21 @@ async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCr
         let updated_msg = bot.cache.messages.get(&event.id);
         let mut still_invalid = true;
 
-            if let Some(msg) = updated_msg {
-                let msg = msg.value().clone();
-                let msg = match &*msg {
-                    None => return Status::InvalidStay,
-                    Some(msg) => msg,
-                };
-                if has_image(&msg.embeds, &msg.attachments) {
-                    still_invalid = false;
-                }
-            } else {
-                eprintln!(concat!(
-                    "Warning: autostar channel message was not cached. Likely means the cache is ",
-                    "being overwhelmed."
-                ))
+        if let Some(msg) = updated_msg {
+            let msg = msg.value().clone();
+            let msg = match &*msg {
+                None => return Status::InvalidStay,
+                Some(msg) => msg,
+            };
+            if has_image(&msg.embeds, &msg.attachments) {
+                still_invalid = false;
             }
+        } else {
+            eprintln!(concat!(
+                "Warning: autostar channel message was not cached. Likely means the cache is ",
+                "being overwhelmed."
+            ))
+        }
 
         if still_invalid {
             invalid.push(" - Your message must include an image.".to_string());

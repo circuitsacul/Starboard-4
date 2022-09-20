@@ -89,9 +89,21 @@ impl VoteStatus {
 
             let bots_valid = config.resolved.allow_bots || !message_author_is_bot;
 
-            let images_valid = config.resolved.require_image || (message_has_image == Some(true));
+            let images_valid = !config.resolved.require_image || (message_has_image == Some(true));
 
-            let time_valid = (min_age..max_age).contains(&message_age);
+            let time_valid = {
+                let min_age_valid = if min_age <= 0 {
+                    true
+                } else {
+                    message_age > min_age
+                };
+                let max_age_valid = if max_age <= 0 {
+                    true
+                } else {
+                    message_age < max_age
+                };
+                min_age_valid && max_age_valid
+            };
 
             if self_vote_valid && bots_valid && images_valid && time_valid {
                 Some((config, vote_type))
