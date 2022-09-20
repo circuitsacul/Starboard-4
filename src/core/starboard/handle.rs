@@ -186,19 +186,6 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         .await;
                     (ret.map(|_| ()), true, false)
                 }
-<<<<<<< HEAD
-=======
-                MessageStatus::Trash => {
-                    let ret = embedder
-                        .edit(
-                            self.refresh.bot,
-                            Id::new(sb_msg.starboard_message_id as u64),
-                            true,
-                        )
-                        .await;
-                    (ret.map(|_| ()), false, false)
-                }
->>>>>>> main
             };
 
             if let Err(why) = ret {
