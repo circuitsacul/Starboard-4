@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+pub const ZWS: &str = "\u{200B}";
+
 pub const BOT_COLOR: u32 = 0xFFE19C;
 
 // Cache size

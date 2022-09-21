@@ -27,15 +27,21 @@ impl AttachmentHandle {
 
     pub fn as_embed(&self) -> Option<Embed> {
         self.embedable_image()
-            .map(|image| EmbedBuilder::new().image(image).validate().unwrap().build())
+            .map(|image| EmbedBuilder::new().image(image).build())
     }
 
     pub fn url_list_item(&self) -> String {
-        self.proxy_url.clone()
+        format!("[{}]({})", self.filename, self.proxy_url)
     }
 
     pub fn embedable_image(&self) -> Option<ImageSource> {
-        Some(ImageSource::url(&self.url).unwrap())
+        if let Some(ct) = &self.content_type {
+            if ct.starts_with("image") {
+                return Some(ImageSource::url(&self.url).unwrap());
+            }
+        }
+
+        None
     }
 }
 
