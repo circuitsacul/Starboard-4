@@ -1,7 +1,7 @@
 use twilight_model::{channel::embed::Embed, http::attachment::Attachment};
 use twilight_util::builder::embed::EmbedBuilder;
 
-use crate::cache::models::message::CachedMessage;
+use crate::{cache::models::message::CachedMessage, constants};
 
 use super::{attachment::VecAttachments, parser::ParsedMessage, Embedder};
 
@@ -73,8 +73,8 @@ impl BuiltStarboardEmbed {
                     .config
                     .resolved
                     .color
-                    .map(|c| c.try_into().unwrap())
-                    .unwrap_or(0),
+                    .map(|c| c as u32)
+                    .unwrap_or(constants::BOT_COLOR),
             )
             .description(orig.raw_content.clone())
             .validate()
