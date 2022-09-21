@@ -9,7 +9,7 @@ macro_rules! match_commands {
             $(
                 $cmd_name => <$command>::from_interaction(cmd_inp_data)?.callback($ctx).await?,
             )*
-            unkown => eprintln!("Unknown command: {}", unkown),
+            unknown => eprintln!("Unknown command: {}", unknown),
         }
     };
 }
