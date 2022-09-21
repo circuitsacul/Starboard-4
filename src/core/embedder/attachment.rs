@@ -4,6 +4,8 @@ use twilight_model::{
 };
 use twilight_util::builder::embed::{EmbedBuilder, ImageSource};
 
+use crate::constants;
+
 pub struct AttachmentHandle {
     pub filename: String,
     pub content_type: Option<String>,
@@ -12,8 +14,8 @@ pub struct AttachmentHandle {
 }
 
 impl AttachmentHandle {
-    pub fn into_attachment(self, id: u64) -> Attachment {
-        Attachment::from_bytes(self.filename, b"hello".to_vec(), id)
+    pub fn as_attachment(&self, id: u64) -> Attachment {
+        Attachment::from_bytes(self.filename.clone(), b"hello".to_vec(), id)
     }
 
     pub fn from_attachment(attachment: &ReceivedAttachment) -> Self {
@@ -26,8 +28,12 @@ impl AttachmentHandle {
     }
 
     pub fn as_embed(&self) -> Option<Embed> {
-        self.embedable_image()
-            .map(|image| EmbedBuilder::new().image(image).build())
+        self.embedable_image().map(|image| {
+            EmbedBuilder::new()
+                .image(image)
+                .color(constants::EMBED_DARK_BG)
+                .build()
+        })
     }
 
     pub fn url_list_item(&self) -> String {
@@ -46,14 +52,14 @@ impl AttachmentHandle {
 }
 
 pub trait VecAttachments {
-    fn into_attachments(self) -> Vec<Attachment>;
+    fn as_attachments(&self) -> Vec<Attachment>;
 }
 
 impl VecAttachments for Vec<AttachmentHandle> {
-    fn into_attachments(self) -> Vec<Attachment> {
+    fn as_attachments(&self) -> Vec<Attachment> {
         let mut attachments = Vec::new();
-        for (current_id, attachment) in self.into_iter().enumerate() {
-            attachments.push(attachment.into_attachment(current_id as u64));
+        for (current_id, attachment) in self.iter().enumerate() {
+            attachments.push(attachment.as_attachment(current_id as u64));
         }
         attachments
     }

@@ -33,8 +33,8 @@ impl<'config> Embedder<'config> {
 }
 
 impl Embedder<'_> {
-    fn build(&self) -> BuiltStarboardEmbed {
-        BuiltStarboardEmbed::build(self)
+    fn build(&self, attachments: bool) -> BuiltStarboardEmbed {
+        BuiltStarboardEmbed::build(self, attachments)
     }
 
     pub async fn send(
@@ -42,23 +42,26 @@ impl Embedder<'_> {
         bot: &StarboardBot,
     ) -> Result<twilight_http::Response<twilight_model::channel::Message>, twilight_http::Error>
     {
-        let built = match self.build() {
+        let built = match self.build(true) {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
         };
 
-        bot.http
+        let mut create = bot
+            .http
             .create_message(Id::new(
                 self.config.starboard.channel_id.try_into().unwrap(),
             ))
             .content(&built.top_content)
             .unwrap()
             .embeds(&built.embeds)
-            .unwrap()
-            .attachments(&built.upload_attachments)
-            .unwrap()
-            .exec()
-            .await
+            .unwrap();
+
+        if let Some(attachments) = &built.upload_attachments {
+            create = create.attachments(attachments).unwrap();
+        }
+
+        create.exec().await
     }
 
     pub async fn edit(
@@ -67,7 +70,7 @@ impl Embedder<'_> {
         message_id: Id<MessageMarker>,
     ) -> Result<twilight_http::Response<twilight_model::channel::Message>, twilight_http::Error>
     {
-        match self.build() {
+        match self.build(false) {
             BuiltStarboardEmbed::Full(built) => {
                 bot.http
                     .update_message(
@@ -77,8 +80,6 @@ impl Embedder<'_> {
                     .content(Some(&built.top_content))
                     .unwrap()
                     .embeds(Some(&built.embeds))
-                    .unwrap()
-                    .attachments(&built.upload_attachments)
                     .unwrap()
                     .exec()
                     .await

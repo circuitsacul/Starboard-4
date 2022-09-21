@@ -9,7 +9,7 @@ pub struct FullBuiltStarboardEmbed {
     pub top_content: String,
     pub embeds: Vec<Embed>,
     pub embedded_images: Vec<Embed>,
-    pub upload_attachments: Vec<Attachment>,
+    pub upload_attachments: Option<Vec<Attachment>>,
 }
 
 pub struct PartialBuiltStarboardEmbed {
@@ -22,7 +22,7 @@ pub enum BuiltStarboardEmbed {
 }
 
 impl BuiltStarboardEmbed {
-    pub fn build(handle: &Embedder) -> Self {
+    pub fn build(handle: &Embedder, attachments: bool) -> Self {
         let orig = match &*handle.orig_message {
             None => {
                 return Self::Partial(PartialBuiltStarboardEmbed {
@@ -33,11 +33,16 @@ impl BuiltStarboardEmbed {
         };
         let parsed = ParsedMessage::parse(handle, orig);
 
+        let upload_attachments = match attachments {
+            true => Some(parsed.upload_attachments.as_attachments()),
+            false => None,
+        };
+
         Self::Full(FullBuiltStarboardEmbed {
             top_content: Self::build_top_content(handle),
             embeds: Self::build_embeds(handle, orig, &parsed),
             embedded_images: parsed.embedded_images,
-            upload_attachments: parsed.upload_attachments.into_attachments(),
+            upload_attachments,
         })
     }
 

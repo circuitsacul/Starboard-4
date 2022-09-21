@@ -43,13 +43,13 @@ impl ParsedMessage {
             let handle = AttachmentHandle::from_attachment(attachment);
             url_list.push(handle.url_list_item());
 
-            if let Some(image) = handle.embedable_image() {
-                if primary_image.is_none() {
+            if primary_image.is_none() {
+                if let Some(image) = handle.embedable_image() {
                     primary_image.replace(image);
-                } else {
-                    let embed = EmbedBuilder::new().image(image).validate().unwrap().build();
-                    embedded_images.push(embed);
+                    continue;
                 }
+            } else if let Some(embed) = handle.as_embed() {
+                embedded_images.push(embed);
                 continue;
             }
 
