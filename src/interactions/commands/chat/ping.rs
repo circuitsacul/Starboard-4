@@ -10,7 +10,7 @@ impl Ping {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let latency = ctx.bot.cluster.info()[&ctx.shard_id].latency().average();
         let millis = match latency {
-            None => "Unkown latency.".to_string(),
+            None => "Unknown latency.".to_string(),
             Some(duration) => format!("{}ms latency.", duration.as_millis()),
         };
         ctx.respond_str(&format!("Pong! {}", millis), false).await?;
