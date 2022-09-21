@@ -1,5 +1,5 @@
 use twilight_model::channel::embed::Embed;
-use twilight_util::builder::embed::{EmbedBuilder, ImageSource};
+use twilight_util::builder::embed::ImageSource;
 
 use crate::cache::models::message::CachedMessage;
 
