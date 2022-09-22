@@ -284,7 +284,7 @@ CREATE TABLE votes (
         ON DELETE CASCADE
         ON UPDATE CASCADE,
 
-    PRIMARY KEY (message_id, starboard_id)
+    PRIMARY KEY (message_id, starboard_id, user_id)
 );
 
 -- indexes
