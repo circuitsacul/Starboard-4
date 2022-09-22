@@ -3,20 +3,23 @@ use twilight_model::{
     id::{marker::UserMarker, Id},
 };
 
+use crate::utils::system_content::SystemContent;
+
 pub struct CachedMessage {
     pub author_id: Id<UserMarker>,
-    pub raw_content: String,
+    pub content: String,
     pub attachments: Vec<Attachment>,
     pub embeds: Vec<Embed>,
 }
 
 impl From<Message> for CachedMessage {
     fn from(msg: Message) -> Self {
+        let content = msg.system_content();
         Self {
             author_id: msg.author.id,
             attachments: msg.attachments,
             embeds: msg.embeds,
-            raw_content: msg.content,
+            content,
         }
     }
 }
@@ -27,7 +30,7 @@ impl From<&Message> for CachedMessage {
             author_id: msg.author.id,
             attachments: msg.attachments.clone(),
             embeds: msg.embeds.clone(),
-            raw_content: msg.content.clone(),
+            content: msg.system_content(),
         }
     }
 }

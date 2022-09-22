@@ -106,10 +106,10 @@ impl BuiltStarboardEmbed {
 
         // main description
         {
-            let content = if orig.raw_content.is_empty() {
-                "*nothing to display*".to_string()
+            let content = if orig.content.is_empty() {
+                "*file only*"
             } else {
-                orig.raw_content.clone()
+                &orig.content
             };
             embed = embed.description(content);
         }

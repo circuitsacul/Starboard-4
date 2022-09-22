@@ -67,16 +67,20 @@ impl UpdateCache for MessageUpdate {
             Some(embeds) => embeds.clone(),
             None => cached.embeds.clone(),
         };
-        let raw_content = match &self.content {
+        // here we assume that, if the messages content was edited,
+        // it doesn't have any "specialty" and thus we don't need
+        // to try to parse the system content from the messages kind.
+        // For example, a join message will never be edited.
+        let content = match &self.content {
             Some(content) => content.clone(),
-            None => cached.raw_content.clone(),
+            None => cached.content.clone(),
         };
 
         let message = CachedMessage {
             author_id: cached.author_id,
             attachments,
             embeds,
-            raw_content,
+            content,
         };
 
         cache
