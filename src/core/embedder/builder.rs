@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 use twilight_model::channel::embed::Embed;
 use twilight_util::builder::embed::{
     EmbedAuthorBuilder, EmbedBuilder, EmbedFieldBuilder, ImageSource,
@@ -49,15 +51,19 @@ impl BuiltStarboardEmbed {
         if let Some(ref emoji) = handle.config.resolved.display_emoji {
             top_content.push_str(emoji);
         }
-        top_content.push_str(&format!(
+        write!(
+            top_content,
             " **{} |** <#{}>",
             handle.points, handle.orig_sql_message.channel_id,
-        ));
+        )
+        .unwrap();
         if handle.config.resolved.ping_author {
-            top_content.push_str(&format!(
+            write!(
+                top_content,
                 " **(**<@{}>**)**",
                 handle.orig_sql_message.author_id
-            ));
+            )
+            .unwrap();
         }
 
         top_content
