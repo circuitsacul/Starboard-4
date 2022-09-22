@@ -1,5 +1,7 @@
 use twilight_model::channel::embed::Embed;
-use twilight_util::builder::embed::{EmbedBuilder, EmbedFieldBuilder};
+use twilight_util::builder::embed::{
+    EmbedAuthorBuilder, EmbedBuilder, EmbedFieldBuilder, ImageSource,
+};
 
 use crate::{cache::models::message::CachedMessage, constants};
 
@@ -104,6 +106,23 @@ impl BuiltStarboardEmbed {
                 orig.raw_content.clone()
             };
             embed = embed.description(content);
+        }
+
+        // author
+        {
+            let avatar: Option<&str>;
+            let name;
+            (name, avatar) = match &handle.orig_message_author {
+                None => ("Deleted User", None),
+                Some(user) => (user.name.as_str(), user.avatar_url.as_deref()),
+            };
+
+            let mut author = EmbedAuthorBuilder::new(name);
+            if let Some(avatar) = avatar {
+                author = author.icon_url(ImageSource::url(avatar).unwrap());
+            }
+
+            embed = embed.author(author.build())
         }
 
         // attachments list

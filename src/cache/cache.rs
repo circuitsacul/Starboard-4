@@ -29,7 +29,7 @@ use super::{
 pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
-    pub users: AsyncDashMap<Id<UserMarker>, CachedUser>,
+    pub users: AsyncDashMap<Id<UserMarker>, Option<Arc<CachedUser>>>,
     pub messages: stretto::AsyncCache<Id<MessageMarker>, Arc<Option<CachedMessage>>>,
 
     // database side
@@ -148,20 +148,22 @@ impl Cache {
         Ok(channel_ids)
     }
 
-    pub async fn ensure_user(
+    fn get_user(&self, user_id: Id<UserMarker>) -> Option<Arc<CachedUser>> {
+        self.users
+            .with(&user_id, |_, v| v.as_ref().and_then(|u| (*u).clone()))
+    }
+
+    pub async fn fog_user(
         &self,
         bot: &StarboardBot,
         user_id: Id<UserMarker>,
-    ) -> StarboardResult<()> {
-        if self.users.contains_key(&user_id) {
-            return Ok(());
+    ) -> StarboardResult<Option<Arc<CachedUser>>> {
+        if !self.users.contains_key(&user_id) {
+            let user = bot.http.user(user_id).exec().await?.model().await.unwrap();
+            self.users.insert(user_id, Some(Arc::new((&user).into())));
         }
 
-        let user = bot.http.user(user_id).exec().await?.model().await.unwrap();
-
-        self.users.insert(user_id, (&user).into());
-
-        Ok(())
+        Ok(self.get_user(user_id))
     }
 
     pub async fn fog_message(

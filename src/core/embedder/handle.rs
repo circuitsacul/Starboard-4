@@ -3,8 +3,10 @@ use std::sync::Arc;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
-    cache::models::message::CachedMessage, client::bot::StarboardBot,
-    core::starboard::config::StarboardConfig, database::Message as DbMessage,
+    cache::models::{message::CachedMessage, user::CachedUser},
+    client::bot::StarboardBot,
+    core::starboard::config::StarboardConfig,
+    database::Message as DbMessage,
 };
 
 use super::{attachment::VecAttachments, builder::BuiltStarboardEmbed};
@@ -13,6 +15,7 @@ pub struct Embedder<'config> {
     pub points: i32,
     pub config: &'config StarboardConfig,
     pub orig_message: Arc<Option<CachedMessage>>,
+    pub orig_message_author: Option<Arc<CachedUser>>,
     pub orig_sql_message: Arc<DbMessage>,
 }
 
@@ -21,12 +24,14 @@ impl<'config> Embedder<'config> {
         points: i32,
         config: &'config StarboardConfig,
         orig_message: Arc<Option<CachedMessage>>,
+        orig_message_author: Option<Arc<CachedUser>>,
         orig_sql_message: Arc<DbMessage>,
     ) -> Self {
         Self {
             points,
             config,
             orig_message,
+            orig_message_author,
             orig_sql_message,
         }
     }

@@ -147,7 +147,19 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
 
         let orig_message = self.refresh.get_orig_message().await?;
         let sql_message = self.refresh.get_sql_message().await?;
-        let embedder = Embedder::new(points, self.config, orig_message, sql_message);
+        let orig_message_author = self
+            .refresh
+            .bot
+            .cache
+            .fog_user(self.refresh.bot, Id::new(sql_message.author_id as u64))
+            .await?;
+        let embedder = Embedder::new(
+            points,
+            self.config,
+            orig_message,
+            orig_message_author,
+            sql_message,
+        );
         let sb_msg = self.get_starboard_message().await?;
 
         let action = get_message_status(self.refresh.bot, self.config, &orig, points).await?;

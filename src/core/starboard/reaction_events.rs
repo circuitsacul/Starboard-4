@@ -53,12 +53,8 @@ pub async fn handle_reaction_add(
                     Some(obj) => obj,
                 };
 
-                bot.cache.ensure_user(bot, orig_msg_obj.author_id).await?;
-                let cached_author_is_bot =
-                    bot.cache.users.with(&orig_msg_obj.author_id, |_, user| {
-                        user.as_ref().map(|u| u.is_bot)
-                    });
-                match cached_author_is_bot {
+                let user = bot.cache.fog_user(bot, orig_msg_obj.author_id).await?;
+                match user.map(|u| u.is_bot) {
                     None => panic!("No cached user after ensuring."),
                     Some(is_bot) => (is_bot, unwrap_id!(orig_msg_obj.author_id)),
                 }
@@ -199,7 +195,7 @@ pub async fn handle_reaction_remove(
         bot,
         &emoji,
         configs,
-        Id::new(event.user_id.try_into().unwrap()),
+        event.user_id,
         Id::new(orig.message_id as u64),
         Id::new(orig.channel_id as u64),
         Id::new(orig.author_id as u64),

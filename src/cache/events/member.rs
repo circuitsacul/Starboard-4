@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use twilight_model::gateway::payload::incoming::{MemberAdd, MemberChunk};
 
@@ -7,7 +9,9 @@ use crate::cache::{cache::Cache, update::UpdateCache};
 impl UpdateCache for MemberChunk {
     async fn update_cache(&self, cache: &Cache) {
         for member in &self.members {
-            cache.users.insert(member.user.id, (&member.user).into());
+            cache
+                .users
+                .insert(member.user.id, Some(Arc::new((&member.user).into())));
         }
     }
 }
@@ -15,6 +19,8 @@ impl UpdateCache for MemberChunk {
 #[async_trait]
 impl UpdateCache for MemberAdd {
     async fn update_cache(&self, cache: &Cache) {
-        cache.users.insert(self.user.id, (&self.user).into());
+        cache
+            .users
+            .insert(self.user.id, Some(Arc::new((&self.user).into())));
     }
 }
