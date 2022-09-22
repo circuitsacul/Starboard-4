@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use tokio::join;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
