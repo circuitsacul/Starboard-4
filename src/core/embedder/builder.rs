@@ -104,16 +104,6 @@ impl BuiltStarboardEmbed {
                 .unwrap_or(constants::BOT_COLOR),
         );
 
-        // main description
-        {
-            let content = if orig.content.is_empty() {
-                "*file only*"
-            } else {
-                &orig.content
-            };
-            embed = embed.description(content);
-        }
-
         // author
         {
             let avatar: Option<&str>;
@@ -129,6 +119,27 @@ impl BuiltStarboardEmbed {
             }
 
             embed = embed.author(author.build())
+        }
+
+        // main description
+        {
+            let content = if orig.content.is_empty() {
+                "*file only*"
+            } else {
+                &orig.content
+            };
+            embed = embed.description(content);
+        }
+
+        // jump link
+        if handle.config.resolved.jump_to_message {
+            let link = format!(
+                "[Go to Message](https://discord.com/channels/{}/{}/{})",
+                handle.config.starboard.guild_id,
+                handle.orig_sql_message.channel_id,
+                handle.orig_sql_message.message_id
+            );
+            embed = embed.field(EmbedFieldBuilder::new(constants::ZWS, link));
         }
 
         // attachments list
