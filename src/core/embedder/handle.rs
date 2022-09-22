@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use tokio::join;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
@@ -7,7 +8,7 @@ use crate::{
     core::starboard::config::StarboardConfig, database::Message as DbMessage,
 };
 
-use super::builder::BuiltStarboardEmbed;
+use super::{attachment::VecAttachments, builder::BuiltStarboardEmbed};
 
 pub struct Embedder<'config> {
     pub points: i32,
@@ -33,8 +34,8 @@ impl<'config> Embedder<'config> {
 }
 
 impl Embedder<'_> {
-    fn build(&self, attachments: bool) -> BuiltStarboardEmbed {
-        BuiltStarboardEmbed::build(self, attachments)
+    fn build(&self) -> BuiltStarboardEmbed {
+        BuiltStarboardEmbed::build(self)
     }
 
     pub async fn send(
@@ -42,26 +43,28 @@ impl Embedder<'_> {
         bot: &StarboardBot,
     ) -> Result<twilight_http::Response<twilight_model::channel::Message>, twilight_http::Error>
     {
-        let built = match self.build(true) {
+        let built = match self.build() {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
         };
+        let (attachments, errors) = built.upload_attachments.as_attachments().await;
 
-        let mut create = bot
-            .http
+        for e in errors {
+            bot.errors.handle(&bot.http, e).await;
+        }
+
+        bot.http
             .create_message(Id::new(
                 self.config.starboard.channel_id.try_into().unwrap(),
             ))
             .content(&built.top_content)
             .unwrap()
             .embeds(&built.embeds)
-            .unwrap();
-
-        if let Some(attachments) = &built.upload_attachments {
-            create = create.attachments(attachments).unwrap();
-        }
-
-        create.exec().await
+            .unwrap()
+            .attachments(&attachments)
+            .unwrap()
+            .exec()
+            .await
     }
 
     pub async fn edit(
@@ -70,7 +73,7 @@ impl Embedder<'_> {
         message_id: Id<MessageMarker>,
     ) -> Result<twilight_http::Response<twilight_model::channel::Message>, twilight_http::Error>
     {
-        match self.build(false) {
+        match self.build() {
             BuiltStarboardEmbed::Full(built) => {
                 bot.http
                     .update_message(

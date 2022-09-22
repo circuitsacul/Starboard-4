@@ -1,21 +1,30 @@
+use async_trait::async_trait;
 use twilight_model::{
     channel::{embed::Embed, Attachment as ReceivedAttachment},
     http::attachment::Attachment,
 };
 use twilight_util::builder::embed::{EmbedBuilder, ImageSource};
 
-use crate::constants;
+use crate::{
+    constants,
+    errors::{StarboardError, StarboardResult},
+};
 
 pub struct AttachmentHandle {
     pub filename: String,
     pub content_type: Option<String>,
     pub url: String,
-    pub proxy_url: String,
 }
 
 impl AttachmentHandle {
-    pub fn as_attachment(&self, id: u64) -> Attachment {
-        Attachment::from_bytes(self.filename.clone(), b"hello".to_vec(), id)
+    pub async fn as_attachment(&self, id: u64) -> StarboardResult<Attachment> {
+        let file = reqwest::get(&self.url).await?.bytes().await?;
+
+        Ok(Attachment::from_bytes(
+            self.filename.clone(),
+            file.to_vec(),
+            id,
+        ))
     }
 
     pub fn from_attachment(attachment: &ReceivedAttachment) -> Self {
@@ -23,7 +32,6 @@ impl AttachmentHandle {
             filename: attachment.filename.clone(),
             content_type: attachment.content_type.clone(),
             url: attachment.url.clone(),
-            proxy_url: attachment.proxy_url.clone(),
         }
     }
 
@@ -37,7 +45,7 @@ impl AttachmentHandle {
     }
 
     pub fn url_list_item(&self) -> String {
-        format!("[{}]({})", self.filename, self.proxy_url)
+        format!("[{}]({})", self.filename, self.url)
     }
 
     pub fn embedable_image(&self) -> Option<ImageSource> {
@@ -51,16 +59,22 @@ impl AttachmentHandle {
     }
 }
 
+#[async_trait]
 pub trait VecAttachments {
-    fn as_attachments(&self) -> Vec<Attachment>;
+    async fn as_attachments(&self) -> (Vec<Attachment>, Vec<StarboardError>);
 }
 
+#[async_trait]
 impl VecAttachments for Vec<AttachmentHandle> {
-    fn as_attachments(&self) -> Vec<Attachment> {
+    async fn as_attachments(&self) -> (Vec<Attachment>, Vec<StarboardError>) {
         let mut attachments = Vec::new();
+        let mut errors = Vec::new();
         for (current_id, attachment) in self.iter().enumerate() {
-            attachments.push(attachment.as_attachment(current_id as u64));
+            match attachment.as_attachment(current_id as u64).await {
+                Err(why) => errors.push(why),
+                Ok(file) => attachments.push(file),
+            }
         }
-        attachments
+        (attachments, errors)
     }
 }

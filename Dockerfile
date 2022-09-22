@@ -7,6 +7,10 @@ WORKDIR /usr/src/starboard
 # is changed.
 RUN cargo search --limit 0
 
+# install pkg-config (required for reqwest dependency)
+RUN apt-get update
+RUN apt-get install -y pkg-config libssl-dev
+
 # doing this allows caching of compiled dependencies
 COPY Cargo.toml Cargo.toml
 COPY Cargo.lock Cargo.lock
