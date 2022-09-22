@@ -11,13 +11,9 @@ impl From<&User> for CachedUser {
         Self {
             is_bot: user.bot,
             name: user.name.clone(),
-            avatar_url: user.avatar.map(|av| {
-                format!(
-                    "https://cdn.discordapp.com/avatars/{}/{}.png",
-                    user.id,
-                    av.to_string()
-                )
-            }),
+            avatar_url: user
+                .avatar
+                .map(|av| format!("https://cdn.discordapp.com/avatars/{}/{}.png", user.id, av)),
         }
     }
 }
