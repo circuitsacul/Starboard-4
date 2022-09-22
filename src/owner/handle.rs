@@ -30,7 +30,7 @@ pub async fn handle_message(
     // match second token to a command, if any
     match tokens[1] {
         "sql" => commands::sql::run_sql(bot, event).await?,
-        "embed" => commands::embed_test::test_starboard_embed(bot, event).await?,
+        // "embed" => commands::embed_test::test_starboard_embed(bot, event).await?,
         _ => {}
     }
 
