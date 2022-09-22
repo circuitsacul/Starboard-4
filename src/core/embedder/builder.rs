@@ -12,7 +12,6 @@ use super::{parser::ParsedMessage, AttachmentHandle, Embedder};
 pub struct FullBuiltStarboardEmbed {
     pub top_content: String,
     pub embeds: Vec<Embed>,
-    pub embedded_images: Vec<Embed>,
     pub upload_attachments: Vec<AttachmentHandle>,
 }
 
@@ -40,7 +39,6 @@ impl BuiltStarboardEmbed {
         Self::Full(FullBuiltStarboardEmbed {
             top_content: Self::build_top_content(handle),
             embeds: Self::build_embeds(handle, orig, &parsed),
-            embedded_images: parsed.embedded_images,
             upload_attachments: parsed.upload_attachments,
         })
     }
@@ -80,10 +78,7 @@ impl BuiltStarboardEmbed {
             Some(embed) => vec![embed],
         };
         if handle.config.resolved.extra_embeds {
-            for e in &parsed.embedded_images {
-                embeds.push(e.clone());
-            }
-            for e in &orig.embeds {
+            for e in &parsed.embeds {
                 embeds.push(e.clone());
             }
         }

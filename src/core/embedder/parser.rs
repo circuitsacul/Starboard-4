@@ -3,25 +3,24 @@ use twilight_util::builder::embed::ImageSource;
 
 use crate::cache::models::message::CachedMessage;
 
-use super::{AttachmentHandle, Embedder};
+use super::{image_only_embed::maybe_get_attachment_handle, AttachmentHandle, Embedder};
 
 pub struct ParsedMessage {
     // attachments
     pub url_list: Vec<String>,
     pub primary_image: Option<ImageSource>,
-    pub embedded_images: Vec<Embed>,
+    pub embeds: Vec<Embed>,
     pub upload_attachments: Vec<AttachmentHandle>,
 }
 
 impl ParsedMessage {
     pub fn parse(_handle: &Embedder, orig: &CachedMessage) -> Self {
-        let (primary_image, url_list, embedded_images, upload_attachments) =
-            Self::parse_attachments(orig);
+        let (primary_image, url_list, embeds, upload_attachments) = Self::parse_attachments(orig);
 
         Self {
             primary_image,
             url_list,
-            embedded_images,
+            embeds,
             upload_attachments,
         }
     }
@@ -35,7 +34,7 @@ impl ParsedMessage {
         Vec<AttachmentHandle>,
     ) {
         let mut primary_image = None;
-        let mut embedded_images = Vec::new();
+        let mut embeds = Vec::new();
         let mut upload_attachments = Vec::new();
         let mut url_list = Vec::new();
 
@@ -49,13 +48,25 @@ impl ParsedMessage {
                     continue;
                 }
             } else if let Some(embed) = handle.as_embed() {
-                embedded_images.push(embed);
+                embeds.push(embed);
                 continue;
             }
 
             upload_attachments.push(handle);
         }
 
-        (primary_image, url_list, embedded_images, upload_attachments)
+        for embed in &orig.embeds {
+            if let Some(attachment) = maybe_get_attachment_handle(embed) {
+                if primary_image.is_none() {
+                    primary_image.replace(attachment.embedable_image().unwrap());
+                } else {
+                    embeds.push(attachment.as_embed().unwrap());
+                }
+            } else {
+                embeds.push(embed.clone());
+            }
+        }
+
+        (primary_image, url_list, embeds, upload_attachments)
     }
 }

@@ -9,7 +9,7 @@ use crate::{
     database::Message as DbMessage,
 };
 
-use super::{attachment::VecAttachments, builder::BuiltStarboardEmbed};
+use super::{attachment_handle::VecAttachments, builder::BuiltStarboardEmbed};
 
 pub struct Embedder<'config> {
     pub points: i32,
