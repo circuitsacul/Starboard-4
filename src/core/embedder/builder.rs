@@ -5,7 +5,7 @@ use twilight_util::builder::embed::{
     EmbedAuthorBuilder, EmbedBuilder, EmbedFieldBuilder, ImageSource,
 };
 
-use crate::{cache::models::message::CachedMessage, constants};
+use crate::{cache::models::message::CachedMessage, constants, unwrap_id};
 
 use super::{parser::ParsedMessage, AttachmentHandle, Embedder};
 
@@ -72,43 +72,85 @@ impl BuiltStarboardEmbed {
         orig: &CachedMessage,
         parsed: &ParsedMessage,
     ) -> Vec<Embed> {
-        let primary_embed = Self::build_primary_embed(handle, orig, parsed);
-        let mut embeds = match primary_embed {
-            None => Vec::new(),
-            Some(embed) => vec![embed],
-        };
+        let mut embeds = Vec::new();
+
+        if let Some(e) = Self::build_replied_embed(handle) {
+            embeds.push(e);
+        }
+        if let Some(e) = Self::build_primary_embed(handle, orig, parsed, false) {
+            embeds.push(e);
+        }
+
         if handle.config.resolved.extra_embeds {
             for e in &parsed.embeds {
                 embeds.push(e.clone());
             }
         }
+
         embeds
+    }
+
+    pub fn build_replied_embed(handle: &Embedder) -> Option<Embed> {
+        let ref_msg = match &*handle.referenced_message {
+            None => return None,
+            Some(msg) => msg,
+        };
+        let reply_parsed = ParsedMessage::parse(handle, ref_msg);
+        Self::build_primary_embed(handle, ref_msg, &reply_parsed, true)
     }
 
     pub fn build_primary_embed(
         handle: &Embedder,
         orig: &CachedMessage,
         parsed: &ParsedMessage,
+        is_reply: bool,
     ) -> Option<Embed> {
-        let mut embed = EmbedBuilder::new().color(
-            handle
-                .config
-                .resolved
-                .color
-                .map(|c| c as u32)
-                .unwrap_or(constants::BOT_COLOR),
-        );
+        let mut embed =
+            EmbedBuilder::new().color(handle.config.resolved.color.map(|c| c as u32).unwrap_or(
+                if is_reply {
+                    constants::EMBED_DARK_BG
+                } else {
+                    constants::BOT_COLOR
+                },
+            ));
+
+        let link = {
+            let mid = match is_reply {
+                true => unwrap_id!(handle
+                    .orig_message
+                    .as_ref()
+                    .as_ref()
+                    .unwrap()
+                    .referenced_message
+                    .unwrap()),
+                false => handle.orig_sql_message.message_id,
+            };
+
+            format!(
+                "https://discord.com/channels/{}/{}/{}",
+                handle.config.starboard.guild_id, handle.orig_sql_message.channel_id, mid,
+            )
+        };
 
         // author
         {
+            let maybe_user = match is_reply {
+                true => &handle.referenced_message_author,
+                false => &handle.orig_message_author,
+            };
             let avatar: Option<&str>;
             let name;
-            (name, avatar) = match &handle.orig_message_author {
+            (name, avatar) = match maybe_user {
                 None => ("Deleted User", None),
                 Some(user) => (user.name.as_str(), user.avatar_url.as_deref()),
             };
+            let name = if is_reply {
+                format!("Replying to {}", name)
+            } else {
+                name.to_string()
+            };
 
-            let mut author = EmbedAuthorBuilder::new(name);
+            let mut author = EmbedAuthorBuilder::new(name).url(&link);
             if let Some(avatar) = avatar {
                 author = author.icon_url(ImageSource::url(avatar).unwrap());
             }
@@ -127,14 +169,11 @@ impl BuiltStarboardEmbed {
         }
 
         // jump link
-        if handle.config.resolved.jump_to_message {
-            let link = format!(
-                "[Go to Message](https://discord.com/channels/{}/{}/{})",
-                handle.config.starboard.guild_id,
-                handle.orig_sql_message.channel_id,
-                handle.orig_sql_message.message_id
-            );
-            embed = embed.field(EmbedFieldBuilder::new(constants::ZWS, link));
+        if handle.config.resolved.jump_to_message && !is_reply {
+            embed = embed.field(EmbedFieldBuilder::new(
+                constants::ZWS,
+                format!("[Go to Message]({})", link),
+            ));
         }
 
         // attachments list
@@ -149,21 +188,6 @@ impl BuiltStarboardEmbed {
         }
 
         // build
-        let embed = embed.build();
-
-        let is_empty = {
-            let is_desc_empty = match &embed.description {
-                None => true,
-                Some(desc) => desc.is_empty(),
-            };
-
-            is_desc_empty && embed.fields.is_empty()
-        };
-
-        if is_empty {
-            None
-        } else {
-            Some(embed)
-        }
+        Some(embed.build())
     }
 }

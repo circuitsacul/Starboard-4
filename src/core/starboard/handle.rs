@@ -153,11 +153,41 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             .cache
             .fog_user(self.refresh.bot, Id::new(sql_message.author_id as u64))
             .await?;
+        let (ref_msg, ref_msg_author) = if let Some(msg) = &*orig_message {
+            if let Some(id) = msg.referenced_message {
+                let ref_msg = self
+                    .refresh
+                    .bot
+                    .cache
+                    .fog_message(self.refresh.bot, Id::new(sql_message.channel_id as u64), id)
+                    .await?;
+
+                let ref_msg_author = match &*ref_msg {
+                    None => None,
+                    Some(ref_msg) => Some(
+                        self.refresh
+                            .bot
+                            .cache
+                            .fog_user(self.refresh.bot, ref_msg.author_id)
+                            .await?,
+                    ),
+                };
+
+                (ref_msg, ref_msg_author.flatten())
+            } else {
+                (Arc::new(None), None)
+            }
+        } else {
+            (Arc::new(None), None)
+        };
+
         let embedder = Embedder::new(
             points,
             self.config,
             orig_message,
             orig_message_author,
+            ref_msg,
+            ref_msg_author,
             sql_message,
         );
         let sb_msg = self.get_starboard_message().await?;

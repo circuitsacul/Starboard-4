@@ -81,6 +81,7 @@ impl UpdateCache for MessageUpdate {
             attachments,
             embeds,
             content,
+            referenced_message: cached.referenced_message,
         };
 
         cache

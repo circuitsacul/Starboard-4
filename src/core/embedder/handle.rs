@@ -16,6 +16,8 @@ pub struct Embedder<'config> {
     pub config: &'config StarboardConfig,
     pub orig_message: Arc<Option<CachedMessage>>,
     pub orig_message_author: Option<Arc<CachedUser>>,
+    pub referenced_message: Arc<Option<CachedMessage>>,
+    pub referenced_message_author: Option<Arc<CachedUser>>,
     pub orig_sql_message: Arc<DbMessage>,
 }
 
@@ -25,6 +27,8 @@ impl<'config> Embedder<'config> {
         config: &'config StarboardConfig,
         orig_message: Arc<Option<CachedMessage>>,
         orig_message_author: Option<Arc<CachedUser>>,
+        referenced_message: Arc<Option<CachedMessage>>,
+        referenced_message_author: Option<Arc<CachedUser>>,
         orig_sql_message: Arc<DbMessage>,
     ) -> Self {
         Self {
@@ -32,6 +36,8 @@ impl<'config> Embedder<'config> {
             config,
             orig_message,
             orig_message_author,
+            referenced_message,
+            referenced_message_author,
             orig_sql_message,
         }
     }
