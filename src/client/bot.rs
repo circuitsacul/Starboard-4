@@ -1,8 +1,7 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use sqlx::PgPool;
 use tokio::sync::RwLock;
-use twilight_error::ErrorHandler;
 use twilight_gateway::{
     cluster::{Cluster, Events, ShardScheme},
     Intents,
@@ -24,7 +23,6 @@ pub struct StarboardBot {
     pub cache: Cache,
     pub application: RwLock<Option<PartialApplication>>,
     pub pool: PgPool,
-    pub errors: ErrorHandler,
     pub standby: Standby,
     pub config: Config,
     pub cooldowns: Cooldowns,
@@ -65,12 +63,6 @@ impl StarboardBot {
             .await
             .expect("failed to run migrations");
 
-        // Setup error handling
-        let mut errors = ErrorHandler::new();
-        if let Some(channel_id) = config.error_channel {
-            errors.channel(channel_id.try_into().unwrap());
-        }
-
         // load autostar channels
         let asc: Vec<_> = sqlx::query!("SELECT channel_id FROM autostar_channels")
             .fetch_all(&pool)
@@ -94,7 +86,6 @@ impl StarboardBot {
                 cache,
                 application: RwLock::new(None),
                 pool,
-                errors,
                 standby: Standby::new(),
                 config,
                 cooldowns: Cooldowns::new(),
@@ -107,6 +98,23 @@ impl StarboardBot {
         match &*self.application.read().await {
             Some(info) => self.http.interaction(info.id),
             None => panic!("interaction_client called before bot was ready."),
+        }
+    }
+
+    pub async fn handle_error(&self, err: impl Display + Send) {
+        let msg = format!("{}", err);
+        let msg = msg.trim();
+        let msg = if msg.is_empty() { "Some Error" } else { msg };
+
+        eprintln!("{}", msg);
+        if let Some(chid) = self.config.error_channel {
+            let _ = self
+                .http
+                .create_message(Id::new(chid as u64))
+                .content(msg)
+                .unwrap()
+                .exec()
+                .await;
         }
     }
 }
