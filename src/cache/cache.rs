@@ -30,7 +30,7 @@ pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
     pub users: AsyncDashMap<Id<UserMarker>, Option<Arc<CachedUser>>>,
-    pub messages: stretto::AsyncCache<Id<MessageMarker>, Arc<Option<CachedMessage>>>,
+    pub messages: stretto::AsyncCache<Id<MessageMarker>, Option<Arc<CachedMessage>>>,
 
     // database side
     pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
@@ -182,7 +182,7 @@ impl Cache {
         bot: &StarboardBot,
         channel_id: Id<ChannelMarker>,
         message_id: Id<MessageMarker>,
-    ) -> StarboardResult<Arc<Option<CachedMessage>>> {
+    ) -> StarboardResult<Option<Arc<CachedMessage>>> {
         if let Some(cached) = self.messages.get(&message_id) {
             return Ok(cached.value().clone());
         }
@@ -196,10 +196,10 @@ impl Cache {
                     return Err(why.into());
                 }
             }
-            Ok(msg) => Some(msg.model().await.unwrap().into()),
+            Ok(msg) => Some(Arc::new(msg.model().await.unwrap().into())),
         };
 
-        self.messages.insert(message_id, Arc::new(msg), 1).await;
+        self.messages.insert(message_id, msg, 1).await;
 
         self.messages.wait().await.unwrap();
         Ok(self.messages.get(&message_id).unwrap().value().clone())

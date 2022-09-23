@@ -48,7 +48,7 @@ pub async fn handle_reaction_add(
                     .cache
                     .fog_message(bot, event.channel_id, event.message_id)
                     .await?;
-                let orig_msg_obj = match &*orig_msg_obj {
+                let orig_msg_obj = match orig_msg_obj {
                     None => return Ok(()),
                     Some(obj) => obj,
                 };

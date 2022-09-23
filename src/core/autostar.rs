@@ -112,8 +112,7 @@ async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCr
         let mut still_invalid = true;
 
         if let Some(msg) = updated_msg {
-            let msg = msg.value().clone();
-            let msg = match &*msg {
+            let msg = match msg.value() {
                 None => return Status::InvalidStay,
                 Some(msg) => msg,
             };
