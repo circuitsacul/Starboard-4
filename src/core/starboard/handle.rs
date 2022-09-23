@@ -22,7 +22,7 @@ pub struct RefreshMessage<'bot> {
     /// The id of the inputted message. May or may not be the original.
     message_id: Id<MessageMarker>,
     sql_message: Option<Arc<DbMessage>>,
-    orig_message: Option<Arc<Option<CachedMessage>>>,
+    orig_message: Option<Option<Arc<CachedMessage>>>,
     configs: Option<Arc<Vec<StarboardConfig>>>,
 }
 
@@ -86,11 +86,11 @@ impl RefreshMessage<'_> {
         Ok(self.sql_message.as_ref().unwrap().clone())
     }
 
-    pub fn set_orig_message(&mut self, message: Arc<Option<CachedMessage>>) {
+    pub fn set_orig_message(&mut self, message: Option<Arc<CachedMessage>>) {
         self.orig_message.replace(message);
     }
 
-    async fn get_orig_message(&mut self) -> StarboardResult<Arc<Option<CachedMessage>>> {
+    async fn get_orig_message(&mut self) -> StarboardResult<Option<Arc<CachedMessage>>> {
         if self.orig_message.is_none() {
             let sql_message = self.get_sql_message().await?;
             let orig_message = self
@@ -153,7 +153,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             .cache
             .fog_user(self.refresh.bot, Id::new(sql_message.author_id as u64))
             .await?;
-        let (ref_msg, ref_msg_author) = if let Some(msg) = &*orig_message {
+        let (ref_msg, ref_msg_author) = if let Some(msg) = &orig_message {
             if let Some(id) = msg.referenced_message {
                 let ref_msg = self
                     .refresh
@@ -162,7 +162,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                     .fog_message(self.refresh.bot, Id::new(sql_message.channel_id as u64), id)
                     .await?;
 
-                let ref_msg_author = match &*ref_msg {
+                let ref_msg_author = match &ref_msg {
                     None => None,
                     Some(ref_msg) => Some(
                         self.refresh
@@ -175,10 +175,10 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
 
                 (ref_msg, ref_msg_author.flatten())
             } else {
-                (Arc::new(None), None)
+                (None, None)
             }
         } else {
-            (Arc::new(None), None)
+            (None, None)
         };
 
         let embedder = Embedder::new(

@@ -31,7 +31,7 @@ pub enum BuiltStarboardEmbed {
 
 impl BuiltStarboardEmbed {
     pub fn build(handle: &Embedder) -> Self {
-        let orig = match &*handle.orig_message {
+        let orig = match &handle.orig_message {
             None => {
                 return Self::Partial(PartialBuiltStarboardEmbed {
                     top_content: Self::build_top_content(handle),
@@ -96,7 +96,7 @@ impl BuiltStarboardEmbed {
     }
 
     pub fn build_replied_embed(handle: &Embedder) -> Option<Embed> {
-        let ref_msg = match &*handle.referenced_message {
+        let ref_msg = match &handle.referenced_message {
             None => return None,
             Some(msg) => msg,
         };
