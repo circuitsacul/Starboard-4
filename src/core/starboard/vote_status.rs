@@ -35,16 +35,15 @@ impl VoteStatus {
         message_author_is_bot: bool,
         message_has_image: Option<bool>,
     ) -> StarboardResult<VoteStatus> {
-        let message_has_image = if let Some(val) = message_has_image {
-            val
-        } else {
-            bot.cache
+        let message_has_image = match message_has_image {
+            Some(val) => Some(val),
+            None => bot
+                .cache
                 .fog_message(bot, channel_id, message_id)
                 .await?
-                .value()
                 .as_ref()
-                .map(|msg| has_image(&msg.embeds, &msg.attachments))
-                == Some(true)
+                .as_ref()
+                .map(|msg| has_image(&msg.embeds, &msg.attachments)),
         };
 
         let mut invalid_exists = false;
@@ -81,10 +80,7 @@ impl VoteStatus {
             }
 
             // message age in seconds
-            let message_age: i64 = {
-                let created_at = message_id.timestamp() as u128;
-                ((now - created_at) / 1000) as i64
-            };
+            let message_age = ((now - message_id.timestamp() as u128) / 1000) as i64;
 
             let min_age = config.resolved.older_than;
             let max_age = config.resolved.newer_than;
@@ -93,9 +89,21 @@ impl VoteStatus {
 
             let bots_valid = config.resolved.allow_bots || !message_author_is_bot;
 
-            let images_valid = config.resolved.require_image || message_has_image;
+            let images_valid = !config.resolved.require_image || (message_has_image == Some(true));
 
-            let time_valid = (min_age..max_age).contains(&message_age);
+            let time_valid = {
+                let min_age_valid = if min_age <= 0 {
+                    true
+                } else {
+                    message_age > min_age
+                };
+                let max_age_valid = if max_age <= 0 {
+                    true
+                } else {
+                    message_age < max_age
+                };
+                min_age_valid && max_age_valid
+            };
 
             if self_vote_valid && bots_valid && images_valid && time_valid {
                 Some((config, vote_type))
@@ -108,16 +116,13 @@ impl VoteStatus {
         let mut upvote = Vec::new();
         let mut downvote = Vec::new();
 
-        configs
-            .into_iter()
-            .filter_map(eval_config)
-            .for_each(|(config, vote_type)| {
-                if vote_type == VoteType::Upvote {
-                    upvote.push(config)
-                } else {
-                    downvote.push(config)
-                }
-            });
+        for (config, vote_type) in configs.into_iter().filter_map(eval_config) {
+            if vote_type == VoteType::Upvote {
+                upvote.push(config);
+            } else {
+                downvote.push(config);
+            }
+        }
 
         if upvote.is_empty() && downvote.is_empty() {
             if invalid_exists && allow_remove {

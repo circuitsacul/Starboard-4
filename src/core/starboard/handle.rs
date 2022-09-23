@@ -3,6 +3,7 @@ use std::sync::Arc;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
+    cache::models::message::CachedMessage,
     client::bot::StarboardBot,
     core::embedder::Embedder,
     database::{Message as DbMessage, StarboardMessage, Vote},
@@ -21,6 +22,7 @@ pub struct RefreshMessage<'bot> {
     /// The id of the inputted message. May or may not be the original.
     message_id: Id<MessageMarker>,
     sql_message: Option<Arc<DbMessage>>,
+    orig_message: Option<Arc<Option<CachedMessage>>>,
     configs: Option<Arc<Vec<StarboardConfig>>>,
 }
 
@@ -31,6 +33,7 @@ impl RefreshMessage<'_> {
             message_id,
             configs: None,
             sql_message: None,
+            orig_message: None,
         }
     }
 
@@ -46,7 +49,6 @@ impl RefreshMessage<'_> {
             RefreshStarboard::new(self, c).refresh().await?;
         }
 
-        std::mem::drop(guard);
         Ok(())
     }
 
@@ -82,6 +84,29 @@ impl RefreshMessage<'_> {
         }
 
         Ok(self.sql_message.as_ref().unwrap().clone())
+    }
+
+    pub fn set_orig_message(&mut self, message: Arc<Option<CachedMessage>>) {
+        self.orig_message.replace(message);
+    }
+
+    async fn get_orig_message(&mut self) -> StarboardResult<Arc<Option<CachedMessage>>> {
+        if self.orig_message.is_none() {
+            let sql_message = self.get_sql_message().await?;
+            let orig_message = self
+                .bot
+                .cache
+                .fog_message(
+                    self.bot,
+                    Id::new(sql_message.channel_id.try_into().unwrap()),
+                    Id::new(sql_message.message_id.try_into().unwrap()),
+                )
+                .await?;
+
+            self.set_orig_message(orig_message);
+        }
+
+        Ok(self.orig_message.as_ref().unwrap().clone())
     }
 }
 
@@ -120,7 +145,51 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         )
         .await?;
 
-        let embedder = Embedder::new(points, self.config);
+        let orig_message = self.refresh.get_orig_message().await?;
+        let sql_message = self.refresh.get_sql_message().await?;
+        let orig_message_author = self
+            .refresh
+            .bot
+            .cache
+            .fog_user(self.refresh.bot, Id::new(sql_message.author_id as u64))
+            .await?;
+        let (ref_msg, ref_msg_author) = if let Some(msg) = &*orig_message {
+            if let Some(id) = msg.referenced_message {
+                let ref_msg = self
+                    .refresh
+                    .bot
+                    .cache
+                    .fog_message(self.refresh.bot, Id::new(sql_message.channel_id as u64), id)
+                    .await?;
+
+                let ref_msg_author = match &*ref_msg {
+                    None => None,
+                    Some(ref_msg) => Some(
+                        self.refresh
+                            .bot
+                            .cache
+                            .fog_user(self.refresh.bot, ref_msg.author_id)
+                            .await?,
+                    ),
+                };
+
+                (ref_msg, ref_msg_author.flatten())
+            } else {
+                (Arc::new(None), None)
+            }
+        } else {
+            (Arc::new(None), None)
+        };
+
+        let embedder = Embedder::new(
+            points,
+            self.config,
+            orig_message,
+            orig_message_author,
+            ref_msg,
+            ref_msg_author,
+            sql_message,
+        );
         let sb_msg = self.get_starboard_message().await?;
 
         let action = get_message_status(self.refresh.bot, self.config, &orig, points).await?;
@@ -150,25 +219,14 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         .await;
                     (ret.map(|_| ()), false, true)
                 }
-                MessageStatus::Send | MessageStatus::NoAction => {
+                MessageStatus::Send | MessageStatus::NoAction | MessageStatus::Trash => {
                     let ret = embedder
                         .edit(
                             self.refresh.bot,
-                            Id::new(sb_msg.starboard_message_id as u64),
-                            false,
+                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
                         )
                         .await;
                     (ret.map(|_| ()), true, false)
-                }
-                MessageStatus::Trash => {
-                    let ret = embedder
-                        .edit(
-                            self.refresh.bot,
-                            Id::new(sb_msg.starboard_message_id as u64),
-                            true,
-                        )
-                        .await;
-                    (ret.map(|_| ()), false, false)
                 }
             };
 

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use twilight_model::gateway::payload::incoming::{
     MessageCreate, MessageDelete, MessageDeleteBulk, MessageUpdate,
@@ -13,20 +15,18 @@ impl UpdateCache for MessageCreate {
             return;
         }
 
-        let message = CachedMessage {
-            author_id: self.author.id,
-            attachments: self.attachments.clone(),
-            embeds: self.embeds.clone(),
-        };
-
-        cache.messages.insert(self.id, Some(message), 1).await;
+        let message = CachedMessage::from(&self.0);
+        cache
+            .messages
+            .insert(self.id, Arc::new(Some(message)), 1)
+            .await;
     }
 }
 
 #[async_trait]
 impl UpdateCache for MessageDelete {
     async fn update_cache(&self, cache: &Cache) {
-        cache.messages.insert(self.id, None, 1).await;
+        cache.messages.insert(self.id, Arc::new(None), 1).await;
     }
 }
 
@@ -34,7 +34,7 @@ impl UpdateCache for MessageDelete {
 impl UpdateCache for MessageDeleteBulk {
     async fn update_cache(&self, cache: &Cache) {
         for id in &self.ids {
-            cache.messages.insert(*id, None, 1).await;
+            cache.messages.insert(*id, Arc::new(None), 1).await;
         }
     }
 }
@@ -42,14 +42,16 @@ impl UpdateCache for MessageDeleteBulk {
 #[async_trait]
 impl UpdateCache for MessageUpdate {
     async fn update_cache(&self, cache: &Cache) {
-        let cached = cache.messages.get(&self.id);
+        let cached = {
+            let cached = cache.messages.get(&self.id);
 
-        let cached = match cached {
-            None => return,
-            Some(ref msg) => msg.value(),
+            match cached {
+                None => return,
+                Some(ref msg) => msg.value().clone(),
+            }
         };
 
-        let cached = match cached {
+        let cached = match &*cached {
             None => {
                 cache.messages.remove(&self.id).await;
                 return;
@@ -65,13 +67,26 @@ impl UpdateCache for MessageUpdate {
             Some(embeds) => embeds.clone(),
             None => cached.embeds.clone(),
         };
+        // here we assume that, if the messages content was edited,
+        // it doesn't have any "specialty" and thus we don't need
+        // to try to parse the system content from the messages kind.
+        // For example, a join message will never be edited.
+        let content = match &self.content {
+            Some(content) => content.clone(),
+            None => cached.content.clone(),
+        };
 
         let message = CachedMessage {
             author_id: cached.author_id,
             attachments,
             embeds,
+            content,
+            referenced_message: cached.referenced_message,
         };
 
-        cache.messages.insert(self.id, Some(message), 1).await;
+        cache
+            .messages
+            .insert(self.id, Arc::new(Some(message)), 1)
+            .await;
     }
 }

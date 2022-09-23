@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
 use crate::{
@@ -8,9 +10,9 @@ use crate::{
 };
 
 pub async fn test_starboard_embed(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result<()> {
-    let _target = match &event.referenced_message {
+    let target = match &event.referenced_message {
         None => anyhow::bail!("No referenced messsage"),
-        Some(target) => target,
+        Some(target) => *target.to_owned(),
     };
     let name = match event.content.strip_prefix("star embed ") {
         None => anyhow::bail!("Invalid starboard name"),
@@ -21,11 +23,12 @@ pub async fn test_starboard_embed(bot: &StarboardBot, event: &MessageCreate) -> 
         .unwrap();
     let config = StarboardConfig::new(sb, Vec::new())?;
 
-    let e = Embedder {
-        points: 1,
-        config: &config,
-    };
-    e.send(bot).await?;
+    // let e = Embedder {
+    //    points: 1,
+    //    config: &config,
+    //    orig_message: Arc::new(Some(target.into())),
+    // };
+    // e.send(bot).await?;
 
     Ok(())
 }

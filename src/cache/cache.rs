@@ -1,5 +1,6 @@
+use std::sync::Arc;
+
 use dashmap::{DashMap, DashSet};
-use stretto::ValueRef;
 use twilight_gateway::Event;
 use twilight_model::{
     channel::Channel,
@@ -28,8 +29,8 @@ use super::{
 pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
-    pub users: AsyncDashMap<Id<UserMarker>, CachedUser>,
-    pub messages: stretto::AsyncCache<Id<MessageMarker>, Option<CachedMessage>>,
+    pub users: AsyncDashMap<Id<UserMarker>, Option<Arc<CachedUser>>>,
+    pub messages: stretto::AsyncCache<Id<MessageMarker>, Arc<Option<CachedMessage>>>,
 
     // database side
     pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
@@ -147,20 +148,22 @@ impl Cache {
         Ok(channel_ids)
     }
 
-    pub async fn ensure_user(
+    fn get_user(&self, user_id: Id<UserMarker>) -> Option<Arc<CachedUser>> {
+        self.users
+            .with(&user_id, |_, v| v.as_ref().and_then(|u| (*u).clone()))
+    }
+
+    pub async fn fog_user(
         &self,
         bot: &StarboardBot,
         user_id: Id<UserMarker>,
-    ) -> StarboardResult<()> {
-        if self.users.contains_key(&user_id) {
-            return Ok(());
+    ) -> StarboardResult<Option<Arc<CachedUser>>> {
+        if !self.users.contains_key(&user_id) {
+            let user = bot.http.user(user_id).exec().await?.model().await.unwrap();
+            self.users.insert(user_id, Some(Arc::new((&user).into())));
         }
 
-        let user = bot.http.user(user_id).exec().await?.model().await.unwrap();
-
-        self.users.insert(user_id, (&user).into());
-
-        Ok(())
+        Ok(self.get_user(user_id))
     }
 
     pub async fn fog_message(
@@ -168,9 +171,9 @@ impl Cache {
         bot: &StarboardBot,
         channel_id: Id<ChannelMarker>,
         message_id: Id<MessageMarker>,
-    ) -> StarboardResult<ValueRef<Option<CachedMessage>>> {
+    ) -> StarboardResult<Arc<Option<CachedMessage>>> {
         if let Some(cached) = self.messages.get(&message_id) {
-            return Ok(cached);
+            return Ok(cached.value().clone());
         }
 
         let msg = bot.http.message(channel_id, message_id).exec().await;
@@ -185,10 +188,10 @@ impl Cache {
             Ok(msg) => Some(msg.model().await.unwrap().into()),
         };
 
-        self.messages.insert(message_id, msg, 1).await;
+        self.messages.insert(message_id, Arc::new(msg), 1).await;
 
         self.messages.wait().await.unwrap();
-        Ok(self.messages.get(&message_id).unwrap())
+        Ok(self.messages.get(&message_id).unwrap().value().clone())
     }
 
     async fn fetch_channel_or_thread_parent(

@@ -112,7 +112,8 @@ async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCr
         let mut still_invalid = true;
 
         if let Some(msg) = updated_msg {
-            let msg = match msg.value() {
+            let msg = msg.value().clone();
+            let msg = match &*msg {
                 None => return Status::InvalidStay,
                 Some(msg) => msg,
             };
@@ -123,7 +124,7 @@ async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCr
             eprintln!(concat!(
                 "Warning: autostar channel message was not cached. Likely means the cache is ",
                 "being overwhelmed."
-            ));
+            ))
         }
 
         if still_invalid {

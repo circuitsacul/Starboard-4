@@ -1,5 +1,9 @@
 use std::time::Duration;
 
+pub const ZWS: &str = "\u{200B}";
+
+pub const EMBED_DARK_BG: u32 = 0x2F3136;
+
 pub const BOT_COLOR: u32 = 0xFFE19C;
 
 // Cache size
