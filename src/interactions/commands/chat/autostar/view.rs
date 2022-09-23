@@ -29,11 +29,17 @@ impl ViewAutoStarChannels {
                 AutoStarChannel::get_by_name(&ctx.bot.pool, name, unwrap_id!(guild_id)).await?;
 
             if let Some(asc) = asc {
+                let emojis =
+                    Vec::<SimpleEmoji>::from_stored(asc.emojis).into_readable(&ctx.bot, guild_id);
+                let max_chars = asc
+                    .max_chars
+                    .map(|v| v.to_string())
+                    .unwrap_or_else(|| "none".to_string());
                 let asc_settings = concat_format!(
                     "channel: <#{}>\n" <- asc.channel_id;
-                    "emojis: {}\n" <- Vec::<SimpleEmoji>::from_stored(asc.emojis).into_readable(&ctx.bot, guild_id).await;
+                    "emojis: {}\n" <- emojis;
                     "min-chars: {}\n" <- asc.min_chars;
-                    "max-chars: {}\n" <- asc.max_chars.map(|v| v.to_string()).unwrap_or_else(|| "none".to_string());
+                    "max-chars: {}\n" <- max_chars;
                     "require-image: {}\n" <- asc.require_image;
                     "delete-invalid: {}" <- asc.delete_invalid;
                 );
@@ -66,9 +72,7 @@ impl ViewAutoStarChannels {
                     "'{}' in <#{}>: {}",
                     a.name,
                     a.channel_id,
-                    Vec::<SimpleEmoji>::from_stored(a.emojis)
-                        .into_readable(&ctx.bot, guild_id)
-                        .await
+                    Vec::<SimpleEmoji>::from_stored(a.emojis).into_readable(&ctx.bot, guild_id)
                 )
                 .unwrap();
             }

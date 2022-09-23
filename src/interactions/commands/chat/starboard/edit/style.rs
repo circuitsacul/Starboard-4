@@ -51,7 +51,7 @@ impl EditGeneralStyle {
             let emoji = if val == "none" {
                 None
             } else {
-                match SimpleEmoji::from_user_input(val, &ctx.bot, guild_id).await {
+                match SimpleEmoji::from_user_input(val, &ctx.bot, guild_id) {
                     None => {
                         ctx.respond_str("Invalid emoji for `display-emoji`.", true)
                             .await?;

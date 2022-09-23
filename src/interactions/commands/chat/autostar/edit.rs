@@ -46,9 +46,7 @@ impl EditAutoStar {
         };
 
         if let Some(val) = self.emojis {
-            asc.emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
-                .await
-                .into_stored();
+            asc.emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
         }
         if let Some(val) = self.min_chars {
             let min_chars = val as i16;

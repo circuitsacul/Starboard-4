@@ -17,7 +17,7 @@ use crate::{
     },
 };
 
-pub async fn format_settings(
+pub fn format_settings(
     bot: &StarboardBot,
     guild_id: Id<GuildMarker>,
     config: &StarboardConfig,
@@ -56,15 +56,11 @@ pub async fn format_settings(
             .clone()
             .unwrap_or_else(|| "none".to_string()),
     )
-    .into_readable(bot, guild_id)
-    .await;
+    .into_readable(bot, guild_id);
 
-    let upvote_emojis = Vec::from_stored(res.upvote_emojis.clone())
-        .into_readable(bot, guild_id)
-        .await;
-    let downvote_emojis = Vec::from_stored(res.downvote_emojis.clone())
-        .into_readable(bot, guild_id)
-        .await;
+    let upvote_emojis = Vec::from_stored(res.upvote_emojis.clone()).into_readable(bot, guild_id);
+    let downvote_emojis =
+        Vec::from_stored(res.downvote_emojis.clone()).into_readable(bot, guild_id);
 
     let older_than = if res.older_than <= 0 {
         "disabled".to_string()
