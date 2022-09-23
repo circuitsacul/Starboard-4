@@ -159,8 +159,19 @@ impl Cache {
         user_id: Id<UserMarker>,
     ) -> StarboardResult<Option<Arc<CachedUser>>> {
         if !self.users.contains_key(&user_id) {
-            let user = bot.http.user(user_id).exec().await?.model().await.unwrap();
-            self.users.insert(user_id, Some(Arc::new((&user).into())));
+            let user_get = bot.http.user(user_id).exec().await;
+            let user = match user_get {
+                Ok(user) => Some(Arc::new(user.model().await.unwrap().into())),
+                Err(why) => {
+                    if get_status(&why) == Some(404) {
+                        None
+                    } else {
+                        return Err(why.into());
+                    }
+                }
+            };
+
+            self.users.insert(user_id, user);
         }
 
         Ok(self.get_user(user_id))

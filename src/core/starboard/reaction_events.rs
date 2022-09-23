@@ -54,10 +54,8 @@ pub async fn handle_reaction_add(
                 };
 
                 let user = bot.cache.fog_user(bot, orig_msg_obj.author_id).await?;
-                match user.map(|u| u.is_bot) {
-                    None => panic!("No cached user after ensuring."),
-                    Some(is_bot) => (is_bot, unwrap_id!(orig_msg_obj.author_id)),
-                }
+                let is_bot = user.map(|u| u.is_bot).unwrap_or(false);
+                (is_bot, unwrap_id!(orig_msg_obj.author_id))
             };
 
             map_dup_none!(User::create(&bot.pool, author_id, author_is_bot))?;
