@@ -182,7 +182,7 @@ impl BuiltStarboardEmbed {
         }
 
         // attachments list
-        if handle.config.resolved.attachments_list && !parsed.url_list.is_empty() {
+        if (handle.config.resolved.attachments_list || is_reply) && !parsed.url_list.is_empty() {
             embed = embed
                 .field(EmbedFieldBuilder::new(constants::ZWS, parsed.url_list.join("\n")).build())
         }
