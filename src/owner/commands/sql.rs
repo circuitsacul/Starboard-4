@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    fmt::Write,
     time::{Duration, Instant},
 };
 
@@ -63,7 +64,7 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
                     final_result.push_str(" - and more...");
                     break;
                 }
-                final_result.push_str(&format!(" - {:?}\n", row));
+                writeln!(final_result, " - {:?}", row).unwrap();
             }
             final_result.push_str("```\n");
         }

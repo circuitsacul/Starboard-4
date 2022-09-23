@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_util::builder::embed::{EmbedFieldBuilder, EmbedFooterBuilder};
 
@@ -69,7 +71,7 @@ impl ViewStarboard {
                 let mut final_result = String::new();
 
                 for sb in starboards {
-                    final_result.push_str(&format!("'{}' in <#{}>\n", sb.name, sb.channel_id))
+                    writeln!(final_result, "'{}' in <#{}>", sb.name, sb.channel_id).unwrap();
                 }
 
                 let embed = embed::build()

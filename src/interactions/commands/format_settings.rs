@@ -1,6 +1,9 @@
 //! Utility for formatting starboard/override settings
 
-use std::{fmt::Debug, time::Duration};
+use std::{
+    fmt::{Debug, Write},
+    time::Duration,
+};
 
 use humantime::format_duration;
 use twilight_model::id::{marker::GuildMarker, Id};
@@ -38,7 +41,7 @@ pub async fn format_settings(
                     $pretty_name.to_string()
                 };
 
-                final_result.push_str(&format!("{}: {}\n", setting_name, $value));
+                writeln!(final_result, "{}: {}", setting_name, $value).unwrap();
             )*
             final_result
         }};

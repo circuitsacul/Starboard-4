@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
@@ -59,14 +61,16 @@ impl ViewAutoStarChannels {
 
             let mut desc = String::new();
             for a in asc.into_iter() {
-                desc.push_str(&format!(
-                    "'{}' in <#{}>: {}\n",
+                writeln!(
+                    desc,
+                    "'{}' in <#{}>: {}",
                     a.name,
                     a.channel_id,
                     Vec::<SimpleEmoji>::from_stored(a.emojis)
                         .into_readable(&ctx.bot, guild_id)
                         .await
-                ));
+                )
+                .unwrap();
             }
             let emb = embed::build()
                 .title("Autostar Channels")
