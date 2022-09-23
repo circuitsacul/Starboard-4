@@ -30,7 +30,7 @@ impl ViewStarboard {
 
             if let Some(starboard) = starboard {
                 let config = StarboardConfig::new(starboard, vec![])?;
-                let pretty = format_settings(&ctx.bot, guild_id, &config).await;
+                let pretty = format_settings(&ctx.bot, guild_id, &config);
 
                 let embed = embed::build()
                     .title(format!("Starboard '{}'", &config.starboard.name))

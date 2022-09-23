@@ -86,9 +86,7 @@ impl EditRequirements {
             starboard.settings.required_remove = val;
         }
         if let Some(val) = self.upvote_emojis {
-            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
-                .await
-                .into_stored();
+            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
             if let Err(why) = validation::starboard_settings::validate_vote_emojis(
                 &emojis,
                 &starboard.settings.downvote_emojis,
@@ -105,9 +103,7 @@ impl EditRequirements {
                 .remove(&unwrap_id!(guild_id));
         }
         if let Some(val) = self.downvote_emojis {
-            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id)
-                .await
-                .into_stored();
+            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
             if let Err(why) = validation::starboard_settings::validate_vote_emojis(
                 &starboard.settings.upvote_emojis,
                 &emojis,
