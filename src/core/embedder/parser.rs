@@ -57,7 +57,7 @@ impl ParsedMessage {
 
         for embed in &orig.embeds {
             if let Some(attachment) = maybe_get_attachment_handle(embed) {
-                if primary_image.is_none() {
+                if primary_image.is_none() && embeds.is_empty() {
                     primary_image.replace(attachment.embedable_image().unwrap());
                 } else {
                     embeds.push(attachment.as_embed().unwrap());
