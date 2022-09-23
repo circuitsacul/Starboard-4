@@ -1,8 +1,13 @@
 use std::fmt::Write;
 
-use twilight_model::channel::embed::Embed;
-use twilight_util::builder::embed::{
-    EmbedAuthorBuilder, EmbedBuilder, EmbedFieldBuilder, ImageSource,
+use twilight_model::{
+    channel::embed::Embed,
+    id::{marker::MessageMarker, Id},
+    util::Timestamp,
+};
+use twilight_util::{
+    builder::embed::{EmbedAuthorBuilder, EmbedBuilder, EmbedFieldBuilder, ImageSource},
+    snowflake::Snowflake,
 };
 
 use crate::{cache::models::message::CachedMessage, constants, unwrap_id};
@@ -185,6 +190,12 @@ impl BuiltStarboardEmbed {
         // primary image
         if let Some(image) = &parsed.primary_image {
             embed = embed.image(image.clone());
+        }
+
+        // timestamp
+        {
+            let id: Id<MessageMarker> = Id::new(handle.orig_sql_message.message_id as u64);
+            embed = embed.timestamp(Timestamp::from_micros(id.timestamp() * 1000).unwrap());
         }
 
         // build
