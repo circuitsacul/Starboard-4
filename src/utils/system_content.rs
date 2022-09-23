@@ -40,7 +40,7 @@ impl SystemContent for Message {
             MessageType::ChannelIconChange => {
                 format!("**{}** changed the channel icon.", self.author.name)
             }
-            MessageType::GuildMemberJoin => {
+            MessageType::UserJoin => {
                 let created_at = (self.timestamp.as_micros() / 1000) as u64;
                 match created_at % 13 {
                     0 => format!("**{}** joined the party.", self.author.name),
@@ -64,7 +64,7 @@ impl SystemContent for Message {
                     }
                 }
             }
-            MessageType::UserPremiumSub => {
+            MessageType::GuildBoost => {
                 if self.content.is_empty() {
                     format!("**{}** just boosted the server!", self.author.name)
                 } else {
@@ -75,7 +75,7 @@ impl SystemContent for Message {
                 }
             }
             // TODO get actual guild name
-            MessageType::UserPremiumSubTier1 => {
+            MessageType::GuildBoostTier1 => {
                 if self.content.is_empty() {
                     format!(
                         "**{}** just boosted the server! This server has achieved **Level 1**!",
@@ -88,7 +88,7 @@ impl SystemContent for Message {
                     )
                 }
             }
-            MessageType::UserPremiumSubTier2 => {
+            MessageType::GuildBoostTier2 => {
                 if self.content.is_empty() {
                     format!(
                         "**{}** just boosted the server! This server has achieved **Level 2**!",
@@ -101,7 +101,7 @@ impl SystemContent for Message {
                     )
                 }
             }
-            MessageType::UserPremiumSubTier3 => {
+            MessageType::GuildBoostTier3 => {
                 if self.content.is_empty() {
                     format!(
                         "**{}** just boosted the server! This server has achieved **Level 3**!",
@@ -156,6 +156,7 @@ impl SystemContent for Message {
                 "**{}** pinned **a message** to this channel. See all **pinned messages**.",
                 self.author.name,
             ),
+            _ => panic!("Unhandled MessageType."),
         }
     }
 }
