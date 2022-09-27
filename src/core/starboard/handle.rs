@@ -9,7 +9,7 @@ use crate::{
     database::{Message as DbMessage, StarboardMessage, Vote},
     errors::StarboardResult,
     unwrap_id,
-    utils::get_status::get_status,
+    utils::{get_status::get_status, into_id::IntoId},
 };
 
 use super::{
@@ -60,8 +60,8 @@ impl RefreshMessage<'_> {
     async fn get_configs(&mut self) -> sqlx::Result<Arc<Vec<StarboardConfig>>> {
         if self.configs.is_none() {
             let msg = self.get_sql_message().await?;
-            let guild_id = Id::new(msg.guild_id as u64);
-            let channel_id = Id::new(msg.channel_id as u64);
+            let guild_id = msg.guild_id.into_id();
+            let channel_id = msg.channel_id.into_id();
 
             let configs = StarboardConfig::list_for_channel(self.bot, guild_id, channel_id)
                 .await
@@ -98,8 +98,8 @@ impl RefreshMessage<'_> {
                 .cache
                 .fog_message(
                     self.bot,
-                    Id::new(sql_message.channel_id.try_into().unwrap()),
-                    Id::new(sql_message.message_id.try_into().unwrap()),
+                    sql_message.channel_id.into_id(),
+                    sql_message.message_id.into_id(),
                 )
                 .await?;
 
@@ -151,7 +151,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             .refresh
             .bot
             .cache
-            .fog_user(self.refresh.bot, Id::new(sql_message.author_id as u64))
+            .fog_user(self.refresh.bot, sql_message.author_id.into_id())
             .await?;
         let (ref_msg, ref_msg_author) = if let Some(msg) = &orig_message {
             if let Some(id) = msg.referenced_message {
@@ -159,7 +159,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                     .refresh
                     .bot
                     .cache
-                    .fog_message(self.refresh.bot, Id::new(sql_message.channel_id as u64), id)
+                    .fog_message(self.refresh.bot, sql_message.channel_id.into_id(), id)
                     .await?;
 
                 let ref_msg_author = match &ref_msg {
@@ -212,8 +212,8 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         .bot
                         .http
                         .delete_message(
-                            Id::new(self.config.starboard.channel_id as u64),
-                            Id::new(sb_msg.starboard_message_id as u64),
+                            self.config.starboard.channel_id.into_id(),
+                            sb_msg.starboard_message_id.into_id(),
                         )
                         .exec()
                         .await;
@@ -221,10 +221,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 }
                 MessageStatus::Send | MessageStatus::NoAction | MessageStatus::Trash => {
                     let ret = embedder
-                        .edit(
-                            self.refresh.bot,
-                            Id::new(sb_msg.starboard_message_id.try_into().unwrap()),
-                        )
+                        .edit(self.refresh.bot, sb_msg.starboard_message_id.into_id())
                         .await;
                     (ret.map(|_| ()), true, false)
                 }

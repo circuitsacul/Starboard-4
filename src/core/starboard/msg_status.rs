@@ -1,6 +1,7 @@
-use twilight_model::id::Id;
-
-use crate::{client::bot::StarboardBot, database::Message as DbMessage, errors::StarboardResult};
+use crate::{
+    client::bot::StarboardBot, database::Message as DbMessage, errors::StarboardResult,
+    utils::into_id::IntoId,
+};
 
 use super::config::StarboardConfig;
 
@@ -18,8 +19,8 @@ pub async fn get_message_status(
     message: &DbMessage,
     points: i32,
 ) -> StarboardResult<MessageStatus> {
-    let guild_id = Id::new(starboard_config.starboard.guild_id as u64);
-    let sb_channel_id = Id::new(starboard_config.starboard.channel_id as u64);
+    let guild_id = starboard_config.starboard.guild_id.into_id();
+    let sb_channel_id = starboard_config.starboard.channel_id.into_id();
     let sb_is_nsfw = bot
         .cache
         .fog_channel_nsfw(bot, guild_id, sb_channel_id)
