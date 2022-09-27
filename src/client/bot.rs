@@ -13,7 +13,7 @@ use twilight_model::{
 };
 use twilight_standby::Standby;
 
-use crate::{cache::cache::Cache, client::config::Config};
+use crate::{cache::cache::Cache, client::config::Config, utils::into_id::IntoId};
 
 use super::{cooldowns::Cooldowns, locks::Locks};
 
@@ -110,7 +110,7 @@ impl StarboardBot {
         if let Some(chid) = self.config.error_channel {
             let _ = self
                 .http
-                .create_message(Id::new(chid as u64))
+                .create_message(chid.into_id())
                 .content(msg)
                 .unwrap()
                 .exec()

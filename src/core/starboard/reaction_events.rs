@@ -1,8 +1,5 @@
-use twilight_model::{
-    gateway::payload::incoming::{
-        ReactionAdd, ReactionRemove, ReactionRemoveAll, ReactionRemoveEmoji,
-    },
-    id::Id,
+use twilight_model::gateway::payload::incoming::{
+    ReactionAdd, ReactionRemove, ReactionRemoveAll, ReactionRemoveEmoji,
 };
 
 use crate::{
@@ -10,6 +7,7 @@ use crate::{
     core::emoji::SimpleEmoji,
     database::{Member, Message, User, Vote},
     map_dup_none, unwrap_id,
+    utils::into_id::IntoId,
 };
 
 use super::{config::StarboardConfig, handle::RefreshMessage, vote_status::VoteStatus};
@@ -98,10 +96,10 @@ pub async fn handle_reaction_add(
         bot,
         &emoji,
         configs,
-        Id::new(event.user_id.try_into().unwrap()),
-        Id::new(orig_msg.message_id as u64),
-        Id::new(orig_msg.channel_id as u64),
-        Id::new(orig_msg.author_id as u64),
+        event.user_id,
+        orig_msg.message_id.into_id(),
+        orig_msg.channel_id.into_id(),
+        orig_msg.author_id.into_id(),
         author_is_bot,
         None,
     )
@@ -194,9 +192,9 @@ pub async fn handle_reaction_remove(
         &emoji,
         configs,
         event.user_id,
-        Id::new(orig.message_id as u64),
-        Id::new(orig.channel_id as u64),
-        Id::new(orig.author_id as u64),
+        orig.message_id.into_id(),
+        orig.channel_id.into_id(),
+        orig.author_id.into_id(),
         author.is_bot,
         None,
     )

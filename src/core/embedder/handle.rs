@@ -7,6 +7,7 @@ use crate::{
     client::bot::StarboardBot,
     core::starboard::config::StarboardConfig,
     database::Message as DbMessage,
+    utils::into_id::IntoId,
 };
 
 use super::{attachment_handle::VecAttachments, builder::BuiltStarboardEmbed};
@@ -64,9 +65,7 @@ impl Embedder<'_> {
         }
 
         bot.http
-            .create_message(Id::new(
-                self.config.starboard.channel_id.try_into().unwrap(),
-            ))
+            .create_message(self.config.starboard.channel_id.into_id())
             .content(&built.top_content)
             .unwrap()
             .embeds(&built.embeds)
@@ -86,10 +85,7 @@ impl Embedder<'_> {
         match self.build() {
             BuiltStarboardEmbed::Full(built) => {
                 bot.http
-                    .update_message(
-                        Id::new(self.config.starboard.channel_id.try_into().unwrap()),
-                        message_id,
-                    )
+                    .update_message(self.config.starboard.channel_id.into_id(), message_id)
                     .content(Some(&built.top_content))
                     .unwrap()
                     .embeds(Some(&built.embeds))
@@ -99,10 +95,7 @@ impl Embedder<'_> {
             }
             BuiltStarboardEmbed::Partial(built) => {
                 bot.http
-                    .update_message(
-                        Id::new(self.config.starboard.channel_id.try_into().unwrap()),
-                        message_id,
-                    )
+                    .update_message(self.config.starboard.channel_id.into_id(), message_id)
                     .content(Some(&built.top_content))
                     .unwrap()
                     .exec()

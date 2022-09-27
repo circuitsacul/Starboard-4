@@ -10,7 +10,7 @@ use twilight_util::{
     snowflake::Snowflake,
 };
 
-use crate::{cache::models::message::CachedMessage, constants, unwrap_id};
+use crate::{cache::models::message::CachedMessage, constants, unwrap_id, utils::into_id::IntoId};
 
 use super::{parser::ParsedMessage, AttachmentHandle, Embedder};
 
@@ -194,7 +194,7 @@ impl BuiltStarboardEmbed {
 
         // timestamp
         {
-            let id: Id<MessageMarker> = Id::new(handle.orig_sql_message.message_id as u64);
+            let id: Id<MessageMarker> = handle.orig_sql_message.message_id.into_id();
             embed = embed.timestamp(Timestamp::from_micros(id.timestamp() * 1000).unwrap());
         }
 

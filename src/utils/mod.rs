@@ -5,5 +5,6 @@ pub mod dm;
 pub mod embed;
 pub mod get_status;
 pub mod gifv;
+pub mod into_id;
 pub mod notify;
 pub mod system_content;
