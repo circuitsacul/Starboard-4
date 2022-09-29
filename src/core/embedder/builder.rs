@@ -110,6 +110,8 @@ impl BuiltStarboardEmbed {
         parsed: &ParsedMessage,
         is_reply: bool,
     ) -> Option<Embed> {
+        let mut embed_is_empty = true;
+        let mut zws_fields: Vec<String> = Vec::new();
         let mut embed =
             EmbedBuilder::new().color(handle.config.resolved.color.map(|c| c as u32).unwrap_or(
                 if is_reply {
@@ -164,31 +166,30 @@ impl BuiltStarboardEmbed {
         }
 
         // main description
-        {
-            let content = if orig.content.is_empty() {
-                "*file only*"
-            } else {
-                &orig.content
-            };
-            embed = embed.description(content);
+        let mut has_description;
+        if !orig.content.is_empty() {
+            embed_is_empty = false;
+            embed = embed.description(&orig.content);
+            has_description = true;
+        } else {
+            has_description = false;
         }
 
         // jump link
         if handle.config.resolved.jump_to_message && !is_reply {
-            embed = embed.field(EmbedFieldBuilder::new(
-                constants::ZWS,
-                format!("[Go to Message]({})", link),
-            ));
+            embed_is_empty = false;
+            zws_fields.push(format!("[Go to Message]({})", link));
         }
 
         // attachments list
         if (handle.config.resolved.attachments_list || is_reply) && !parsed.url_list.is_empty() {
-            embed = embed
-                .field(EmbedFieldBuilder::new(constants::ZWS, parsed.url_list.join("\n")).build())
+            embed_is_empty = false;
+            zws_fields.push(parsed.url_list.join("\n"));
         }
 
         // primary image
         if let Some(image) = &parsed.primary_image {
+            embed_is_empty = false;
             embed = embed.image(image.clone());
         }
 
@@ -196,6 +197,21 @@ impl BuiltStarboardEmbed {
         {
             let id: Id<MessageMarker> = handle.orig_sql_message.message_id.into_id();
             embed = embed.timestamp(Timestamp::from_micros(id.timestamp() * 1000).unwrap());
+        }
+
+        // add the fields
+        for field in zws_fields {
+            if !has_description {
+                has_description = true;
+                embed = embed.description(field);
+            } else {
+                embed = embed.field(EmbedFieldBuilder::new(constants::ZWS, field).build());
+            }
+        }
+
+        // placeholder content, if needed
+        if embed_is_empty {
+            embed = embed.description("*file only*");
         }
 
         // build
