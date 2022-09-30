@@ -7,7 +7,8 @@ use twilight_util::builder::InteractionResponseDataBuilder;
 use crate::interactions::context::CommandCtx;
 
 use super::{
-    autostar_name::autostar_name_autocomplete, starboard_name::starboard_name_autocomplete,
+    autostar_name::autostar_name_autocomplete, override_name::override_name_autocomplete,
+    starboard_name::starboard_name_autocomplete,
 };
 
 pub fn get_sub_options(options: &Vec<CommandDataOption>) -> Option<&Vec<CommandDataOption>> {
@@ -70,6 +71,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
         "starboards rename current-name" => starboard_name_autocomplete(&ctx).await?,
         // overrides
         "overrides create starboard" => starboard_name_autocomplete(&ctx).await?,
+        "overrides delete name" => override_name_autocomplete(&ctx).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 

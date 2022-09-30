@@ -1288,6 +1288,56 @@
     },
     "query": "SELECT * FROM messages WHERE message_id=$1"
   },
+  "684a9caa795bff1418c30964609781f25ed8e7e858199e96571a39641783d026": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "channel_ids",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "overrides",
+          "ordinal": 5,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM overrides WHERE guild_id=$1"
+  },
   "6b5b308d63aea59fd9add4f55683542950d367bcea2800e55f0e1f059cc575e8": {
     "describe": {
       "columns": [
@@ -1726,6 +1776,57 @@
       }
     },
     "query": "INSERT INTO VOTES\n            (message_id, starboard_id, user_id,\n                target_author_id, is_downvote)\n            VALUES ($1, $2, $3, $4, $5)\n            RETURNING *"
+  },
+  "888f1c27ec8291239d8041c2a148a9f9d72f872bfa520c43e0a5c6ad65636218": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "channel_ids",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "overrides",
+          "ordinal": 5,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "DELETE FROM overrides WHERE guild_id=$1 AND name=$2 RETURNING *"
   },
   "94fb8ddf71c63a97b616fad7736ae4c47ed8841ff760d7186e4b7af1cbdbe2d2": {
     "describe": {

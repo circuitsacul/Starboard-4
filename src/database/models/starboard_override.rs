@@ -34,6 +34,27 @@ impl StarboardOverride {
         .await
     }
 
+    pub async fn delete(
+        pool: &sqlx::PgPool,
+        guild_id: i64,
+        name: &String,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "DELETE FROM overrides WHERE guild_id=$1 AND name=$2 RETURNING *",
+            guild_id,
+            name,
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
+    pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+        sqlx::query_as!(Self, "SELECT * FROM overrides WHERE guild_id=$1", guild_id)
+            .fetch_all(pool)
+            .await
+    }
+
     pub async fn list_by_starboard_and_channels(
         pool: &sqlx::PgPool,
         starboard_id: i32,
