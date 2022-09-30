@@ -68,6 +68,8 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
         "starboards edit requirements name" => starboard_name_autocomplete(&ctx).await?,
         "starboards edit behavior name" => starboard_name_autocomplete(&ctx).await?,
         "starboards rename current-name" => starboard_name_autocomplete(&ctx).await?,
+        // overrides
+        "overrides create starboard" => starboard_name_autocomplete(&ctx).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 

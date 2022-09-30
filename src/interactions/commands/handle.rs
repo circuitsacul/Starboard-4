@@ -19,7 +19,8 @@ pub async fn handle_command(ctx: CommandCtx) -> anyhow::Result<()> {
         ctx,
         "ping" => chat::ping::Ping,
         "autostar" => chat::autostar::AutoStar,
-        "starboards" => chat::starboard::Starboard
+        "starboards" => chat::starboard::Starboard,
+        "overrides" => chat::overrides::Overrides
     );
 
     Ok(())
