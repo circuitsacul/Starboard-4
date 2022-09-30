@@ -1,5 +1,6 @@
 mod create;
 mod delete;
+mod rename;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
@@ -17,6 +18,8 @@ pub enum Overrides {
     Create(create::CreateOverride),
     #[command(name = "delete")]
     Delete(delete::DeleteOverride),
+    #[command(name = "rename")]
+    Rename(rename::RenameOverride),
 }
 
 impl Overrides {
@@ -24,6 +27,7 @@ impl Overrides {
         match self {
             Self::Create(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
+            Self::Rename(cmd) => cmd.callback(ctx).await,
         }
     }
 }

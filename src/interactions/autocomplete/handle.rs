@@ -72,6 +72,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
         // overrides
         "overrides create starboard" => starboard_name_autocomplete(&ctx).await?,
         "overrides delete name" => override_name_autocomplete(&ctx).await?,
+        "overrides rename current-name" => override_name_autocomplete(&ctx).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 
