@@ -19,8 +19,7 @@ pub struct CreateOverride {
 
 impl CreateOverride {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
-        let guild_id = get_guild_id!(ctx);
-        let guild_id_i64 = unwrap_id!(guild_id);
+        let guild_id = unwrap_id!(get_guild_id!(ctx));
 
         let name = match validation::name::validate_name(&self.name) {
             Err(why) => {
@@ -30,8 +29,7 @@ impl CreateOverride {
             Ok(name) => name,
         };
 
-        let starboard =
-            Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id_i64).await?;
+        let starboard = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id).await?;
         let starboard = match starboard {
             None => {
                 ctx.respond_str(&format!("'{}' is not a starboard.", self.starboard), true)
@@ -41,7 +39,7 @@ impl CreateOverride {
             Some(val) => val,
         };
 
-        let ov = StarboardOverride::create(&ctx.bot.pool, guild_id_i64, &name, starboard.id);
+        let ov = StarboardOverride::create(&ctx.bot.pool, guild_id, &name, starboard.id);
         let ov = map_dup_none!(ov)?;
 
         if ov.is_none() {
@@ -50,17 +48,16 @@ impl CreateOverride {
                 true,
             )
             .await?;
-            return Ok(());
+        } else {
+            ctx.respond_str(
+                &format!(
+                    "Created override '{}' in starboard '{}'.",
+                    name, self.starboard
+                ),
+                false,
+            )
+            .await?;
         }
-
-        ctx.respond_str(
-            &format!(
-                "Created override '{}' in starboard '{}'.",
-                name, self.starboard
-            ),
-            false,
-        )
-        .await?;
 
         Ok(())
     }
