@@ -16,7 +16,6 @@ pub struct StarboardOverride {
 impl StarboardOverride {
     pub async fn create(
         pool: &sqlx::PgPool,
-        id: i32,
         guild_id: i64,
         name: &String,
         starboard_id: i32,
@@ -24,10 +23,9 @@ impl StarboardOverride {
         sqlx::query_as!(
             Self,
             r#"INSERT INTO overrides
-            (id, guild_id, name, starboard_id)
-            VALUES ($1, $2, $3, $4)
+            (guild_id, name, starboard_id)
+            VALUES ($1, $2, $3)
             RETURNING *"#,
-            id,
             guild_id,
             name,
             starboard_id,

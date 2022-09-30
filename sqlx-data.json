@@ -2334,6 +2334,58 @@
     },
     "query": "INSERT INTO permrole_starboards\n            (permrole_id, starboard_id)\n            VALUES ($1, $2)\n            RETURNING *"
   },
+  "de87a260c267723bfafe35d9638f4475b4fbb1ef85b95db45fd768a4fe69fce6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "channel_ids",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "overrides",
+          "ordinal": 5,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO overrides\n            (guild_id, name, starboard_id)\n            VALUES ($1, $2, $3)\n            RETURNING *"
+  },
   "e0d3435ac460506de5e62af8dea8bf9151a123a5e958a706241e15206499076c": {
     "describe": {
       "columns": [
@@ -2493,59 +2545,6 @@
       }
     },
     "query": "DELETE FROM starboard_messages WHERE starboard_message_id=$1\n            RETURNING *"
-  },
-  "f35757e59b7666a44de2e4a26614896b218023e78aac4a4bf3e2f5badc000f35": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "guild_id",
-          "ordinal": 1,
-          "type_info": "Int8"
-        },
-        {
-          "name": "name",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "starboard_id",
-          "ordinal": 3,
-          "type_info": "Int4"
-        },
-        {
-          "name": "channel_ids",
-          "ordinal": 4,
-          "type_info": "Int8Array"
-        },
-        {
-          "name": "overrides",
-          "ordinal": 5,
-          "type_info": "Json"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Int8",
-          "Text",
-          "Int4"
-        ]
-      }
-    },
-    "query": "INSERT INTO overrides\n            (id, guild_id, name, starboard_id)\n            VALUES ($1, $2, $3, $4)\n            RETURNING *"
   },
   "f593aa1cbdba23466e32e06ffbd59144e044dfad3f355cdb385b6941d28580ea": {
     "describe": {
