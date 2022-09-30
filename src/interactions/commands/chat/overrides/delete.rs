@@ -24,7 +24,7 @@ impl DeleteOverride {
             )
             .await?;
         } else {
-            ctx.respond_str(&format!("Deleted override '{}'.", self.name), true)
+            ctx.respond_str(&format!("Deleted override '{}'.", self.name), false)
                 .await?;
         }
 
