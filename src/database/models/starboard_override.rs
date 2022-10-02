@@ -66,6 +66,23 @@ impl StarboardOverride {
         .await
     }
 
+    pub async fn set_channels(
+        pool: &sqlx::PgPool,
+        guild_id: i64,
+        name: &str,
+        channel_ids: &[i64],
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "UPDATE overrides SET channel_ids=$1 WHERE name=$2 AND guild_id=$3 RETURNING *",
+            channel_ids,
+            name,
+            guild_id,
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
     pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(Self, "SELECT * FROM overrides WHERE guild_id=$1", guild_id)
             .fetch_all(pool)

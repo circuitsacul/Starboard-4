@@ -1496,6 +1496,58 @@
     },
     "query": "INSERT INTO patrons (patreon_id) VALUES ($1)\n            RETURNING *"
   },
+  "7584c85655f379fc8a95a4b0fe7e3d060711300ba1ec6e28d01bd7536ba4c53b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "channel_ids",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "overrides",
+          "ordinal": 5,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8Array",
+          "Text",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE overrides SET channel_ids=$1 WHERE name=$2 AND guild_id=$3 RETURNING *"
+  },
   "7a19e3f59dc0cadbbc73567153274fac7187f3bb0e8e0e0ce30772f856f2d0ed": {
     "describe": {
       "columns": [

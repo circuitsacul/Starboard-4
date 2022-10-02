@@ -1,3 +1,4 @@
+mod channels;
 mod create;
 mod delete;
 mod rename;
@@ -20,6 +21,8 @@ pub enum Overrides {
     Delete(delete::DeleteOverride),
     #[command(name = "rename")]
     Rename(rename::RenameOverride),
+    #[command(name = "channels")]
+    Channels(channels::ManageOverrideChannels),
 }
 
 impl Overrides {
@@ -28,6 +31,7 @@ impl Overrides {
             Self::Create(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
             Self::Rename(cmd) => cmd.callback(ctx).await,
+            Self::Channels(cmd) => cmd.callback(ctx).await,
         }
     }
 }
