@@ -22,7 +22,7 @@ impl SetOverrideChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = unwrap_id!(get_guild_id!(ctx));
 
-        let channel_ids = textable_channel_ids(&ctx.bot, guild_id, &self.channels);
+        let channel_ids: Vec<_> = textable_channel_ids(&ctx.bot, guild_id, &self.channels);
         let ov = StarboardOverride::set_channels(&ctx.bot.pool, guild_id, &self.name, &channel_ids)
             .await?;
 

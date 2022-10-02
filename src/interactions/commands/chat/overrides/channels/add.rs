@@ -10,31 +10,28 @@ use crate::{
 };
 
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "remove", desc = "Remove channels from an override.")]
-pub struct RemoveOverrideChannels {
-    /// The override to remove channels from.
+#[command(name = "add", desc = "Add channels to an override.")]
+pub struct AddOverrideChannels {
+    /// The override to add channels to.
     #[command(autocomplete = true, rename = "override")]
     name: String,
-    /// The channels to remove.
+    /// The channels to add.
     channels: String,
 }
 
-impl RemoveOverrideChannels {
+impl AddOverrideChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = unwrap_id!(get_guild_id!(ctx));
 
         let ov = StarboardOverride::get(&ctx.bot.pool, guild_id, &self.name).await?;
         if let Some(ov) = ov {
-            let to_remove: HashSet<_> = textable_channel_ids(&ctx.bot, guild_id, &self.channels);
-            let channel_ids: Vec<_> = ov
-                .channel_ids
-                .iter()
-                .copied()
-                .filter(|id| !to_remove.contains(id))
-                .collect();
+            let mut channel_ids: HashSet<_> =
+                textable_channel_ids(&ctx.bot, guild_id, &self.channels);
+            channel_ids.extend(ov.channel_ids);
+            let new_channels: Vec<_> = channel_ids.into_iter().collect();
 
             let ret =
-                StarboardOverride::set_channels(&ctx.bot.pool, guild_id, &self.name, &channel_ids)
+                StarboardOverride::set_channels(&ctx.bot.pool, guild_id, &self.name, &new_channels)
                     .await?;
 
             if ret.is_some() {

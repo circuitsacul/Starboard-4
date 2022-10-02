@@ -1,3 +1,4 @@
+mod add;
 mod remove;
 mod set;
 
@@ -12,6 +13,8 @@ pub enum ManageOverrideChannels {
     Set(set::SetOverrideChannels),
     #[command(name = "remove")]
     Remove(remove::RemoveOverrideChannels),
+    #[command(name = "add")]
+    Add(add::AddOverrideChannels),
 }
 
 impl ManageOverrideChannels {
@@ -19,6 +22,7 @@ impl ManageOverrideChannels {
         match self {
             Self::Set(cmd) => cmd.callback(ctx).await,
             Self::Remove(cmd) => cmd.callback(ctx).await,
+            Self::Add(cmd) => cmd.callback(ctx).await,
         }
     }
 }

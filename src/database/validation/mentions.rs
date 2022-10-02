@@ -9,7 +9,11 @@ use crate::{client::bot::StarboardBot, unwrap_id, utils::into_id::IntoId};
 /// Parse channel ids from user input.
 ///
 /// Only includes valid, textable, guild-bound channels.
-pub fn textable_channel_ids(bot: &StarboardBot, guild_id: i64, inp: &str) -> Vec<i64> {
+pub fn textable_channel_ids<T: FromIterator<i64>>(
+    bot: &StarboardBot,
+    guild_id: i64,
+    inp: &str,
+) -> T {
     lazy_static! {
         static ref RE: regex::Regex = regex::Regex::new(r#"\d+"#).unwrap();
     }
