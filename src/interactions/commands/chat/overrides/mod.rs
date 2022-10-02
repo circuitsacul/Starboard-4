@@ -1,6 +1,7 @@
 mod channels;
 mod create;
 mod delete;
+mod edit;
 mod rename;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
@@ -23,6 +24,8 @@ pub enum Overrides {
     Rename(rename::RenameOverride),
     #[command(name = "channels")]
     Channels(channels::ManageOverrideChannels),
+    #[command(name = "edit")]
+    Edit(edit::EditOverride),
 }
 
 impl Overrides {
@@ -32,6 +35,7 @@ impl Overrides {
             Self::Delete(cmd) => cmd.callback(ctx).await,
             Self::Rename(cmd) => cmd.callback(ctx).await,
             Self::Channels(cmd) => cmd.callback(ctx).await,
+            Self::Edit(cmd) => cmd.callback(ctx).await,
         }
     }
 }

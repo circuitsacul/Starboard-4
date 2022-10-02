@@ -3,7 +3,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     database::{
         validation::{self, cooldown::parse_cooldown},
-        Starboard,
+        StarboardOverride,
     },
     get_guild_id,
     interactions::context::CommandCtx,
@@ -34,10 +34,8 @@ pub struct EditBehavior {
     /// If the original message is edted, whether to also update the content of the starboard message.
     #[command(rename = "link-edits")]
     link_edits: Option<bool>,
-    /// If true, prevents /random and /moststarred from pulling from this starboard.
-    private: Option<bool>,
     /// How much XP each upvote on this starboard counts for.
-    #[command(rename = "xp-multiplier", min_value = 10, max_value = 10)]
+    #[command(rename = "xp-multiplier", min_value = -10, max_value = 10)]
     xp_multiplier: Option<f64>,
     /// Whether to enable the per-user vote cooldown.
     #[command(rename = "cooldown-enabled")]
@@ -49,36 +47,34 @@ pub struct EditBehavior {
 impl EditBehavior {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
-        let mut starboard =
-            match Starboard::get_by_name(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await? {
+        let ov =
+            match StarboardOverride::get(&ctx.bot.pool, unwrap_id!(guild_id), &self.name).await? {
                 None => {
-                    ctx.respond_str("No starboard with that name was found.", true)
+                    ctx.respond_str("No override with that name was found.", true)
                         .await?;
                     return Ok(());
                 }
-                Some(starboard) => starboard,
+                Some(ov) => ov,
             };
+        let mut settings = ov.get_overrides()?;
 
         if let Some(val) = self.enabled {
-            starboard.settings.enabled = val;
+            settings.enabled = Some(val);
         }
         if let Some(val) = self.autoreact_upvote {
-            starboard.settings.autoreact_upvote = val;
+            settings.autoreact_upvote = Some(val);
         }
         if let Some(val) = self.autoreact_downvote {
-            starboard.settings.autoreact_downvote = val;
+            settings.autoreact_downvote = Some(val);
         }
         if let Some(val) = self.remove_invalid_reactions {
-            starboard.settings.remove_invalid_reactions = val;
+            settings.remove_invalid_reactions = Some(val);
         }
         if let Some(val) = self.link_deletes {
-            starboard.settings.link_deletes = val;
+            settings.link_deletes = Some(val);
         }
         if let Some(val) = self.link_edits {
-            starboard.settings.link_edits = val;
-        }
-        if let Some(val) = self.private {
-            starboard.settings.private = val;
+            settings.link_edits = Some(val);
         }
         if let Some(val) = self.xp_multiplier {
             let val = val.to_string().parse().unwrap();
@@ -86,10 +82,10 @@ impl EditBehavior {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
-            starboard.settings.xp_multiplier = val;
+            settings.xp_multiplier = Some(val);
         }
         if let Some(val) = self.cooldown_enabled {
-            starboard.settings.cooldown_enabled = val;
+            settings.cooldown_enabled = Some(val);
         }
         if let Some(val) = self.cooldown {
             let (capacity, period) = match parse_cooldown(&val) {
@@ -99,13 +95,13 @@ impl EditBehavior {
                 }
                 Ok(val) => val,
             };
-            starboard.settings.cooldown_count = capacity;
-            starboard.settings.cooldown_period = period;
+            settings.cooldown_count = Some(capacity);
+            settings.cooldown_period = Some(period);
         }
 
-        starboard.update_settings(&ctx.bot.pool).await?;
+        StarboardOverride::update_settings(&ctx.bot.pool, ov.id, settings).await?;
         ctx.respond_str(
-            &format!("Updated settings for starboard '{}'.", self.name),
+            &format!("Updated settings for override '{}'.", self.name),
             false,
         )
         .await?;

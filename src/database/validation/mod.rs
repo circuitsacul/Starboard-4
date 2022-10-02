@@ -1,4 +1,5 @@
 pub mod color;
+pub mod cooldown;
 pub mod mentions;
 pub mod name;
 pub mod starboard_settings;

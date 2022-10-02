@@ -124,6 +124,14 @@ impl Starboard {
         .map(|r| r.map(|r| starboard_from_record!(r)))
     }
 
+    pub async fn get(pool: &sqlx::PgPool, id: i32) -> sqlx::Result<Option<Self>> {
+        let result = sqlx::query!("SELECT * FROM starboards WHERE id=$1", id)
+            .fetch_optional(pool)
+            .await?;
+
+        Ok(result.map(|sb| starboard_from_record!(sb)))
+    }
+
     pub async fn get_by_name(
         pool: &sqlx::PgPool,
         name: &str,

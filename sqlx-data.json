@@ -1599,6 +1599,230 @@
     },
     "query": "UPDATE overrides SET channel_ids=$1 WHERE name=$2 AND guild_id=$3 RETURNING *"
   },
+  "75a40e3bdad52107d175baf7f93294f6ceced3acc3ccfa8c00fe7f3a23e77b0b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "channel_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "webhook_id",
+          "ordinal": 4,
+          "type_info": "Int8"
+        },
+        {
+          "name": "premium_locked",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "display_emoji",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "ping_author",
+          "ordinal": 7,
+          "type_info": "Bool"
+        },
+        {
+          "name": "use_server_profile",
+          "ordinal": 8,
+          "type_info": "Bool"
+        },
+        {
+          "name": "extra_embeds",
+          "ordinal": 9,
+          "type_info": "Bool"
+        },
+        {
+          "name": "use_webhook",
+          "ordinal": 10,
+          "type_info": "Bool"
+        },
+        {
+          "name": "color",
+          "ordinal": 11,
+          "type_info": "Int4"
+        },
+        {
+          "name": "jump_to_message",
+          "ordinal": 12,
+          "type_info": "Bool"
+        },
+        {
+          "name": "attachments_list",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "replied_to",
+          "ordinal": 14,
+          "type_info": "Bool"
+        },
+        {
+          "name": "required",
+          "ordinal": 15,
+          "type_info": "Int2"
+        },
+        {
+          "name": "required_remove",
+          "ordinal": 16,
+          "type_info": "Int2"
+        },
+        {
+          "name": "upvote_emojis",
+          "ordinal": 17,
+          "type_info": "TextArray"
+        },
+        {
+          "name": "downvote_emojis",
+          "ordinal": 18,
+          "type_info": "TextArray"
+        },
+        {
+          "name": "self_vote",
+          "ordinal": 19,
+          "type_info": "Bool"
+        },
+        {
+          "name": "allow_bots",
+          "ordinal": 20,
+          "type_info": "Bool"
+        },
+        {
+          "name": "require_image",
+          "ordinal": 21,
+          "type_info": "Bool"
+        },
+        {
+          "name": "older_than",
+          "ordinal": 22,
+          "type_info": "Int8"
+        },
+        {
+          "name": "newer_than",
+          "ordinal": 23,
+          "type_info": "Int8"
+        },
+        {
+          "name": "enabled",
+          "ordinal": 24,
+          "type_info": "Bool"
+        },
+        {
+          "name": "autoreact_upvote",
+          "ordinal": 25,
+          "type_info": "Bool"
+        },
+        {
+          "name": "autoreact_downvote",
+          "ordinal": 26,
+          "type_info": "Bool"
+        },
+        {
+          "name": "remove_invalid_reactions",
+          "ordinal": 27,
+          "type_info": "Bool"
+        },
+        {
+          "name": "link_deletes",
+          "ordinal": 28,
+          "type_info": "Bool"
+        },
+        {
+          "name": "link_edits",
+          "ordinal": 29,
+          "type_info": "Bool"
+        },
+        {
+          "name": "private",
+          "ordinal": 30,
+          "type_info": "Bool"
+        },
+        {
+          "name": "xp_multiplier",
+          "ordinal": 31,
+          "type_info": "Float4"
+        },
+        {
+          "name": "cooldown_enabled",
+          "ordinal": 32,
+          "type_info": "Bool"
+        },
+        {
+          "name": "cooldown_count",
+          "ordinal": 33,
+          "type_info": "Int2"
+        },
+        {
+          "name": "cooldown_period",
+          "ordinal": 34,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM starboards WHERE id=$1"
+  },
   "7a19e3f59dc0cadbbc73567153274fac7187f3bb0e8e0e0ce30772f856f2d0ed": {
     "describe": {
       "columns": [
@@ -1982,6 +2206,57 @@
       }
     },
     "query": "DELETE FROM overrides WHERE guild_id=$1 AND name=$2 RETURNING *"
+  },
+  "894b0279e3aa8ee0f633c1773d0c253313a0b2f5fb7abbf2f7f3723e5967d217": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "channel_ids",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "overrides",
+          "ordinal": 5,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Json",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE overrides SET overrides=$1 WHERE id=$2 RETURNING *"
   },
   "94fb8ddf71c63a97b616fad7736ae4c47ed8841ff760d7186e4b7af1cbdbe2d2": {
     "describe": {
