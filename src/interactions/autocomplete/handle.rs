@@ -25,7 +25,7 @@ pub fn get_sub_options(options: &Vec<CommandDataOption>) -> Option<&Vec<CommandD
 
 pub fn qualified_name(ctx: &CommandCtx) -> String {
     let mut name = ctx.data.name.clone();
-    let options: Option<_>;
+    let options;
 
     if let Some(sub_options) = get_sub_options(&ctx.data.options) {
         let sub = &ctx.data.options[0];
@@ -35,15 +35,15 @@ pub fn qualified_name(ctx: &CommandCtx) -> String {
             let subcommand = &sub_options[0];
             name.push(' ');
             name.push_str(&subcommand.name);
-            options = Some(subsub_options);
+            options = subsub_options;
         } else {
-            options = Some(sub_options);
+            options = sub_options;
         }
     } else {
-        options = Some(&ctx.data.options);
+        options = &ctx.data.options;
     }
 
-    for option in options.unwrap() {
+    for option in options {
         if matches!(option.value, CommandOptionValue::Focused(_, _)) {
             name.push(' ');
             name.push_str(&option.name);
@@ -73,6 +73,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
         "overrides create starboard" => starboard_name_autocomplete(&ctx).await?,
         "overrides delete name" => override_name_autocomplete(&ctx).await?,
         "overrides rename current-name" => override_name_autocomplete(&ctx).await?,
+        "overrides channels set override" => override_name_autocomplete(&ctx).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 
