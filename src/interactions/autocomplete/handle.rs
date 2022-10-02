@@ -16,9 +16,9 @@ pub fn get_sub_options(options: &Vec<CommandDataOption>) -> Option<&Vec<CommandD
         return None;
     }
 
-    match options[0].value {
-        CommandOptionValue::SubCommand(ref options) => Some(options),
-        CommandOptionValue::SubCommandGroup(ref options) => Some(options),
+    match &options[0].value {
+        CommandOptionValue::SubCommand(options) => Some(options),
+        CommandOptionValue::SubCommandGroup(options) => Some(options),
         _ => None,
     }
 }
