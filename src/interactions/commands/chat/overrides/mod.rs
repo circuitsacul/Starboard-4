@@ -3,6 +3,7 @@ mod create;
 mod delete;
 mod edit;
 mod rename;
+mod view;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
@@ -26,6 +27,8 @@ pub enum Overrides {
     Channels(channels::ManageOverrideChannels),
     #[command(name = "edit")]
     Edit(edit::EditOverride),
+    #[command(name = "view")]
+    View(view::ViewOverride),
 }
 
 impl Overrides {
@@ -36,6 +39,7 @@ impl Overrides {
             Self::Rename(cmd) => cmd.callback(ctx).await,
             Self::Channels(cmd) => cmd.callback(ctx).await,
             Self::Edit(cmd) => cmd.callback(ctx).await,
+            Self::View(cmd) => cmd.callback(ctx).await,
         }
     }
 }

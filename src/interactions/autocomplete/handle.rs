@@ -81,6 +81,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
         "overrides edit style name" => override_name_autocomplete(&ctx).await?,
         "overrides edit embed-style name" => override_name_autocomplete(&ctx).await?,
         "overrides edit reset name" => override_name_autocomplete(&ctx).await?,
+        "overrides view name" => override_name_autocomplete(&ctx).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 
