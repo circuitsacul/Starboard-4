@@ -7,7 +7,8 @@ use twilight_util::builder::InteractionResponseDataBuilder;
 use crate::interactions::context::CommandCtx;
 
 use super::{
-    autostar_name::autostar_name_autocomplete, starboard_name::starboard_name_autocomplete,
+    autostar_name::autostar_name_autocomplete, override_name::override_name_autocomplete,
+    starboard_name::starboard_name_autocomplete,
 };
 
 pub fn get_sub_options(options: &Vec<CommandDataOption>) -> Option<&Vec<CommandDataOption>> {
@@ -15,16 +16,16 @@ pub fn get_sub_options(options: &Vec<CommandDataOption>) -> Option<&Vec<CommandD
         return None;
     }
 
-    match options[0].value {
-        CommandOptionValue::SubCommand(ref options) => Some(options),
-        CommandOptionValue::SubCommandGroup(ref options) => Some(options),
+    match &options[0].value {
+        CommandOptionValue::SubCommand(options) => Some(options),
+        CommandOptionValue::SubCommandGroup(options) => Some(options),
         _ => None,
     }
 }
 
 pub fn qualified_name(ctx: &CommandCtx) -> String {
     let mut name = ctx.data.name.clone();
-    let options: Option<_>;
+    let options;
 
     if let Some(sub_options) = get_sub_options(&ctx.data.options) {
         let sub = &ctx.data.options[0];
@@ -34,15 +35,15 @@ pub fn qualified_name(ctx: &CommandCtx) -> String {
             let subcommand = &sub_options[0];
             name.push(' ');
             name.push_str(&subcommand.name);
-            options = Some(subsub_options);
+            options = subsub_options;
         } else {
-            options = Some(sub_options);
+            options = sub_options;
         }
     } else {
-        options = Some(&ctx.data.options);
+        options = &ctx.data.options;
     }
 
-    for option in options.unwrap() {
+    for option in options {
         if matches!(option.value, CommandOptionValue::Focused(_, _)) {
             name.push(' ');
             name.push_str(&option.name);
@@ -68,6 +69,13 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
         "starboards edit requirements name" => starboard_name_autocomplete(&ctx).await?,
         "starboards edit behavior name" => starboard_name_autocomplete(&ctx).await?,
         "starboards rename current-name" => starboard_name_autocomplete(&ctx).await?,
+        // overrides
+        "overrides create starboard" => starboard_name_autocomplete(&ctx).await?,
+        "overrides delete name" => override_name_autocomplete(&ctx).await?,
+        "overrides rename current-name" => override_name_autocomplete(&ctx).await?,
+        "overrides channels set override" => override_name_autocomplete(&ctx).await?,
+        "overrides channels remove override" => override_name_autocomplete(&ctx).await?,
+        "overrides channels add override" => override_name_autocomplete(&ctx).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 

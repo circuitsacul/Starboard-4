@@ -20,7 +20,8 @@ pub async fn post_commands(bot: Arc<StarboardBot>) {
     let commands = commands_to_create!(
         chat::ping::Ping,
         chat::autostar::AutoStar,
-        chat::starboard::Starboard
+        chat::starboard::Starboard,
+        chat::overrides::Overrides
     );
 
     match inter_client.set_global_commands(&commands).exec().await {

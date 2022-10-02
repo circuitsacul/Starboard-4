@@ -1,17 +1,17 @@
 use twilight_model::application::command::CommandOptionChoice;
 
-use crate::{database::Starboard, interactions::context::CommandCtx, unwrap_id};
+use crate::{database::StarboardOverride, interactions::context::CommandCtx, unwrap_id};
 
-pub async fn starboard_name_autocomplete(
+pub async fn override_name_autocomplete(
     ctx: &CommandCtx,
 ) -> anyhow::Result<Vec<CommandOptionChoice>> {
     let guild_id = ctx.interaction.guild_id.unwrap();
-    let names: Vec<String> = match ctx.bot.cache.guild_starboard_names.get(&guild_id) {
+    let names: Vec<String> = match ctx.bot.cache.guild_override_names.get(&guild_id) {
         Some(names) => (*names.value()).clone(),
-        None => Starboard::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id))
+        None => StarboardOverride::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id))
             .await?
             .into_iter()
-            .map(|a| a.name)
+            .map(|v| v.name)
             .collect(),
     };
 
