@@ -1,6 +1,7 @@
 pub mod behavior;
 pub mod embed;
 pub mod requirements;
+pub mod reset;
 pub mod style;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
@@ -18,6 +19,8 @@ pub enum EditOverride {
     Requirements(requirements::EditRequirements),
     #[command(name = "behavior")]
     Behaviour(behavior::EditBehavior),
+    #[command(name = "reset")]
+    Reset(reset::ResetOverrideSettings),
 }
 
 impl EditOverride {
@@ -27,6 +30,7 @@ impl EditOverride {
             Self::Style(cmd) => cmd.callback(ctx).await,
             Self::Requirements(cmd) => cmd.callback(ctx).await,
             Self::Behaviour(cmd) => cmd.callback(ctx).await,
+            Self::Reset(cmd) => cmd.callback(ctx).await,
         }
     }
 }

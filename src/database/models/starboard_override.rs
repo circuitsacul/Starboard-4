@@ -89,7 +89,14 @@ impl StarboardOverride {
         settings: OverrideValues,
     ) -> sqlx::Result<Option<Self>> {
         let settings = serde_json::to_value(&settings).unwrap();
+        Self::update_settings_raw(pool, id, settings).await
+    }
 
+    pub async fn update_settings_raw(
+        pool: &sqlx::PgPool,
+        id: i32,
+        settings: serde_json::Value,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "UPDATE overrides SET overrides=$1 WHERE id=$2 RETURNING *",
