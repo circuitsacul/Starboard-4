@@ -74,6 +74,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
         "overrides delete name" => override_name_autocomplete(&ctx).await?,
         "overrides rename current-name" => override_name_autocomplete(&ctx).await?,
         "overrides channels set override" => override_name_autocomplete(&ctx).await?,
+        "overrides channels remove override" => override_name_autocomplete(&ctx).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 

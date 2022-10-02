@@ -124,6 +124,57 @@
     },
     "query": "INSERT INTO xproles\n            (role_id, guild_id, required)\n            VALUES ($1, $2, $3)\n            RETURNING *"
   },
+  "0b73a06177a4053dd91a029b196db5f718a2626c09ef951ac8df598ec60759b9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "channel_ids",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "overrides",
+          "ordinal": 5,
+          "type_info": "Json"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM overrides WHERE guild_id=$1 AND name=$2"
+  },
   "16edc7667e56b3d3aad9ff4d1bb32de3bd233361e9577eb449c58e3bbfa01ca0": {
     "describe": {
       "columns": [
