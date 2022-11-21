@@ -12,7 +12,7 @@ twilight-model = "0.13.0"
 twilight-util = { version = "0.13.0", features = ["builder", "snowflake"] }
 twilight-interactions = "0.13.0"
 twilight-mention = "0.13.0"
-twilight-standby = "0.13.0"
+twilight-standby = "0.14.0"
 
 async-trait = "0.1.56"
 tokio = { version = "1.19.2", features = ["full"] }
