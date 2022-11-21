@@ -13,7 +13,6 @@ use twilight_model::{
 use crate::client::bot::StarboardBot;
 
 pub struct SimpleEmoji {
-    pub is_custom: bool,
     pub raw: String,
     pub as_id: Option<Id<EmojiMarker>>,
 }
@@ -34,10 +33,10 @@ pub trait EmojiCommon: Sized {
 
 impl SimpleEmoji {
     pub fn reactable(&self) -> RequestReactionType {
-        if self.is_custom {
+        if let Some(emoji_id) = self.as_id {
             RequestReactionType::Custom {
                 name: None,
-                id: self.as_id.unwrap(),
+                id: emoji_id,
             }
         } else {
             RequestReactionType::Unicode { name: &self.raw }
@@ -50,12 +49,11 @@ impl EmojiCommon for SimpleEmoji {
     type Stored = String;
 
     fn into_readable(self, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> String {
-        if self.is_custom {
-            let emoji_id = self.as_id.unwrap();
-            if bot.cache.guild_emoji_exists(guild_id, emoji_id) {
-                emoji_id.mention().to_string()
-            } else {
-                self.raw
+        if let Some(emoji_id) = self.as_id {
+            match bot.cache.is_emoji_animated(guild_id, emoji_id) {
+                None => self.raw,
+                Some(true) => format!("<a:name:{}>", emoji_id),
+                Some(false) => emoji_id.mention().to_string(),
             }
         } else {
             self.raw
@@ -68,11 +66,7 @@ impl EmojiCommon for SimpleEmoji {
             Err(_) => None,
         };
 
-        Self {
-            is_custom: as_id.is_some(),
-            raw,
-            as_id,
-        }
+        Self { raw, as_id }
     }
 
     fn into_stored(self) -> String {
@@ -92,7 +86,6 @@ impl EmojiCommon for SimpleEmoji {
 
         if emojis::get(&input).is_some() {
             Some(Self {
-                is_custom: false,
                 raw: input,
                 as_id: None,
             })
@@ -105,7 +98,6 @@ impl EmojiCommon for SimpleEmoji {
             }
 
             Some(Self {
-                is_custom: true,
                 raw: input,
                 as_id: Some(as_id),
             })
@@ -161,12 +153,10 @@ impl From<ReactionType> for SimpleEmoji {
     fn from(reaction: ReactionType) -> Self {
         match reaction {
             ReactionType::Custom { id, .. } => SimpleEmoji {
-                is_custom: true,
                 raw: id.to_string(),
                 as_id: Some(id),
             },
             ReactionType::Unicode { name } => SimpleEmoji {
-                is_custom: false,
                 raw: name,
                 as_id: None,
             },

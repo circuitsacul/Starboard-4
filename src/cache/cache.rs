@@ -103,7 +103,19 @@ impl Cache {
         self.guilds.with(&guild_id, |_, guild| {
             guild
                 .as_ref()
-                .map_or(false, |guild| guild.emojis.contains(&emoji_id))
+                .map_or(false, |guild| guild.emojis.contains_key(&emoji_id))
+        })
+    }
+
+    pub fn is_emoji_animated(
+        &self,
+        guild_id: Id<GuildMarker>,
+        emoji_id: Id<EmojiMarker>,
+    ) -> Option<bool> {
+        self.guilds.with(&guild_id, |_, guild| {
+            guild
+                .as_ref()
+                .and_then(|guild| guild.emojis.get(&emoji_id).copied())
         })
     }
 

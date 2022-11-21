@@ -17,7 +17,7 @@ impl UpdateCache for GuildCreate {
             .collect();
 
         let guild = CachedGuild {
-            emojis: self.emojis.iter().map(|e| e.id).collect(),
+            emojis: self.emojis.iter().map(|e| (e.id, e.animated)).collect(),
             channels,
             active_thread_parents: self
                 .threads
@@ -41,7 +41,7 @@ impl UpdateCache for GuildEmojisUpdate {
     async fn update_cache(&self, cache: &Cache) {
         cache.guilds.alter(&self.guild_id, |_, mut guild| {
             for emoji in &self.emojis {
-                guild.emojis.insert(emoji.id);
+                guild.emojis.insert(emoji.id, emoji.animated);
             }
             guild
         });
