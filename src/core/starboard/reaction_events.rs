@@ -116,7 +116,6 @@ pub async fn handle_reaction_add(
                     &emoji.reactable(),
                     event.user_id,
                 )
-                .exec()
                 .await;
 
             Ok(())

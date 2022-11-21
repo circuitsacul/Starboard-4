@@ -140,14 +140,7 @@ impl Cache {
             });
 
             if must_fetch {
-                let channel = bot
-                    .http
-                    .channel(channel_id)
-                    .exec()
-                    .await?
-                    .model()
-                    .await
-                    .unwrap();
+                let channel = bot.http.channel(channel_id).await?.model().await.unwrap();
                 current_channel_id = channel.parent_id;
             }
         }
@@ -166,7 +159,7 @@ impl Cache {
         user_id: Id<UserMarker>,
     ) -> StarboardResult<Option<Arc<CachedUser>>> {
         if !self.users.contains_key(&user_id) {
-            let user_get = bot.http.user(user_id).exec().await;
+            let user_get = bot.http.user(user_id).await;
             let user = match user_get {
                 Ok(user) => Some(Arc::new(user.model().await.unwrap().into())),
                 Err(why) => {
@@ -194,7 +187,7 @@ impl Cache {
             return Ok(cached.value().clone());
         }
 
-        let msg = bot.http.message(channel_id, message_id).exec().await;
+        let msg = bot.http.message(channel_id, message_id).await;
         let msg = match msg {
             Err(why) => {
                 if get_status(&why) == Some(404) {
@@ -221,7 +214,7 @@ impl Cache {
             bot: &StarboardBot,
             channel_id: Id<ChannelMarker>,
         ) -> StarboardResult<Option<Channel>> {
-            let channel = bot.http.channel(channel_id).exec().await;
+            let channel = bot.http.channel(channel_id).await;
             let channel = match channel {
                 Ok(channel) => channel,
                 Err(why) => {

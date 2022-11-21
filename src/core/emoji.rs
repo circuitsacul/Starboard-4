@@ -3,7 +3,7 @@ use std::str::FromStr;
 use twilight_http::request::channel::reaction::RequestReactionType;
 use twilight_mention::Mention;
 use twilight_model::{
-    channel::ReactionType,
+    channel::message::ReactionType,
     id::{
         marker::{EmojiMarker, GuildMarker},
         Id,

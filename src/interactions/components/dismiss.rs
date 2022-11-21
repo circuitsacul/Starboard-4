@@ -7,7 +7,6 @@ pub async fn handle_dismiss(ctx: &ComponentCtx) -> anyhow::Result<()> {
     ctx.bot
         .http
         .delete_message(message.channel_id, message.id)
-        .exec()
         .await?;
 
     Ok(())

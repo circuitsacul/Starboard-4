@@ -24,7 +24,7 @@ pub async fn post_commands(bot: Arc<StarboardBot>) {
         chat::overrides::Overrides
     );
 
-    match inter_client.set_global_commands(&commands).exec().await {
+    match inter_client.set_global_commands(&commands).await {
         Ok(_) => println!("Successfully registered commands"),
         Err(e) => eprintln!("Failed to register commands: {}", e),
     }

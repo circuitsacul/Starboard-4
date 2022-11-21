@@ -1,5 +1,5 @@
 use twilight_model::{
-    channel::{embed::Embed, Attachment, Message},
+    channel::{message::embed::Embed, Attachment, Message},
     id::{
         marker::{MessageMarker, UserMarker},
         Id,

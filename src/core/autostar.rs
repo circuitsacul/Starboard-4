@@ -51,11 +51,7 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result
             continue;
         }
         if let Status::InvalidRemove(reasons) = status {
-            let _ = bot
-                .http
-                .delete_message(event.channel_id, event.id)
-                .exec()
-                .await;
+            let _ = bot.http.delete_message(event.channel_id, event.id).await;
 
             if !event.author.bot {
                 let message = {
@@ -74,7 +70,6 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result
             let _ = bot
                 .http
                 .create_reaction(event.channel_id, event.id, &emoji.reactable())
-                .exec()
                 .await;
         }
     }

@@ -113,7 +113,6 @@ impl StarboardBot {
                 .create_message(chid.into_id())
                 .content(msg)
                 .unwrap()
-                .exec()
                 .await;
         }
     }

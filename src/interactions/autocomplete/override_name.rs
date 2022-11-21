@@ -1,4 +1,4 @@
-use twilight_model::application::command::CommandOptionChoice;
+use twilight_model::application::command::{CommandOptionChoice, CommandOptionChoiceData};
 
 use crate::{database::StarboardOverride, interactions::context::CommandCtx, unwrap_id};
 
@@ -17,11 +17,11 @@ pub async fn override_name_autocomplete(
 
     let mut arr = Vec::new();
     for name in names {
-        arr.push(CommandOptionChoice::String {
+        arr.push(CommandOptionChoice::String(CommandOptionChoiceData {
             name: name.clone(),
             name_localizations: None,
             value: name,
-        });
+        }));
     }
 
     Ok(arr)

@@ -1,4 +1,4 @@
-FROM rust:1.62.0-slim-buster as builder
+FROM rust:1.65.0-slim-buster as builder
 WORKDIR /usr/src/starboard
 
 # force cargo to update the crates.io index.

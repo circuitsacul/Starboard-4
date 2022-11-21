@@ -72,7 +72,6 @@ impl Embedder<'_> {
             .unwrap()
             .attachments(&attachments)
             .unwrap()
-            .exec()
             .await
     }
 
@@ -90,7 +89,6 @@ impl Embedder<'_> {
                     .unwrap()
                     .embeds(Some(&built.embeds))
                     .unwrap()
-                    .exec()
                     .await
             }
             BuiltStarboardEmbed::Partial(built) => {
@@ -98,7 +96,6 @@ impl Embedder<'_> {
                     .update_message(self.config.starboard.channel_id.into_id(), message_id)
                     .content(Some(&built.top_content))
                     .unwrap()
-                    .exec()
                     .await
             }
         }

@@ -1,7 +1,7 @@
 use std::fmt::Write;
 
 use twilight_model::{
-    channel::embed::Embed,
+    channel::message::embed::Embed,
     id::{marker::MessageMarker, Id},
     util::Timestamp,
 };
