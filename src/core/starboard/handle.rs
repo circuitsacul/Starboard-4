@@ -1,11 +1,14 @@
-use std::sync::Arc;
+use std::{array::IntoIter, sync::Arc};
 
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
     cache::models::message::CachedMessage,
     client::bot::StarboardBot,
-    core::embedder::Embedder,
+    core::{
+        embedder::Embedder,
+        emoji::{EmojiCommon, SimpleEmoji},
+    },
     database::{Message as DbMessage, StarboardMessage, Vote},
     errors::StarboardResult,
     unwrap_id,
@@ -263,6 +266,27 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 points,
             )
             .await?;
+
+            let mut to_react: Vec<SimpleEmoji> = Vec::new();
+            if self.config.resolved.autoreact_upvote {
+                to_react.extend(Vec::<SimpleEmoji>::from_stored(
+                    self.config.resolved.upvote_emojis.clone(),
+                ));
+            }
+            if self.config.resolved.autoreact_downvote {
+                to_react.extend(Vec::<SimpleEmoji>::from_stored(
+                    self.config.resolved.downvote_emojis.clone(),
+                ));
+            }
+
+            for emoji in to_react {
+                let _ = self
+                    .refresh
+                    .bot
+                    .http
+                    .create_reaction(msg.channel_id, msg.id, &emoji.reactable())
+                    .await;
+            }
 
             Ok(false)
         }
