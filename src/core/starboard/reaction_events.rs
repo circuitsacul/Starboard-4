@@ -1,6 +1,4 @@
-use twilight_model::gateway::payload::incoming::{
-    ReactionAdd, ReactionRemove, ReactionRemoveAll, ReactionRemoveEmoji,
-};
+use twilight_model::gateway::payload::incoming::{ReactionAdd, ReactionRemove};
 
 use crate::{
     client::bot::StarboardBot,
@@ -216,18 +214,4 @@ pub async fn handle_reaction_remove(
         }
         VoteStatus::Ignore | VoteStatus::Remove => Ok(()),
     }
-}
-
-pub async fn handle_reaction_remove_all(
-    _bot: &StarboardBot,
-    _event: ReactionRemoveAll,
-) -> anyhow::Result<()> {
-    todo!()
-}
-
-pub async fn handle_reaction_remove_emoji(
-    _bot: &StarboardBot,
-    _event: ReactionRemoveEmoji,
-) -> anyhow::Result<()> {
-    todo!()
 }

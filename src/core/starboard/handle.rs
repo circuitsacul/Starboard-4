@@ -1,4 +1,4 @@
-use std::{array::IntoIter, sync::Arc};
+use std::sync::Arc;
 
 use twilight_model::id::{marker::MessageMarker, Id};
 

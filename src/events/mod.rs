@@ -57,12 +57,6 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> an
         Event::ReactionRemove(event) => {
             core::starboard::reaction_events::handle_reaction_remove(&bot, event).await?;
         }
-        Event::ReactionRemoveAll(event) => {
-            core::starboard::reaction_events::handle_reaction_remove_all(&bot, event).await?;
-        }
-        Event::ReactionRemoveEmoji(event) => {
-            core::starboard::reaction_events::handle_reaction_remove_emoji(&bot, event).await?;
-        }
         _ => {}
     }
 
