@@ -78,19 +78,18 @@ impl<T> Ctx<T> {
                 followup = followup.tts(tts);
             }
 
-            followup.exec().await
+            followup.await
         } else {
             i.create_response(
                 self.interaction.id,
                 &self.interaction.token,
                 &InteractionResponse { data, kind },
             )
-            .exec()
             .await?;
 
             self.responded = true;
 
-            i.response(&self.interaction.token).exec().await
+            i.response(&self.interaction.token).await
         }
     }
 

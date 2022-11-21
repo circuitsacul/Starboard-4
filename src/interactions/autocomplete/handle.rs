@@ -94,7 +94,6 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
         kind: InteractionResponseType::ApplicationCommandAutocompleteResult,
     };
     i.create_response(ctx.interaction.id, &ctx.interaction.token, &resp)
-        .exec()
         .await?;
 
     Ok(())

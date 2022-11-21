@@ -10,7 +10,6 @@ pub async fn dm(
     let dm_channel = bot
         .http
         .create_private_channel(user_id)
-        .exec()
         .await?
         .model()
         .await

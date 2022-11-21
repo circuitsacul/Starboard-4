@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use twilight_model::{
-    channel::{embed::Embed, Attachment as ReceivedAttachment},
+    channel::{message::embed::Embed, Attachment as ReceivedAttachment},
     http::attachment::Attachment,
 };
 use twilight_util::builder::embed::{EmbedBuilder, ImageSource};

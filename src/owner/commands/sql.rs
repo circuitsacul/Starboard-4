@@ -10,10 +10,7 @@ use twilight_model::gateway::payload::incoming::MessageCreate;
 use crate::{client::bot::StarboardBot, concat_format, owner::code_block::parse_code_blocks};
 
 pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result<()> {
-    bot.http
-        .create_typing_trigger(event.channel_id)
-        .exec()
-        .await?;
+    bot.http.create_typing_trigger(event.channel_id).await?;
 
     let blocks = parse_code_blocks(event.content.strip_prefix("star sql").unwrap());
     let mut results = Vec::new();
@@ -74,7 +71,6 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Resul
         .create_message(event.channel_id)
         .content(&final_result)
         .unwrap()
-        .exec()
         .await?;
     Ok(())
 }

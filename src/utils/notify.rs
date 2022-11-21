@@ -1,5 +1,5 @@
 use twilight_model::{
-    application::component::{button::ButtonStyle, ActionRow, Button, Component},
+    channel::message::component::{ActionRow, Button, ButtonStyle, Component},
     id::{marker::UserMarker, Id},
 };
 
@@ -35,6 +35,5 @@ pub async fn notify(bot: &StarboardBot, user_id: Id<UserMarker>, message: &str) 
         .unwrap()
         .components(&[comp])
         .unwrap()
-        .exec()
         .await;
 }

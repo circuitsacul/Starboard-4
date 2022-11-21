@@ -6,13 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-twilight-gateway = "0.13.0"
-twilight-http = "0.13.0"
-twilight-model = "0.13.0"
-twilight-util = { version = "0.13.0", features = ["builder", "snowflake"] }
-twilight-interactions = "0.13.0"
-twilight-mention = "0.13.0"
-twilight-standby = "0.13.0"
+twilight-gateway = "0.14.0"
+twilight-http = "0.14.0"
+twilight-model = "0.14.0"
+twilight-util = { version = "0.14.0", features = ["builder", "snowflake"] }
+twilight-interactions = "0.14.0"
+twilight-mention = "0.14.0"
+twilight-standby = "0.14.0"
 
 async-trait = "0.1.56"
 tokio = { version = "1.19.2", features = ["full"] }

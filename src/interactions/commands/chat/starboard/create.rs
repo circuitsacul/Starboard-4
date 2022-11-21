@@ -14,7 +14,7 @@ pub struct CreateStarboard {
     /// The name of the starboard.
     name: String,
     /// The channel to create a starboard in.
-    #[command(channel_types = "guild_text guild_news")]
+    #[command(channel_types = "guild_text")]
     channel: InteractionChannel,
 }
 

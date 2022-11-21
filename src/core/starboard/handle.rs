@@ -215,7 +215,6 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                             self.config.starboard.channel_id.into_id(),
                             sb_msg.starboard_message_id.into_id(),
                         )
-                        .exec()
                         .await;
                     (ret.map(|_| ()), false, true)
                 }
