@@ -51,7 +51,7 @@ pub async fn wait_for_result(
     message_id: Id<MessageMarker>,
     user_id: Id<UserMarker>,
 ) -> Option<(ComponentCtx, bool)> {
-    let int_ctx = wait_for_button(
+    let btn_ctx = wait_for_button(
         bot,
         &["stateless::confirm_yes", "stateless::confirm_no"],
         message_id,
@@ -59,13 +59,13 @@ pub async fn wait_for_result(
     )
     .await?;
 
-    let conf = match &*int_ctx.data.custom_id {
+    let conf = match &*btn_ctx.data.custom_id {
         "stateless::confirm_yes" => true,
         "stateless::confirm_no" => false,
         _ => unreachable!(),
     };
 
-    Some((int_ctx, conf))
+    Some((btn_ctx, conf))
 }
 
 pub async fn simple(
@@ -86,11 +86,11 @@ pub async fn simple(
     )
     .await;
 
-    if let Some((mut int_ctx, conf)) = ret {
+    if let Some((mut btn_ctx, conf)) = ret {
         if conf {
-            return Ok(Some(int_ctx));
+            return Ok(Some(btn_ctx));
         } else {
-            int_ctx.edit_str("Canceled.", true).await?;
+            btn_ctx.edit_str("Canceled.", true).await?;
         }
     } else {
         ctx.bot

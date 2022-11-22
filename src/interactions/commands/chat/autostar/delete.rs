@@ -2,6 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     database::AutoStarChannel, get_guild_id, interactions::context::CommandCtx, unwrap_id,
+    utils::views::confirm,
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -15,9 +16,25 @@ pub struct DeleteAutoStarChannel {
 impl DeleteAutoStarChannel {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
+
+        let mut btn_ctx = match confirm::simple(
+            &mut ctx,
+            &format!(
+                "Are you sure you want to delete the autostar channel '{}'?",
+                self.name
+            ),
+            true,
+        )
+        .await?
+        {
+            None => return Ok(()),
+            Some(btn_ctx) => btn_ctx,
+        };
+
         let ret = AutoStarChannel::delete(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await?;
         if ret.is_none() {
-            ctx.respond_str("No autostar channel with that name was found.", true)
+            btn_ctx
+                .edit_str("No autostar channel with that name was found.", true)
                 .await?;
         } else {
             ctx.bot
@@ -25,7 +42,8 @@ impl DeleteAutoStarChannel {
                 .guild_autostar_channel_names
                 .remove(&guild_id)
                 .await;
-            ctx.respond_str(&format!("Deleted autostar channel '{}'.", self.name), false)
+            btn_ctx
+                .edit_str(&format!("Deleted autostar channel '{}'.", self.name), true)
                 .await?;
         }
         Ok(())

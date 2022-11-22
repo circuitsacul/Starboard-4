@@ -17,14 +17,23 @@ impl DeleteStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = get_guild_id!(ctx);
 
-        let mut int_ctx = match confirm::simple(&mut ctx, "Are you sure?", true).await? {
+        let mut btn_ctx = match confirm::simple(
+            &mut ctx,
+            &format!(
+                "Are you sure you want to delete the starboard '{}'?",
+                self.name
+            ),
+            true,
+        )
+        .await?
+        {
             None => return Ok(()),
-            Some(int_ctx) => int_ctx,
+            Some(btn_ctx) => btn_ctx,
         };
 
         let ret = Starboard::delete(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await?;
         if ret.is_none() {
-            int_ctx
+            btn_ctx
                 .edit_str("No starboard with that name was found.", true)
                 .await?;
         } else {
@@ -37,7 +46,7 @@ impl DeleteStarboard {
                 .cache
                 .guild_vote_emojis
                 .remove(&unwrap_id!(guild_id));
-            int_ctx
+            btn_ctx
                 .edit_str(&format!("Deleted starboard '{}'.", self.name), true)
                 .await?;
         }

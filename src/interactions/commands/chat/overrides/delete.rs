@@ -2,6 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     database::StarboardOverride, get_guild_id, interactions::context::CommandCtx, unwrap_id,
+    utils::views::confirm,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -16,15 +17,31 @@ impl DeleteOverride {
     pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
         let guild_id = unwrap_id!(get_guild_id!(ctx));
 
+        let btn_ctx = confirm::simple(
+            &mut ctx,
+            &format!(
+                "Are you sure you want to delete the override '{}'?",
+                self.name
+            ),
+            true,
+        )
+        .await?;
+        let mut btn_ctx = match btn_ctx {
+            None => return Ok(()),
+            Some(btn_ctx) => btn_ctx,
+        };
+
         let ov = StarboardOverride::delete(&ctx.bot.pool, guild_id, &self.name).await?;
         if ov.is_none() {
-            ctx.respond_str(
-                &format!("No override with the name '{}' exists.", self.name),
-                true,
-            )
-            .await?;
+            btn_ctx
+                .edit_str(
+                    &format!("No override with the name '{}' exists.", self.name),
+                    true,
+                )
+                .await?;
         } else {
-            ctx.respond_str(&format!("Deleted override '{}'.", self.name), false)
+            btn_ctx
+                .edit_str(&format!("Deleted override '{}'.", self.name), true)
                 .await?;
         }
 
