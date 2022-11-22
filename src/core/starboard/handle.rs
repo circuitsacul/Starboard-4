@@ -185,6 +185,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         };
 
         let embedder = Embedder::new(
+            self.refresh.bot,
             points,
             self.config,
             orig_message,

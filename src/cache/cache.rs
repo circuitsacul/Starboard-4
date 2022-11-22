@@ -94,6 +94,8 @@ impl Cache {
             Event::GuildEmojisUpdate(event) => event.update_cache(self).await,
             Event::MemberChunk(event) => event.update_cache(self).await,
             Event::MemberAdd(event) => event.update_cache(self).await,
+            Event::MemberRemove(event) => event.update_cache(self).await,
+            Event::MemberUpdate(event) => event.update_cache(self).await,
             _ => {}
         }
     }
