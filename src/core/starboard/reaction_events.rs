@@ -160,7 +160,7 @@ pub async fn handle_reaction_add(
             let mut refresh = RefreshMessage::new(bot, event.message_id);
             refresh.set_configs(all_configs);
             refresh.set_sql_message(orig_msg);
-            refresh.refresh().await?;
+            refresh.refresh(false).await?;
 
             Ok(())
         }
@@ -208,7 +208,7 @@ pub async fn handle_reaction_remove(
             let mut refresh = RefreshMessage::new(bot, event.message_id);
             refresh.set_sql_message(orig);
             refresh.set_configs(all_configs);
-            refresh.refresh().await?;
+            refresh.refresh(false).await?;
 
             Ok(())
         }
