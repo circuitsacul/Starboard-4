@@ -12,7 +12,8 @@ use crate::{
 
 use super::{attachment_handle::VecAttachments, builder::BuiltStarboardEmbed};
 
-pub struct Embedder<'config> {
+pub struct Embedder<'config, 'bot> {
+    pub bot: &'bot StarboardBot,
     pub points: i32,
     pub config: &'config StarboardConfig,
     pub orig_message: Option<Arc<CachedMessage>>,
@@ -22,8 +23,9 @@ pub struct Embedder<'config> {
     pub orig_sql_message: Arc<DbMessage>,
 }
 
-impl<'config> Embedder<'config> {
+impl<'config, 'bot> Embedder<'config, 'bot> {
     pub fn new(
+        bot: &'bot StarboardBot,
         points: i32,
         config: &'config StarboardConfig,
         orig_message: Option<Arc<CachedMessage>>,
@@ -33,6 +35,7 @@ impl<'config> Embedder<'config> {
         orig_sql_message: Arc<DbMessage>,
     ) -> Self {
         Self {
+            bot,
             points,
             config,
             orig_message,
@@ -44,7 +47,7 @@ impl<'config> Embedder<'config> {
     }
 }
 
-impl Embedder<'_> {
+impl Embedder<'_, '_> {
     fn build(&self) -> BuiltStarboardEmbed {
         BuiltStarboardEmbed::build(self)
     }

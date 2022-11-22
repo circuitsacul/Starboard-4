@@ -145,16 +145,40 @@ impl BuiltStarboardEmbed {
                 true => &handle.referenced_message_author,
                 false => &handle.orig_message_author,
             };
-            let avatar: Option<&str>;
-            let name;
+            let avatar: Option<String>;
+            let name: String;
             (name, avatar) = match maybe_user {
-                None => ("Deleted User", None),
-                Some(user) => (user.name.as_str(), user.avatar_url.as_deref()),
+                None => ("Deleted User".to_string(), None),
+                Some(user) => {
+                    let member = handle.bot.cache.guilds.with(
+                        &handle.config.starboard.guild_id.into_id(),
+                        |_, g| {
+                            if let Some(g) = g {
+                                g.value().members.get(&orig.author_id).map(|m| (*m).clone())
+                            } else {
+                                None
+                            }
+                        },
+                    );
+
+                    let (name, avatar) = match &member {
+                        Some(member) => (
+                            member.nickname.as_ref().unwrap_or(&user.name).to_owned(),
+                            member
+                                .server_avatar_url
+                                .as_ref()
+                                .or(user.avatar_url.as_ref())
+                                .cloned(),
+                        ),
+                        None => (user.name.clone(), user.avatar_url.as_ref().cloned()),
+                    };
+                    (name, avatar)
+                }
             };
             let name = if is_reply {
                 format!("Replying to {}", name)
             } else {
-                name.to_string()
+                name
             };
 
             let mut author = EmbedAuthorBuilder::new(name).url(&link);
