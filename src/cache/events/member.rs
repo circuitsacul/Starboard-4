@@ -55,6 +55,8 @@ impl UpdateCache for MemberUpdate {
         cache.guilds.alter(&self.guild_id, |_, mut g| {
             g.members.insert(self.user.id, Arc::new(self.into()));
             g
-        })
+        });
+
+        cache.users.insert(self.user.id, Some(Arc::new((&self.user).into())));
     }
 }
