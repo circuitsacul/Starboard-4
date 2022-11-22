@@ -8,3 +8,4 @@ pub mod gifv;
 pub mod into_id;
 pub mod notify;
 pub mod system_content;
+pub mod views;
