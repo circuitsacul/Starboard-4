@@ -18,6 +18,9 @@ pub struct AttachmentHandle {
 
 impl AttachmentHandle {
     pub async fn as_attachment(&self, id: u64) -> StarboardResult<Attachment> {
+        // this should always be a proxy url, but we do this to make 100%
+        // sure that there isn't a bug that could potentially leak the VPS ip.
+        assert!(self.url.starts_with("https://cdn.discordapp.com"));
         let file = reqwest::get(&self.url).await?.bytes().await?;
 
         Ok(Attachment::from_bytes(
