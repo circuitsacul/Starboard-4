@@ -40,7 +40,7 @@ impl RefreshMessage<'_> {
         }
     }
 
-    pub async fn refresh(&mut self) -> StarboardResult<()> {
+    pub async fn refresh(&mut self, force: bool) -> StarboardResult<()> {
         let orig = self.get_sql_message().await?;
         let guard = self.bot.locks.post_update_lock.lock(orig.message_id);
         if guard.is_none() {
@@ -49,7 +49,7 @@ impl RefreshMessage<'_> {
 
         let configs = self.get_configs().await?;
         for c in configs.iter() {
-            RefreshStarboard::new(self, c).refresh().await?;
+            RefreshStarboard::new(self, c).refresh(force).await?;
         }
 
         Ok(())
@@ -123,7 +123,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         Self { refresh, config }
     }
 
-    pub async fn refresh(&mut self) -> StarboardResult<()> {
+    pub async fn refresh(&mut self, force: bool) -> StarboardResult<()> {
         // I use a loop because recursion inside async functions requires another crate :(
         let mut tries = 0;
         loop {
@@ -131,7 +131,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 return Ok(());
             }
             tries += 1;
-            let retry = self.refresh_one().await?;
+            let retry = self.refresh_one(force).await?;
             match retry {
                 true => continue,
                 false => return Ok(()),
@@ -139,7 +139,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         }
     }
 
-    async fn refresh_one(&mut self) -> StarboardResult<bool> {
+    async fn refresh_one(&mut self, force: bool) -> StarboardResult<bool> {
         let orig = self.refresh.get_sql_message().await?;
         let points = Vote::count(
             &self.refresh.bot.pool,
@@ -199,7 +199,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         let action = get_message_status(self.refresh.bot, self.config, &orig, points).await?;
 
         if let Some(sb_msg) = sb_msg {
-            if points == sb_msg.last_known_point_count as i32 {
+            if !force && points == sb_msg.last_known_point_count as i32 {
                 return Ok(false);
             }
             StarboardMessage::set_last_point_count(

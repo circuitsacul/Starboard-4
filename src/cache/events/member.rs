@@ -57,6 +57,8 @@ impl UpdateCache for MemberUpdate {
             g
         });
 
-        cache.users.insert(self.user.id, Some(Arc::new((&self.user).into())));
+        cache
+            .users
+            .insert(self.user.id, Some(Arc::new((&self.user).into())));
     }
 }
