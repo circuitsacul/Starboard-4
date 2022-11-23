@@ -78,6 +78,10 @@ impl AttachmentHandle {
     }
 
     pub fn embedable_image(&self) -> Option<ImageSource> {
+        if self.filename.starts_with("SPOILER_") {
+            return None;
+        }
+
         if let Some(ct) = &self.content_type {
             if ct.starts_with("image") {
                 return Some(ImageSource::url(&self.url).unwrap());
