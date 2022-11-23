@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use lazy_static::lazy_static;
 use twilight_model::{
     channel::{message::embed::Embed, Attachment as ReceivedAttachment},
     http::attachment::Attachment,
@@ -6,6 +7,7 @@ use twilight_model::{
 use twilight_util::builder::embed::{EmbedBuilder, ImageSource};
 
 use crate::{
+    client::bot::StarboardBot,
     constants,
     errors::{StarboardError, StarboardResult},
 };
@@ -17,17 +19,41 @@ pub struct AttachmentHandle {
 }
 
 impl AttachmentHandle {
-    pub async fn as_attachment(&self, id: u64) -> StarboardResult<Attachment> {
+    pub async fn as_attachment(
+        &self,
+        bot: &StarboardBot,
+        id: u64,
+    ) -> StarboardResult<Option<Attachment>> {
         // this should always be a proxy url, but we do this to make 100%
         // sure that there isn't a bug that could potentially leak the VPS ip.
-        assert!(self.url.starts_with("https://cdn.discordapp.com"));
-        let file = reqwest::get(&self.url).await?.bytes().await?;
+        {
+            lazy_static! {
+                static ref RE: regex::Regex = regex::Regex::new(
+                    r#"^https://[\w\.\-]*(discord\.com|discordapp\.com|discordapp.net)"#
+                )
+                .unwrap();
+            }
 
-        Ok(Attachment::from_bytes(
+            assert!(RE.is_match(&self.url));
+        }
+
+        // we only want to download files under 8mb
+        let head = bot.reqwest.head(&self.url).send().await?;
+        let bytes = &head.headers()["content-length"];
+        let bytes = bytes.to_str().unwrap().parse::<i64>().unwrap();
+
+        if bytes > 8_000_000 {
+            return Ok(None);
+        }
+
+        // download the file
+        let file = bot.reqwest.get(&self.url).send().await?.bytes().await?;
+
+        Ok(Some(Attachment::from_bytes(
             self.filename.clone(),
             file.to_vec(),
             id,
-        ))
+        )))
     }
 
     pub fn from_attachment(attachment: &ReceivedAttachment) -> Self {
@@ -64,18 +90,19 @@ impl AttachmentHandle {
 
 #[async_trait]
 pub trait VecAttachments {
-    async fn as_attachments(&self) -> (Vec<Attachment>, Vec<StarboardError>);
+    async fn as_attachments(&self, bot: &StarboardBot) -> (Vec<Attachment>, Vec<StarboardError>);
 }
 
 #[async_trait]
 impl VecAttachments for Vec<AttachmentHandle> {
-    async fn as_attachments(&self) -> (Vec<Attachment>, Vec<StarboardError>) {
+    async fn as_attachments(&self, bot: &StarboardBot) -> (Vec<Attachment>, Vec<StarboardError>) {
         let mut attachments = Vec::new();
         let mut errors = Vec::new();
         for (current_id, attachment) in self.iter().enumerate() {
-            match attachment.as_attachment(current_id as u64).await {
+            match attachment.as_attachment(bot, current_id as u64).await {
                 Err(why) => errors.push(why),
-                Ok(file) => attachments.push(file),
+                Ok(Some(file)) => attachments.push(file),
+                Ok(None) => {}
             }
         }
         (attachments, errors)

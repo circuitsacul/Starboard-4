@@ -33,22 +33,44 @@ pub fn maybe_get_attachment_handle(embed: &Embed) -> Option<AttachmentHandle> {
         && embed.title.is_none()
         && embed.description.is_none()
         && embed.fields.is_empty()
-        && (embed.image.is_some() ^ embed.thumbnail.is_some()))
+        && (embed.image.is_some() ^ embed.thumbnail.is_some())
+        || embed.video.is_some())
     {
         return None;
     }
 
-    let (url, ct) = if let Some(image) = &embed.image {
-        (image.url.clone(), embed.kind.clone())
+    let video_url = embed
+        .video
+        .as_ref()
+        .and_then(|v| v.proxy_url.as_ref().or(v.url.as_ref()).cloned());
+
+    let (url, ct) = if let Some(url) = video_url {
+        (url, format!("video/{}", embed.kind))
+    } else if let Some(image) = &embed.image {
+        (
+            image.proxy_url.as_ref().unwrap_or(&image.url).clone(),
+            format!("image/{}", embed.kind),
+        )
     } else if let Some(image) = &embed.thumbnail {
-        (image.url.clone(), embed.kind.clone())
+        (
+            image.proxy_url.as_ref().unwrap_or(&image.url).clone(),
+            format!("image/{}", embed.kind),
+        )
     } else {
         unreachable!()
     };
 
+    let name = {
+        let ext = url.split('.').last();
+        match ext {
+            Some(ext) => format!("attachment.{}", ext),
+            None => "attachment".to_string(),
+        }
+    };
+
     let attachment = AttachmentHandle {
-        filename: "Embed Image".to_string(),
-        content_type: Some(format!("image/{}", ct)),
+        filename: name,
+        content_type: Some(ct),
         url,
     };
 

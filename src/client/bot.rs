@@ -20,6 +20,7 @@ use super::{cooldowns::Cooldowns, locks::Locks};
 pub struct StarboardBot {
     pub cluster: Cluster,
     pub http: HttpClient,
+    pub reqwest: reqwest::Client,
     pub cache: Cache,
     pub application: RwLock<Option<PartialApplication>>,
     pub pool: PgPool,
@@ -90,6 +91,7 @@ impl StarboardBot {
                 config,
                 cooldowns: Cooldowns::new(),
                 locks: Locks::new(),
+                reqwest: reqwest::Client::new(),
             },
         ))
     }

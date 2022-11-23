@@ -61,21 +61,26 @@ impl Embedder<'_, '_> {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
         };
-        let (attachments, errors) = built.upload_attachments.as_attachments().await;
+        let (attachments, errors) = built.upload_attachments.as_attachments(bot).await;
 
         for e in errors {
             bot.handle_error(e).await;
         }
 
-        bot.http
+        let ret = bot
+            .http
             .create_message(self.config.starboard.channel_id.into_id())
             .content(&built.top_content)
             .unwrap()
             .embeds(&built.embeds)
             .unwrap()
-            .attachments(&attachments)
-            .unwrap()
-            .await
+            .attachments(&attachments);
+
+        if let Err(why) = &ret {
+            dbg!(why);
+        }
+
+        ret.unwrap().await
     }
 
     pub async fn edit(
