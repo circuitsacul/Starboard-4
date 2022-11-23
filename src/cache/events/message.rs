@@ -81,6 +81,7 @@ impl UpdateCache for MessageUpdate {
             attachments,
             embeds,
             content,
+            stickers: cached.stickers.clone(),
             referenced_message: cached.referenced_message,
         };
 

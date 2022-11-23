@@ -190,10 +190,21 @@ impl BuiltStarboardEmbed {
         }
 
         // main description
-        let mut has_description;
+        let mut description = String::new();
+
+        if let Some(name_str) = &parsed.sticker_names_str {
+            description.push_str(name_str);
+            description.push('\n');
+        }
+
         if !orig.content.is_empty() {
+            description.push_str(&orig.content);
+        }
+
+        let mut has_description;
+        if !description.is_empty() {
+            embed = embed.description(description);
             embed_is_empty = false;
-            embed = embed.description(&orig.content);
             has_description = true;
         } else {
             has_description = false;
