@@ -1,5 +1,6 @@
 pub mod attachment_handle;
 mod builder;
+mod gifv;
 mod handle;
 pub mod image_only_embed;
 mod parser;
