@@ -34,7 +34,9 @@ impl AttachmentHandle {
                 .unwrap();
             }
 
-            assert!(RE.is_match(&self.url));
+            if !RE.is_match(&self.url) {
+                return Ok(None);
+            }
         }
 
         // we only want to download files under 8mb

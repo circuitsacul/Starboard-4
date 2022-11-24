@@ -26,8 +26,7 @@ pub fn maybe_get_attachment_handle(embed: &Embed) -> Option<AttachmentHandle> {
         && embed.title.is_none()
         && embed.description.is_none()
         && embed.fields.is_empty()
-        && (embed.image.is_some() ^ embed.thumbnail.is_some())
-        || embed.video.is_some())
+        && (embed.image.is_some() ^ embed.thumbnail.is_some() || embed.video.is_some()))
     {
         return None;
     }

@@ -9,6 +9,7 @@ use crate::cache::models::message::CachedMessage;
 use super::{
     image_only_embed::maybe_get_attachment_handle,
     imgur::{modify_imgur_embed, ImgurResult},
+    youtube::modify_yt_embed,
     AttachmentHandle, Embedder,
 };
 
@@ -102,6 +103,12 @@ impl ParsedMessage {
                             proxy_url: None,
                             url: thumb.url,
                         });
+                    }
+                }
+
+                if let Some(provider) = &embed.provider {
+                    if provider.name.as_deref() == Some("YouTube") {
+                        modify_yt_embed(&mut embed);
                     }
                 }
 
