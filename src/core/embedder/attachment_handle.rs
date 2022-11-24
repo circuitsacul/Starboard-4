@@ -29,7 +29,7 @@ impl AttachmentHandle {
         {
             lazy_static! {
                 static ref RE: regex::Regex = regex::Regex::new(
-                    r#"^https://[\w\.\-]*(discord\.com|discordapp\.com|discordapp.net)"#
+                    r#"^https://[\w\.\-]*\.(discord\.com|discordapp\.com|discordapp.net)"#
                 )
                 .unwrap();
             }

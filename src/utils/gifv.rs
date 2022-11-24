@@ -1,4 +1,7 @@
+use std::str::FromStr;
+
 use lazy_static::lazy_static;
+use reqwest::Url;
 
 pub fn get_gif_url(url: &str, provider: &str) -> Option<String> {
     lazy_static! {
@@ -35,6 +38,20 @@ pub fn get_gif_url(url: &str, provider: &str) -> Option<String> {
             };
 
             Some(format!("https://i.giphy.com/media/{}/{}.gif", gif_id, name))
+        }
+        "Gfycat" => {
+            let parsed_url = Url::from_str(url).unwrap();
+
+            let mut path_chars = parsed_url.path().chars();
+            path_chars.next();
+            let gif_id = path_chars.as_str().split('-').next().unwrap();
+
+            let origin = parsed_url.origin().unicode_serialization();
+            if !origin.ends_with(".gfycat.com") {
+                return None;
+            }
+
+            Some(format!("{}/{}-size_restricted.gif", origin, gif_id))
         }
         other => {
             eprintln!("Unkown GIFV provider: {}\n{}", other, url);

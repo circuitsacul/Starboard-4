@@ -6,12 +6,7 @@ use super::AttachmentHandle;
 
 pub fn maybe_get_attachment_handle(embed: &Embed) -> Option<AttachmentHandle> {
     // gifs
-    if &embed.kind == "gifv"
-        && matches!(
-            embed.provider.as_ref().and_then(|p| p.name.as_deref()),
-            Some("Tenor") | Some("Giphy")
-        )
-    {
+    if &embed.kind == "gifv" {
         let url = get_gif_url(
             &embed.thumbnail.as_ref().unwrap().url,
             embed.provider.as_ref().unwrap().name.as_ref().unwrap(),
