@@ -3,7 +3,11 @@ use twilight_util::builder::embed::ImageSource;
 
 use crate::cache::models::message::CachedMessage;
 
-use super::{image_only_embed::maybe_get_attachment_handle, AttachmentHandle, Embedder};
+use super::{
+    image_only_embed::maybe_get_attachment_handle,
+    imgur::{modify_imgur_embed, ImgurResult},
+    AttachmentHandle, Embedder,
+};
 
 pub struct ParsedMessage {
     pub sticker_names_str: Option<String>,
@@ -60,6 +64,19 @@ impl ParsedMessage {
         }
 
         for embed in &orig.embeds {
+            if let Some(provider) = &embed.provider {
+                if matches!(provider.name.as_deref(), Some("Imgur")) {
+                    let ret = modify_imgur_embed(embed.clone());
+
+                    match ret {
+                        ImgurResult::Video(attachment) => upload_attachments.push(attachment),
+                        ImgurResult::Image(embed) => embeds.push(*embed),
+                    }
+
+                    continue;
+                }
+            }
+
             if let Some(attachment) = maybe_get_attachment_handle(embed) {
                 if let Some(image) = attachment.embedable_image() {
                     if primary_image.is_none() && embeds.is_empty() {

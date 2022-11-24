@@ -3,6 +3,7 @@ mod builder;
 mod gifv;
 mod handle;
 pub mod image_only_embed;
+mod imgur;
 mod parser;
 
 pub use attachment_handle::AttachmentHandle;
