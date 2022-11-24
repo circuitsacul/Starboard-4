@@ -1,4 +1,7 @@
-use twilight_model::channel::message::{embed::Embed, sticker::StickerFormatType};
+use twilight_model::channel::message::{
+    embed::{Embed, EmbedImage},
+    sticker::StickerFormatType,
+};
 use twilight_util::builder::embed::ImageSource;
 
 use crate::cache::models::message::CachedMessage;
@@ -88,7 +91,21 @@ impl ParsedMessage {
                     upload_attachments.push(attachment);
                 }
             } else {
-                embeds.push(embed.clone());
+                let mut embed = embed.to_owned();
+
+                if &*embed.kind == "article" && embed.image.is_none() {
+                    let thumb = std::mem::take(&mut embed.thumbnail);
+                    if let Some(thumb) = thumb {
+                        embed.image = Some(EmbedImage {
+                            height: None,
+                            width: None,
+                            proxy_url: None,
+                            url: thumb.url,
+                        });
+                    }
+                }
+
+                embeds.push(embed);
             }
         }
 

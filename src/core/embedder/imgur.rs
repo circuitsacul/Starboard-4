@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use twilight_model::channel::message::Embed;
+use twilight_model::channel::message::{embed::EmbedImage, Embed};
 
 use super::AttachmentHandle;
 
@@ -20,9 +20,15 @@ pub fn modify_imgur_embed(mut embed: Embed) -> ImgurResult {
         }
     }
 
-    if let Some(thumb) = &mut embed.thumbnail {
+    let thumb = std::mem::take(&mut embed.thumbnail);
+    if let Some(thumb) = thumb {
         if let Some(url) = modify_imgur_url(&thumb.url) {
-            thumb.url = url;
+            embed.image = Some(EmbedImage {
+                height: None,
+                width: None,
+                proxy_url: None,
+                url,
+            });
         }
     }
 
