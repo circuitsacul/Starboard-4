@@ -124,6 +124,50 @@
     },
     "query": "INSERT INTO xproles\n            (role_id, guild_id, required)\n            VALUES ($1, $2, $3)\n            RETURNING *"
   },
+  "066998b6c842af003c90e4c71ae933524c0bef88b94b3dce92cc14e855852ad3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "obtain_xproles",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "give_votes",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "receive_votes",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "DELETE FROM permroles WHERE role_id=$1 RETURNING *"
+  },
   "0b73a06177a4053dd91a029b196db5f718a2626c09ef951ac8df598ec60759b9": {
     "describe": {
       "columns": [
@@ -2468,6 +2512,50 @@
       }
     },
     "query": "SELECT * FROM autostar_channels\n            WHERE guild_id=$1 AND name=$2"
+  },
+  "b9b2dd6434809738062c1b4f155a6b895a9be02224a0af03c7bfa1837eb24069": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "obtain_xproles",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "give_votes",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "receive_votes",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM permroles WHERE guild_id=$1"
   },
   "be21d40e95f0802820a267c9544930b10a9df068d2f8e3e5a9a7e546195b8c32": {
     "describe": {

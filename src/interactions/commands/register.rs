@@ -5,7 +5,7 @@ use twilight_interactions::command::CreateCommand;
 use crate::{client::bot::StarboardBot, interactions::commands::chat};
 
 macro_rules! commands_to_create {
-    ($( $command: ty ),* ) => {
+    ($( $command: ty ),* $(,)? ) => {
         vec![
             $(
                 <$command>::create_command().into(),
@@ -21,7 +21,8 @@ pub async fn post_commands(bot: Arc<StarboardBot>) {
         chat::ping::Ping,
         chat::autostar::AutoStar,
         chat::starboard::Starboard,
-        chat::overrides::Overrides
+        chat::overrides::Overrides,
+        chat::permroles::PermRoles,
     );
 
     match inter_client.set_global_commands(&commands).await {
