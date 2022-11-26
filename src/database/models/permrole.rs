@@ -33,6 +33,12 @@ impl PermRole {
         .await
     }
 
+    pub async fn get(pool: &sqlx::PgPool, role_id: i64) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(Self, "SELECT * FROM permroles WHERE role_id=$1", role_id)
+            .fetch_optional(pool)
+            .await
+    }
+
     pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(Self, "SELECT * FROM permroles WHERE guild_id=$1", guild_id)
             .fetch_all(pool)
