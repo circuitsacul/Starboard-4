@@ -1,6 +1,7 @@
 pub mod create;
 pub mod delete;
 pub mod edit;
+pub mod edit_starboard;
 pub mod view;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
@@ -23,6 +24,8 @@ pub enum PermRoles {
     Delete(delete::DeletePermRole),
     #[command(name = "edit")]
     Edit(edit::EditPermRole),
+    #[command(name = "edit-starboard")]
+    EditStarboard(edit_starboard::EditPermRoleStarboard),
 }
 
 impl PermRoles {
@@ -32,6 +35,7 @@ impl PermRoles {
             Self::Create(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
             Self::Edit(cmd) => cmd.callback(ctx).await,
+            Self::EditStarboard(cmd) => cmd.callback(ctx).await,
         }
     }
 }

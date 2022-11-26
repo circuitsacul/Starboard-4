@@ -1973,6 +1973,45 @@
     },
     "query": "INSERT INTO guilds (guild_id) VALUES ($1) RETURNING *"
   },
+  "7f85f1c1d15cf23bedd5e3f34dd841558ae5f57626383f36b5e9566ecbf3cd81": {
+    "describe": {
+      "columns": [
+        {
+          "name": "permrole_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "give_votes",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "receive_votes",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM permrole_starboards WHERE permrole_id=$1 AND starboard_id=$2"
+  },
   "8030f567bf123b2b1233383532f05c77eb7953677c3c3ab5b79002fbc33c9b46": {
     "describe": {
       "columns": [
@@ -2484,6 +2523,86 @@
       }
     },
     "query": "INSERT INTO starboard_messages\n            (message_id, starboard_id, starboard_message_id, last_known_point_count)\n            VALUES ($1, $2, $3, $4)\n            RETURNING *"
+  },
+  "ae21651e28e5e8de6d8d5889653c3a0609a56f4db7879652447c01c019cab317": {
+    "describe": {
+      "columns": [
+        {
+          "name": "permrole_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "give_votes",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "receive_votes",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM permrole_starboards WHERE permrole_id=$1 AND starboard_id=$2 RETURNING *"
+  },
+  "b41aaaf9153c7dd373e0f1825ecc78d16c78f4d084e8618f68c6695ce4aad635": {
+    "describe": {
+      "columns": [
+        {
+          "name": "permrole_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "give_votes",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "receive_votes",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Bool",
+          "Bool",
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE permrole_starboards SET give_votes=$1, receive_votes=$2 WHERE permrole_id=$3\n            AND starboard_id=$4 RETURNING *"
   },
   "b9667c059530d0e333f589f9f58d015417a9a88f49fbd2a50acc4d834e9aff40": {
     "describe": {
