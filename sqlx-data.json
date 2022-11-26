@@ -946,6 +946,53 @@
     },
     "query": "INSERT INTO users\n            (user_id, is_bot)\n            VALUES ($1, $2)\n            RETURNING *"
   },
+  "382d03439a68e5be3e01510b19594da6cb84cfb4ab8c104112623bd456450bf8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "obtain_xproles",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "give_votes",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "receive_votes",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Bool",
+          "Bool",
+          "Bool",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE permroles SET obtain_xproles=$1, give_votes=$2,\n            receive_votes=$3 WHERE role_id=$4 RETURNING *"
+  },
   "3d80c09db40235cdb95e62e6aec95fcb75aae0b927b8e0d171bacd4954fb5f7b": {
     "describe": {
       "columns": [

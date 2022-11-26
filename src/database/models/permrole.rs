@@ -33,6 +33,20 @@ impl PermRole {
         .await
     }
 
+    pub async fn update(&self, pool: &sqlx::PgPool) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            r#"UPDATE permroles SET obtain_xproles=$1, give_votes=$2,
+            receive_votes=$3 WHERE role_id=$4 RETURNING *"#,
+            self.obtain_xproles,
+            self.give_votes,
+            self.receive_votes,
+            self.role_id,
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
     pub async fn get(pool: &sqlx::PgPool, role_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(Self, "SELECT * FROM permroles WHERE role_id=$1", role_id)
             .fetch_optional(pool)
