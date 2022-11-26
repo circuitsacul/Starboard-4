@@ -31,18 +31,18 @@ impl ViewPermRoles {
         let guild_id = get_guild_id!(ctx);
 
         if let Some(role) = self.role {
-            let perm_role = PermRole::get(&ctx.bot.pool, unwrap_id!(role.id)).await?;
+            let permrole = PermRole::get(&ctx.bot.pool, unwrap_id!(role.id)).await?;
 
-            if let Some(perm_role) = perm_role {
+            if let Some(permrole) = permrole {
                 let mut pr_config = format!("Settings for {}:\n", role.mention());
                 pr_config.push_str(&concat_format!(
-                    "vote: {}\n" <- fmt_trib!(perm_role.give_votes);
-                    "receive-votes: {}\n" <- fmt_trib!(perm_role.receive_votes);
-                    "xproles: {}\n" <- fmt_trib!(perm_role.obtain_xproles);
+                    "vote: {}\n" <- fmt_trib!(permrole.give_votes);
+                    "receive-votes: {}\n" <- fmt_trib!(permrole.receive_votes);
+                    "xproles: {}\n" <- fmt_trib!(permrole.obtain_xproles);
                 ));
 
                 let permrole_sbs =
-                    PermRoleStarboard::list_by_permrole(&ctx.bot.pool, perm_role.role_id).await?;
+                    PermRoleStarboard::list_by_permrole(&ctx.bot.pool, permrole.role_id).await?;
 
                 for pr_sb in permrole_sbs {
                     let sb = Starboard::get(&ctx.bot.pool, pr_sb.starboard_id).await?;
