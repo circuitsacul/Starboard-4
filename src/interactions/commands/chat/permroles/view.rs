@@ -4,7 +4,10 @@ use twilight_model::guild::Role;
 use twilight_util::builder::embed::{EmbedBuilder, EmbedFooterBuilder};
 
 use crate::{
-    concat_format, constants, database::PermRole, get_guild_id, interactions::context::CommandCtx,
+    concat_format, constants,
+    database::{PermRole, PermRoleStarboard, Starboard},
+    get_guild_id,
+    interactions::context::CommandCtx,
     unwrap_id,
 };
 
@@ -37,6 +40,31 @@ impl ViewPermRoles {
                     "receive-votes: {}\n" <- fmt_trib!(perm_role.receive_votes);
                     "xproles: {}\n" <- fmt_trib!(perm_role.obtain_xproles);
                 ));
+
+                let permrole_sbs =
+                    PermRoleStarboard::list_by_permrole(&ctx.bot.pool, perm_role.role_id).await?;
+
+                for pr_sb in permrole_sbs {
+                    let sb = Starboard::get(&ctx.bot.pool, pr_sb.starboard_id).await?;
+                    let sb = match sb {
+                        None => {
+                            eprintln!(
+                                "Starboard for PermRole didn't exist. This shouldn't happen."
+                            );
+                            continue;
+                        }
+                        Some(sb) => sb,
+                    };
+
+                    pr_config.push_str(&format!(
+                        "\nSettings for '{}' in <#{}>:\n",
+                        sb.name, sb.channel_id
+                    ));
+                    pr_config.push_str(&concat_format!(
+                        "vote: {}\n" <- fmt_trib!(pr_sb.give_votes);
+                        "receive-votes: {}\n" <- fmt_trib!(pr_sb.receive_votes);
+                    ));
+                }
 
                 let embed = EmbedBuilder::new()
                     .color(constants::BOT_COLOR)

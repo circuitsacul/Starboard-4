@@ -25,4 +25,17 @@ impl PermRoleStarboard {
         .fetch_one(pool)
         .await
     }
+
+    pub async fn list_by_permrole(
+        pool: &sqlx::PgPool,
+        permrole_id: i64,
+    ) -> sqlx::Result<Vec<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM permrole_starboards WHERE permrole_id=$1",
+            permrole_id,
+        )
+        .fetch_all(pool)
+        .await
+    }
 }

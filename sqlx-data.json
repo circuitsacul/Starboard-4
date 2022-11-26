@@ -3055,6 +3055,44 @@
     },
     "query": "SELECT * FROM overrides WHERE starboard_id=$1"
   },
+  "e250783122814fbe8bbf17a71a754951bb1907baede1273a7422a6e4ec6a82f3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "permrole_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "give_votes",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "receive_votes",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM permrole_starboards WHERE permrole_id=$1"
+  },
   "e605d15eeb3e0939bc83e98b98b9ac9814bf2f0983ebdc30c235d8b530bf0ada": {
     "describe": {
       "columns": [
