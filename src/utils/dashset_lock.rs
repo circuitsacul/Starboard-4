@@ -50,9 +50,9 @@ where
     fn new(lock: &'a DashSetLock<T>, key: T) -> Option<Self> {
         let guard = Self { lock, key };
         if guard.lock() {
-            // the key was already in the set
             Some(guard)
         } else {
+            // the key was already in the set
             None
         }
     }
