@@ -6,7 +6,7 @@ use reqwest::Url;
 pub fn get_gif_url(url: &str, provider: &str) -> Option<String> {
     lazy_static! {
         static ref TENOR: regex::Regex =
-            regex::Regex::new(r#"^https://media\.tenor\.com?/(\w+)/(.*)\.\w+$"#).unwrap();
+            regex::Regex::new(r#"^https://media\.tenor\.com?/(.+)/(.*)\.\w+$"#).unwrap();
     }
     lazy_static! {
         static ref GIPHY: regex::Regex =
