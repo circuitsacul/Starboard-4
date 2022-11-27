@@ -244,9 +244,8 @@ impl Cache {
             Ok(Some(channel.model().await.unwrap()))
         }
 
-        let channel = match get_channel(bot, channel_id).await? {
-            None => return Ok(None),
-            Some(channel) => channel,
+        let Some(channel) = get_channel(bot, channel_id).await? else {
+            return Ok(None);
         };
         if channel.kind.is_thread() {
             get_channel(bot, channel.parent_id.unwrap()).await
@@ -270,10 +269,7 @@ impl Cache {
 
         let is_nsfw = self.guilds.with(&guild_id, |_, guild| {
             // get the guild from the cache
-            let guild = match guild {
-                None => return CachedResult::None,
-                Some(guild) => guild,
-            };
+            let Some(guild) = guild else { return CachedResult::None; };
 
             // check if the channel_id is a known thread, and use the parent_id
             // if it is.
@@ -300,9 +296,8 @@ impl Cache {
         };
 
         // fetch the data from discord
-        let parent = match self.fetch_channel_or_thread_parent(bot, channel_id).await? {
-            None => return Ok(None),
-            Some(parent) => parent,
+        let Some(parent) = self.fetch_channel_or_thread_parent(bot, channel_id).await? else {
+            return Ok(None);
         };
         // since this is 100% going to be a parent channel, and since discord always
         // includes the `nsfw` parameter for channels fetched over the api, this
