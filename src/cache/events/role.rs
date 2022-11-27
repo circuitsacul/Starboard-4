@@ -20,6 +20,11 @@ impl UpdateCache for RoleDelete {
     async fn update_cache(&self, cache: &Cache) {
         cache.guilds.alter(&self.guild_id, |_, mut guild| {
             guild.role_positions.remove(&self.role_id);
+
+            for (_, member) in guild.members.iter_mut() {
+                member.roles.remove(&self.role_id);
+            }
+
             guild
         })
     }

@@ -150,27 +150,27 @@ impl BuiltStarboardEmbed {
             (name, avatar) = match maybe_user {
                 None => ("Deleted User".to_string(), None),
                 Some(user) => {
-                    let member = handle.bot.cache.guilds.with(
-                        &handle.config.starboard.guild_id.into_id(),
-                        |_, g| {
-                            if let Some(g) = g {
-                                g.value().members.get(&orig.author_id).map(|m| (*m).clone())
-                            } else {
-                                None
-                            }
-                        },
-                    );
+                    let member =
+                        handle.bot.cache.guilds.with(
+                            &handle.config.starboard.guild_id.into_id(),
+                            |_, guild| {
+                                let guild = match guild {
+                                    None => return None,
+                                    Some(guild) => guild,
+                                };
 
-                    let (name, avatar) = match &member {
-                        Some(member) => (
-                            member.nickname.as_ref().unwrap_or(&user.name).to_owned(),
-                            member
-                                .server_avatar_url
-                                .as_ref()
-                                .or(user.avatar_url.as_ref())
-                                .cloned(),
+                                guild.value().members.get(&orig.author_id).map(|m| {
+                                    (m.server_avatar_url.to_owned(), m.nickname.to_owned())
+                                })
+                            },
+                        );
+
+                    let (name, avatar) = match member {
+                        Some((avatar_url, nickname)) => (
+                            nickname.unwrap_or_else(|| user.name.to_owned()),
+                            avatar_url.or_else(|| user.avatar_url.to_owned()),
                         ),
-                        None => (user.name.clone(), user.avatar_url.as_ref().cloned()),
+                        None => (user.name.to_owned(), user.avatar_url.to_owned()),
                     };
                     (name, avatar)
                 }

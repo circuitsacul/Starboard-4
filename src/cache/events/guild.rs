@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use async_trait::async_trait;
 use twilight_model::gateway::payload::incoming::{GuildCreate, GuildDelete, GuildEmojisUpdate};
@@ -29,7 +29,7 @@ impl UpdateCache for GuildCreate {
             members: self
                 .members
                 .iter()
-                .map(|m| (m.user.id, Arc::new(m.into())))
+                .map(|m| (m.user.id, m.into()))
                 .collect::<HashMap<_, _>>(),
             role_positions: self
                 .roles

@@ -67,7 +67,9 @@ impl EditPermRoleStarboard {
 
         let mut pr_sb = match pr_sb {
             Some(pr_sb) => pr_sb,
-            None => PermRoleStarboard::get(&ctx.bot.pool, unwrap_id!(self.role.id), sb.id).await?,
+            None => PermRoleStarboard::get(&ctx.bot.pool, unwrap_id!(self.role.id), sb.id)
+                .await?
+                .unwrap(),
         };
 
         if let Some(val) = self.vote {
