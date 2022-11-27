@@ -138,6 +138,18 @@ impl AutoStarChannel {
     }
 
     // validation
+    pub fn set_emojis(&mut self, val: Vec<String>) -> Result<(), String> {
+        if val.len() > constants::MAX_ASC_EMOJIS {
+            return Err(format!(
+                "You can only have up to {} emojis per autostar channel.",
+                constants::MAX_ASC_EMOJIS
+            ));
+        }
+
+        self.emojis = val;
+        Ok(())
+    }
+
     pub fn set_min_chars(&mut self, val: i16) -> Result<(), String> {
         if let Some(max_chars) = self.max_chars {
             if val > max_chars {

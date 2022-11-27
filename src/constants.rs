@@ -21,7 +21,7 @@ pub const MIN_NAME_LENGTH: u32 = 3;
 pub const MAX_MAX_CHARS: i16 = 5_000;
 pub const MAX_MIN_CHARS: i16 = 5_000;
 
-pub const MAX_ASC_EMOJIS: i16 = 3; // todo
+pub const MAX_ASC_EMOJIS: usize = 3;
 pub const MAX_AUTOSTAR: i16 = 3; // todo
 
 // Starboard Validation
