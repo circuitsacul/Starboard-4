@@ -1,3 +1,7 @@
+use twilight_model::id::{marker::GuildMarker, Id};
+
+use crate::{client::bot::StarboardBot, utils::into_id::IntoId};
+
 #[derive(Debug)]
 pub struct PermRole {
     pub role_id: i64,
@@ -57,5 +61,27 @@ impl PermRole {
         sqlx::query_as!(Self, "SELECT * FROM permroles WHERE guild_id=$1", guild_id)
             .fetch_all(pool)
             .await
+    }
+}
+
+pub trait SortVecPermRole {
+    fn sort_permroles(&mut self, bot: &StarboardBot);
+}
+
+impl SortVecPermRole for Vec<PermRole> {
+    fn sort_permroles(&mut self, bot: &StarboardBot) {
+        let guild_id: Id<GuildMarker> = match self.first() {
+            Some(pr) => pr.guild_id.into_id(),
+            None => return,
+        };
+
+        bot.cache.guilds.with(&guild_id, |_, guild| {
+            let guild = match guild {
+                None => return,
+                Some(guild) => guild,
+            };
+
+            self.sort_by_key(|pr| guild.role_positions.get(&pr.role_id.into_id()));
+        })
     }
 }

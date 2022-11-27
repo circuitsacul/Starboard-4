@@ -5,7 +5,7 @@ use twilight_util::builder::embed::{EmbedBuilder, EmbedFooterBuilder};
 
 use crate::{
     concat_format, constants,
-    database::{PermRole, PermRoleStarboard, Starboard},
+    database::{models::permrole::SortVecPermRole, PermRole, PermRoleStarboard, Starboard},
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
@@ -79,7 +79,8 @@ impl ViewPermRoles {
                     .await?;
             }
         } else {
-            let perm_roles = PermRole::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
+            let mut perm_roles =
+                PermRole::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
 
             if perm_roles.is_empty() {
                 ctx.respond_str("This server has no PermRoles.", true)
@@ -89,7 +90,8 @@ impl ViewPermRoles {
 
             let mut pr_config = String::new();
 
-            for pr in perm_roles {
+            perm_roles.sort_permroles(&ctx.bot);
+            for pr in perm_roles.into_iter().rev() {
                 pr_config.push_str(&format!("<@&{}>\n", pr.role_id));
             }
 
@@ -97,9 +99,10 @@ impl ViewPermRoles {
                 .color(constants::BOT_COLOR)
                 .title("PermRoles")
                 .description(pr_config)
-                .footer(EmbedFooterBuilder::new(
+                .footer(EmbedFooterBuilder::new(concat!(
+                    "PermRoles are applied from bottom to top (same as Discord roles).\n",
                     "Use '/permroles view' with a specific role to see its settings.",
-                ))
+                )))
                 .build();
 
             ctx.respond(ctx.build_resp().embeds([embed]).build())

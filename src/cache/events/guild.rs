@@ -31,6 +31,11 @@ impl UpdateCache for GuildCreate {
                 .iter()
                 .map(|m| (m.user.id, Arc::new(m.into())))
                 .collect::<HashMap<_, _>>(),
+            role_positions: self
+                .roles
+                .iter()
+                .map(|r| (r.id, r.position))
+                .collect::<HashMap<_, _>>(),
         };
         cache.guilds.insert(self.id, guild);
     }
