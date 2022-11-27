@@ -6,5 +6,6 @@ pub mod embed;
 pub mod get_status;
 pub mod into_id;
 pub mod notify;
+pub mod pg_err_code;
 pub mod system_content;
 pub mod views;

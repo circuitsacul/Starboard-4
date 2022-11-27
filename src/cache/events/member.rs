@@ -18,7 +18,7 @@ impl UpdateCache for MemberChunk {
 
         cache.guilds.alter(&self.guild_id, |_, mut g| {
             for member in &self.members {
-                g.members.insert(member.user.id, Arc::new(member.into()));
+                g.members.insert(member.user.id, member.into());
             }
             g
         })
@@ -33,7 +33,7 @@ impl UpdateCache for MemberAdd {
             .insert(self.user.id, Some(Arc::new((&self.user).into())));
 
         cache.guilds.alter(&self.guild_id, |_, mut g| {
-            g.members.insert(self.user.id, Arc::new((&self.0).into()));
+            g.members.insert(self.user.id, (&self.0).into());
             g
         });
     }
@@ -53,7 +53,7 @@ impl UpdateCache for MemberRemove {
 impl UpdateCache for MemberUpdate {
     async fn update_cache(&self, cache: &Cache) {
         cache.guilds.alter(&self.guild_id, |_, mut g| {
-            g.members.insert(self.user.id, Arc::new(self.into()));
+            g.members.insert(self.user.id, self.into());
             g
         });
 

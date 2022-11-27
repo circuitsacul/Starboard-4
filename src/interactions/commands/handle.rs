@@ -3,7 +3,7 @@ use twilight_interactions::command::CommandModel;
 use crate::interactions::{commands::chat, context::CommandCtx};
 
 macro_rules! match_commands {
-    ($ctx:expr, $($cmd_name:expr => $command:ty),*) => {
+    ($ctx:expr, $($cmd_name:expr => $command:ty),* $(,)?) => {
         let cmd_inp_data = (*$ctx.data).clone().into();
         match &*$ctx.data.name {
             $(
@@ -20,7 +20,8 @@ pub async fn handle_command(ctx: CommandCtx) -> anyhow::Result<()> {
         "ping" => chat::ping::Ping,
         "autostar" => chat::autostar::AutoStar,
         "starboards" => chat::starboard::Starboard,
-        "overrides" => chat::overrides::Overrides
+        "overrides" => chat::overrides::Overrides,
+        "permroles" => chat::permroles::PermRoles,
     );
 
     Ok(())

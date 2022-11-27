@@ -82,6 +82,8 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
         "overrides edit embed-style name" => override_name_autocomplete(&ctx).await?,
         "overrides edit reset name" => override_name_autocomplete(&ctx).await?,
         "overrides view name" => override_name_autocomplete(&ctx).await?,
+        // permroles
+        "permroles edit-starboard starboard" => starboard_name_autocomplete(&ctx).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 

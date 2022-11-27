@@ -10,8 +10,9 @@ use twilight_util::snowflake::Snowflake;
 
 use crate::{
     client::bot::StarboardBot,
-    core::{emoji::SimpleEmoji, has_image::has_image},
+    core::{emoji::SimpleEmoji, has_image::has_image, permroles::Permissions},
     errors::StarboardResult,
+    utils::into_id::IntoId,
 };
 
 use super::config::StarboardConfig;
@@ -116,7 +117,29 @@ impl VoteStatus {
         let mut upvote = Vec::new();
         let mut downvote = Vec::new();
 
+        let mut invalid_pr_exists = false;
+
         for (config, vote_type) in configs.into_iter().filter_map(eval_config) {
+            let reactor_perms = Permissions::get_permissions(
+                bot,
+                reactor_id,
+                config.starboard.guild_id.into_id(),
+                Some(config.starboard.id),
+            )
+            .await?;
+            let author_perms = Permissions::get_permissions(
+                bot,
+                message_author_id,
+                config.starboard.guild_id.into_id(),
+                Some(config.starboard.id),
+            )
+            .await?;
+
+            if !reactor_perms.give_votes || !author_perms.receive_votes {
+                invalid_pr_exists = true;
+                continue;
+            }
+
             if vote_type == VoteType::Upvote {
                 upvote.push(config);
             } else {
@@ -125,7 +148,7 @@ impl VoteStatus {
         }
 
         if upvote.is_empty() && downvote.is_empty() {
-            if invalid_exists && allow_remove {
+            if (invalid_exists || invalid_pr_exists) && allow_remove {
                 Ok(VoteStatus::Remove)
             } else {
                 Ok(VoteStatus::Ignore)
