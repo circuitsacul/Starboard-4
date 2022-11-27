@@ -21,8 +21,11 @@ pub const MIN_NAME_LENGTH: u32 = 3;
 pub const MAX_MAX_CHARS: i16 = 5_000;
 pub const MAX_MIN_CHARS: i16 = 5_000;
 
+pub const MAX_ASC_EMOJIS: i16 = 3; // todo
+pub const MAX_AUTOSTAR: i16 = 3; // todo
+
 // Starboard Validation
-pub const MIN_REQUIRED: i16 = -1;
+pub const MIN_REQUIRED: i16 = 1;
 pub const MAX_REQUIRED: i16 = 500;
 pub const MIN_REQUIRED_REMOVE: i16 = -500;
 pub const MAX_REQUIRED_REMOVE: i16 = 490;
@@ -30,3 +33,12 @@ pub const MIN_XP_MULTIPLIER: f32 = -10.0;
 pub const MAX_XP_MULTIPLIER: f32 = 10.0;
 pub const MAX_COOLDOWN_CAPACITY: i16 = 3600; // seconds in an hour
 pub const MAX_COOLDOWN_PERIOD: i16 = MAX_COOLDOWN_CAPACITY;
+pub const MAX_NEWER_THAN: i64 = 86_400 * 7; // one week // todo
+pub const MAX_OLDER_THAN: i64 = MAX_NEWER_THAN; // todo
+
+pub const MAX_VOTE_EMOJIS: i16 = 3; // todo
+pub const MAX_STARBOARDS: i16 = 3; // todo
+
+// Override Validation
+pub const MAX_CHANNELS_PER_OVERRIDE: i16 = 100; // todo
+pub const MAX_OVERRIDES_PER_STARBOARD: i16 = 10; // todo
