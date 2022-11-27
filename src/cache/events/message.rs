@@ -51,12 +51,9 @@ impl UpdateCache for MessageUpdate {
             }
         };
 
-        let cached = match cached {
-            None => {
-                cache.messages.remove(&self.id).await;
-                return;
-            }
-            Some(cached) => cached,
+        let Some(cached) = cached else {
+            cache.messages.remove(&self.id).await;
+            return;
         };
 
         let attachments = match &self.attachments {
