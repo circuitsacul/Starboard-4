@@ -31,7 +31,11 @@ where
     }
 
     pub fn lock(&self, key: T) -> Option<DashSetLockGuard<T>> {
-        DashSetLockGuard::new(self, key)
+        if self.set.insert(key.clone()) {
+            Some(DashSetLockGuard::new(self, key))
+        } else {
+            None
+        }
     }
 }
 
@@ -47,18 +51,8 @@ impl<'a, T> DashSetLockGuard<'a, T>
 where
     T: Eq + Hash + Clone,
 {
-    fn new(lock: &'a DashSetLock<T>, key: T) -> Option<Self> {
-        let guard = Self { lock, key };
-        if guard.lock() {
-            Some(guard)
-        } else {
-            // the key was already in the set
-            None
-        }
-    }
-
-    fn lock(&self) -> bool {
-        self.lock.set.insert(self.key.clone())
+    fn new(lock: &'a DashSetLock<T>, key: T) -> Self {
+        Self { lock, key }
     }
 
     fn release(&self) {
