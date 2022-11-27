@@ -160,6 +160,14 @@ impl EditRequirements {
             settings.newer_than = Some(delta);
         }
 
+        if let Err(why) = validation::starboard_settings::validate_relative_duration(
+            settings.newer_than.unwrap_or(resolved.newer_than),
+            settings.older_than.unwrap_or(resolved.older_than),
+        ) {
+            ctx.respond_str(&why, true).await?;
+            return Ok(());
+        }
+
         StarboardOverride::update_settings(&ctx.bot.pool, ov.id, settings).await?;
         ctx.respond_str(
             &format!("Updated settings for override '{}'.", self.name),
