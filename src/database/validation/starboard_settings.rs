@@ -76,7 +76,7 @@ pub fn validate_cooldown(capacity: i16, period: i16) -> Result<(), String> {
     }
 }
 
-pub fn validate_vote_emojis(upvote: &[String], downvote: &[String]) -> Result<(), &'static str> {
+pub fn validate_vote_emojis(upvote: &[String], downvote: &[String]) -> Result<(), String> {
     let unique_upvote: HashSet<_> = upvote.iter().collect();
     let unique_downvote: HashSet<_> = downvote.iter().collect();
 
@@ -85,10 +85,19 @@ pub fn validate_vote_emojis(upvote: &[String], downvote: &[String]) -> Result<()
         .next()
         .is_some()
     {
-        Err("Upvote emojis and downvote emojis cannot share the same emojis.")
-    } else {
-        Ok(())
+        return Err(
+            "`upvote-emojis` and `downvote-emojis` cannot share the same emojis.".to_string(),
+        );
     }
+
+    if unique_upvote.len() + unique_downvote.len() > constants::MAX_VOTE_EMOJIS {
+        return Err(format!(
+            "You cannot have more than {} upvote and downvote emojis per starbard.",
+            constants::MAX_VOTE_EMOJIS
+        ));
+    }
+
+    Ok(())
 }
 
 pub fn validate_relative_duration(newer_than: i64, older_than: i64) -> Result<(), String> {

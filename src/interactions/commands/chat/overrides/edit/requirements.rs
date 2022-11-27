@@ -95,15 +95,9 @@ impl EditRequirements {
             }
             settings.required_remove = Some(val);
         }
+
         if let Some(val) = self.upvote_emojis {
             let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
-            if let Err(why) = validation::starboard_settings::validate_vote_emojis(
-                &emojis,
-                &resolved.downvote_emojis,
-            ) {
-                ctx.respond_str(why, true).await?;
-                return Ok(());
-            }
             settings.upvote_emojis = Some(emojis);
 
             // delete cached value
@@ -114,13 +108,6 @@ impl EditRequirements {
         }
         if let Some(val) = self.downvote_emojis {
             let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
-            if let Err(why) = validation::starboard_settings::validate_vote_emojis(
-                &resolved.upvote_emojis,
-                &emojis,
-            ) {
-                ctx.respond_str(why, true).await?;
-                return Ok(());
-            }
             settings.downvote_emojis = Some(emojis);
 
             // delete cached value
@@ -129,6 +116,20 @@ impl EditRequirements {
                 .guild_vote_emojis
                 .remove(&unwrap_id!(guild_id));
         }
+        if let Err(why) = validation::starboard_settings::validate_vote_emojis(
+            settings
+                .upvote_emojis
+                .as_ref()
+                .unwrap_or(&resolved.upvote_emojis),
+            settings
+                .downvote_emojis
+                .as_ref()
+                .unwrap_or(&resolved.downvote_emojis),
+        ) {
+            ctx.respond_str(&why, true).await?;
+            return Ok(());
+        }
+
         if let Some(val) = self.self_vote {
             settings.self_vote = Some(val);
         }

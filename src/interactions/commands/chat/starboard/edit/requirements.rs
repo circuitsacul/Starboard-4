@@ -110,7 +110,7 @@ impl EditRequirements {
             &starboard.settings.upvote_emojis,
             &starboard.settings.downvote_emojis,
         ) {
-            ctx.respond_str(why, true).await?;
+            ctx.respond_str(&why, true).await?;
             return Ok(());
         }
 

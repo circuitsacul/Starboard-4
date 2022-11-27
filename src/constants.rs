@@ -36,7 +36,7 @@ pub const MAX_COOLDOWN_PERIOD: i16 = MAX_COOLDOWN_CAPACITY;
 pub const MAX_NEWER_THAN: i64 = 86_400 * 7; // one week
 pub const MAX_OLDER_THAN: i64 = MAX_NEWER_THAN;
 
-pub const MAX_VOTE_EMOJIS: i16 = 3; // todo
+pub const MAX_VOTE_EMOJIS: usize = 3;
 pub const MAX_STARBOARDS: i16 = 3; // todo
 
 // Override Validation
