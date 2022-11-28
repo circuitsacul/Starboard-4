@@ -40,5 +40,5 @@ pub const MAX_VOTE_EMOJIS: usize = 3;
 pub const MAX_STARBOARDS: i16 = 3; // todo
 
 // Override Validation
-pub const MAX_CHANNELS_PER_OVERRIDE: i16 = 100; // todo
+pub const MAX_CHANNELS_PER_OVERRIDE: usize = 2;
 pub const MAX_OVERRIDES_PER_STARBOARD: i16 = 10; // todo

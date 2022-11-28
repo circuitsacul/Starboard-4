@@ -1,4 +1,4 @@
-use crate::database::OverrideValues;
+use crate::{concat_format, constants, database::OverrideValues};
 
 #[derive(Debug)]
 pub struct StarboardOverride {
@@ -64,6 +64,19 @@ impl StarboardOverride {
         )
         .fetch_optional(pool)
         .await
+    }
+
+    pub fn validate_channels(channel_ids: &[i64]) -> Result<(), String> {
+        if channel_ids.len() > constants::MAX_CHANNELS_PER_OVERRIDE {
+            Err(concat_format!(
+                "You can only have up to {}" <- constants::MAX_CHANNELS_PER_OVERRIDE;
+                " channels per override.\n";
+                "Tip: You can override the settings for an entire category if you include its ID.";
+
+            ))
+        } else {
+            Ok(())
+        }
     }
 
     pub async fn set_channels(
