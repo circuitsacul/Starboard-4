@@ -111,6 +111,16 @@ impl AutoStarChannel {
         .await
     }
 
+    pub async fn count_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<i64> {
+        sqlx::query!(
+            "SELECT COUNT(*) as count FROM autostar_channels WHERE guild_id=$1",
+            guild_id
+        )
+        .fetch_one(pool)
+        .await
+        .map(|r| r.count.unwrap())
+    }
+
     pub async fn list_by_channel(pool: &sqlx::PgPool, channel_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,

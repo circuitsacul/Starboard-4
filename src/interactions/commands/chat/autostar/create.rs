@@ -2,6 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::application::interaction::application_command::InteractionChannel;
 
 use crate::{
+    constants,
     database::{validation, AutoStarChannel, Guild},
     get_guild_id,
     interactions::context::CommandCtx,
@@ -31,6 +32,19 @@ impl CreateAutoStarChannel {
             }
             Ok(name) => name,
         };
+
+        let count = AutoStarChannel::count_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
+        if count >= constants::MAX_AUTOSTAR {
+            ctx.respond_str(
+                &format!(
+                    "You can only have up to {} autostar channels.",
+                    constants::MAX_AUTOSTAR
+                ),
+                true,
+            )
+            .await?;
+            return Ok(());
+        }
 
         let ret = map_dup_none!(AutoStarChannel::create(
             &ctx.bot.pool,
