@@ -4,6 +4,7 @@ use crate::{
     client::bot::StarboardBot,
     core::emoji::SimpleEmoji,
     database::{Member, Message, User, Vote},
+    errors::StarboardResult,
     map_dup_none, unwrap_id,
     utils::into_id::IntoId,
 };
@@ -13,7 +14,7 @@ use super::{config::StarboardConfig, handle::RefreshMessage, vote_status::VoteSt
 pub async fn handle_reaction_add(
     bot: &StarboardBot,
     event: Box<ReactionAdd>,
-) -> anyhow::Result<()> {
+) -> StarboardResult<()> {
     let guild_id = match event.guild_id {
         None => return Ok(()),
         Some(guild_id) => guild_id,
@@ -170,7 +171,7 @@ pub async fn handle_reaction_add(
 pub async fn handle_reaction_remove(
     bot: &StarboardBot,
     event: Box<ReactionRemove>,
-) -> anyhow::Result<()> {
+) -> StarboardResult<()> {
     let guild_id = match event.guild_id {
         None => return Ok(()),
         Some(guild_id) => guild_id,

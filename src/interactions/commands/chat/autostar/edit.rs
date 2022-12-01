@@ -3,6 +3,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::AutoStarChannel,
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
@@ -31,7 +32,7 @@ pub struct EditAutoStar {
 }
 
 impl EditAutoStar {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
         let asc =

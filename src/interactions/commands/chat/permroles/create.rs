@@ -3,7 +3,8 @@ use twilight_mention::Mention;
 use twilight_model::guild::Role;
 
 use crate::{
-    database::PermRole, get_guild_id, interactions::context::CommandCtx, map_dup_none, unwrap_id,
+    database::PermRole, errors::StarboardResult, get_guild_id, interactions::context::CommandCtx,
+    map_dup_none, unwrap_id,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -14,7 +15,7 @@ pub struct CreatePermRole {
 }
 
 impl CreatePermRole {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
         let pr = map_dup_none!(PermRole::create(

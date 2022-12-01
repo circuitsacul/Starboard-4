@@ -6,6 +6,7 @@ use twilight_util::builder::embed::{EmbedFieldBuilder, EmbedFooterBuilder};
 use crate::{
     core::starboard::config::StarboardConfig,
     database::Starboard,
+    errors::StarboardResult,
     get_guild_id,
     interactions::{commands::format_settings::format_settings, context::CommandCtx},
     unwrap_id,
@@ -21,7 +22,7 @@ pub struct ViewStarboard {
 }
 
 impl ViewStarboard {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
         if let Some(name) = self.name {

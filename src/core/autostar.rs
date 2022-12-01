@@ -6,13 +6,14 @@ use crate::{
     client::bot::StarboardBot,
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::AutoStarChannel,
+    errors::StarboardResult,
     unwrap_id,
     utils::notify,
 };
 
 use super::has_image::has_image;
 
-pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result<()> {
+pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> StarboardResult<()> {
     // Ignore DMs
     if event.guild_id.is_none() {
         return Ok(());

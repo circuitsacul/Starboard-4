@@ -1,6 +1,6 @@
-use crate::interactions::context::ComponentCtx;
+use crate::{errors::StarboardResult, interactions::context::ComponentCtx};
 
-pub async fn handle_dismiss(ctx: &ComponentCtx) -> anyhow::Result<()> {
+pub async fn handle_dismiss(ctx: &ComponentCtx) -> StarboardResult<()> {
     assert!(ctx.interaction.is_dm());
     let message = ctx.interaction.message.as_ref().unwrap();
 

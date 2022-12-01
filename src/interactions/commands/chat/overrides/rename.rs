@@ -2,6 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     database::{validation, StarboardOverride},
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     map_dup_none, unwrap_id,
@@ -19,7 +20,7 @@ pub struct RenameOverride {
 }
 
 impl RenameOverride {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = unwrap_id!(get_guild_id!(ctx));
 
         let name = match validation::name::validate_name(&self.name) {

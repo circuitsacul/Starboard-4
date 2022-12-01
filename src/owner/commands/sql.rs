@@ -7,9 +7,12 @@ use std::{
 use sqlx::{postgres::PgRow, Column, Executor, Row, ValueRef};
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
-use crate::{client::bot::StarboardBot, concat_format, owner::code_block::parse_code_blocks};
+use crate::{
+    client::bot::StarboardBot, concat_format, errors::StarboardResult,
+    owner::code_block::parse_code_blocks,
+};
 
-pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> anyhow::Result<()> {
+pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> StarboardResult<()> {
     bot.http.create_typing_trigger(event.channel_id).await?;
 
     let blocks = parse_code_blocks(event.content.strip_prefix("star sql").unwrap());

@@ -6,6 +6,7 @@ use crate::{
     concat_format,
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::AutoStarChannel,
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
@@ -21,7 +22,7 @@ pub struct ViewAutoStarChannels {
 }
 
 impl ViewAutoStarChannels {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
         if let Some(name) = &self.name {

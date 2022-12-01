@@ -4,6 +4,7 @@ use twilight_model::guild::Role;
 
 use crate::{
     database::PermRole,
+    errors::StarboardResult,
     interactions::{commands::tribool::Tribool, context::CommandCtx},
     unwrap_id,
 };
@@ -24,7 +25,7 @@ pub struct EditPermRole {
 }
 
 impl EditPermRole {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let pr = PermRole::get(&ctx.bot.pool, unwrap_id!(self.role.id)).await?;
         let mut pr = match pr {
             None => {

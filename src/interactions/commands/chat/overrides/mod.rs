@@ -7,7 +7,10 @@ mod view;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::interactions::{commands::permissions::manage_channels, context::CommandCtx};
+use crate::{
+    errors::StarboardResult,
+    interactions::{commands::permissions::manage_channels, context::CommandCtx},
+};
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
@@ -32,7 +35,7 @@ pub enum Overrides {
 }
 
 impl Overrides {
-    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, ctx: CommandCtx) -> StarboardResult<()> {
         match self {
             Self::Create(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,

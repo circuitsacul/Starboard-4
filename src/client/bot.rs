@@ -1,4 +1,4 @@
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 
 use sqlx::PgPool;
 use tokio::sync::RwLock;
@@ -13,7 +13,9 @@ use twilight_model::{
 };
 use twilight_standby::Standby;
 
-use crate::{cache::cache::Cache, client::config::Config, utils::into_id::IntoId};
+use crate::{
+    cache::cache::Cache, client::config::Config, errors::StarboardResult, utils::into_id::IntoId,
+};
 
 use super::{cooldowns::Cooldowns, locks::Locks};
 
@@ -37,9 +39,9 @@ impl Debug for StarboardBot {
 }
 
 impl StarboardBot {
-    pub async fn new(config: Config) -> anyhow::Result<(Events, StarboardBot)> {
+    pub async fn new(config: Config) -> StarboardResult<(Events, StarboardBot)> {
         // Setup gateway connection
-        let scheme = ShardScheme::try_from((0..config.shards, config.shards))?;
+        let scheme = ShardScheme::try_from((0..config.shards, config.shards)).unwrap();
         let intents = Intents::GUILDS
             | Intents::GUILD_EMOJIS_AND_STICKERS
             | Intents::GUILD_MEMBERS
@@ -103,7 +105,12 @@ impl StarboardBot {
         }
     }
 
-    pub async fn handle_error(&self, err: impl Display + Send) {
+    pub async fn handle_error<E>(&self, err: &E)
+    where
+        E: std::error::Error + ?Sized,
+    {
+        sentry::capture_error(&err);
+
         let msg = format!("{}", err);
         let msg = msg.trim();
         let msg = if msg.is_empty() { "Some Error" } else { msg };

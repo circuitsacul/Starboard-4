@@ -4,7 +4,7 @@ mod set;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::interactions::context::CommandCtx;
+use crate::{errors::StarboardResult, interactions::context::CommandCtx};
 
 #[derive(CommandModel, CreateCommand)]
 #[command(name = "channels", desc = "Manage the channels an override affects.")]
@@ -18,7 +18,7 @@ pub enum ManageOverrideChannels {
 }
 
 impl ManageOverrideChannels {
-    pub async fn callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, ctx: CommandCtx) -> StarboardResult<()> {
         match self {
             Self::Set(cmd) => cmd.callback(ctx).await,
             Self::Remove(cmd) => cmd.callback(ctx).await,

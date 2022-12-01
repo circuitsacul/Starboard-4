@@ -3,6 +3,7 @@ use twilight_model::application::interaction::application_command::InteractionCh
 
 use crate::{
     database::{validation, Guild, Starboard},
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     map_dup_none, unwrap_id,
@@ -19,7 +20,7 @@ pub struct CreateStarboard {
 }
 
 impl CreateStarboard {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         map_dup_none!(Guild::create(&ctx.bot.pool, unwrap_id!(guild_id)))?;
         let channel_id = unwrap_id!(self.channel.id);

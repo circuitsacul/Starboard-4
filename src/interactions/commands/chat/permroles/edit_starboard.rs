@@ -4,6 +4,7 @@ use twilight_model::guild::Role;
 
 use crate::{
     database::{PermRoleStarboard, Starboard},
+    errors::StarboardResult,
     get_guild_id,
     interactions::{commands::tribool::Tribool, context::CommandCtx},
     map_dup_none, unwrap_id,
@@ -30,7 +31,7 @@ pub struct EditPermRoleStarboard {
 }
 
 impl EditPermRoleStarboard {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
         let sb =
