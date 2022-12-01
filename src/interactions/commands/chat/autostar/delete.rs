@@ -1,8 +1,8 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::AutoStarChannel, get_guild_id, interactions::context::CommandCtx, unwrap_id,
-    utils::views::confirm,
+    database::AutoStarChannel, errors::StarboardResult, get_guild_id,
+    interactions::context::CommandCtx, unwrap_id, utils::views::confirm,
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -14,7 +14,7 @@ pub struct DeleteAutoStarChannel {
 }
 
 impl DeleteAutoStarChannel {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
         let mut btn_ctx = match confirm::simple(

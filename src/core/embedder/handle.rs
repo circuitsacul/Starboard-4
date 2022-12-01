@@ -64,7 +64,7 @@ impl Embedder<'_, '_> {
         let (attachments, errors) = built.upload_attachments.as_attachments(bot).await;
 
         for e in errors {
-            bot.handle_error(e).await;
+            bot.handle_error(&e).await;
         }
 
         let ret = bot

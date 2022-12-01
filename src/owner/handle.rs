@@ -1,6 +1,6 @@
 use twilight_model::gateway::payload::incoming::MessageCreate;
 
-use crate::client::bot::StarboardBot;
+use crate::{client::bot::StarboardBot, errors::StarboardResult};
 
 use super::commands;
 
@@ -8,7 +8,7 @@ pub async fn handle_message(
     _shard_id: u64,
     bot: &StarboardBot,
     event: &MessageCreate,
-) -> anyhow::Result<()> {
+) -> StarboardResult<()> {
     // first check that this is a command being run by the bot owner
     if !bot.config.owner_ids.contains(&event.author.id.get()) {
         return Ok(());

@@ -5,6 +5,7 @@ use crate::{
         validation::{self, cooldown::parse_cooldown},
         StarboardOverride,
     },
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
@@ -45,7 +46,7 @@ pub struct EditBehavior {
 }
 
 impl EditBehavior {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let ov =
             match StarboardOverride::get(&ctx.bot.pool, unwrap_id!(guild_id), &self.name).await? {

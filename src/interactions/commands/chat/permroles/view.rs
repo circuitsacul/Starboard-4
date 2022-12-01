@@ -6,6 +6,7 @@ use twilight_util::builder::embed::{EmbedBuilder, EmbedFooterBuilder};
 use crate::{
     concat_format, constants,
     database::{models::permrole::SortVecPermRole, PermRole, PermRoleStarboard, Starboard},
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
@@ -27,7 +28,7 @@ pub struct ViewPermRoles {
 }
 
 impl ViewPermRoles {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
         if let Some(role) = self.role {

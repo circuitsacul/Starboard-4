@@ -12,4 +12,10 @@ pub enum StarboardError {
     TwilightHttp(#[from] twilight_http::Error),
     #[error(transparent)]
     Reqwest(#[from] reqwest::Error),
+    #[error(transparent)]
+    InteractionParseError(#[from] twilight_interactions::error::ParseError),
+    #[error(transparent)]
+    ClusterCommandError(#[from] twilight_gateway::cluster::ClusterCommandError),
+    #[error(transparent)]
+    ClusterStartoError(#[from] twilight_gateway::cluster::ClusterStartError),
 }
