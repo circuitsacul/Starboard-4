@@ -6,6 +6,7 @@ use twilight_model::gateway::payload::outgoing::RequestGuildMembers;
 use crate::{
     client::bot::StarboardBot,
     core,
+    errors::StarboardResult,
     interactions::{commands::register::post_commands, handle::handle_interaction},
 };
 
@@ -22,13 +23,13 @@ async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBo
     match ret {
         Ok(ret) => match ret {
             Ok(_) => {}
-            Err(why) => bot.handle_error(why).await,
+            Err(why) => bot.handle_error(&why).await,
         },
-        Err(why) => bot.handle_error(why).await,
+        Err(why) => bot.handle_error(&why).await,
     }
 }
 
-async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> anyhow::Result<()> {
+async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> StarboardResult<()> {
     match event {
         Event::InteractionCreate(int) => handle_interaction(shard_id, int.0, bot).await?,
         Event::ShardConnected(event) => println!("Shard {} connected.", event.shard_id),

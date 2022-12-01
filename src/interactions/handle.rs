@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use twilight_model::application::interaction::{Interaction, InteractionData, InteractionType};
 
-use crate::client::bot::StarboardBot;
+use crate::{client::bot::StarboardBot, errors::StarboardResult};
 
 use super::{
     autocomplete::handle::handle_autocomplete, commands::handle::handle_command,
@@ -13,7 +13,7 @@ pub async fn handle_interaction(
     shard_id: u64,
     interaction: Interaction,
     bot: Arc<StarboardBot>,
-) -> anyhow::Result<()> {
+) -> StarboardResult<()> {
     match interaction.data {
         Some(InteractionData::ApplicationCommand(ref data)) => {
             let data = data.to_owned();

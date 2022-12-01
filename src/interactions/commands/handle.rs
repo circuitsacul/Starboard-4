@@ -1,6 +1,9 @@
 use twilight_interactions::command::CommandModel;
 
-use crate::interactions::{commands::chat, context::CommandCtx};
+use crate::{
+    errors::StarboardResult,
+    interactions::{commands::chat, context::CommandCtx},
+};
 
 macro_rules! match_commands {
     ($ctx:expr, $($cmd_name:expr => $command:ty),* $(,)?) => {
@@ -14,7 +17,7 @@ macro_rules! match_commands {
     };
 }
 
-pub async fn handle_command(ctx: CommandCtx) -> anyhow::Result<()> {
+pub async fn handle_command(ctx: CommandCtx) -> StarboardResult<()> {
     match_commands!(
         ctx,
         "ping" => chat::ping::Ping,

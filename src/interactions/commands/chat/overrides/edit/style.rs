@@ -3,6 +3,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::StarboardOverride,
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
@@ -33,7 +34,7 @@ pub struct EditGeneralStyle {
 }
 
 impl EditGeneralStyle {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
         let ov = StarboardOverride::get(&ctx.bot.pool, unwrap_id!(guild_id), &self.name).await?;

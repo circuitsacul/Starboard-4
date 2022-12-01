@@ -5,7 +5,7 @@ pub mod style;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::interactions::context::CommandCtx;
+use crate::{errors::StarboardResult, interactions::context::CommandCtx};
 
 #[derive(CommandModel, CreateCommand)]
 #[command(name = "edit", desc = "Edit a starboard")]
@@ -21,7 +21,7 @@ pub enum EditStarboard {
 }
 
 impl EditStarboard {
-    pub async fn call_callback(self, ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, ctx: CommandCtx) -> StarboardResult<()> {
         match self {
             Self::Embed(cmd) => cmd.callback(ctx).await,
             Self::Style(cmd) => cmd.callback(ctx).await,

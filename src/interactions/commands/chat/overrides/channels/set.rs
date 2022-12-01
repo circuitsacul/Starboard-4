@@ -2,6 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     database::{validation::mentions::textable_channel_ids, StarboardOverride},
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
@@ -19,7 +20,7 @@ pub struct SetOverrideChannels {
 }
 
 impl SetOverrideChannels {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = unwrap_id!(get_guild_id!(ctx));
 
         let channel_ids: Vec<_> = textable_channel_ids(&ctx.bot, guild_id, &self.channels);

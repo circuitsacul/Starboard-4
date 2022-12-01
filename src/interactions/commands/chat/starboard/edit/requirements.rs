@@ -6,6 +6,7 @@ use crate::{
         validation::{self, time_delta::parse_time_delta},
         Starboard,
     },
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
@@ -51,7 +52,7 @@ pub struct EditRequirements {
 }
 
 impl EditRequirements {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let mut starboard =
             match Starboard::get_by_name(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await? {

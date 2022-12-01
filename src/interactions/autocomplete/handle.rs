@@ -4,7 +4,7 @@ use twilight_model::{
 };
 use twilight_util::builder::InteractionResponseDataBuilder;
 
-use crate::interactions::context::CommandCtx;
+use crate::{errors::StarboardResult, interactions::context::CommandCtx};
 
 use super::{
     autostar_name::autostar_name_autocomplete, override_name::override_name_autocomplete,
@@ -54,7 +54,7 @@ pub fn qualified_name(ctx: &CommandCtx) -> String {
     panic!("No focused option in autocomplete response.");
 }
 
-pub async fn handle_autocomplete(ctx: CommandCtx) -> anyhow::Result<()> {
+pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
     let options = match qualified_name(&ctx).as_str() {
         // autostar channels
         "autostar delete name" => autostar_name_autocomplete(&ctx).await?,

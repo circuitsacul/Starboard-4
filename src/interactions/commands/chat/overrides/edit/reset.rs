@@ -4,6 +4,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     database::{helpers::settings::overrides::call_with_override_settings, StarboardOverride},
+    errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
@@ -34,7 +35,7 @@ pub struct ResetOverrideSettings {
 }
 
 impl ResetOverrideSettings {
-    pub async fn callback(self, mut ctx: CommandCtx) -> anyhow::Result<()> {
+    pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = unwrap_id!(get_guild_id!(ctx));
 
         let ov = StarboardOverride::get(&ctx.bot.pool, guild_id, &self.name).await?;

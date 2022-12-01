@@ -1,10 +1,13 @@
 use twilight_model::application::command::{CommandOptionChoice, CommandOptionChoiceData};
 
-use crate::{database::AutoStarChannel, interactions::context::CommandCtx, unwrap_id};
+use crate::{
+    database::AutoStarChannel, errors::StarboardResult, interactions::context::CommandCtx,
+    unwrap_id,
+};
 
 pub async fn autostar_name_autocomplete(
     ctx: &CommandCtx,
-) -> anyhow::Result<Vec<CommandOptionChoice>> {
+) -> StarboardResult<Vec<CommandOptionChoice>> {
     let guild_id = ctx.interaction.guild_id.unwrap();
     let names: Vec<String> = match ctx.bot.cache.guild_autostar_channel_names.get(&guild_id) {
         Some(names) => (*names.value()).clone(),
