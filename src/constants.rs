@@ -11,7 +11,7 @@ pub const MAX_MESSAGES: u32 = 10_000;
 pub const MAX_NAMES: u32 = 100;
 
 // Cooldowns
-pub const AUTOSTAR_COOLDOWN: (u32, Duration) = (5, Duration::from_secs(20));
+pub const AUTOSTAR_COOLDOWN: (u64, Duration) = (5, Duration::from_secs(20));
 
 // Common Validation
 pub const MAX_NAME_LENGTH: u32 = 32;
