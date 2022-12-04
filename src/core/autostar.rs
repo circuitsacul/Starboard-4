@@ -28,9 +28,8 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> StarboardResul
     if bot
         .cooldowns
         .autostar_send
-        .trigger(event.channel_id)
-        .await
-        .is_none()
+        .trigger(&event.channel_id)
+        .is_some()
     {
         return Ok(());
     }

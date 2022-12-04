@@ -1,20 +1,24 @@
+use std::sync::Arc;
+
+use floodgate::FixedMapping;
 use twilight_model::id::{marker::ChannelMarker, Id};
 
-use crate::{constants, utils::cooldowns::FixedMapping};
+use crate::constants;
 
 pub struct Cooldowns {
     // restricts per-channel
-    pub autostar_send: FixedMapping<Id<ChannelMarker>>,
+    pub autostar_send: Arc<FixedMapping<Id<ChannelMarker>>>,
 }
 
 impl Cooldowns {
     pub fn new() -> Self {
-        Self {
-            autostar_send: FixedMapping::new(
-                constants::AUTOSTAR_COOLDOWN.0,
-                constants::AUTOSTAR_COOLDOWN.1,
-            ),
-        }
+        let autostar_send = Arc::new(FixedMapping::new(
+            constants::AUTOSTAR_COOLDOWN.0,
+            constants::AUTOSTAR_COOLDOWN.1,
+        ));
+        FixedMapping::start(autostar_send.clone(), None);
+
+        Self { autostar_send }
     }
 }
 
