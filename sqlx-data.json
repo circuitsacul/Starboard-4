@@ -946,6 +946,26 @@
     },
     "query": "INSERT INTO users\n            (user_id, is_bot)\n            VALUES ($1, $2)\n            RETURNING *"
   },
+  "374879d017c0a2ea236967ecdf63041b0ae471ee8d8beb4ff8c1824fdbd09116": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT COUNT(*) as count FROM starboards WHERE guild_id=$1"
+  },
   "382d03439a68e5be3e01510b19594da6cb84cfb4ab8c104112623bd456450bf8": {
     "describe": {
       "columns": [
