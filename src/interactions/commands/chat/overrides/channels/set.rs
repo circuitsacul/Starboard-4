@@ -24,6 +24,10 @@ impl SetOverrideChannels {
         let guild_id = unwrap_id!(get_guild_id!(ctx));
 
         let channel_ids: Vec<_> = textable_channel_ids(&ctx.bot, guild_id, &self.channels);
+        if let Err(why) = StarboardOverride::validate_channels(&channel_ids) {
+            ctx.respond_str(&why, true).await?;
+            return Ok(());
+        }
         let ov = StarboardOverride::set_channels(&ctx.bot.pool, guild_id, &self.name, &channel_ids)
             .await?;
 

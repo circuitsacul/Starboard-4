@@ -31,6 +31,10 @@ impl AddOverrideChannels {
             channel_ids.extend(ov.channel_ids);
             let new_channels: Vec<_> = channel_ids.into_iter().collect();
 
+            if let Err(why) = StarboardOverride::validate_channels(&new_channels) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             let ret =
                 StarboardOverride::set_channels(&ctx.bot.pool, guild_id, &self.name, &new_channels)
                     .await?;

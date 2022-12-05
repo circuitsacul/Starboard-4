@@ -2,6 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::application::interaction::application_command::InteractionChannel;
 
 use crate::{
+    constants,
     database::{validation, Guild, Starboard},
     errors::StarboardResult,
     get_guild_id,
@@ -22,8 +23,22 @@ pub struct CreateStarboard {
 impl CreateStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = unwrap_id!(guild_id);
         map_dup_none!(Guild::create(&ctx.bot.pool, unwrap_id!(guild_id)))?;
         let channel_id = unwrap_id!(self.channel.id);
+
+        let count = Starboard::count_by_guild(&ctx.bot.pool, guild_id_i64).await?;
+        if count >= constants::MAX_STARBOARDS {
+            ctx.respond_str(
+                &format!(
+                    "You can only have up to {} starboards.",
+                    constants::MAX_STARBOARDS
+                ),
+                true,
+            )
+            .await?;
+            return Ok(());
+        }
 
         let name = match validation::name::validate_name(&self.name) {
             Err(why) => {

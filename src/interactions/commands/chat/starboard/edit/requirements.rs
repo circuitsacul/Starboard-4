@@ -88,13 +88,6 @@ impl EditRequirements {
         }
         if let Some(val) = self.upvote_emojis {
             let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
-            if let Err(why) = validation::starboard_settings::validate_vote_emojis(
-                &emojis,
-                &starboard.settings.downvote_emojis,
-            ) {
-                ctx.respond_str(why, true).await?;
-                return Ok(());
-            }
             starboard.settings.upvote_emojis = emojis;
 
             // delete cached value
@@ -105,13 +98,6 @@ impl EditRequirements {
         }
         if let Some(val) = self.downvote_emojis {
             let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
-            if let Err(why) = validation::starboard_settings::validate_vote_emojis(
-                &starboard.settings.upvote_emojis,
-                &emojis,
-            ) {
-                ctx.respond_str(why, true).await?;
-                return Ok(());
-            }
             starboard.settings.downvote_emojis = emojis;
 
             // delete cached value
@@ -120,6 +106,15 @@ impl EditRequirements {
                 .guild_vote_emojis
                 .remove(&unwrap_id!(guild_id));
         }
+
+        if let Err(why) = validation::starboard_settings::validate_vote_emojis(
+            &starboard.settings.upvote_emojis,
+            &starboard.settings.downvote_emojis,
+        ) {
+            ctx.respond_str(&why, true).await?;
+            return Ok(());
+        }
+
         if let Some(val) = self.self_vote {
             starboard.settings.self_vote = val;
         }
@@ -148,6 +143,14 @@ impl EditRequirements {
                 Ok(delta) => delta,
             };
             starboard.settings.newer_than = delta;
+        }
+
+        if let Err(why) = validation::starboard_settings::validate_relative_duration(
+            starboard.settings.newer_than,
+            starboard.settings.older_than,
+        ) {
+            ctx.respond_str(&why, true).await?;
+            return Ok(());
         }
 
         starboard.update_settings(&ctx.bot.pool).await?;

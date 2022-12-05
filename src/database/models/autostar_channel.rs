@@ -111,6 +111,16 @@ impl AutoStarChannel {
         .await
     }
 
+    pub async fn count_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<i64> {
+        sqlx::query!(
+            "SELECT COUNT(*) as count FROM autostar_channels WHERE guild_id=$1",
+            guild_id
+        )
+        .fetch_one(pool)
+        .await
+        .map(|r| r.count.unwrap())
+    }
+
     pub async fn list_by_channel(pool: &sqlx::PgPool, channel_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
@@ -138,6 +148,18 @@ impl AutoStarChannel {
     }
 
     // validation
+    pub fn set_emojis(&mut self, val: Vec<String>) -> Result<(), String> {
+        if val.len() > constants::MAX_ASC_EMOJIS {
+            return Err(format!(
+                "You can only have up to {} emojis per autostar channel.",
+                constants::MAX_ASC_EMOJIS
+            ));
+        }
+
+        self.emojis = val;
+        Ok(())
+    }
+
     pub fn set_min_chars(&mut self, val: i16) -> Result<(), String> {
         if let Some(max_chars) = self.max_chars {
             if val > max_chars {

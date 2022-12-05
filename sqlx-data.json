@@ -946,6 +946,26 @@
     },
     "query": "INSERT INTO users\n            (user_id, is_bot)\n            VALUES ($1, $2)\n            RETURNING *"
   },
+  "374879d017c0a2ea236967ecdf63041b0ae471ee8d8beb4ff8c1824fdbd09116": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT COUNT(*) as count FROM starboards WHERE guild_id=$1"
+  },
   "382d03439a68e5be3e01510b19594da6cb84cfb4ab8c104112623bd456450bf8": {
     "describe": {
       "columns": [
@@ -2723,6 +2743,26 @@
     },
     "query": "SELECT * FROM permroles WHERE guild_id=$1"
   },
+  "bcbcc0bbec6474d9d1b5928f7b8275bcbf87727fa4f76c69fa99e8de86e891f3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT COUNT(*) as count FROM overrides WHERE starboard_id=$1"
+  },
   "be21d40e95f0802820a267c9544930b10a9df068d2f8e3e5a9a7e546195b8c32": {
     "describe": {
       "columns": [
@@ -2769,6 +2809,26 @@
       }
     },
     "query": "UPDATE votes SET is_downvote=$1 WHERE\n            message_id=$2 AND starboard_id=$3 AND\n            user_id=$4 RETURNING *"
+  },
+  "c28f82bd280a87e904af50381c4b94298325296e3ecfb3d9ec4290ac353efed6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT COUNT(*) as count FROM autostar_channels WHERE guild_id=$1"
   },
   "c66e16c0479be2132e8339140c7826b315455db068de46eddbf1904c757e5d48": {
     "describe": {
@@ -3079,6 +3139,26 @@
       }
     },
     "query": "SELECT * FROM starboard_messages WHERE\n            starboard_message_id=$1"
+  },
+  "d342b1c18ab9fb5e12a674ed5c79ca966aed58a66788d62160655491f5159ead": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT COUNT(*) as count FROM permroles WHERE guild_id=$1"
   },
   "db47dd094d91342ad83996e3ebe7cacc85c7f77f1e7ecd0c9d8ba6914fb9ec8a": {
     "describe": {

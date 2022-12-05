@@ -81,7 +81,7 @@ impl VoteStatus {
             }
 
             // message age in seconds
-            let message_age = ((now - message_id.timestamp() as u128) / 1000) as i64;
+            let message_age = ((now as i128 - message_id.timestamp() as i128) / 1000) as i64;
 
             let min_age = config.resolved.older_than;
             let max_age = config.resolved.newer_than;

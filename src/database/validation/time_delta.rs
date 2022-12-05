@@ -3,7 +3,12 @@ use std::borrow::Cow;
 use lazy_static::lazy_static;
 use regex::Regex;
 
+use crate::constants;
+
 fn normalize_unit(unit: &str) -> &str {
+    if unit == "s" {
+        return unit;
+    }
     let unit = unit.strip_suffix('s').unwrap_or(unit);
     match unit {
         "second" => "s",
@@ -24,8 +29,8 @@ fn unit_conversion(unit: &str) -> Option<i64> {
         "h" => Some(60 * 60),
         "d" => Some(60 * 60 * 24),
         "w" => Some(60 * 60 * 24 * 7),
-        "mo" => Some(60 * 60 * 24 * 30),
-        "y" => Some(60 * 60 * 24 * 365),
+        "mo" => Some(constants::MONTH_SECONDS),
+        "y" => Some(constants::YEAR_SECONDS),
         _ => None,
     }
 }
@@ -50,17 +55,21 @@ pub fn parse_time_delta(inp: &str) -> Result<i64, String> {
         }
 
         let found = match RE.captures(&token) {
-            None => return Err(format!("I couldn't interpret {token} as a unit of time.")),
+            None => return Err(format!("I couldn't interpret `{token}` as a unit of time.")),
             Some(found) => found,
         };
 
         let value: i64 = match found.name("value").unwrap().as_str().parse() {
-            Err(_) => return Err(format!("I couldn't interpret {token} as a unit of time.")),
+            Err(_) => return Err(format!("I couldn't interpret `{token}` as a unit of time.")),
             Ok(value) => value,
         };
         let unit = normalize_unit(found.name("unit").unwrap().as_str());
         let conversion = match unit_conversion(unit) {
-            None => return Err(format!("I don't know what `{unit}` is.")),
+            None => {
+                return Err(format!(
+                    "I don't know what `{unit}` is (you said `{value}{unit}`)."
+                ))
+            }
             Some(conversion) => conversion,
         };
 
