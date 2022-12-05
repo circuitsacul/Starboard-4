@@ -1,6 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
+    constants,
     database::{validation, Starboard, StarboardOverride},
     errors::StarboardResult,
     get_guild_id,
@@ -39,6 +40,19 @@ impl CreateOverride {
             }
             Some(val) => val,
         };
+
+        let count = StarboardOverride::count_by_starboard(&ctx.bot.pool, starboard.id).await?;
+        if count >= constants::MAX_OVERRIDES_PER_STARBOARD {
+            ctx.respond_str(
+                &format!(
+                    "You can only have up to {} overrides per starboard.",
+                    constants::MAX_OVERRIDES_PER_STARBOARD
+                ),
+                true,
+            )
+            .await?;
+            return Ok(());
+        }
 
         let ov = StarboardOverride::create(&ctx.bot.pool, guild_id, &name, starboard.id);
         let ov = map_dup_none!(ov)?;

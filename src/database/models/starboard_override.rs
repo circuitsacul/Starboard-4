@@ -154,6 +154,16 @@ impl StarboardOverride {
         .await
     }
 
+    pub async fn count_by_starboard(pool: &sqlx::PgPool, starboard_id: i32) -> sqlx::Result<i64> {
+        sqlx::query!(
+            "SELECT COUNT(*) as count FROM overrides WHERE starboard_id=$1",
+            starboard_id
+        )
+        .fetch_one(pool)
+        .await
+        .map(|r| r.count.unwrap())
+    }
+
     pub async fn list_by_starboard(
         pool: &sqlx::PgPool,
         starboard_id: i32,

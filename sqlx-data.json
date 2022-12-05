@@ -2723,6 +2723,26 @@
     },
     "query": "SELECT * FROM permroles WHERE guild_id=$1"
   },
+  "bcbcc0bbec6474d9d1b5928f7b8275bcbf87727fa4f76c69fa99e8de86e891f3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT COUNT(*) as count FROM overrides WHERE starboard_id=$1"
+  },
   "be21d40e95f0802820a267c9544930b10a9df068d2f8e3e5a9a7e546195b8c32": {
     "describe": {
       "columns": [

@@ -41,7 +41,7 @@ pub const MAX_STARBOARDS: i16 = 3; // todo
 
 // Override Validation
 pub const MAX_CHANNELS_PER_OVERRIDE: usize = 2;
-pub const MAX_OVERRIDES_PER_STARBOARD: i16 = 10; // todo
+pub const MAX_OVERRIDES_PER_STARBOARD: i64 = 2;
 
 // PermRole Validation
 pub const MAX_PERMROLES: i64 = 50;
