@@ -3,6 +3,8 @@ use std::borrow::Cow;
 use lazy_static::lazy_static;
 use regex::Regex;
 
+use crate::constants;
+
 fn normalize_unit(unit: &str) -> &str {
     if unit == "s" {
         return unit;
@@ -27,8 +29,8 @@ fn unit_conversion(unit: &str) -> Option<i64> {
         "h" => Some(60 * 60),
         "d" => Some(60 * 60 * 24),
         "w" => Some(60 * 60 * 24 * 7),
-        "mo" => Some(60 * 60 * 24 * 30),
-        "y" => Some(60 * 60 * 24 * 365),
+        "mo" => Some(constants::MONTH_SECONDS),
+        "y" => Some(constants::YEAR_SECONDS),
         _ => None,
     }
 }
