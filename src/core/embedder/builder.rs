@@ -121,7 +121,7 @@ impl BuiltStarboardEmbed {
                 },
             ));
 
-        let link = {
+        let (link, mid_i64) = {
             let mid = match is_reply {
                 true => unwrap_id!(handle
                     .orig_message
@@ -133,11 +133,15 @@ impl BuiltStarboardEmbed {
                 false => handle.orig_sql_message.message_id,
             };
 
-            format!(
-                "https://discord.com/channels/{}/{}/{}",
-                handle.config.starboard.guild_id, handle.orig_sql_message.channel_id, mid,
+            (
+                format!(
+                    "https://discord.com/channels/{}/{}/{}",
+                    handle.config.starboard.guild_id, handle.orig_sql_message.channel_id, mid,
+                ),
+                mid,
             )
         };
+        let mid: Id<MessageMarker> = mid_i64.into_id();
 
         // author
         {
@@ -229,10 +233,7 @@ impl BuiltStarboardEmbed {
         }
 
         // timestamp
-        {
-            let id: Id<MessageMarker> = handle.orig_sql_message.message_id.into_id();
-            embed = embed.timestamp(Timestamp::from_micros(id.timestamp() * 1000).unwrap());
-        }
+        embed = embed.timestamp(Timestamp::from_micros(mid.timestamp() * 1000).unwrap());
 
         // add the fields
         for field in zws_fields {
