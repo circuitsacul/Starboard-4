@@ -28,10 +28,18 @@ pub async fn handle_message(
     }
 
     // match second token to a command, if any
-    match tokens[1] {
-        "sql" => commands::sql::run_sql(bot, event).await?,
+    let ret = match tokens[1] {
+        "sql" => commands::sql::run_sql(bot, event).await,
         // "embed" => commands::embed_test::test_starboard_embed(bot, event).await?,
-        _ => {}
+        _ => Ok(()),
+    };
+
+    if let Err(err) = ret {
+        bot.http
+            .create_message(event.channel_id)
+            .content(&err.to_string())
+            .unwrap()
+            .await?;
     }
 
     Ok(())
