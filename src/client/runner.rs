@@ -9,6 +9,8 @@ use twilight_gateway::cluster::Events;
 
 use crate::{client::bot::StarboardBot, events::handle_event};
 
+use super::cooldowns::Cooldowns;
+
 async fn shutdown_handler(bot: Arc<StarboardBot>) {
     let (tx, mut rx) = mpsc::unbounded_channel();
 
@@ -29,6 +31,7 @@ async fn shutdown_handler(bot: Arc<StarboardBot>) {
 
 pub async fn run(mut events: Events, bot: StarboardBot) {
     let bot = Arc::new(bot);
+    Cooldowns::start(bot.clone());
 
     if bot.config.development {
         println!("Running bot in development mode.");
