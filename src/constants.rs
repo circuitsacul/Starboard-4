@@ -34,7 +34,10 @@ pub const MIN_REQUIRED_REMOVE: i16 = -500;
 pub const MAX_REQUIRED_REMOVE: i16 = 490;
 pub const MIN_XP_MULTIPLIER: f32 = -10.0;
 pub const MAX_XP_MULTIPLIER: f32 = 10.0;
-pub const MAX_COOLDOWN_CAPACITY: i16 = 3600; // seconds in an hour
+pub const MAX_COOLDOWN_CAPACITY: i16 = 3600;
+// WARNING: if you make this greater than 1 hour, you have
+//          to change the cycle period used by the cooldown
+//          struct.
 pub const MAX_COOLDOWN_PERIOD: i16 = 3600;
 pub const MAX_NEWER_THAN: i64 = YEAR_SECONDS * 50;
 pub const MAX_OLDER_THAN: i64 = YEAR_SECONDS * 50;

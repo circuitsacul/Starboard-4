@@ -1,6 +1,6 @@
 //! tool for checking if a vote is valid
 
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use twilight_model::id::{
     marker::{ChannelMarker, MessageMarker, UserMarker},
@@ -117,9 +117,10 @@ impl VoteStatus {
         let mut upvote = Vec::new();
         let mut downvote = Vec::new();
 
-        let mut invalid_pr_exists = false;
+        let mut invalid_exists_2 = false;
 
         for (config, vote_type) in configs.into_iter().filter_map(eval_config) {
+            // check reactor/author role permissions
             let reactor_perms = Permissions::get_permissions(
                 bot,
                 reactor_id,
@@ -136,7 +137,23 @@ impl VoteStatus {
             .await?;
 
             if !reactor_perms.give_votes || !author_perms.receive_votes {
-                invalid_pr_exists = true;
+                invalid_exists_2 = true;
+                continue;
+            }
+
+            // check cooldown
+            if config.resolved.cooldown_enabled
+                && bot
+                    .cooldowns
+                    .starboard_custom_cooldown
+                    .trigger(
+                        &(reactor_id, config.starboard.id),
+                        config.resolved.cooldown_count as u64,
+                        Duration::from_secs(config.resolved.cooldown_period as u64),
+                    )
+                    .is_some()
+            {
+                invalid_exists_2 = true;
                 continue;
             }
 
@@ -148,7 +165,7 @@ impl VoteStatus {
         }
 
         if upvote.is_empty() && downvote.is_empty() {
-            if (invalid_exists || invalid_pr_exists) && allow_remove {
+            if (invalid_exists || invalid_exists_2) && allow_remove {
                 Ok(VoteStatus::Remove)
             } else {
                 Ok(VoteStatus::Ignore)
