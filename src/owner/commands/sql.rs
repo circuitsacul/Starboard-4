@@ -64,7 +64,7 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> StarboardResu
                     final_result.push_str(" - and more...");
                     break;
                 }
-                writeln!(final_result, " - {:?}", row).unwrap();
+                writeln!(final_result, " - {row:?}").unwrap();
             }
             final_result.push_str("```\n");
         }

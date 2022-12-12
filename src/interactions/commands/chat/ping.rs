@@ -13,7 +13,7 @@ impl Ping {
             None => "Unknown latency.".to_string(),
             Some(duration) => format!("{}ms latency.", duration.as_millis()),
         };
-        ctx.respond_str(&format!("Pong! {}", millis), false).await?;
+        ctx.respond_str(&format!("Pong! {millis}"), false).await?;
 
         Ok(())
     }

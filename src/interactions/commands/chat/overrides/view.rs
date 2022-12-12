@@ -39,11 +39,7 @@ impl ViewOverride {
                 .await?
                 .unwrap();
 
-            let channels: Vec<_> = ov
-                .channel_ids
-                .iter()
-                .map(|id| format!("<#{}>", id))
-                .collect();
+            let channels: Vec<_> = ov.channel_ids.iter().map(|id| format!("<#{id}>")).collect();
             let channels = channels.join(", ");
             let config = StarboardConfig::new(sb, vec![ov])?;
             let pretty = format_settings(&ctx.bot, guild_id, &config);
@@ -51,8 +47,7 @@ impl ViewOverride {
             let embed = embed::build()
                 .title(format!("Override '{}'", &name))
                 .description(format!(
-                    "This override applies to the following channels: {}",
-                    channels
+                    "This override applies to the following channels: {channels}"
                 ))
                 .field(
                     EmbedFieldBuilder::new("Requirements", pretty.requirements)

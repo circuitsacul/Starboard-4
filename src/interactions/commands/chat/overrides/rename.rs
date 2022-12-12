@@ -37,7 +37,7 @@ impl RenameOverride {
         match ov {
             None => {
                 ctx.respond_str(
-                    &format!("An override with the name '{}' already exists.", name),
+                    &format!("An override with the name '{name}' already exists."),
                     true,
                 )
                 .await?;

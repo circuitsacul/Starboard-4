@@ -13,7 +13,7 @@ pub fn modify_imgur_embed(mut embed: Embed) -> ImgurResult {
         if let Some(proxy) = &video.proxy_url {
             let ext = proxy.split('.').last().unwrap_or("mp4");
             return ImgurResult::Video(AttachmentHandle {
-                filename: format!("imgur_video.{}", ext),
+                filename: format!("imgur_video.{ext}"),
                 content_type: Some("video".to_string()),
                 url: proxy.to_owned(),
             });
@@ -48,5 +48,5 @@ pub fn modify_imgur_url(url: &str) -> Option<String> {
     let ext = &groups[2];
     let id = id.strip_suffix('h').unwrap_or(id);
 
-    Some(format!("https://i.imgur.com/{}.{}", id, ext))
+    Some(format!("https://i.imgur.com/{id}.{ext}"))
 }

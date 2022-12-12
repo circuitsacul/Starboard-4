@@ -111,11 +111,11 @@ impl StarboardBot {
     {
         sentry::capture_error(&err);
 
-        let msg = format!("{}", err);
+        let msg = format!("{err}");
         let msg = msg.trim();
         let msg = if msg.is_empty() { "Some Error" } else { msg };
 
-        eprintln!("{}", msg);
+        eprintln!("{msg}");
         if let Some(chid) = self.config.error_channel {
             let _ = self
                 .http

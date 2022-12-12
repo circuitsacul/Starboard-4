@@ -112,11 +112,11 @@ pub fn validate_relative_duration(newer_than: i64, older_than: i64) -> Result<()
     }
     if older_than > constants::MAX_OLDER_THAN {
         let ht = humantime::format_duration(Duration::from_secs(constants::MAX_OLDER_THAN as u64));
-        return Err(format!("`older-than` cannot be greater than `{}`.", ht));
+        return Err(format!("`older-than` cannot be greater than `{ht}`."));
     }
     if newer_than > constants::MAX_NEWER_THAN {
         let ht = humantime::format_duration(Duration::from_secs(constants::MAX_NEWER_THAN as u64));
-        return Err(format!("`newer-than` cannot be greater than `{}`.", ht));
+        return Err(format!("`newer-than` cannot be greater than `{ht}`."));
     }
 
     Ok(())

@@ -180,7 +180,7 @@ impl BuiltStarboardEmbed {
                 }
             };
             let name = if is_reply {
-                format!("Replying to {}", name)
+                format!("Replying to {name}")
             } else {
                 name
             };
@@ -217,7 +217,7 @@ impl BuiltStarboardEmbed {
         // jump link
         if handle.config.resolved.jump_to_message && !is_reply {
             embed_is_empty = false;
-            zws_fields.push(format!("[Go to Message]({})", link));
+            zws_fields.push(format!("[Go to Message]({link})"));
         }
 
         // attachments list

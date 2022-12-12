@@ -10,7 +10,7 @@ use super::dm;
 pub async fn notify(bot: &StarboardBot, user_id: Id<UserMarker>, message: &str) {
     if bot.config.development {
         println!("Development, skipping notification:");
-        println!("{}", message);
+        println!("{message}");
         return;
     }
 

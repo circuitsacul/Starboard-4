@@ -56,10 +56,7 @@ impl CreateAutoStarChannel {
 
         if ret.is_none() {
             ctx.respond_str(
-                &format!(
-                    "An autostar channel with the name '{}' already exists.",
-                    name
-                ),
+                &format!("An autostar channel with the name '{name}' already exists."),
                 true,
             )
             .await?;
@@ -72,7 +69,7 @@ impl CreateAutoStarChannel {
                 .await;
 
             ctx.respond_str(
-                &format!("Created autostar channel '{}' in <#{}>.", name, channel_id),
+                &format!("Created autostar channel '{name}' in <#{channel_id}>."),
                 false,
             )
             .await?;

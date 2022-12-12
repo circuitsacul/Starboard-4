@@ -95,8 +95,7 @@ async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCr
     if let Some(max_chars) = asc.max_chars {
         if event.content.len() > max_chars as usize {
             invalid.push(format!(
-                " - Your message cannot be longer than {} characters.",
-                max_chars,
+                " - Your message cannot be longer than {max_chars} characters.",
             ));
         }
     }

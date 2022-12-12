@@ -52,7 +52,7 @@ impl EmojiCommon for SimpleEmoji {
         if let Some(emoji_id) = self.as_id {
             match bot.cache.is_emoji_animated(guild_id, emoji_id) {
                 None => self.raw,
-                Some(true) => format!("<a:name:{}>", emoji_id),
+                Some(true) => format!("<a:name:{emoji_id}>"),
                 Some(false) => emoji_id.mention().to_string(),
             }
         } else {

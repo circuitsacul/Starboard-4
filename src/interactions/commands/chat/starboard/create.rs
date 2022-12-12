@@ -57,7 +57,7 @@ impl CreateStarboard {
 
         if ret.is_none() {
             ctx.respond_str(
-                &format!("A starboard with the name '{}' already exists.", name),
+                &format!("A starboard with the name '{name}' already exists."),
                 true,
             )
             .await?;
@@ -69,7 +69,7 @@ impl CreateStarboard {
                 .remove(&unwrap_id!(guild_id));
 
             ctx.respond_str(
-                &format!("Created starboard '{}' in <#{}>.", name, channel_id),
+                &format!("Created starboard '{name}' in <#{channel_id}>."),
                 false,
             )
             .await?;

@@ -22,7 +22,7 @@ pub fn get_gif_url(url: &str, provider: &str) -> Option<String> {
             let gif_id = &groups[1];
             let gif_id = gif_id[0..gif_id.len() - 1].to_string() + "C";
             let name = &groups[2];
-            Some(format!("https://c.tenor.com/{}/{}.gif", gif_id, name))
+            Some(format!("https://c.tenor.com/{gif_id}/{name}.gif"))
         }
         "Giphy" => {
             let url = url.split('?').next().unwrap();
@@ -37,7 +37,7 @@ pub fn get_gif_url(url: &str, provider: &str) -> Option<String> {
                 name
             };
 
-            Some(format!("https://i.giphy.com/media/{}/{}.gif", gif_id, name))
+            Some(format!("https://i.giphy.com/media/{gif_id}/{name}.gif"))
         }
         "Gfycat" => {
             let parsed_url = Url::from_str(url).unwrap();
@@ -51,10 +51,10 @@ pub fn get_gif_url(url: &str, provider: &str) -> Option<String> {
                 return None;
             }
 
-            Some(format!("{}/{}-size_restricted.gif", origin, gif_id))
+            Some(format!("{origin}/{gif_id}-size_restricted.gif"))
         }
         other => {
-            eprintln!("Unkown GIFV provider: {}\n{}", other, url);
+            eprintln!("Unkown GIFV provider: {other}\n{url}");
             None
         }
     }

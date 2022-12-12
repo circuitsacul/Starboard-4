@@ -41,10 +41,7 @@ impl RenameAutoStarChannel {
         match ret {
             None => {
                 ctx.respond_str(
-                    &format!(
-                        "An autostar channel with the name '{}' already exists.",
-                        new_name
-                    ),
+                    &format!("An autostar channel with the name '{new_name}' already exists."),
                     true,
                 )
                 .await?

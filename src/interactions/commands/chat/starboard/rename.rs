@@ -41,7 +41,7 @@ impl RenameStarboard {
         match ret {
             None => {
                 ctx.respond_str(
-                    &format!("A starboard with the name '{}' already exists.", new_name),
+                    &format!("A starboard with the name '{new_name}' already exists."),
                     true,
                 )
                 .await?

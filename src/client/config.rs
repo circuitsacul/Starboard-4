@@ -15,7 +15,7 @@ impl Config {
     pub fn from_env() -> Self {
         match dotenv() {
             Ok(_) => {}
-            Err(why) => eprintln!("Failed to load .env: {}", why),
+            Err(why) => eprintln!("Failed to load .env: {why}"),
         };
         let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set");
         let sentry = env::var("SENTRY_URL").ok();

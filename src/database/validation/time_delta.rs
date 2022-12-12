@@ -45,7 +45,7 @@ pub fn parse_time_delta(inp: &str) -> Result<i64, String> {
     for raw_token in inp.trim().split(' ').map(|t| t.trim()) {
         let token;
         if let Some(carry_val) = carry {
-            token = Cow::Owned(format!("{}{}", carry_val, raw_token));
+            token = Cow::Owned(format!("{carry_val}{raw_token}"));
             carry = None;
         } else if raw_token.chars().all(char::is_numeric) {
             carry = Some(raw_token);
