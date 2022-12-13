@@ -16,6 +16,7 @@ pub struct Cooldowns {
     // restricts per-channel
     pub autostar_send: FixedMapping<Id<ChannelMarker>>,
     pub starboard_custom_cooldown: DynamicMapping<(Id<UserMarker>, i32)>,
+    pub old_message_edit: FixedMapping<Id<ChannelMarker>>,
 }
 
 impl Cooldowns {
@@ -27,11 +28,14 @@ impl Cooldowns {
             constants::AUTOSTAR_COOLDOWN.1,
         );
         let starboard_custom_cooldown = DynamicMapping::new(cycle_period);
+        let old_message_edit =
+            FixedMapping::new(constants::OLD_MESSAGE_EDIT.0, constants::OLD_MESSAGE_EDIT.1);
 
         Self {
             cycle_period,
             autostar_send,
             starboard_custom_cooldown,
+            old_message_edit,
         }
     }
 

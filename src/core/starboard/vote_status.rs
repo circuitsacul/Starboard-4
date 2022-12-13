@@ -1,18 +1,17 @@
 //! tool for checking if a vote is valid
 
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::Duration;
 
 use twilight_model::id::{
     marker::{ChannelMarker, MessageMarker, UserMarker},
     Id,
 };
-use twilight_util::snowflake::Snowflake;
 
 use crate::{
     client::bot::StarboardBot,
     core::{emoji::SimpleEmoji, has_image::has_image, permroles::Permissions},
     errors::StarboardResult,
-    utils::into_id::IntoId,
+    utils::{id_age::IdAge, into_id::IntoId},
 };
 
 use super::config::StarboardConfig;
@@ -50,11 +49,6 @@ impl VoteStatus {
         let mut invalid_exists = false;
         let mut allow_remove = true;
 
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_millis();
-
         #[derive(Clone, Copy, PartialEq, Eq)]
         enum VoteType {
             Upvote,
@@ -81,7 +75,7 @@ impl VoteStatus {
             }
 
             // message age in seconds
-            let message_age = ((now as i128 - message_id.timestamp() as i128) / 1000) as i64;
+            let message_age = message_id.age();
 
             let min_age = config.resolved.older_than;
             let max_age = config.resolved.newer_than;

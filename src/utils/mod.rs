@@ -3,6 +3,7 @@ pub mod dashset_lock;
 pub mod dm;
 pub mod embed;
 pub mod get_status;
+pub mod id_age;
 pub mod into_id;
 pub mod notify;
 pub mod pg_err_code;
