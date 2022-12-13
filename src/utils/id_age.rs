@@ -1,19 +1,16 @@
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::Duration;
 
 use twilight_util::snowflake::Snowflake;
 
-pub trait IdAge {
+pub trait SnowflakeAge {
     /// Snowflake age in seconds
-    fn age(&self) -> i64;
+    fn age(&self) -> Duration;
 }
 
-impl<T: Snowflake> IdAge for T {
-    fn age(&self) -> i64 {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_millis();
+impl<T: Snowflake> SnowflakeAge for T {
+    fn age(&self) -> Duration {
+        let now = chrono::Utc::now().timestamp_millis();
 
-        ((now as i128 - self.timestamp() as i128) / 1000) as i64
+        Duration::from_micros((now - self.timestamp()) as u64)
     }
 }

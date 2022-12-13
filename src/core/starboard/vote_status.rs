@@ -11,7 +11,7 @@ use crate::{
     client::bot::StarboardBot,
     core::{emoji::SimpleEmoji, has_image::has_image, permroles::Permissions},
     errors::StarboardResult,
-    utils::{id_age::IdAge, into_id::IntoId},
+    utils::{id_age::SnowflakeAge, into_id::IntoId},
 };
 
 use super::config::StarboardConfig;
@@ -75,7 +75,7 @@ impl VoteStatus {
             }
 
             // message age in seconds
-            let message_age = message_id.age();
+            let message_age = message_id.age().as_secs();
 
             let min_age = config.resolved.older_than;
             let max_age = config.resolved.newer_than;
@@ -90,12 +90,12 @@ impl VoteStatus {
                 let min_age_valid = if min_age <= 0 {
                     true
                 } else {
-                    message_age > min_age
+                    message_age > min_age as u64
                 };
                 let max_age_valid = if max_age <= 0 {
                     true
                 } else {
-                    message_age < max_age
+                    message_age < max_age as u64
                 };
                 min_age_valid && max_age_valid
             };

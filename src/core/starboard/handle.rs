@@ -12,7 +12,7 @@ use crate::{
     database::{Message as DbMessage, StarboardMessage, Vote},
     errors::StarboardResult,
     unwrap_id,
-    utils::{get_status::get_status, id_age::IdAge, into_id::IntoId},
+    utils::{get_status::get_status, id_age::SnowflakeAge, into_id::IntoId},
 };
 
 use super::{
@@ -224,7 +224,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 }
                 MessageStatus::Send | MessageStatus::NoAction | MessageStatus::Trash => {
                     let as_id: Id<MessageMarker> = sb_msg.starboard_message_id.into_id();
-                    if as_id.age() > 3600
+                    if as_id.age().as_secs() > 3600
                         && self
                             .refresh
                             .bot
