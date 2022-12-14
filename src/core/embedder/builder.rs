@@ -30,21 +30,21 @@ pub enum BuiltStarboardEmbed {
 }
 
 impl BuiltStarboardEmbed {
-    pub fn build(handle: &Embedder) -> Self {
-        let orig = match &handle.orig_message {
-            None => {
-                return Self::Partial(PartialBuiltStarboardEmbed {
-                    top_content: Self::build_top_content(handle),
-                })
-            }
-            Some(orig) => orig,
-        };
-        let parsed = ParsedMessage::parse(handle, orig);
+    pub fn build(handle: &Embedder, force_partial: bool) -> Self {
+        if let Some(orig) = &handle.orig_message {
+            if !force_partial {
+                let parsed = ParsedMessage::parse(handle, orig);
 
-        Self::Full(FullBuiltStarboardEmbed {
+                return Self::Full(FullBuiltStarboardEmbed {
+                    top_content: Self::build_top_content(handle),
+                    embeds: Self::build_embeds(handle, orig, &parsed),
+                    upload_attachments: parsed.upload_attachments,
+                });
+            }
+        }
+
+        Self::Partial(PartialBuiltStarboardEmbed {
             top_content: Self::build_top_content(handle),
-            embeds: Self::build_embeds(handle, orig, &parsed),
-            upload_attachments: parsed.upload_attachments,
         })
     }
 
