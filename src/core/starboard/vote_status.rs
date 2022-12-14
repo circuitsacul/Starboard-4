@@ -11,7 +11,7 @@ use crate::{
     client::bot::StarboardBot,
     core::{emoji::SimpleEmoji, has_image::has_image, permroles::Permissions},
     errors::StarboardResult,
-    utils::{id_age::SnowflakeAge, into_id::IntoId},
+    utils::{snowflake_age::SnowflakeAge, into_id::IntoId},
 };
 
 use super::config::StarboardConfig;

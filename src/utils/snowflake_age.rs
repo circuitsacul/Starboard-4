@@ -9,8 +9,8 @@ pub trait SnowflakeAge {
 
 impl<T: Snowflake> SnowflakeAge for T {
     fn age(&self) -> Duration {
-        let now = chrono::Utc::now().timestamp_millis();
+        let age_millis = chrono::Utc::now().timestamp_millis() - self.timestamp();
 
-        Duration::from_micros((now - self.timestamp()) as u64)
+        Duration::from_millis(age_millis as u64)
     }
 }
