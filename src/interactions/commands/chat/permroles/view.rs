@@ -1,15 +1,16 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_mention::Mention;
 use twilight_model::guild::Role;
-use twilight_util::builder::embed::{EmbedBuilder, EmbedFooterBuilder};
+use twilight_util::builder::embed::EmbedFooterBuilder;
 
 use crate::{
-    concat_format, constants,
+    concat_format,
     database::{models::permrole::SortVecPermRole, PermRole, PermRoleStarboard, Starboard},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     unwrap_id,
+    utils::embed,
 };
 
 macro_rules! fmt_trib {
@@ -67,8 +68,7 @@ impl ViewPermRoles {
                     ));
                 }
 
-                let embed = EmbedBuilder::new()
-                    .color(constants::BOT_COLOR)
+                let embed = embed::build()
                     .title("PermRoles")
                     .description(pr_config)
                     .build();
@@ -96,8 +96,7 @@ impl ViewPermRoles {
                 pr_config.push_str(&format!("<@&{}>\n", pr.role_id));
             }
 
-            let embed = EmbedBuilder::new()
-                .color(constants::BOT_COLOR)
+            let embed = embed::build()
                 .title("PermRoles")
                 .description(pr_config)
                 .footer(EmbedFooterBuilder::new(concat!(
