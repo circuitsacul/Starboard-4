@@ -12,7 +12,7 @@ use crate::{
     database::{Message as DbMessage, StarboardMessage, Vote},
     errors::StarboardResult,
     unwrap_id,
-    utils::{get_status::get_status, snowflake_age::SnowflakeAge, into_id::IntoId},
+    utils::{get_status::get_status, into_id::IntoId, snowflake_age::SnowflakeAge},
 };
 
 use super::{
