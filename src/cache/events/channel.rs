@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use twilight_model::gateway::payload::incoming::{ChannelCreate, ChannelDelete, ChannelUpdate};
 
-use crate::cache::{cache::Cache, models::channel::CachedChannel, update::UpdateCache};
+use crate::cache::{cache_struct::Cache, models::channel::CachedChannel, update::UpdateCache};
 
 #[async_trait]
 impl UpdateCache for ChannelCreate {

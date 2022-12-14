@@ -9,7 +9,11 @@ use crate::{
     utils::into_id::IntoId,
 };
 
-use super::{config::StarboardConfig, handle::RefreshMessage, vote_status::VoteStatus};
+use super::{
+    config::StarboardConfig,
+    handle::RefreshMessage,
+    vote_status::{VoteContext, VoteStatus},
+};
 
 pub async fn handle_reaction_add(
     bot: &StarboardBot,
@@ -91,18 +95,16 @@ pub async fn handle_reaction_add(
     };
 
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
-    let status = VoteStatus::get_vote_status(
-        bot,
-        &emoji,
-        configs,
-        event.user_id,
-        orig_msg.message_id.into_id(),
-        orig_msg.channel_id.into_id(),
-        orig_msg.author_id.into_id(),
-        author_is_bot,
-        None,
-    )
-    .await?;
+    let vote = VoteContext {
+        emoji: &emoji,
+        reactor_id: event.user_id,
+        message_id: orig_msg.message_id.into_id(),
+        channel_id: orig_msg.channel_id.into_id(),
+        message_author_id: orig_msg.author_id.into_id(),
+        message_author_is_bot: author_is_bot,
+        message_has_image: None,
+    };
+    let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
 
     match status {
         VoteStatus::Ignore => Ok(()),
@@ -185,18 +187,16 @@ pub async fn handle_reaction_remove(
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
     let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
-    let status = VoteStatus::get_vote_status(
-        bot,
-        &emoji,
-        configs,
-        event.user_id,
-        orig.message_id.into_id(),
-        orig.channel_id.into_id(),
-        orig.author_id.into_id(),
-        author.is_bot,
-        None,
-    )
-    .await?;
+    let vote = VoteContext {
+        emoji: &emoji,
+        reactor_id: event.user_id,
+        message_id: orig.message_id.into_id(),
+        channel_id: orig.channel_id.into_id(),
+        message_author_id: orig.author_id.into_id(),
+        message_author_is_bot: author.is_bot,
+        message_has_image: None,
+    };
+    let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
 
     match status {
         VoteStatus::Valid((upvote, downvote)) => {

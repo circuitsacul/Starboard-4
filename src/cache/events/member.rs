@@ -5,7 +5,7 @@ use twilight_model::gateway::payload::incoming::{
     MemberAdd, MemberChunk, MemberRemove, MemberUpdate,
 };
 
-use crate::cache::{cache::Cache, update::UpdateCache};
+use crate::cache::{cache_struct::Cache, update::UpdateCache};
 
 #[async_trait]
 impl UpdateCache for MemberChunk {

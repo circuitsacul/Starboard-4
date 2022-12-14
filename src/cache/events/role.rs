@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use twilight_model::gateway::payload::incoming::{RoleCreate, RoleDelete, RoleUpdate};
 
-use crate::cache::{cache::Cache, update::UpdateCache};
+use crate::cache::{cache_struct::Cache, update::UpdateCache};
 
 #[async_trait]
 impl UpdateCache for RoleCreate {

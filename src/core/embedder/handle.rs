@@ -23,30 +23,6 @@ pub struct Embedder<'config, 'bot> {
     pub orig_sql_message: Arc<DbMessage>,
 }
 
-impl<'config, 'bot> Embedder<'config, 'bot> {
-    pub fn new(
-        bot: &'bot StarboardBot,
-        points: i32,
-        config: &'config StarboardConfig,
-        orig_message: Option<Arc<CachedMessage>>,
-        orig_message_author: Option<Arc<CachedUser>>,
-        referenced_message: Option<Arc<CachedMessage>>,
-        referenced_message_author: Option<Arc<CachedUser>>,
-        orig_sql_message: Arc<DbMessage>,
-    ) -> Self {
-        Self {
-            bot,
-            points,
-            config,
-            orig_message,
-            orig_message_author,
-            referenced_message,
-            referenced_message_author,
-            orig_sql_message,
-        }
-    }
-}
-
 impl Embedder<'_, '_> {
     fn build(&self) -> BuiltStarboardEmbed {
         BuiltStarboardEmbed::build(self)

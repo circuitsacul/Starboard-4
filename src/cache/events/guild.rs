@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use twilight_model::gateway::payload::incoming::{GuildCreate, GuildDelete, GuildEmojisUpdate};
 
 use crate::cache::{
-    cache::Cache,
+    cache_struct::Cache,
     models::{channel::CachedChannel, guild::CachedGuild},
     update::UpdateCache,
 };

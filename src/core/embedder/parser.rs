@@ -13,6 +13,12 @@ use super::{
     AttachmentHandle, Embedder,
 };
 
+pub type StickerNames = String;
+pub type PrimaryImage = ImageSource;
+pub type UrlList = Vec<String>;
+pub type Embeds = Vec<Embed>;
+pub type UploadAttachments = Vec<AttachmentHandle>;
+
 pub struct ParsedMessage {
     pub sticker_names_str: Option<String>,
     // attachments
@@ -39,11 +45,11 @@ impl ParsedMessage {
     pub fn parse_attachments(
         orig: &CachedMessage,
     ) -> (
-        Option<String>,
-        Option<ImageSource>,
-        Vec<String>,
-        Vec<Embed>,
-        Vec<AttachmentHandle>,
+        Option<StickerNames>,
+        Option<PrimaryImage>,
+        UrlList,
+        Embeds,
+        UploadAttachments,
     ) {
         let mut primary_image = None;
         let mut embeds = Vec::new();

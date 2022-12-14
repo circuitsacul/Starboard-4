@@ -5,7 +5,7 @@ use twilight_model::gateway::payload::incoming::{
     ThreadCreate, ThreadDelete, ThreadListSync, ThreadUpdate,
 };
 
-use crate::cache::{cache::Cache, update::UpdateCache};
+use crate::cache::{cache_struct::Cache, update::UpdateCache};
 
 #[async_trait]
 impl UpdateCache for ThreadCreate {

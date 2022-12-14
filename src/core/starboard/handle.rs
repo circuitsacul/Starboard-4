@@ -184,16 +184,16 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             (None, None)
         };
 
-        let embedder = Embedder::new(
-            self.refresh.bot,
+        let embedder = Embedder {
+            bot: self.refresh.bot,
             points,
-            self.config,
+            config: self.config,
             orig_message,
             orig_message_author,
-            ref_msg,
-            ref_msg_author,
-            sql_message,
-        );
+            referenced_message: ref_msg,
+            referenced_message_author: ref_msg_author,
+            orig_sql_message: sql_message,
+        };
         let sb_msg = self.get_starboard_message().await?;
 
         let action = get_message_status(self.refresh.bot, self.config, &orig, points).await?;

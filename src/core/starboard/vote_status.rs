@@ -16,6 +16,16 @@ use crate::{
 
 use super::config::StarboardConfig;
 
+pub struct VoteContext<'a> {
+    pub emoji: &'a SimpleEmoji,
+    pub reactor_id: Id<UserMarker>,
+    pub message_id: Id<MessageMarker>,
+    pub channel_id: Id<ChannelMarker>,
+    pub message_author_id: Id<UserMarker>,
+    pub message_author_is_bot: bool,
+    pub message_has_image: Option<bool>,
+}
+
 #[derive(Debug)]
 pub enum VoteStatus {
     Ignore,
@@ -26,20 +36,14 @@ pub enum VoteStatus {
 impl VoteStatus {
     pub async fn get_vote_status(
         bot: &StarboardBot,
-        emoji: &SimpleEmoji,
+        vote: VoteContext<'_>,
         configs: Vec<StarboardConfig>,
-        reactor_id: Id<UserMarker>,
-        message_id: Id<MessageMarker>,
-        channel_id: Id<ChannelMarker>,
-        message_author_id: Id<UserMarker>,
-        message_author_is_bot: bool,
-        message_has_image: Option<bool>,
     ) -> StarboardResult<VoteStatus> {
-        let message_has_image = match message_has_image {
+        let message_has_image = match vote.message_has_image {
             Some(val) => Some(val),
             None => bot
                 .cache
-                .fog_message(bot, channel_id, message_id)
+                .fog_message(bot, vote.channel_id, vote.message_id)
                 .await?
                 .as_ref()
                 .as_ref()
@@ -61,9 +65,9 @@ impl VoteStatus {
                 return None;
             }
 
-            let vote_type = if config.resolved.upvote_emojis.contains(&emoji.raw) {
+            let vote_type = if config.resolved.upvote_emojis.contains(&vote.emoji.raw) {
                 VoteType::Upvote
-            } else if config.resolved.downvote_emojis.contains(&emoji.raw) {
+            } else if config.resolved.downvote_emojis.contains(&vote.emoji.raw) {
                 VoteType::Downvote
             } else {
                 return None;
@@ -75,14 +79,15 @@ impl VoteStatus {
             }
 
             // message age in seconds
-            let message_age = message_id.age().as_secs();
+            let message_age = vote.message_id.age().as_secs();
 
             let min_age = config.resolved.older_than;
             let max_age = config.resolved.newer_than;
 
-            let self_vote_valid = config.resolved.self_vote || reactor_id != message_author_id;
+            let self_vote_valid =
+                config.resolved.self_vote || vote.reactor_id != vote.message_author_id;
 
-            let bots_valid = config.resolved.allow_bots || !message_author_is_bot;
+            let bots_valid = config.resolved.allow_bots || !vote.message_author_is_bot;
 
             let images_valid = !config.resolved.require_image || (message_has_image == Some(true));
 
@@ -117,14 +122,14 @@ impl VoteStatus {
             // check reactor/author role permissions
             let reactor_perms = Permissions::get_permissions(
                 bot,
-                reactor_id,
+                vote.reactor_id,
                 config.starboard.guild_id.into_id(),
                 Some(config.starboard.id),
             )
             .await?;
             let author_perms = Permissions::get_permissions(
                 bot,
-                message_author_id,
+                vote.message_author_id,
                 config.starboard.guild_id.into_id(),
                 Some(config.starboard.id),
             )
@@ -141,7 +146,7 @@ impl VoteStatus {
                     .cooldowns
                     .starboard_custom_cooldown
                     .trigger(
-                        &(reactor_id, config.starboard.id),
+                        &(vote.reactor_id, config.starboard.id),
                         config.resolved.cooldown_count as u64,
                         Duration::from_secs(config.resolved.cooldown_period as u64),
                     )
