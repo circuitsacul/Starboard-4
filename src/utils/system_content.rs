@@ -59,9 +59,7 @@ impl SystemContent for Message {
                     10 => format!("Glad you're here, **{}**.", self.author.name),
                     11 => format!("Good to see you, **{}**.", self.author.name),
                     12 => format!("Yay you made it, **{}**!", self.author.name),
-                    _ => {
-                        unreachable!()
-                    }
+                    _ => unreachable!(),
                 }
             }
             MessageType::GuildBoost => {
