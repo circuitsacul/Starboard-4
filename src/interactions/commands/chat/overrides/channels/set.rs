@@ -5,7 +5,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -21,7 +21,7 @@ pub struct SetOverrideChannels {
 
 impl SetOverrideChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = unwrap_id!(get_guild_id!(ctx));
+        let guild_id = get_guild_id!(ctx).get_i64();
 
         let channel_ids: Vec<_> = textable_channel_ids(&ctx.bot, guild_id, &self.channels);
         if let Err(why) = StarboardOverride::validate_channels(&channel_ids) {

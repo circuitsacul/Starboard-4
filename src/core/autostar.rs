@@ -7,8 +7,7 @@ use crate::{
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::AutoStarChannel,
     errors::StarboardResult,
-    unwrap_id,
-    utils::notify,
+    utils::{id_as_i64::GetI64, notify},
 };
 
 use super::has_image::has_image;
@@ -35,7 +34,7 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> StarboardResul
     }
 
     // Fetch the autostar channels
-    let asc = AutoStarChannel::list_by_channel(&bot.pool, unwrap_id!(event.channel_id)).await?;
+    let asc = AutoStarChannel::list_by_channel(&bot.pool, event.channel_id.get_i64()).await?;
 
     // If none, remove the channel id from the cache
     if asc.is_empty() {

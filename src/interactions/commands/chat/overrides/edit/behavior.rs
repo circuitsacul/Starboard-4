@@ -8,7 +8,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -48,15 +48,15 @@ pub struct EditBehavior {
 impl EditBehavior {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
-        let ov =
-            match StarboardOverride::get(&ctx.bot.pool, unwrap_id!(guild_id), &self.name).await? {
-                None => {
-                    ctx.respond_str("No override with that name was found.", true)
-                        .await?;
-                    return Ok(());
-                }
-                Some(ov) => ov,
-            };
+        let ov = match StarboardOverride::get(&ctx.bot.pool, guild_id.get_i64(), &self.name).await?
+        {
+            None => {
+                ctx.respond_str("No override with that name was found.", true)
+                    .await?;
+                return Ok(());
+            }
+            Some(ov) => ov,
+        };
         let mut settings = ov.get_overrides()?;
 
         if let Some(val) = self.enabled {

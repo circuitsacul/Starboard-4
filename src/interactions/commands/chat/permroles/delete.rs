@@ -3,7 +3,8 @@ use twilight_mention::Mention;
 use twilight_model::guild::Role;
 
 use crate::{
-    database::PermRole, errors::StarboardResult, interactions::context::CommandCtx, unwrap_id,
+    database::PermRole, errors::StarboardResult, interactions::context::CommandCtx,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -15,7 +16,7 @@ pub struct DeletePermRole {
 
 impl DeletePermRole {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let pr = PermRole::delete(&ctx.bot.pool, unwrap_id!(self.role.id)).await?;
+        let pr = PermRole::delete(&ctx.bot.pool, self.role.id.get_i64()).await?;
         if pr.is_none() {
             ctx.respond_str(&format!("{} is not a PermRole.", self.role.mention()), true)
                 .await?;

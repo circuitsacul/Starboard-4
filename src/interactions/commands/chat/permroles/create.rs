@@ -4,7 +4,7 @@ use twilight_model::guild::Role;
 
 use crate::{
     constants, database::PermRole, errors::StarboardResult, get_guild_id,
-    interactions::context::CommandCtx, map_dup_none, unwrap_id,
+    interactions::context::CommandCtx, map_dup_none, utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -17,7 +17,7 @@ pub struct CreatePermRole {
 impl CreatePermRole {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
-        let guild_id_i64 = unwrap_id!(guild_id);
+        let guild_id_i64 = guild_id.get_i64();
 
         let count = PermRole::count_by_guild(&ctx.bot.pool, guild_id_i64).await?;
         if count >= constants::MAX_PERMROLES {
@@ -34,7 +34,7 @@ impl CreatePermRole {
 
         let pr = map_dup_none!(PermRole::create(
             &ctx.bot.pool,
-            unwrap_id!(self.role.id),
+            self.role.id.get_i64(),
             guild_id_i64,
         ))?;
 

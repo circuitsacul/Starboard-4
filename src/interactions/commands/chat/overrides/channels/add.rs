@@ -7,7 +7,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -22,7 +22,7 @@ pub struct AddOverrideChannels {
 
 impl AddOverrideChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = unwrap_id!(get_guild_id!(ctx));
+        let guild_id = get_guild_id!(ctx).get_i64();
 
         let ov = StarboardOverride::get(&ctx.bot.pool, guild_id, &self.name).await?;
         if let Some(ov) = ov {

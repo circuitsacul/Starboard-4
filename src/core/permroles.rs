@@ -7,8 +7,7 @@ use crate::{
     client::bot::StarboardBot,
     database::{models::permrole::SortVecPermRole, PermRole, PermRoleStarboard},
     errors::StarboardResult,
-    unwrap_id,
-    utils::into_id::IntoId,
+    utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
 pub struct Permissions {
@@ -38,10 +37,11 @@ impl Permissions {
         guild_id: Id<GuildMarker>,
         starboard_id: Option<i32>,
     ) -> StarboardResult<Self> {
+        let guild_id_i64 = guild_id.get_i64();
         let mut perms = Self::new();
 
         // get permroles
-        let permroles = PermRole::list_by_guild(&bot.pool, unwrap_id!(guild_id)).await?;
+        let permroles = PermRole::list_by_guild(&bot.pool, guild_id_i64).await?;
         // filter out non-applicable permroles
         let mut permroles = bot.cache.guilds.with(&guild_id, |_, guild| {
             let roles = {
@@ -55,13 +55,10 @@ impl Permissions {
             if let Some(roles) = roles {
                 permroles
                     .into_iter()
-                    .filter(|r| {
-                        let guild_id: i64 = unwrap_id!(guild_id);
-                        r.role_id == guild_id || roles.contains(&r.role_id.into_id())
-                    })
+                    .filter(|r| r.role_id == guild_id_i64 || roles.contains(&r.role_id.into_id()))
                     .collect::<Vec<_>>()
             } else {
-                let guild_id: i64 = unwrap_id!(guild_id);
+                let guild_id: i64 = guild_id_i64;
                 permroles
                     .into_iter()
                     .filter(|r| r.role_id == guild_id)

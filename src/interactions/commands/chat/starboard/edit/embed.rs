@@ -5,7 +5,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -36,7 +36,7 @@ impl EditEmbedStyle {
         let guild_id = get_guild_id!(ctx);
 
         let starboard =
-            Starboard::get_by_name(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await?;
+            Starboard::get_by_name(&ctx.bot.pool, &self.name, guild_id.get_i64()).await?;
         let mut starboard = match starboard {
             None => {
                 ctx.respond_str("No starboard with that name was found.", true)

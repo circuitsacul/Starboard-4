@@ -9,8 +9,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::format_settings::format_settings, context::CommandCtx},
-    unwrap_id,
-    utils::embed,
+    utils::{embed, id_as_i64::GetI64},
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -27,7 +26,7 @@ impl ViewStarboard {
 
         if let Some(name) = self.name {
             let starboard =
-                Starboard::get_by_name(&ctx.bot.pool, &name, unwrap_id!(guild_id)).await?;
+                Starboard::get_by_name(&ctx.bot.pool, &name, guild_id.get_i64()).await?;
 
             if let Some(starboard) = starboard {
                 let config = StarboardConfig::new(starboard, vec![])?;
@@ -64,7 +63,7 @@ impl ViewStarboard {
                     .await?;
             }
         } else {
-            let starboards = Starboard::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
+            let starboards = Starboard::list_by_guild(&ctx.bot.pool, guild_id.get_i64()).await?;
             if starboards.is_empty() {
                 ctx.respond_str("This server has no starboards.", true)
                     .await?;

@@ -1,8 +1,11 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::AutoStarChannel, errors::StarboardResult, get_guild_id,
-    interactions::context::CommandCtx, unwrap_id, utils::views::confirm,
+    database::AutoStarChannel,
+    errors::StarboardResult,
+    get_guild_id,
+    interactions::context::CommandCtx,
+    utils::{id_as_i64::GetI64, views::confirm},
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -31,7 +34,7 @@ impl DeleteAutoStarChannel {
             Some(btn_ctx) => btn_ctx,
         };
 
-        let ret = AutoStarChannel::delete(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await?;
+        let ret = AutoStarChannel::delete(&ctx.bot.pool, &self.name, guild_id.get_i64()).await?;
         if ret.is_none() {
             btn_ctx
                 .edit_str("No autostar channel with that name was found.", true)

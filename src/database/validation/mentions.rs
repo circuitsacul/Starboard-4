@@ -4,7 +4,10 @@ use std::collections::HashSet;
 
 use lazy_static::lazy_static;
 
-use crate::{client::bot::StarboardBot, unwrap_id, utils::into_id::IntoId};
+use crate::{
+    client::bot::StarboardBot,
+    utils::{id_as_i64::GetI64, into_id::IntoId},
+};
 
 /// Parse channel ids from user input.
 ///
@@ -24,7 +27,7 @@ pub fn textable_channel_ids<T: FromIterator<i64>>(
             .channels
             .keys()
             .copied()
-            .map(|k| unwrap_id!(k))
+            .map(|k| k.get_i64())
             .collect()
     });
 

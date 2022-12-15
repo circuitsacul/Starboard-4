@@ -7,7 +7,8 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none, unwrap_id,
+    map_dup_none,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -23,8 +24,9 @@ pub struct CreateAutoStarChannel {
 impl CreateAutoStarChannel {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
-        map_dup_none!(Guild::create(&ctx.bot.pool, unwrap_id!(guild_id)))?;
-        let channel_id = unwrap_id!(self.channel.id);
+        let guild_id_i64 = guild_id.get_i64();
+        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id_i64))?;
+        let channel_id = self.channel.id.get_i64();
 
         let name = match validation::name::validate_name(&self.name) {
             Err(why) => {
@@ -34,7 +36,7 @@ impl CreateAutoStarChannel {
             Ok(name) => name,
         };
 
-        let count = AutoStarChannel::count_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
+        let count = AutoStarChannel::count_by_guild(&ctx.bot.pool, guild_id_i64).await?;
         if count >= constants::MAX_AUTOSTAR {
             ctx.respond_str(
                 &format!(
@@ -51,7 +53,7 @@ impl CreateAutoStarChannel {
             &ctx.bot.pool,
             &name,
             channel_id,
-            unwrap_id!(guild_id),
+            guild_id_i64,
         ))?;
 
         if ret.is_none() {

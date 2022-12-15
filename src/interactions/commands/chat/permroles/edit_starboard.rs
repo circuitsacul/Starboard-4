@@ -7,8 +7,8 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::tribool::Tribool, context::CommandCtx},
-    map_dup_none, unwrap_id,
-    utils::pg_err_code::get_pg_err_code,
+    map_dup_none,
+    utils::{id_as_i64::GetI64, pg_err_code::get_pg_err_code},
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -34,8 +34,7 @@ impl EditPermRoleStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
-        let sb =
-            Starboard::get_by_name(&ctx.bot.pool, &self.starboard, unwrap_id!(guild_id)).await?;
+        let sb = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id.get_i64()).await?;
         let sb = match sb {
             None => {
                 ctx.respond_str(
@@ -50,7 +49,7 @@ impl EditPermRoleStarboard {
 
         let pr_sb = map_dup_none!(PermRoleStarboard::create(
             &ctx.bot.pool,
-            unwrap_id!(self.role.id),
+            self.role.id.get_i64(),
             sb.id
         ));
         let pr_sb = match pr_sb {
@@ -68,7 +67,7 @@ impl EditPermRoleStarboard {
 
         let mut pr_sb = match pr_sb {
             Some(pr_sb) => pr_sb,
-            None => PermRoleStarboard::get(&ctx.bot.pool, unwrap_id!(self.role.id), sb.id)
+            None => PermRoleStarboard::get(&ctx.bot.pool, self.role.id.get_i64(), sb.id)
                 .await?
                 .unwrap(),
         };

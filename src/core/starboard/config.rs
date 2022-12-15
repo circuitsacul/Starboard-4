@@ -10,7 +10,7 @@ use crate::{
         StarboardSettings,
     },
     errors::{StarboardError, StarboardResult},
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(Debug)]
@@ -55,7 +55,7 @@ impl StarboardConfig {
         guild_id: Id<GuildMarker>,
         channel_id: Id<ChannelMarker>,
     ) -> Result<Vec<Self>, StarboardError> {
-        let starboards = Starboard::list_by_guild(&bot.pool, unwrap_id!(guild_id)).await?;
+        let starboards = Starboard::list_by_guild(&bot.pool, guild_id.get_i64()).await?;
         let mut configs = Vec::new();
 
         let channel_ids: Vec<i64> = bot
@@ -63,7 +63,7 @@ impl StarboardConfig {
             .qualified_channel_ids(bot, guild_id, channel_id)
             .await?
             .into_iter()
-            .map(|cid| unwrap_id!(cid))
+            .map(|cid| cid.get_i64())
             .collect();
 
         for sb in starboards.into_iter() {

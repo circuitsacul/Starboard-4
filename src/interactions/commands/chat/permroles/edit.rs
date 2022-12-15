@@ -6,7 +6,7 @@ use crate::{
     database::PermRole,
     errors::StarboardResult,
     interactions::{commands::tribool::Tribool, context::CommandCtx},
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -26,7 +26,7 @@ pub struct EditPermRole {
 
 impl EditPermRole {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let pr = PermRole::get(&ctx.bot.pool, unwrap_id!(self.role.id)).await?;
+        let pr = PermRole::get(&ctx.bot.pool, self.role.id.get_i64()).await?;
         let mut pr = match pr {
             None => {
                 ctx.respond_str(&format!("{} is not a PermRole.", self.role.mention()), true)

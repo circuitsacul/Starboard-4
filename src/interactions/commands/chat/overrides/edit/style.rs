@@ -6,7 +6,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -37,7 +37,7 @@ impl EditGeneralStyle {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
-        let ov = StarboardOverride::get(&ctx.bot.pool, unwrap_id!(guild_id), &self.name).await?;
+        let ov = StarboardOverride::get(&ctx.bot.pool, guild_id.get_i64(), &self.name).await?;
         let ov = match ov {
             None => {
                 ctx.respond_str("No override with that name was found.", true)

@@ -7,7 +7,8 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none, unwrap_id,
+    map_dup_none,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -23,9 +24,9 @@ pub struct CreateStarboard {
 impl CreateStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
-        let guild_id_i64 = unwrap_id!(guild_id);
-        map_dup_none!(Guild::create(&ctx.bot.pool, unwrap_id!(guild_id)))?;
-        let channel_id = unwrap_id!(self.channel.id);
+        let guild_id_i64 = guild_id.get_i64();
+        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id_i64))?;
+        let channel_id = self.channel.id.get_i64();
 
         let count = Starboard::count_by_guild(&ctx.bot.pool, guild_id_i64).await?;
         if count >= constants::MAX_STARBOARDS {
@@ -52,7 +53,7 @@ impl CreateStarboard {
             &ctx.bot.pool,
             &name,
             channel_id,
-            unwrap_id!(guild_id),
+            guild_id.get_i64(),
         ))?;
 
         if ret.is_none() {
@@ -63,10 +64,7 @@ impl CreateStarboard {
             .await?;
         } else {
             ctx.bot.cache.guild_starboard_names.remove(&guild_id).await;
-            ctx.bot
-                .cache
-                .guild_vote_emojis
-                .remove(&unwrap_id!(guild_id));
+            ctx.bot.cache.guild_vote_emojis.remove(&guild_id_i64);
 
             ctx.respond_str(
                 &format!("Created starboard '{name}' in <#{channel_id}>."),

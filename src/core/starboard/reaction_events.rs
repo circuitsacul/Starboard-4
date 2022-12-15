@@ -5,8 +5,8 @@ use crate::{
     core::emoji::SimpleEmoji,
     database::{Member, Message, User, Vote},
     errors::StarboardResult,
-    map_dup_none, unwrap_id,
-    utils::into_id::IntoId,
+    map_dup_none,
+    utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
 use super::{
@@ -36,11 +36,11 @@ pub async fn handle_reaction_add(
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
 
-    if !StarboardConfig::is_guild_vote_emoji(bot, unwrap_id!(guild_id), &emoji.raw).await? {
+    if !StarboardConfig::is_guild_vote_emoji(bot, guild_id.get_i64(), &emoji.raw).await? {
         return Ok(());
     }
 
-    let orig_msg = Message::get_original(&bot.pool, unwrap_id!(event.message_id)).await?;
+    let orig_msg = Message::get_original(&bot.pool, event.message_id.get_i64()).await?;
     let (orig_msg, author_is_bot) = match orig_msg {
         None => {
             // author data
@@ -56,11 +56,11 @@ pub async fn handle_reaction_add(
 
                 let user = bot.cache.fog_user(bot, orig_msg_obj.author_id).await?;
                 let is_bot = user.map(|u| u.is_bot).unwrap_or(false);
-                (is_bot, unwrap_id!(orig_msg_obj.author_id))
+                (is_bot, orig_msg_obj.author_id.get_i64())
             };
 
             map_dup_none!(User::create(&bot.pool, author_id, author_is_bot))?;
-            map_dup_none!(Member::create(&bot.pool, author_id, unwrap_id!(guild_id)))?;
+            map_dup_none!(Member::create(&bot.pool, author_id, guild_id.get_i64()))?;
 
             let is_nsfw = bot
                 .cache
@@ -71,9 +71,9 @@ pub async fn handle_reaction_add(
             // message
             let orig = map_dup_none!(Message::create(
                 &bot.pool,
-                unwrap_id!(event.message_id),
-                unwrap_id!(guild_id),
-                unwrap_id!(event.channel_id),
+                event.message_id.get_i64(),
+                guild_id.get_i64(),
+                event.channel_id.get_i64(),
                 author_id,
                 is_nsfw,
             ))?;
@@ -81,7 +81,7 @@ pub async fn handle_reaction_add(
             match orig {
                 Some(msg) => (msg, author_is_bot),
                 None => {
-                    let msg = Message::get(&bot.pool, unwrap_id!(event.message_id))
+                    let msg = Message::get(&bot.pool, event.message_id.get_i64())
                         .await?
                         .unwrap();
                     (msg, author_is_bot)
@@ -123,7 +123,7 @@ pub async fn handle_reaction_add(
         }
         VoteStatus::Valid((upvote, downvote)) => {
             // create reactor data
-            let reactor_user_id = unwrap_id!(reactor_member.user.id);
+            let reactor_user_id = reactor_member.user.id.get_i64();
             map_dup_none!(User::create(
                 &bot.pool,
                 reactor_user_id,
@@ -132,7 +132,7 @@ pub async fn handle_reaction_add(
             map_dup_none!(Member::create(
                 &bot.pool,
                 reactor_user_id,
-                unwrap_id!(guild_id)
+                guild_id.get_i64(),
             ))?;
 
             // create the votes
@@ -179,7 +179,7 @@ pub async fn handle_reaction_remove(
         Some(guild_id) => guild_id,
     };
 
-    let orig = match Message::get_original(&bot.pool, unwrap_id!(event.message_id)).await? {
+    let orig = match Message::get_original(&bot.pool, event.message_id.get_i64()).await? {
         None => return Ok(()),
         Some(orig) => orig,
     };
@@ -200,7 +200,7 @@ pub async fn handle_reaction_remove(
 
     match status {
         VoteStatus::Valid((upvote, downvote)) => {
-            let user_id = unwrap_id!(event.user_id);
+            let user_id = event.user_id.get_i64();
             let all_configs: Vec<_> = upvote.into_iter().chain(downvote).collect();
             for config in &all_configs {
                 Vote::delete(&bot.pool, orig.message_id, config.starboard.id, user_id).await?;

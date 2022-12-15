@@ -8,7 +8,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -51,7 +51,7 @@ impl EditBehavior {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let mut starboard =
-            match Starboard::get_by_name(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await? {
+            match Starboard::get_by_name(&ctx.bot.pool, &self.name, guild_id.get_i64()).await? {
                 None => {
                     ctx.respond_str("No starboard with that name was found.", true)
                         .await?;

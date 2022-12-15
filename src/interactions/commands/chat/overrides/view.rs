@@ -9,8 +9,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::format_settings::format_settings, context::CommandCtx},
-    unwrap_id,
-    utils::embed,
+    utils::{embed, id_as_i64::GetI64},
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -24,9 +23,10 @@ pub struct ViewOverride {
 impl ViewOverride {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
         if let Some(name) = self.name {
-            let ov = StarboardOverride::get(&ctx.bot.pool, unwrap_id!(guild_id), &name).await?;
+            let ov = StarboardOverride::get(&ctx.bot.pool, guild_id_i64, &name).await?;
             let ov = match ov {
                 None => {
                     ctx.respond_str("No override with that name was found.", true)
@@ -74,8 +74,7 @@ impl ViewOverride {
             ctx.respond(ctx.build_resp().embeds([embed]).build())
                 .await?;
         } else {
-            let overrides =
-                StarboardOverride::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
+            let overrides = StarboardOverride::list_by_guild(&ctx.bot.pool, guild_id_i64).await?;
             if overrides.is_empty() {
                 ctx.respond_str("This server has no overrides.", true)
                     .await?;

@@ -9,8 +9,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
-    utils::embed,
+    utils::{embed, id_as_i64::GetI64},
 };
 
 macro_rules! fmt_trib {
@@ -33,7 +32,7 @@ impl ViewPermRoles {
         let guild_id = get_guild_id!(ctx);
 
         if let Some(role) = self.role {
-            let permrole = PermRole::get(&ctx.bot.pool, unwrap_id!(role.id)).await?;
+            let permrole = PermRole::get(&ctx.bot.pool, role.id.get_i64()).await?;
 
             if let Some(permrole) = permrole {
                 let mut pr_config = format!("Settings for {}:\n", role.mention());
@@ -80,8 +79,7 @@ impl ViewPermRoles {
                     .await?;
             }
         } else {
-            let mut perm_roles =
-                PermRole::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
+            let mut perm_roles = PermRole::list_by_guild(&ctx.bot.pool, guild_id.get_i64()).await?;
 
             if perm_roles.is_empty() {
                 ctx.respond_str("This server has no PermRoles.", true)

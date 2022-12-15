@@ -11,8 +11,9 @@ use crate::{
     },
     database::{Message as DbMessage, StarboardMessage, Vote},
     errors::StarboardResult,
-    unwrap_id,
-    utils::{get_status::get_status, into_id::IntoId, snowflake_age::SnowflakeAge},
+    utils::{
+        get_status::get_status, id_as_i64::GetI64, into_id::IntoId, snowflake_age::SnowflakeAge,
+    },
 };
 
 use super::{
@@ -82,7 +83,7 @@ impl RefreshMessage<'_> {
     async fn get_sql_message(&mut self) -> sqlx::Result<Arc<DbMessage>> {
         if self.sql_message.is_none() {
             let sql_message =
-                DbMessage::get_original(&self.bot.pool, unwrap_id!(self.message_id)).await?;
+                DbMessage::get_original(&self.bot.pool, self.message_id.get_i64()).await?;
             self.set_sql_message(sql_message.unwrap());
         }
 
@@ -282,7 +283,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             StarboardMessage::create(
                 &self.refresh.bot.pool,
                 orig.message_id,
-                unwrap_id!(msg.id),
+                msg.id.get_i64(),
                 self.config.starboard.id,
                 points,
             )

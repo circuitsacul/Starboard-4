@@ -1,8 +1,11 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::StarboardOverride, errors::StarboardResult, get_guild_id,
-    interactions::context::CommandCtx, unwrap_id, utils::views::confirm,
+    database::StarboardOverride,
+    errors::StarboardResult,
+    get_guild_id,
+    interactions::context::CommandCtx,
+    utils::{id_as_i64::GetI64, views::confirm},
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -15,7 +18,7 @@ pub struct DeleteOverride {
 
 impl DeleteOverride {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = unwrap_id!(get_guild_id!(ctx));
+        let guild_id = get_guild_id!(ctx).get_i64();
 
         let btn_ctx = confirm::simple(
             &mut ctx,

@@ -5,7 +5,8 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none, unwrap_id,
+    map_dup_none,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -21,7 +22,7 @@ pub struct RenameOverride {
 
 impl RenameOverride {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = unwrap_id!(get_guild_id!(ctx));
+        let guild_id = get_guild_id!(ctx).get_i64();
 
         let name = match validation::name::validate_name(&self.name) {
             Ok(val) => val,

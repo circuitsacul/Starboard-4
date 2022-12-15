@@ -9,8 +9,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
-    utils::embed,
+    utils::{embed, id_as_i64::GetI64},
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -24,10 +23,10 @@ pub struct ViewAutoStarChannels {
 impl ViewAutoStarChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
         if let Some(name) = &self.name {
-            let asc =
-                AutoStarChannel::get_by_name(&ctx.bot.pool, name, unwrap_id!(guild_id)).await?;
+            let asc = AutoStarChannel::get_by_name(&ctx.bot.pool, name, guild_id_i64).await?;
 
             if let Some(asc) = asc {
                 let emojis =
@@ -58,7 +57,7 @@ impl ViewAutoStarChannels {
                     .await?;
             }
         } else {
-            let asc = AutoStarChannel::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id)).await?;
+            let asc = AutoStarChannel::list_by_guild(&ctx.bot.pool, guild_id_i64).await?;
 
             if asc.is_empty() {
                 ctx.respond_str("This server has no autostar channels.", true)

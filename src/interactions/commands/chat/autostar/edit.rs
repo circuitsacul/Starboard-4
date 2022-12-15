@@ -6,7 +6,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -36,7 +36,7 @@ impl EditAutoStar {
         let guild_id = get_guild_id!(ctx);
 
         let asc =
-            AutoStarChannel::get_by_name(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await?;
+            AutoStarChannel::get_by_name(&ctx.bot.pool, &self.name, guild_id.get_i64()).await?;
         let mut asc = match asc {
             None => {
                 ctx.respond_str("No autostar channel with that name was found.", true)

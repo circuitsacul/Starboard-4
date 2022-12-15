@@ -1,8 +1,11 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::Starboard, errors::StarboardResult, get_guild_id, interactions::context::CommandCtx,
-    unwrap_id, utils::views::confirm,
+    database::Starboard,
+    errors::StarboardResult,
+    get_guild_id,
+    interactions::context::CommandCtx,
+    utils::{id_as_i64::GetI64, views::confirm},
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -16,6 +19,7 @@ pub struct DeleteStarboard {
 impl DeleteStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
         let mut btn_ctx = match confirm::simple(
             &mut ctx,
@@ -31,7 +35,7 @@ impl DeleteStarboard {
             Some(btn_ctx) => btn_ctx,
         };
 
-        let ret = Starboard::delete(&ctx.bot.pool, &self.name, unwrap_id!(guild_id)).await?;
+        let ret = Starboard::delete(&ctx.bot.pool, &self.name, guild_id_i64).await?;
         if ret.is_none() {
             btn_ctx
                 .edit_str("No starboard with that name was found.", true)
@@ -42,10 +46,7 @@ impl DeleteStarboard {
                 .guild_autostar_channel_names
                 .remove(&guild_id)
                 .await;
-            ctx.bot
-                .cache
-                .guild_vote_emojis
-                .remove(&unwrap_id!(guild_id));
+            ctx.bot.cache.guild_vote_emojis.remove(&guild_id_i64);
             btn_ctx
                 .edit_str(&format!("Deleted starboard '{}'.", self.name), true)
                 .await?;

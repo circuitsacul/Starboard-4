@@ -10,7 +10,11 @@ use twilight_util::{
     snowflake::Snowflake,
 };
 
-use crate::{cache::models::message::CachedMessage, constants, unwrap_id, utils::into_id::IntoId};
+use crate::{
+    cache::models::message::CachedMessage,
+    constants,
+    utils::{id_as_i64::GetI64, into_id::IntoId},
+};
 
 use super::{parser::ParsedMessage, AttachmentHandle, Embedder};
 
@@ -123,13 +127,13 @@ impl BuiltStarboardEmbed {
 
         let (link, mid_i64) = {
             let mid = match is_reply {
-                true => unwrap_id!(handle
+                true => handle
                     .orig_message
-                    .as_ref()
                     .as_ref()
                     .unwrap()
                     .referenced_message
-                    .unwrap()),
+                    .unwrap()
+                    .get_i64(),
                 false => handle.orig_sql_message.message_id,
             };
 

@@ -5,7 +5,8 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none, unwrap_id,
+    map_dup_none,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -34,7 +35,7 @@ impl RenameAutoStarChannel {
         let ret = map_dup_none!(AutoStarChannel::rename(
             &ctx.bot.pool,
             &self.current_name,
-            unwrap_id!(guild_id),
+            guild_id.get_i64(),
             &new_name
         ))?;
 

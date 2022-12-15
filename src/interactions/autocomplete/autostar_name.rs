@@ -2,7 +2,7 @@ use twilight_model::application::command::{CommandOptionChoice, CommandOptionCho
 
 use crate::{
     database::AutoStarChannel, errors::StarboardResult, interactions::context::CommandCtx,
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 pub async fn autostar_name_autocomplete(
@@ -11,7 +11,7 @@ pub async fn autostar_name_autocomplete(
     let guild_id = ctx.interaction.guild_id.unwrap();
     let names: Vec<String> = match ctx.bot.cache.guild_autostar_channel_names.get(&guild_id) {
         Some(names) => (*names.value()).clone(),
-        None => AutoStarChannel::list_by_guild(&ctx.bot.pool, unwrap_id!(guild_id))
+        None => AutoStarChannel::list_by_guild(&ctx.bot.pool, guild_id.get_i64())
             .await?
             .into_iter()
             .map(|a| a.name)

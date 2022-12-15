@@ -12,7 +12,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    unwrap_id,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -57,15 +57,15 @@ pub struct EditRequirements {
 impl EditRequirements {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
-        let ov =
-            match StarboardOverride::get(&ctx.bot.pool, unwrap_id!(guild_id), &self.name).await? {
-                None => {
-                    ctx.respond_str("No override with that name was found.", true)
-                        .await?;
-                    return Ok(());
-                }
-                Some(starboard) => starboard,
-            };
+        let guild_id_i64 = guild_id.get_i64();
+        let ov = match StarboardOverride::get(&ctx.bot.pool, guild_id_i64, &self.name).await? {
+            None => {
+                ctx.respond_str("No override with that name was found.", true)
+                    .await?;
+                return Ok(());
+            }
+            Some(starboard) => starboard,
+        };
         let (ov, resolved) = {
             let starboard = Starboard::get(&ctx.bot.pool, ov.starboard_id)
                 .await?
@@ -102,20 +102,14 @@ impl EditRequirements {
             settings.upvote_emojis = Some(emojis);
 
             // delete cached value
-            ctx.bot
-                .cache
-                .guild_vote_emojis
-                .remove(&unwrap_id!(guild_id));
+            ctx.bot.cache.guild_vote_emojis.remove(&guild_id_i64);
         }
         if let Some(val) = self.downvote_emojis {
             let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
             settings.downvote_emojis = Some(emojis);
 
             // delete cached value
-            ctx.bot
-                .cache
-                .guild_vote_emojis
-                .remove(&unwrap_id!(guild_id));
+            ctx.bot.cache.guild_vote_emojis.remove(&guild_id_i64);
         }
         if let Err(why) = validation::starboard_settings::validate_vote_emojis(
             settings
