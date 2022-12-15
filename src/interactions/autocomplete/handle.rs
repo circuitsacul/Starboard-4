@@ -51,7 +51,7 @@ pub fn qualified_name(ctx: &CommandCtx) -> String {
         }
     }
 
-    panic!("No focused option in autocomplete response.");
+    unreachable!("No focused option in autocomplete response.");
 }
 
 pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {

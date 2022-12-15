@@ -154,7 +154,7 @@ impl SystemContent for Message {
                 "**{}** pinned **a message** to this channel. See all **pinned messages**.",
                 self.author.name,
             ),
-            _ => panic!("Unhandled MessageType."),
+            _ => unreachable!("Unhandled MessageType."),
         }
     }
 }
