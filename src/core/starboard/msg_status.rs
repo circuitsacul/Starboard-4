@@ -17,6 +17,7 @@ pub async fn get_message_status(
     bot: &StarboardBot,
     starboard_config: &StarboardConfig,
     message: &DbMessage,
+    deleted: bool,
     points: i32,
 ) -> StarboardResult<MessageStatus> {
     let guild_id = starboard_config.starboard.guild_id.into_id();
@@ -31,7 +32,7 @@ pub async fn get_message_status(
         None => return Ok(MessageStatus::NoAction),
     };
 
-    if message.is_nsfw && !sb_is_nsfw {
+    if (deleted && starboard_config.resolved.link_deletes) || (message.is_nsfw && !sb_is_nsfw) {
         Ok(MessageStatus::Remove)
     } else if message.trashed {
         Ok(MessageStatus::Trash)

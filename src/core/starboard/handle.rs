@@ -196,7 +196,14 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
         };
         let sb_msg = self.get_starboard_message().await?;
 
-        let action = get_message_status(self.refresh.bot, self.config, &orig, points).await?;
+        let action = get_message_status(
+            self.refresh.bot,
+            self.config,
+            &orig,
+            embedder.orig_message.is_none(),
+            points,
+        )
+        .await?;
 
         if let Some(sb_msg) = sb_msg {
             if !force && points == sb_msg.last_known_point_count as i32 {
