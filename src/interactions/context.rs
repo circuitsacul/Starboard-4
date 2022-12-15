@@ -13,7 +13,7 @@ use twilight_util::builder::InteractionResponseDataBuilder;
 
 use crate::client::bot::StarboardBot;
 
-pub type CommandCtx = Ctx<Box<CommandData>>;
+pub type CommandCtx = Ctx<CommandData>;
 pub type ComponentCtx = Ctx<MessageComponentInteractionData>;
 
 #[derive(Debug)]

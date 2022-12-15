@@ -14,9 +14,9 @@ pub async fn handle_interaction(
     interaction: Interaction,
     bot: Arc<StarboardBot>,
 ) -> StarboardResult<()> {
-    match interaction.data {
-        Some(InteractionData::ApplicationCommand(ref data)) => {
-            let data = data.to_owned();
+    match &interaction.data {
+        Some(InteractionData::ApplicationCommand(data)) => {
+            let data = *data.clone();
             let ctx = Ctx::new(shard_id, bot, interaction, data);
             if matches!(
                 ctx.interaction.kind,
@@ -27,7 +27,7 @@ pub async fn handle_interaction(
                 handle_command(ctx).await?;
             }
         }
-        Some(InteractionData::MessageComponent(ref data)) => {
+        Some(InteractionData::MessageComponent(data)) => {
             let data = data.to_owned();
             let ctx = Ctx::new(shard_id, bot, interaction, data);
             handle_component(ctx).await?;

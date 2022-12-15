@@ -7,7 +7,7 @@ use crate::{
 
 macro_rules! match_commands {
     ($ctx:expr, $($cmd_name:expr => $command:ty),* $(,)?) => {
-        let cmd_inp_data = (*$ctx.data).clone().into();
+        let cmd_inp_data = $ctx.data.clone().into();
         match &*$ctx.data.name {
             $(
                 $cmd_name => <$command>::from_interaction(cmd_inp_data)?.callback($ctx).await?,
