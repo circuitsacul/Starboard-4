@@ -20,30 +20,34 @@ use crate::{
 use super::wait_for::wait_for_button;
 
 pub fn components(danger: bool) -> Vec<Component> {
-    vec![Component::ActionRow(ActionRow {
-        components: vec![
-            Component::Button(Button {
-                custom_id: Some("stateless::confirm_no".to_string()),
-                disabled: false,
-                emoji: None,
-                label: Some("Cancel".to_string()),
-                style: ButtonStyle::Secondary,
-                url: None,
-            }),
-            Component::Button(Button {
-                custom_id: Some("stateless::confirm_yes".to_string()),
-                disabled: false,
-                emoji: None,
-                label: Some("Confirm".to_string()),
-                style: if danger {
-                    ButtonStyle::Danger
-                } else {
-                    ButtonStyle::Primary
-                },
-                url: None,
-            }),
-        ],
-    })]
+    let buttons = vec![
+        Component::Button(Button {
+            custom_id: Some("confirm::no".to_string()),
+            disabled: false,
+            emoji: None,
+            label: Some("Cancel".to_string()),
+            style: ButtonStyle::Secondary,
+            url: None,
+        }),
+        Component::Button(Button {
+            custom_id: Some("confirm::yes".to_string()),
+            disabled: false,
+            emoji: None,
+            label: Some("Confirm".to_string()),
+            style: if danger {
+                ButtonStyle::Danger
+            } else {
+                ButtonStyle::Primary
+            },
+            url: None,
+        }),
+    ];
+
+    let row = Component::ActionRow(ActionRow {
+        components: buttons,
+    });
+
+    vec![row]
 }
 
 pub async fn wait_for_result(
@@ -51,17 +55,12 @@ pub async fn wait_for_result(
     message_id: Id<MessageMarker>,
     user_id: Id<UserMarker>,
 ) -> Option<(ComponentCtx, bool)> {
-    let btn_ctx = wait_for_button(
-        bot,
-        &["stateless::confirm_yes", "stateless::confirm_no"],
-        message_id,
-        user_id,
-    )
-    .await?;
+    let btn_ctx =
+        wait_for_button(bot, &["confirm::yes", "confirm::no"], message_id, user_id).await?;
 
     let conf = match &*btn_ctx.data.custom_id {
-        "stateless::confirm_yes" => true,
-        "stateless::confirm_no" => false,
+        "confirm::yes" => true,
+        "confirm::no" => false,
         _ => unreachable!(),
     };
 
