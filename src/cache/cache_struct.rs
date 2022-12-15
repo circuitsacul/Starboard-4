@@ -26,6 +26,17 @@ use super::{
     update::UpdateCache,
 };
 
+macro_rules! update_cache_events {
+    ($cache: expr, $event: expr, $($matchable_event: path,)*) => {
+        match $event {
+            $(
+                $matchable_event(event) => event.update_cache($cache).await,
+            )*
+            _ => (),
+        }
+    };
+}
+
 pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
@@ -77,30 +88,31 @@ impl Cache {
     }
 
     pub async fn update(&self, event: &Event) {
-        match event {
-            Event::MessageCreate(event) => event.update_cache(self).await,
-            Event::MessageDelete(event) => event.update_cache(self).await,
-            Event::MessageDeleteBulk(event) => event.update_cache(self).await,
-            Event::MessageUpdate(event) => event.update_cache(self).await,
-            Event::GuildCreate(event) => event.update_cache(self).await,
-            Event::GuildDelete(event) => event.update_cache(self).await,
-            Event::RoleCreate(event) => event.update_cache(self).await,
-            Event::RoleDelete(event) => event.update_cache(self).await,
-            Event::RoleUpdate(event) => event.update_cache(self).await,
-            Event::ChannelCreate(event) => event.update_cache(self).await,
-            Event::ChannelDelete(event) => event.update_cache(self).await,
-            Event::ChannelUpdate(event) => event.update_cache(self).await,
-            Event::ThreadCreate(event) => event.update_cache(self).await,
-            Event::ThreadDelete(event) => event.update_cache(self).await,
-            Event::ThreadUpdate(event) => event.update_cache(self).await,
-            Event::ThreadListSync(event) => event.update_cache(self).await,
-            Event::GuildEmojisUpdate(event) => event.update_cache(self).await,
-            Event::MemberChunk(event) => event.update_cache(self).await,
-            Event::MemberAdd(event) => event.update_cache(self).await,
-            Event::MemberRemove(event) => event.update_cache(self).await,
-            Event::MemberUpdate(event) => event.update_cache(self).await,
-            _ => {}
-        }
+        update_cache_events!(
+            self,
+            event,
+            Event::MessageCreate,
+            Event::MessageDelete,
+            Event::MessageDeleteBulk,
+            Event::MessageUpdate,
+            Event::GuildCreate,
+            Event::GuildDelete,
+            Event::RoleCreate,
+            Event::RoleDelete,
+            Event::RoleUpdate,
+            Event::ChannelCreate,
+            Event::ChannelDelete,
+            Event::ChannelUpdate,
+            Event::ThreadCreate,
+            Event::ThreadDelete,
+            Event::ThreadUpdate,
+            Event::ThreadListSync,
+            Event::GuildEmojisUpdate,
+            Event::MemberChunk,
+            Event::MemberAdd,
+            Event::MemberRemove,
+            Event::MemberUpdate,
+        );
     }
 
     // helper methods
