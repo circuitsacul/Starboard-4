@@ -24,7 +24,7 @@ pub struct Embedder<'config, 'bot> {
 }
 
 impl Embedder<'_, '_> {
-    fn build(&self, force_partial: bool) -> BuiltStarboardEmbed {
+    pub fn build(&self, force_partial: bool) -> BuiltStarboardEmbed {
         BuiltStarboardEmbed::build(self, force_partial)
     }
 
