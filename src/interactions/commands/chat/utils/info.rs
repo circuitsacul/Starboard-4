@@ -30,7 +30,7 @@ impl Info {
             return Ok(());
         };
 
-        let Some(sql_msg) = Message::get(&ctx.bot.pool, message_id).await? else {
+        let Some(sql_msg) = Message::get_original(&ctx.bot.pool, message_id).await? else {
             ctx.respond_str(concat!(
                 "I couldn't find that message. There are a few possible reasons why:",
                 "\n - I don't have access to the channel the message is in.",
