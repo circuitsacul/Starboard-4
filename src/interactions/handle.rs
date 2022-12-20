@@ -14,22 +14,23 @@ pub async fn handle_interaction(
     interaction: Interaction,
     bot: Arc<StarboardBot>,
 ) -> StarboardResult<()> {
-    match &interaction.data {
-        Some(InteractionData::ApplicationCommand(data)) => {
+    let Some(data) = &interaction.data else { return Ok(()); };
+
+    match data {
+        InteractionData::ApplicationCommand(data) => {
             let data = *data.clone();
             let ctx = Ctx::new(shard_id, bot, interaction, data);
-            if matches!(
-                ctx.interaction.kind,
-                InteractionType::ApplicationCommandAutocomplete
-            ) {
-                handle_autocomplete(ctx).await?;
-            } else {
-                handle_command(ctx).await?;
+
+            match ctx.interaction.kind {
+                InteractionType::ApplicationCommandAutocomplete => handle_autocomplete(ctx).await?,
+                InteractionType::ApplicationCommand => handle_command(ctx).await?,
+                _ => (),
             }
         }
-        Some(InteractionData::MessageComponent(data)) => {
+        InteractionData::MessageComponent(data) => {
             let data = data.to_owned();
             let ctx = Ctx::new(shard_id, bot, interaction, data);
+
             handle_component(ctx).await?;
         }
         _ => {}
