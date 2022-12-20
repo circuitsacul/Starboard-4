@@ -40,23 +40,15 @@ impl Message {
     }
 
     pub async fn get_original(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
-        if let Some(sb_msg) = StarboardMessage::get(pool, message_id).await? {
-            sqlx::query_as!(
-                Self,
-                "SELECT * FROM messages WHERE message_id=$1",
-                sb_msg.message_id,
-            )
-            .fetch_optional(pool)
-            .await
+        let orig = if let Some(sb_msg) = StarboardMessage::get(pool, message_id).await? {
+            sb_msg.message_id
         } else {
-            sqlx::query_as!(
-                Self,
-                "SELECT * FROM messages WHERE message_id=$1",
-                message_id,
-            )
+            message_id
+        };
+
+        sqlx::query_as!(Self, "SELECT * FROM messages WHERE message_id=$1", orig)
             .fetch_optional(pool)
             .await
-        }
     }
 
     pub async fn get(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
