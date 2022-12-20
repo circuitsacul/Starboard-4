@@ -13,7 +13,7 @@ use twilight_util::{
 use crate::{
     cache::models::message::CachedMessage,
     constants,
-    utils::{id_as_i64::GetI64, into_id::IntoId},
+    utils::{id_as_i64::GetI64, into_id::IntoId, message_link::fmt_message_link},
 };
 
 use super::{parser::ParsedMessage, AttachmentHandle, Embedder};
@@ -138,9 +138,10 @@ impl BuiltStarboardEmbed {
             };
 
             (
-                format!(
-                    "https://discord.com/channels/{}/{}/{}",
-                    handle.config.starboard.guild_id, handle.orig_sql_message.channel_id, mid,
+                fmt_message_link(
+                    handle.config.starboard.guild_id,
+                    handle.orig_sql_message.channel_id,
+                    mid,
                 ),
                 mid,
             )

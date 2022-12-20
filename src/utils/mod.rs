@@ -5,6 +5,7 @@ pub mod embed;
 pub mod get_status;
 pub mod id_as_i64;
 pub mod into_id;
+pub mod message_link;
 pub mod notify;
 pub mod pg_err_code;
 pub mod snowflake_age;
