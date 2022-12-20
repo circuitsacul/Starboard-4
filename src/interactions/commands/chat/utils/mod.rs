@@ -7,6 +7,13 @@ use crate::{
     interactions::{commands::permissions::manage_messages, context::CommandCtx},
 };
 
+const INVALID_MESSAGE_ERR: &str = concat!(
+    "I couldn't find that message. There are a few possible reasons why:",
+    "\n - I don't have access to the channel the message is in.",
+    "\n - The message doesn't exist.",
+    "\n - The message doesn't have any upvotes, so it isn't in the database.",
+);
+
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "utils",

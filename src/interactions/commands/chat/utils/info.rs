@@ -14,6 +14,8 @@ use crate::{
     },
 };
 
+use super::INVALID_MESSAGE_ERR;
+
 #[derive(CommandModel, CreateCommand)]
 #[command(name = "info", desc = "Get info for a message.")]
 pub struct Info {
@@ -31,12 +33,7 @@ impl Info {
         };
 
         let Some(sql_msg) = Message::get_original(&ctx.bot.pool, message_id).await? else {
-            ctx.respond_str(concat!(
-                "I couldn't find that message. There are a few possible reasons why:",
-                "\n - I don't have access to the channel the message is in.",
-                "\n - The message doesn't exist.",
-                "\n - The message doesn't have any upvotes, so it isn't in the database.",
-            ), true).await?;
+            ctx.respond_str(INVALID_MESSAGE_ERR, true).await?;
             return Ok(());
         };
 
