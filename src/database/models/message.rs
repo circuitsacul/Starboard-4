@@ -54,6 +54,21 @@ impl Message {
         .await
     }
 
+    pub async fn set_forced(
+        pool: &sqlx::PgPool,
+        message_id: i64,
+        forced: &[i32],
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "UPDATE messages SET forced_to=$1 WHERE message_id=$2 RETURNING *",
+            forced,
+            message_id,
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
     pub async fn get_original(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
         let orig = if let Some(sb_msg) = StarboardMessage::get(pool, message_id).await? {
             sb_msg.message_id

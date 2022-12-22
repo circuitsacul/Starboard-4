@@ -2572,6 +2572,75 @@
     },
     "query": "SELECT * FROM autostar_channels WHERE channel_id = $1"
   },
+  "9d4eb12dd28fd734427d327dcfef36db627cc97700fa3213217ac6f577e75206": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "channel_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "author_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_nsfw",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "forced_to",
+          "ordinal": 5,
+          "type_info": "Int4Array"
+        },
+        {
+          "name": "trashed",
+          "ordinal": 6,
+          "type_info": "Bool"
+        },
+        {
+          "name": "trash_reason",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "frozen",
+          "ordinal": 8,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4Array",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE messages SET forced_to=$1 WHERE message_id=$2 RETURNING *"
+  },
   "9dad93f96c1564677617a97044b59d8c62f5f1eca0de3ad975843575e2835b31": {
     "describe": {
       "columns": [
