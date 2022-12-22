@@ -1,6 +1,7 @@
 pub mod force;
 pub mod freeze;
 pub mod info;
+pub mod unforce;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
@@ -34,6 +35,8 @@ pub enum Utils {
 
     #[command(name = "force")]
     Force(force::Force),
+    #[command(name = "unforce")]
+    UnForce(unforce::UnForce),
 }
 
 impl Utils {
@@ -45,6 +48,7 @@ impl Utils {
             Self::UnFreeze(cmd) => cmd.callback(ctx).await,
 
             Self::Force(cmd) => cmd.callback(ctx).await,
+            Self::UnForce(cmd) => cmd.callback(ctx).await,
         }
     }
 }
