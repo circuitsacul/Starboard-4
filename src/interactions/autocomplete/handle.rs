@@ -58,6 +58,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
     let options = match qualified_name(&ctx).as_str() {
         // misc
         "random starboard" => starboard_name_autocomplete(&ctx).await?,
+        "utils force starboard" => starboard_name_autocomplete(&ctx).await?,
         // autostar channels
         "autostar delete name" => autostar_name_autocomplete(&ctx).await?,
         "autostar view name" => autostar_name_autocomplete(&ctx).await?,
