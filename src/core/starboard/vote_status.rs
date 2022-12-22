@@ -24,6 +24,7 @@ pub struct VoteContext<'a> {
     pub message_author_id: Id<UserMarker>,
     pub message_author_is_bot: bool,
     pub message_has_image: Option<bool>,
+    pub message_is_frozen: bool,
 }
 
 #[derive(Debug)]
@@ -39,6 +40,10 @@ impl VoteStatus {
         vote: VoteContext<'_>,
         configs: Vec<StarboardConfig>,
     ) -> StarboardResult<VoteStatus> {
+        if vote.message_is_frozen {
+            return Ok(VoteStatus::Ignore);
+        }
+
         let message_has_image = match vote.message_has_image {
             Some(val) => Some(val),
             None => bot

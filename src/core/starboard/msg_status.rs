@@ -7,9 +7,11 @@ use super::config::StarboardConfig;
 
 #[derive(Debug)]
 pub enum MessageStatus {
-    NoAction,
+    /// true -> full update, false -> partial update
+    Update(bool),
     Remove,
-    Send,
+    /// true -> full update, false -> partial update
+    Send(bool),
     Trash,
 }
 
@@ -29,7 +31,7 @@ pub async fn get_message_status(
 
     let sb_is_nsfw = match sb_is_nsfw {
         Some(val) => val,
-        None => return Ok(MessageStatus::NoAction),
+        None => return Ok(MessageStatus::Update(starboard_config.resolved.link_edits)),
     };
 
     if (deleted && starboard_config.resolved.link_deletes) || (message.is_nsfw && !sb_is_nsfw) {
@@ -37,14 +39,14 @@ pub async fn get_message_status(
     } else if message.trashed {
         Ok(MessageStatus::Trash)
     } else if message.forced_to.contains(&starboard_config.starboard.id) {
-        Ok(MessageStatus::Send)
+        Ok(MessageStatus::Send(starboard_config.resolved.link_edits))
     } else if message.frozen {
-        Ok(MessageStatus::NoAction)
+        Ok(MessageStatus::Update(false))
     } else if points >= starboard_config.resolved.required as _ {
-        Ok(MessageStatus::Send)
+        Ok(MessageStatus::Send(starboard_config.resolved.link_edits))
     } else if points <= starboard_config.resolved.required_remove as _ {
         Ok(MessageStatus::Remove)
     } else {
-        Ok(MessageStatus::NoAction)
+        Ok(MessageStatus::Update(starboard_config.resolved.link_edits))
     }
 }

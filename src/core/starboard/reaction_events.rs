@@ -103,6 +103,7 @@ pub async fn handle_reaction_add(
         message_author_id: orig_msg.author_id.into_id(),
         message_author_is_bot: author_is_bot,
         message_has_image: None,
+        message_is_frozen: orig_msg.frozen,
     };
     let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
 
@@ -195,6 +196,7 @@ pub async fn handle_reaction_remove(
         message_author_id: orig.author_id.into_id(),
         message_author_is_bot: author.is_bot,
         message_has_image: None,
+        message_is_frozen: orig.frozen,
     };
     let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
 

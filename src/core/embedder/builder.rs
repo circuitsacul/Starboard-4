@@ -73,6 +73,17 @@ impl BuiltStarboardEmbed {
             .unwrap();
         }
 
+        if handle.orig_sql_message.frozen {
+            write!(top_content, " ❄️").unwrap();
+        }
+        if handle
+            .orig_sql_message
+            .forced_to
+            .contains(&handle.config.starboard.id)
+        {
+            write!(top_content, " 🔒").unwrap();
+        }
+
         top_content
     }
 

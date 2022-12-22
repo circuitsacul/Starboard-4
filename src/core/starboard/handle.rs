@@ -230,7 +230,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         .await;
                     (ret.map(|_| ()), false, true)
                 }
-                MessageStatus::Send | MessageStatus::NoAction | MessageStatus::Trash => {
+                MessageStatus::Send(full_update) | MessageStatus::Update(full_update) => {
                     let as_id: Id<MessageMarker> = sb_msg.starboard_message_id.into_id();
                     if as_id.age().as_secs() > 3600
                         && self
@@ -244,11 +244,16 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         (Ok(()), false, false)
                     } else {
                         let ret = embedder
-                            .edit(self.refresh.bot, sb_msg.starboard_message_id.into_id())
+                            .edit(
+                                self.refresh.bot,
+                                sb_msg.starboard_message_id.into_id(),
+                                !full_update,
+                            )
                             .await;
                         (ret.map(|_| ()), true, false)
                     }
                 }
+                MessageStatus::Trash => todo!(),
             };
 
             if let Err(why) = ret {
@@ -267,11 +272,8 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 Ok(false)
             }
         } else {
-            match action {
-                MessageStatus::Remove | MessageStatus::Trash | MessageStatus::NoAction => {
-                    return Ok(false)
-                }
-                MessageStatus::Send => {}
+            if !matches!(action, MessageStatus::Send(_)) {
+                return Ok(false);
             }
 
             let msg = embedder

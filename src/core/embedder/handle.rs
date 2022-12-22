@@ -63,9 +63,10 @@ impl Embedder<'_, '_> {
         &self,
         bot: &StarboardBot,
         message_id: Id<MessageMarker>,
+        force_partial: bool,
     ) -> Result<twilight_http::Response<twilight_model::channel::Message>, twilight_http::Error>
     {
-        match self.build(!self.config.resolved.link_edits) {
+        match self.build(force_partial) {
             BuiltStarboardEmbed::Full(built) => {
                 bot.http
                     .update_message(self.config.starboard.channel_id.into_id(), message_id)

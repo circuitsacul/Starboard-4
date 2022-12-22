@@ -39,6 +39,21 @@ impl Message {
         .await
     }
 
+    pub async fn set_freeze(
+        pool: &sqlx::PgPool,
+        message_id: i64,
+        frozen: bool,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "UPDATE messages SET frozen=$1 WHERE message_id=$2 RETURNING *",
+            frozen,
+            message_id,
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
     pub async fn get_original(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
         let orig = if let Some(sb_msg) = StarboardMessage::get(pool, message_id).await? {
             sb_msg.message_id
