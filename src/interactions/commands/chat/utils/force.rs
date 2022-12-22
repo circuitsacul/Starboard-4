@@ -124,6 +124,13 @@ impl Force {
             }
         };
 
+        let mut forced = forced;
+        for already_forced in orig.forced_to {
+            if !forced.contains(&already_forced) {
+                forced.push(already_forced);
+            }
+        }
+
         Message::set_forced(&ctx.bot.pool, orig.message_id, &forced).await?;
         RefreshMessage::new(&ctx.bot, orig.message_id.into_id())
             .refresh(true)
