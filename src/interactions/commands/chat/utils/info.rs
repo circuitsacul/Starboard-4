@@ -1,4 +1,5 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
+use twilight_model::channel::message::MessageFlags;
 use twilight_util::builder::embed::EmbedFieldBuilder;
 
 use crate::{
@@ -51,7 +52,7 @@ impl Info {
                 StarboardMessage::get_by_starboard(&ctx.bot.pool, sql_msg.message_id, starboard.id)
                     .await?;
             let link = sb_msg
-                .map(|m| fmt_message_link(guild_id, starboard.channel_id, m.message_id))
+                .map(|m| fmt_message_link(guild_id, starboard.channel_id, m.starboard_message_id))
                 .map(|link| format!("[jump]({link})"))
                 .unwrap_or_else(|| "Not on starboard.".to_string());
             emb = emb.field(
@@ -66,8 +67,13 @@ impl Info {
             );
         }
 
-        ctx.respond(ctx.build_resp().embeds([emb.build()]).build())
-            .await?;
+        ctx.respond(
+            ctx.build_resp()
+                .embeds([emb.build()])
+                .flags(MessageFlags::EPHEMERAL)
+                .build(),
+        )
+        .await?;
 
         Ok(())
     }
