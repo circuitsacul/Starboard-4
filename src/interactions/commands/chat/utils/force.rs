@@ -2,10 +2,11 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     core::starboard::handle::RefreshMessage,
-    database::{Message, Starboard},
+    database::{Message, Starboard, User},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    map_dup_none,
     utils::{id_as_i64::GetI64, into_id::IntoId, message_link::parse_message_link},
 };
 
@@ -92,6 +93,17 @@ impl Force {
                     ctx.respond_str("That message doesn't exist.", true).await?;
                     return Ok(());
                 };
+
+                let author = ctx.bot.cache.fog_user(&ctx.bot, orig_obj.author_id).await?;
+                let is_bot = match author {
+                    Some(user) => user.is_bot,
+                    None => false,
+                };
+                map_dup_none!(User::create(
+                    &ctx.bot.pool,
+                    orig_obj.author_id.get_i64(),
+                    is_bot
+                ))?;
 
                 let is_nsfw = ctx
                     .bot
