@@ -4,6 +4,7 @@ use crate::{
     core::starboard::handle::RefreshMessage,
     database::Message,
     errors::StarboardResult,
+    get_guild_id,
     interactions::context::CommandCtx,
     utils::{into_id::IntoId, message_link::parse_message_link},
 };
@@ -31,6 +32,12 @@ impl Freeze {
             ctx.respond_str(INVALID_MESSAGE_ERR, true).await?;
             return Ok(());
         };
+
+        if orig.guild_id != get_guild_id!(ctx) {
+            ctx.respond_str("That message belongs to a different server.", true)
+                .await?;
+            return Ok(());
+        }
 
         Message::set_freeze(&ctx.bot.pool, orig.message_id, true)
             .await?
@@ -62,6 +69,12 @@ impl UnFreeze {
             ctx.respond_str(INVALID_MESSAGE_ERR, true).await?;
             return Ok(());
         };
+
+        if orig.guild_id != get_guild_id!(ctx) {
+            ctx.respond_str("That message belongs to a different server.", true)
+                .await?;
+            return Ok(());
+        }
 
         Message::set_freeze(&ctx.bot.pool, orig.message_id, false)
             .await?
