@@ -41,6 +41,33 @@ impl Force {
             return Ok(());
         }
 
+        let forced: Vec<_> = match self.starboard {
+            None => Starboard::list_by_guild(&ctx.bot.pool, guild_id.get_i64())
+                .await?
+                .into_iter()
+                .map(|s| s.id)
+                .collect(),
+            Some(name) => {
+                let Some(sb) = Starboard::get_by_name(&ctx.bot.pool, &name, guild_id.get_i64()).await? else {
+                    ctx.respond_str(&format!("Starboard '{name}' does not exist."), true).await?;
+                    return Ok(());
+                };
+                vec![sb.id]
+            }
+        };
+
+        if forced.is_empty() {
+            // if the length != 1, that means it's trying to force to all starboards. So, if the
+            // length is 0, that means there are no starboards.
+
+            ctx.respond_str(
+                "This server has no starboards, so you can't force messages.",
+                true,
+            )
+            .await?;
+            return Ok(());
+        }
+
         let orig = Message::get_original(&ctx.bot.pool, message_id).await?;
         let orig = match orig {
             Some(orig) => orig,
@@ -82,21 +109,6 @@ impl Force {
                     is_nsfw,
                 )
                 .await?
-            }
-        };
-
-        let forced: Vec<_> = match self.starboard {
-            None => Starboard::list_by_guild(&ctx.bot.pool, guild_id.get_i64())
-                .await?
-                .into_iter()
-                .map(|s| s.id)
-                .collect(),
-            Some(name) => {
-                let Some(sb) = Starboard::get_by_name(&ctx.bot.pool, &name, guild_id.get_i64()).await? else {
-                    ctx.respond_str(&format!("Starboard '{name}' does not exist."), true).await?;
-                    return Ok(());
-                };
-                vec![sb.id]
             }
         };
 
