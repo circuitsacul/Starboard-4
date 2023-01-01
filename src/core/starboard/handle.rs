@@ -253,7 +253,6 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         (ret.map(|_| ()), true, false)
                     }
                 }
-                MessageStatus::Trash => todo!(),
             };
 
             if let Err(why) = ret {

@@ -12,7 +12,6 @@ pub enum MessageStatus {
     Remove,
     /// true -> full update, false -> partial update
     Send(bool),
-    Trash,
 }
 
 pub async fn get_message_status(
@@ -34,10 +33,11 @@ pub async fn get_message_status(
         None => return Ok(MessageStatus::Update(starboard_config.resolved.link_edits)),
     };
 
-    if (deleted && starboard_config.resolved.link_deletes) || (message.is_nsfw && !sb_is_nsfw) {
+    if (deleted && starboard_config.resolved.link_deletes)
+        || (message.is_nsfw && !sb_is_nsfw)
+        || message.trashed
+    {
         Ok(MessageStatus::Remove)
-    } else if message.trashed {
-        Ok(MessageStatus::Trash)
     } else if message.forced_to.contains(&starboard_config.starboard.id) {
         Ok(MessageStatus::Send(starboard_config.resolved.link_edits))
     } else if message.frozen {
