@@ -2,6 +2,7 @@ pub mod force;
 pub mod freeze;
 pub mod info;
 pub mod trash;
+pub mod trashcan;
 pub mod unforce;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
@@ -43,6 +44,8 @@ pub enum Utils {
     Trash(trash::Trash),
     #[command(name = "untrash")]
     UnTrash(trash::UnTrash),
+    #[command(name = "trashcan")]
+    TrashCan(trashcan::TrashCan),
 }
 
 impl Utils {
@@ -58,6 +61,7 @@ impl Utils {
 
             Self::Trash(cmd) => cmd.callback(ctx).await,
             Self::UnTrash(cmd) => cmd.callback(ctx).await,
+            Self::TrashCan(cmd) => cmd.callback(ctx).await,
         }
     }
 }

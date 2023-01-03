@@ -84,6 +84,16 @@ impl Message {
         .await
     }
 
+    pub async fn list_trashed(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM messages WHERE guild_id=$1 AND trashed=true ORDER BY message_id",
+            guild_id
+        )
+        .fetch_all(pool)
+        .await
+    }
+
     pub async fn get_original(pool: &sqlx::PgPool, message_id: i64) -> sqlx::Result<Option<Self>> {
         let orig = if let Some(sb_msg) = StarboardMessage::get(pool, message_id).await? {
             sb_msg.message_id
