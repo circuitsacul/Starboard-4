@@ -47,6 +47,7 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> StarboardResu
         };
         results.push(result);
     }
+    tx.rollback().await?;
 
     let mut final_result = String::new();
     for result in results {
