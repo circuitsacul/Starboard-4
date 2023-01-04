@@ -119,6 +119,7 @@ pub async fn run_sql(
         .create_message(channel_id)
         .content(&final_result)
         .unwrap()
+        .reply(message_id)
         .await?
         .model()
         .await
