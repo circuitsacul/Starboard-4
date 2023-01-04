@@ -21,6 +21,7 @@ pub async fn handle_command(ctx: CommandCtx) -> StarboardResult<()> {
     match_commands!(
         ctx,
         "ping" => chat::ping::Ping,
+        "help" => chat::help::Help,
         "random" => chat::random::RandomPost,
         "autostar" => chat::autostar::AutoStar,
         "starboards" => chat::starboard::Starboard,

@@ -1,4 +1,5 @@
 pub mod autostar;
+pub mod help;
 pub mod overrides;
 pub mod permroles;
 pub mod ping;

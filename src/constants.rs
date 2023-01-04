@@ -9,6 +9,15 @@ pub const BOT_COLOR: u32 = 0xFFE19C;
 pub const YEAR_SECONDS: i64 = 31_557_600;
 pub const MONTH_SECONDS: i64 = 2_630_016;
 
+// Links
+pub const INVITE_URL: &str = "https://discord.com/api/oauth2/authorize?client_id=700796664276844612&permissions=805661760&scope=bot%20applications.commands";
+pub const SUPPORT_URL: &str = "https://discord.gg/3gK8mSA";
+pub const DOCS_URL: &str = "https://bip.so/starboard?via=starboard";
+pub const SOURCE_URL: &str = "https://github.com/CircuitSacul/Starboard-4";
+pub const PATREON_URL: &str = "https://patreon.com/CircuitSacul";
+pub const VOTE_URL: &str = "https://top.gg/bot/700796664276844612/vote";
+pub const REVIEW_URL: &str = "https://top.gg/bot/700796664276844612#reviews";
+
 // Cache size
 pub const MAX_MESSAGES: u32 = 10_000;
 pub const MAX_NAMES: u32 = 100;
