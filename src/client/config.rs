@@ -9,6 +9,7 @@ pub struct Config {
     pub error_channel: Option<u64>,
     pub development: bool,
     pub owner_ids: Vec<u64>,
+    pub bot_id: u64,
 }
 
 impl Config {
@@ -36,6 +37,10 @@ impl Config {
                 .map(|item| item.trim().parse().expect("invalid owner id"))
                 .collect()
         });
+        let bot_id = env::var("BOT_ID")
+            .expect("No BOT_ID.")
+            .parse()
+            .expect("Invalid BOT_ID");
 
         Config {
             token,
@@ -45,6 +50,7 @@ impl Config {
             error_channel,
             development,
             owner_ids: owner_ids.unwrap_or_default(),
+            bot_id,
         }
     }
 }

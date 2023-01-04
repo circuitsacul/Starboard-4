@@ -40,6 +40,20 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
             }
         }
         Event::MessageCreate(event) => {
+            if event.content == format!("<@{}>", bot.config.bot_id) {
+                let _ = bot
+                    .http
+                    .create_message(event.channel_id)
+                    .content(concat!(
+                        "See `/help` for more information on Starboard. If you don't see ",
+                        "slash commands, try reinviting me using the \"Add to Server\" ",
+                        "button on my profile.",
+                    ))
+                    .unwrap()
+                    .reply(event.id)
+                    .await;
+            }
+
             core::autostar::handle(&bot, &event).await?;
             crate::owner::handle::handle_message(shard_id, &bot, &event).await?;
         }
