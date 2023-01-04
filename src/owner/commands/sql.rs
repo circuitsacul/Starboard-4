@@ -5,17 +5,31 @@ use std::{
 };
 
 use sqlx::{postgres::PgRow, Column, Executor, Row, ValueRef};
-use twilight_model::gateway::payload::incoming::MessageCreate;
-
-use crate::{
-    client::bot::StarboardBot, concat_format, errors::StarboardResult,
-    owner::code_block::parse_code_blocks,
+use twilight_model::id::{
+    marker::{ChannelMarker, MessageMarker},
+    Id,
 };
 
-pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> StarboardResult<()> {
-    bot.http.create_typing_trigger(event.channel_id).await?;
+use crate::{
+    cache::models::message::CachedMessage, client::bot::StarboardBot, concat_format,
+    errors::StarboardResult, owner::code_block::parse_code_blocks,
+};
 
-    let blocks = parse_code_blocks(event.content.strip_prefix("star sql").unwrap());
+pub async fn run_sql(
+    bot: &StarboardBot,
+    channel_id: Id<ChannelMarker>,
+    message_id: Id<MessageMarker>,
+    message: &CachedMessage,
+    is_edit: bool,
+) -> StarboardResult<()> {
+    let to_edit = if !is_edit {
+        bot.http.create_typing_trigger(channel_id).await?;
+        None
+    } else {
+        bot.cache.responses.get(&message_id).map(|id| id.read())
+    };
+
+    let blocks = parse_code_blocks(message.content.strip_prefix("star sql").unwrap());
     let mut results = Vec::new();
 
     let mut tx = bot.pool.begin().await?;
@@ -24,17 +38,29 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> StarboardResu
         let total_execs = meta.get("runs").map_or(1, |v| v.parse().unwrap()).max(1);
 
         let mut result = None;
+        let mut err = None;
         let mut execution_times = Vec::new();
         for _ in 0..total_execs {
             let elapsed = if return_results {
                 let start = Instant::now();
-                let rows = tx.fetch_all(code.as_str()).await?;
+                let rows = tx.fetch_all(code.as_str()).await;
+
                 let elapsed = start.elapsed();
-                result.replace(Some(rows.into_iter().map(row_to_json).collect()));
+                match rows {
+                    Ok(rows) => {
+                        result.replace(Some(rows.into_iter().map(row_to_json).collect()));
+                    }
+                    Err(why) => {
+                        err = Some(why.to_string());
+                    }
+                }
                 elapsed
             } else {
                 let start = Instant::now();
-                tx.execute(code.as_str()).await?;
+                let ret = tx.execute(code.as_str()).await;
+                if let Err(why) = ret {
+                    err = Some(why.to_string());
+                }
                 start.elapsed()
             };
             execution_times.push(elapsed);
@@ -43,6 +69,7 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> StarboardResu
         let result = SqlResult {
             execution_times,
             inspect: result.unwrap_or(None),
+            err,
             tag: meta.get("tag").unwrap_or(&"?query?").to_string(),
         };
         results.push(result);
@@ -69,13 +96,38 @@ pub async fn run_sql(bot: &StarboardBot, event: &MessageCreate) -> StarboardResu
             }
             final_result.push_str("```\n");
         }
+        if let Some(err) = result.err {
+            writeln!(final_result, "```sql\n{err}```").unwrap();
+        }
     }
 
-    bot.http
-        .create_message(event.channel_id)
+    if let Some(to_edit) = to_edit {
+        let ret = bot
+            .http
+            .update_message(channel_id, to_edit)
+            .content(Some(&final_result))
+            .unwrap()
+            .await;
+
+        if ret.is_ok() {
+            return Ok(());
+        }
+    }
+
+    let msg = bot
+        .http
+        .create_message(channel_id)
         .content(&final_result)
         .unwrap()
-        .await?;
+        .await?
+        .model()
+        .await
+        .unwrap();
+
+    bot.cache.responses.insert(message_id, msg.id, 1).await;
+    bot.cache.responses.wait().await.unwrap();
+    bot.cache.responses.get(&message_id).unwrap();
+
     Ok(())
 }
 
@@ -98,6 +150,7 @@ fn row_to_json(row: PgRow) -> HashMap<String, String> {
 struct SqlResult {
     pub execution_times: Vec<Duration>,
     pub inspect: Option<Vec<HashMap<String, String>>>,
+    pub err: Option<String>,
     pub tag: String,
 }
 

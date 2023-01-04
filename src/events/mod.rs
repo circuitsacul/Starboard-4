@@ -55,7 +55,41 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
             }
 
             core::autostar::handle(&bot, &event).await?;
-            crate::owner::handle::handle_message(shard_id, &bot, &event).await?;
+
+            let msg = bot
+                .cache
+                .fog_message(&bot, event.channel_id, event.id)
+                .await?;
+            if let Some(msg) = msg {
+                crate::owner::handle::handle_message(
+                    shard_id,
+                    &bot,
+                    event.channel_id,
+                    event.id,
+                    &msg,
+                    false,
+                )
+                .await?;
+            }
+        }
+        Event::MessageUpdate(event) => {
+            let msg = bot
+                .cache
+                .fog_message(&bot, event.channel_id, event.id)
+                .await?;
+            if let Some(msg) = msg {
+                crate::owner::handle::handle_message(
+                    shard_id,
+                    &bot,
+                    event.channel_id,
+                    event.id,
+                    &msg,
+                    true,
+                )
+                .await?;
+            }
+
+            core::starboard::link_events::handle_message_update(&bot, event).await?;
         }
         Event::GuildCreate(event) => {
             // Request members chunk
@@ -74,9 +108,6 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
         }
         Event::MessageDelete(event) => {
             core::starboard::link_events::handle_message_delete(&bot, event).await?;
-        }
-        Event::MessageUpdate(event) => {
-            core::starboard::link_events::handle_message_update(&bot, event).await?;
         }
         _ => {}
     }

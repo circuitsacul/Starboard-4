@@ -21,6 +21,7 @@ pub const REVIEW_URL: &str = "https://top.gg/bot/700796664276844612#reviews";
 // Cache size
 pub const MAX_MESSAGES: u32 = 10_000;
 pub const MAX_NAMES: u32 = 100;
+pub const MAX_STORED_RESPONSES: u32 = 100;
 
 // Cooldowns
 pub const AUTOSTAR_COOLDOWN: (u64, Duration) = (5, Duration::from_secs(20));
