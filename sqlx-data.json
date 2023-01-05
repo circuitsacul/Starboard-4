@@ -1572,6 +1572,46 @@
     },
     "query": "UPDATE autostar_channels SET name=$1 WHERE name=$2 AND guild_id=$3\n            RETURNING *"
   },
+  "5f937665dfcfdc26d1e6986203a9b81d64b38407fc6ad871640efcb092079a45": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "xp",
+          "ordinal": 2,
+          "type_info": "Float4"
+        },
+        {
+          "name": "autoredeem_enabled",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Float4",
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE members SET xp=$1 WHERE user_id=$2 AND guild_id=$3 RETURNING *"
+  },
   "62dfbdacb72b9b8d9dba195684068e31c3daddf4e9682041c8a87697c9bebd7d": {
     "describe": {
       "columns": [
@@ -2104,6 +2144,27 @@
       }
     },
     "query": "INSERT INTO posroles\n            (role_id, guild_id)\n            VALUES ($1, $2)\n            RETURNING *"
+  },
+  "7b137ea29ecca19db96e259ed6b24d8a0f3fa5a3cb493c6e6be0b2bf54979e90": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) FROM votes WHERE starboard_id=$1\n        AND target_author_id=$2 AND is_downvote=true"
   },
   "7e14b14e400319e69ca7b7a581257ee46e1b60ee05872f90474bc3c107a47e08": {
     "describe": {
@@ -3434,6 +3495,27 @@
       }
     },
     "query": "SELECT COUNT(*) as count FROM permroles WHERE guild_id=$1"
+  },
+  "d9d12cee8a2062669bf160b9f2a1cb20ee03e5bf5c59436a1a21d6bd2e767c06": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) FROM votes WHERE starboard_id=$1\n        AND target_author_id=$2 AND is_downvote=false"
   },
   "db47dd094d91342ad83996e3ebe7cacc85c7f77f1e7ecd0c9d8ba6914fb9ec8a": {
     "describe": {

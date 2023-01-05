@@ -2,7 +2,7 @@ use twilight_model::gateway::payload::incoming::{ReactionAdd, ReactionRemove};
 
 use crate::{
     client::bot::StarboardBot,
-    core::emoji::SimpleEmoji,
+    core::{emoji::SimpleEmoji, leaderboard::xp::refresh_xp},
     database::{Member, Message, User, Vote},
     errors::StarboardResult,
     map_dup_none,
@@ -107,8 +107,11 @@ pub async fn handle_reaction_add(
     };
     let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
 
+    // for future user, since orig_msg is moved
+    let author_id = orig_msg.author_id;
+
     match status {
-        VoteStatus::Ignore => Ok(()),
+        VoteStatus::Ignore => (),
         VoteStatus::Remove => {
             let _ = bot
                 .http
@@ -118,9 +121,7 @@ pub async fn handle_reaction_add(
                     &emoji.reactable(),
                     event.user_id,
                 )
-                .await;
-
-            Ok(())
+                .await?;
         }
         VoteStatus::Valid((upvote, downvote)) => {
             // create reactor data
@@ -165,10 +166,12 @@ pub async fn handle_reaction_add(
             refresh.set_configs(all_configs);
             refresh.set_sql_message(orig_msg);
             refresh.refresh(false).await?;
-
-            Ok(())
         }
     }
+
+    refresh_xp(bot, guild_id.get_i64(), author_id).await?;
+
+    Ok(())
 }
 
 pub async fn handle_reaction_remove(
@@ -212,9 +215,11 @@ pub async fn handle_reaction_remove(
             refresh.set_sql_message(orig);
             refresh.set_configs(all_configs);
             refresh.refresh(false).await?;
-
-            Ok(())
         }
-        VoteStatus::Ignore | VoteStatus::Remove => Ok(()),
+        VoteStatus::Ignore | VoteStatus::Remove => (),
     }
+
+    refresh_xp(bot, guild_id.get_i64(), author.user_id).await?;
+
+    Ok(())
 }

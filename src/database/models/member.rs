@@ -17,4 +17,21 @@ impl Member {
         .fetch_one(pool)
         .await
     }
+
+    pub async fn set_xp(
+        pool: &sqlx::PgPool,
+        user_id: i64,
+        guild_id: i64,
+        xp: f32,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "UPDATE members SET xp=$1 WHERE user_id=$2 AND guild_id=$3 RETURNING *",
+            xp,
+            user_id,
+            guild_id
+        )
+        .fetch_optional(pool)
+        .await
+    }
 }
