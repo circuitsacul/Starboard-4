@@ -22,7 +22,7 @@ impl Leaderboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
-        let lb = Member::list_by_xp(&ctx.bot.pool, guild_id.get_i64(), 50).await?;
+        let lb = Member::list_by_xp(&ctx.bot.pool, guild_id.get_i64(), 99).await?;
         let mut pages = Vec::new();
         let mut current_page = String::new();
 
