@@ -813,6 +813,27 @@
     },
     "query": "UPDATE messages SET frozen=$1 WHERE message_id=$2 RETURNING *"
   },
+  "2ad322ad75dd8bc977edfbfe65ed5ef7a4d0b561ebd2a885e2036ee91dbc442c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) FROM votes WHERE starboard_id=$1 AND user_id=$2\n            AND is_downvote=true"
+  },
   "2ba33811711a776b21ed9f1aab88903c81d572838f9ec3c133112ed009efb20e": {
     "describe": {
       "columns": [
@@ -2544,6 +2565,27 @@
     },
     "query": "INSERT INTO VOTES\n            (message_id, starboard_id, user_id,\n                target_author_id, is_downvote)\n            VALUES ($1, $2, $3, $4, $5)\n            RETURNING *"
   },
+  "88357902cae7c5ecc5625d473a99b55a5acd4323de003c6fa89afd9543c7fe25": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) FROM votes WHERE starboard_id=$1 AND user_id=$2\n            AND is_downvote=false"
+  },
   "888f1c27ec8291239d8041c2a148a9f9d72f872bfa520c43e0a5c6ad65636218": {
     "describe": {
       "columns": [
@@ -2889,6 +2931,27 @@
       }
     },
     "query": "DELETE FROM permrole_starboards WHERE permrole_id=$1 AND starboard_id=$2 RETURNING *"
+  },
+  "b40efe37213d4d3b754f0e3f2c6889c2a866059568d8ffba713b7d5939626e35": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) FROM votes WHERE starboard_id=$1\n            AND target_author_id=$2 AND is_downvote=true"
   },
   "b41aaaf9153c7dd373e0f1825ecc78d16c78f4d084e8618f68c6695ce4aad635": {
     "describe": {
@@ -3734,6 +3797,27 @@
       }
     },
     "query": "SELECT * FROM permrole_starboards WHERE permrole_id=$1"
+  },
+  "e5f7837179d4f5a285bda9334b7509fee5226207eac9905e62adc7280c5db05f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) FROM votes WHERE starboard_id=$1\n            AND target_author_id=$2 AND is_downvote=false"
   },
   "e605d15eeb3e0939bc83e98b98b9ac9814bf2f0983ebdc30c235d8b530bf0ada": {
     "describe": {

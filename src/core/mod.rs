@@ -4,4 +4,4 @@ pub mod emoji;
 pub mod has_image;
 pub mod permroles;
 pub mod starboard;
-pub mod xp;
+pub mod stats;

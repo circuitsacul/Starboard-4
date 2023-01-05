@@ -21,6 +21,7 @@ pub async fn post_commands(bot: Arc<StarboardBot>) {
         chat::ping::Ping,
         chat::help::Help,
         chat::leaderboard::Leaderboard,
+        chat::stats::Stats,
         chat::random::RandomPost,
         chat::autostar::AutoStar,
         chat::starboard::Starboard,
