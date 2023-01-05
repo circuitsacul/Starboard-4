@@ -2,7 +2,7 @@ use twilight_model::gateway::payload::incoming::{ReactionAdd, ReactionRemove};
 
 use crate::{
     client::bot::StarboardBot,
-    core::{emoji::SimpleEmoji, leaderboard::xp::refresh_xp},
+    core::{emoji::SimpleEmoji, xp::refresh_xp},
     database::{Member, Message, User, Vote},
     errors::StarboardResult,
     map_dup_none,
