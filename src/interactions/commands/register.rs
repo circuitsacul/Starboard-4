@@ -20,6 +20,7 @@ pub async fn post_commands(bot: Arc<StarboardBot>) {
     let commands = commands_to_create!(
         chat::ping::Ping,
         chat::help::Help,
+        chat::leaderboard::Leaderboard,
         chat::random::RandomPost,
         chat::autostar::AutoStar,
         chat::starboard::Starboard,

@@ -1376,6 +1376,45 @@
     },
     "query": "DELETE FROM starboards WHERE name=$1 AND guild_id=$2\n            RETURNING *"
   },
+  "4799c2a2b60b149a964d4e435f3991a8b12a9ecdd8f5d413fbbe01649b185470": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "xp",
+          "ordinal": 2,
+          "type_info": "Float4"
+        },
+        {
+          "name": "autoredeem_enabled",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM members WHERE guild_id=$1 AND xp > 0 ORDER BY xp DESC LIMIT $2"
+  },
   "49d63a74ba11ef0279ae492c469cd578a6c97e81fe63715ef999e39f74a433d5": {
     "describe": {
       "columns": [
@@ -2606,45 +2645,6 @@
       }
     },
     "query": "UPDATE overrides SET overrides=$1 WHERE id=$2 RETURNING *"
-  },
-  "8df0fbff60ecf9a9176d785e008a3e6c0b36f9fa536ee17620864bbaf872a8be": {
-    "describe": {
-      "columns": [
-        {
-          "name": "user_id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        },
-        {
-          "name": "guild_id",
-          "ordinal": 1,
-          "type_info": "Int8"
-        },
-        {
-          "name": "xp",
-          "ordinal": 2,
-          "type_info": "Float4"
-        },
-        {
-          "name": "autoredeem_enabled",
-          "ordinal": 3,
-          "type_info": "Bool"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int8"
-        ]
-      }
-    },
-    "query": "SELECT * FROM members WHERE guild_id=$1 ORDER BY xp DESC LIMIT $2"
   },
   "94fb8ddf71c63a97b616fad7736ae4c47ed8841ff760d7186e4b7af1cbdbe2d2": {
     "describe": {
