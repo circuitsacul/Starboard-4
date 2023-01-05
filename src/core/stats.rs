@@ -2,6 +2,7 @@ use crate::{
     client::bot::StarboardBot,
     database::{Member, Starboard},
     errors::StarboardResult,
+    utils::into_id::IntoId,
 };
 
 #[derive(Default)]
@@ -117,6 +118,15 @@ impl MemberStats {
 }
 
 pub async fn refresh_xp(bot: &StarboardBot, guild_id: i64, user_id: i64) -> StarboardResult<()> {
+    if bot
+        .cooldowns
+        .xp_refresh
+        .trigger(&(user_id.into_id(), guild_id.into_id()))
+        .is_some()
+    {
+        return Ok(());
+    }
+
     let Some(stats) = MemberStats::get(&bot.pool, guild_id, user_id).await? else {
         return Ok(());
     };

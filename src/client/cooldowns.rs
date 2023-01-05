@@ -3,7 +3,7 @@ use std::{sync::Arc, time::Duration};
 use floodgate::{DynamicMapping, FixedMapping};
 use tokio::time::sleep;
 use twilight_model::id::{
-    marker::{ChannelMarker, UserMarker},
+    marker::{ChannelMarker, GuildMarker, UserMarker},
     Id,
 };
 
@@ -17,6 +17,7 @@ pub struct Cooldowns {
     pub autostar_send: FixedMapping<Id<ChannelMarker>>,
     pub starboard_custom_cooldown: DynamicMapping<(Id<UserMarker>, i32)>,
     pub old_message_edit: FixedMapping<Id<ChannelMarker>>,
+    pub xp_refresh: FixedMapping<(Id<UserMarker>, Id<GuildMarker>)>,
 }
 
 impl Cooldowns {
@@ -30,12 +31,14 @@ impl Cooldowns {
         let starboard_custom_cooldown = DynamicMapping::new(cycle_period);
         let old_message_edit =
             FixedMapping::new(constants::OLD_MESSAGE_EDIT.0, constants::OLD_MESSAGE_EDIT.1);
+        let xp_refresh = FixedMapping::new(constants::XP_REFRESH.0, constants::XP_REFRESH.1);
 
         Self {
             cycle_period,
             autostar_send,
             starboard_custom_cooldown,
             old_message_edit,
+            xp_refresh,
         }
     }
 
