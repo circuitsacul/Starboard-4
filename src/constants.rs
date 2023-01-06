@@ -66,3 +66,6 @@ pub const MAX_PERMROLES: i64 = 50;
 
 // XP-based Award Role Validation
 pub const MAX_XPROLES: i64 = 50;
+
+// Position-based Award Role Validation
+pub const MAX_POSROLES: i64 = 50;

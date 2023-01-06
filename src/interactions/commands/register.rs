@@ -28,6 +28,7 @@ pub async fn post_commands(bot: Arc<StarboardBot>) {
         chat::overrides::Overrides,
         chat::permroles::PermRoles,
         chat::xproles::XPRoles,
+        chat::posroles::PosRoles,
         chat::utils::Utils,
     );
 
