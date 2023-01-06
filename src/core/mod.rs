@@ -5,3 +5,4 @@ pub mod has_image;
 pub mod permroles;
 pub mod starboard;
 pub mod stats;
+pub mod xproles;

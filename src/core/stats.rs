@@ -1,9 +1,16 @@
+use twilight_model::id::{
+    marker::{GuildMarker, UserMarker},
+    Id,
+};
+
 use crate::{
     client::bot::StarboardBot,
     database::{Member, Starboard},
     errors::StarboardResult,
-    utils::into_id::IntoId,
+    utils::id_as_i64::GetI64,
 };
+
+use super::xproles::refresh_xpr;
 
 #[derive(Default)]
 pub struct MemberStats {
@@ -117,21 +124,27 @@ impl MemberStats {
     }
 }
 
-pub async fn refresh_xp(bot: &StarboardBot, guild_id: i64, user_id: i64) -> StarboardResult<()> {
+pub async fn refresh_xp(
+    bot: &StarboardBot,
+    guild_id: Id<GuildMarker>,
+    user_id: Id<UserMarker>,
+) -> StarboardResult<()> {
     if bot
         .cooldowns
         .xp_refresh
-        .trigger(&(user_id.into_id(), guild_id.into_id()))
+        .trigger(&(user_id, guild_id))
         .is_some()
     {
         return Ok(());
     }
 
-    let Some(stats) = MemberStats::get(&bot.pool, guild_id, user_id).await? else {
+    let Some(stats) = MemberStats::get(&bot.pool, guild_id.get_i64(), user_id.get_i64()).await? else {
         return Ok(());
     };
 
-    Member::set_xp(&bot.pool, user_id, guild_id, stats.xp).await?;
+    Member::set_xp(&bot.pool, user_id.get_i64(), guild_id.get_i64(), stats.xp).await?;
+
+    refresh_xpr(bot, guild_id, user_id).await?;
 
     Ok(())
 }

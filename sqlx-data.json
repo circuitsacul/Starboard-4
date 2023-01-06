@@ -494,6 +494,45 @@
     },
     "query": "DELETE FROM votes WHERE message_id=$1 AND starboard_id=$2 AND user_id=$3\n            RETURNING *"
   },
+  "2111de885c5b267c61a1f639a990e1f40114a56e5303add22b8e5a348080999d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "xp",
+          "ordinal": 2,
+          "type_info": "Float4"
+        },
+        {
+          "name": "autoredeem_enabled",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM members WHERE guild_id=$1 AND user_id=$2"
+  },
   "234c6ea2740620a51ee59fd0dcbe4a54fa4be45c02312f69c7bdfa81e9e43ee3": {
     "describe": {
       "columns": [

@@ -169,7 +169,7 @@ pub async fn handle_reaction_add(
         }
     }
 
-    refresh_xp(bot, guild_id.get_i64(), author_id).await?;
+    refresh_xp(bot, guild_id, author_id.into_id()).await?;
 
     Ok(())
 }
@@ -219,7 +219,7 @@ pub async fn handle_reaction_remove(
         VoteStatus::Ignore | VoteStatus::Remove => (),
     }
 
-    refresh_xp(bot, guild_id.get_i64(), author.user_id).await?;
+    refresh_xp(bot, guild_id, author.user_id.into_id()).await?;
 
     Ok(())
 }
