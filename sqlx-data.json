@@ -584,75 +584,6 @@
     },
     "query": "INSERT INTO autostar_channels\n                (name, channel_id, guild_id)\n                VALUES ($1, $2, $3)\n                RETURNING *"
   },
-  "24c0b13bf1b89576a41366dbe335c7425de871a8de48808ccde254394d345bb0": {
-    "describe": {
-      "columns": [
-        {
-          "name": "message_id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        },
-        {
-          "name": "guild_id",
-          "ordinal": 1,
-          "type_info": "Int8"
-        },
-        {
-          "name": "channel_id",
-          "ordinal": 2,
-          "type_info": "Int8"
-        },
-        {
-          "name": "author_id",
-          "ordinal": 3,
-          "type_info": "Int8"
-        },
-        {
-          "name": "is_nsfw",
-          "ordinal": 4,
-          "type_info": "Bool"
-        },
-        {
-          "name": "forced_to",
-          "ordinal": 5,
-          "type_info": "Int4Array"
-        },
-        {
-          "name": "trashed",
-          "ordinal": 6,
-          "type_info": "Bool"
-        },
-        {
-          "name": "trash_reason",
-          "ordinal": 7,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "frozen",
-          "ordinal": 8,
-          "type_info": "Bool"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Bool",
-          "Int8"
-        ]
-      }
-    },
-    "query": "UPDATE messages SET trashed=$1 WHERE message_id=$2 RETURNING *"
-  },
   "26ba63804320b440dba9096dedb959767348c0ad53144f02220af3f7255cb5d6": {
     "describe": {
       "columns": [
@@ -2205,27 +2136,6 @@
     },
     "query": "INSERT INTO posroles\n            (role_id, guild_id)\n            VALUES ($1, $2)\n            RETURNING *"
   },
-  "7b137ea29ecca19db96e259ed6b24d8a0f3fa5a3cb493c6e6be0b2bf54979e90": {
-    "describe": {
-      "columns": [
-        {
-          "name": "count",
-          "ordinal": 0,
-          "type_info": "Int8"
-        }
-      ],
-      "nullable": [
-        null
-      ],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Int8"
-        ]
-      }
-    },
-    "query": "SELECT count(*) FROM votes WHERE starboard_id=$1\n        AND target_author_id=$2 AND is_downvote=true"
-  },
   "7e14b14e400319e69ca7b7a581257ee46e1b60ee05872f90474bc3c107a47e08": {
     "describe": {
       "columns": [
@@ -3181,6 +3091,76 @@
     },
     "query": "SELECT * FROM permroles WHERE guild_id=$1"
   },
+  "ba8149792574e9b60c34327a9444485f28b367c243ed9142d6ee3ea1ce77d879": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "channel_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "author_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_nsfw",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "forced_to",
+          "ordinal": 5,
+          "type_info": "Int4Array"
+        },
+        {
+          "name": "trashed",
+          "ordinal": 6,
+          "type_info": "Bool"
+        },
+        {
+          "name": "trash_reason",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "frozen",
+          "ordinal": 8,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Bool",
+          "Varchar",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE messages SET trashed=$1, trash_reason=$2 WHERE message_id=$3 RETURNING *"
+  },
   "bcbcc0bbec6474d9d1b5928f7b8275bcbf87727fa4f76c69fa99e8de86e891f3": {
     "describe": {
       "columns": [
@@ -3597,27 +3577,6 @@
       }
     },
     "query": "SELECT COUNT(*) as count FROM permroles WHERE guild_id=$1"
-  },
-  "d9d12cee8a2062669bf160b9f2a1cb20ee03e5bf5c59436a1a21d6bd2e767c06": {
-    "describe": {
-      "columns": [
-        {
-          "name": "count",
-          "ordinal": 0,
-          "type_info": "Int8"
-        }
-      ],
-      "nullable": [
-        null
-      ],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Int8"
-        ]
-      }
-    },
-    "query": "SELECT count(*) FROM votes WHERE starboard_id=$1\n        AND target_author_id=$2 AND is_downvote=false"
   },
   "db47dd094d91342ad83996e3ebe7cacc85c7f77f1e7ecd0c9d8ba6914fb9ec8a": {
     "describe": {

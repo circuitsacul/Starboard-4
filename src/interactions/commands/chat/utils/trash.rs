@@ -19,6 +19,9 @@ use super::INVALID_MESSAGE_ERR;
 pub struct Trash {
     /// Link to the message to trash.
     message: String,
+
+    /// Reason for trashing the message.
+    reason: Option<String>,
 }
 
 impl Trash {
@@ -41,7 +44,7 @@ impl Trash {
             return Ok(());
         }
 
-        Message::set_trashed(&ctx.bot.pool, orig.message_id, true).await?;
+        Message::set_trashed(&ctx.bot.pool, orig.message_id, true, self.reason.as_deref()).await?;
         ctx.respond_str("Message trashed.", true).await?;
         RefreshMessage::new(&ctx.bot, orig.message_id.into_id())
             .refresh(true)
@@ -78,7 +81,7 @@ impl UnTrash {
             return Ok(());
         }
 
-        Message::set_trashed(&ctx.bot.pool, orig.message_id, false).await?;
+        Message::set_trashed(&ctx.bot.pool, orig.message_id, false, None).await?;
         ctx.respond_str("Message untrashed.", true).await?;
         RefreshMessage::new(&ctx.bot, orig.message_id.into_id())
             .refresh(true)

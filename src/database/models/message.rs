@@ -73,11 +73,13 @@ impl Message {
         pool: &sqlx::PgPool,
         message_id: i64,
         trashed: bool,
+        reason: Option<&str>,
     ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            "UPDATE messages SET trashed=$1 WHERE message_id=$2 RETURNING *",
+            "UPDATE messages SET trashed=$1, trash_reason=$2 WHERE message_id=$3 RETURNING *",
             trashed,
+            reason,
             message_id,
         )
         .fetch_optional(pool)
