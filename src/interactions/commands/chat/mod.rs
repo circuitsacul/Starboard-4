@@ -8,3 +8,4 @@ pub mod random;
 pub mod starboard;
 pub mod stats;
 pub mod utils;
+pub mod xproles;

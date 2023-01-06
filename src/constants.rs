@@ -63,3 +63,6 @@ pub const MAX_OVERRIDES_PER_STARBOARD: i64 = 10;
 
 // PermRole Validation
 pub const MAX_PERMROLES: i64 = 50;
+
+// XP-based Award Role Validation
+pub const MAX_XPROLES: i64 = 50;
