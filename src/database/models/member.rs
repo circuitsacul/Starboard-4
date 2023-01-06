@@ -49,4 +49,19 @@ impl Member {
         .fetch_all(pool)
         .await
     }
+
+    pub async fn get(
+        pool: &sqlx::PgPool,
+        guild_id: i64,
+        user_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM members WHERE guild_id=$1 AND user_id=$2",
+            guild_id,
+            user_id,
+        )
+        .fetch_optional(pool)
+        .await
+    }
 }

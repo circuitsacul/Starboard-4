@@ -90,40 +90,6 @@
     },
     "query": "SELECT * FROM overrides\n            WHERE starboard_id=$1 AND\n            channel_ids && $2::bigint[]"
   },
-  "0503b7de215f55d8463a73b800bba7a9e1c48f91ba6d67e36c3b105f8b1a1484": {
-    "describe": {
-      "columns": [
-        {
-          "name": "role_id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        },
-        {
-          "name": "guild_id",
-          "ordinal": 1,
-          "type_info": "Int8"
-        },
-        {
-          "name": "required",
-          "ordinal": 2,
-          "type_info": "Int2"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int8",
-          "Int2"
-        ]
-      }
-    },
-    "query": "INSERT INTO xproles\n            (role_id, guild_id, required)\n            VALUES ($1, $2, $3)\n            RETURNING *"
-  },
   "066998b6c842af003c90e4c71ae933524c0bef88b94b3dce92cc14e855852ad3": {
     "describe": {
       "columns": [
@@ -167,6 +133,26 @@
       }
     },
     "query": "DELETE FROM permroles WHERE role_id=$1 RETURNING *"
+  },
+  "08d0ded05e0b03c89892109f492fee7fa6e7a47afd18bf4155524593ce92aaca": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) FROM xproles WHERE guild_id=$1"
   },
   "0b73a06177a4053dd91a029b196db5f718a2626c09ef951ac8df598ec60759b9": {
     "describe": {
@@ -507,6 +493,45 @@
       }
     },
     "query": "DELETE FROM votes WHERE message_id=$1 AND starboard_id=$2 AND user_id=$3\n            RETURNING *"
+  },
+  "2111de885c5b267c61a1f639a990e1f40114a56e5303add22b8e5a348080999d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "xp",
+          "ordinal": 2,
+          "type_info": "Float4"
+        },
+        {
+          "name": "autoredeem_enabled",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM members WHERE guild_id=$1 AND user_id=$2"
   },
   "234c6ea2740620a51ee59fd0dcbe4a54fa4be45c02312f69c7bdfa81e9e43ee3": {
     "describe": {
@@ -1328,6 +1353,39 @@
     },
     "query": "DELETE FROM starboards WHERE name=$1 AND guild_id=$2\n            RETURNING *"
   },
+  "4210d1f0ce64aca7813b63421f3af67b1a0c3c586e0507f52754bd50c75189f3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "required",
+          "ordinal": 2,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int2",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE xproles SET required=$1 WHERE role_id=$2 RETURNING *"
+  },
   "4799c2a2b60b149a964d4e435f3991a8b12a9ecdd8f5d413fbbe01649b185470": {
     "describe": {
       "columns": [
@@ -1826,6 +1884,38 @@
       }
     },
     "query": "INSERT INTO patrons (patreon_id) VALUES ($1)\n            RETURNING *"
+  },
+  "70e4dde509221ec5efbae5241702d3d7876fed9a216872704d2449ccaeeb458c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "required",
+          "ordinal": 2,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM xproles WHERE guild_id=$1 ORDER BY required DESC"
   },
   "7584c85655f379fc8a95a4b0fe7e3d060711300ba1ec6e28d01bd7536ba4c53b": {
     "describe": {
@@ -3499,6 +3589,38 @@
     },
     "query": "SELECT * FROM starboards WHERE guild_id=$1"
   },
+  "c9a0aa39cb29f094a4c208de6e7f5cfb5a26b34a7faed0bd32a1660e98f21bfb": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "required",
+          "ordinal": 2,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "DELETE FROM xproles WHERE role_id=$1 RETURNING *"
+  },
   "cb9b3ce9131ac41057770317c912a7c71f79dfc2818f9d0f547acb9939516027": {
     "describe": {
       "columns": [
@@ -3668,6 +3790,40 @@
       }
     },
     "query": "INSERT INTO overrides\n            (guild_id, name, starboard_id)\n            VALUES ($1, $2, $3)\n            RETURNING *"
+  },
+  "dfc37673f365e1eb8f2b224a2fac0273285af7607978fe5b40a86fd09fbb1bcc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "required",
+          "ordinal": 2,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Int2"
+        ]
+      }
+    },
+    "query": "INSERT INTO xproles (role_id, guild_id, required) VALUES ($1, $2, $3) RETURNING *"
   },
   "e0d3435ac460506de5e62af8dea8bf9151a123a5e958a706241e15206499076c": {
     "describe": {

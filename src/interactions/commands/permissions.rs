@@ -1,5 +1,9 @@
 use twilight_model::guild::Permissions;
 
+pub fn manage_roles() -> Permissions {
+    Permissions::MANAGE_ROLES
+}
+
 pub fn manage_channels() -> Permissions {
     Permissions::MANAGE_CHANNELS
 }
