@@ -45,7 +45,11 @@ pub async fn loop_update_posroles(bot: Arc<StarboardBot>) {
 pub async fn update_posroles_for_guild(
     bot: Arc<StarboardBot>,
     guild_id: Id<GuildMarker>,
-) -> StarboardResult<GuildPRUpdateResult> {
+) -> StarboardResult<Option<GuildPRUpdateResult>> {
+    let Some(_lock) = bot.locks.guild_pr_update.lock(guild_id.get_i64()) else {
+        return Ok(None);
+    };
+
     let mut removed_roles = 0;
     let mut added_roles = 0;
     let mut failed_removals = 0;
@@ -112,10 +116,10 @@ pub async fn update_posroles_for_guild(
         }
     }
 
-    Ok(GuildPRUpdateResult {
+    Ok(Some(GuildPRUpdateResult {
         added_roles,
         removed_roles,
         failed_adds,
         failed_removals,
-    })
+    }))
 }

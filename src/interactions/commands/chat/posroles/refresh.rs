@@ -17,15 +17,20 @@ impl Refresh {
 
         let ret = update_posroles_for_guild(ctx.bot.clone(), guild_id).await?;
 
-        ctx.respond_str(
-            &concat_format!(
-                "Finished updating.\n";
-                "Added {} roles, {} failed.\n" <- ret.added_roles, ret.failed_adds;
-                "Removed {} roles, {} failed." <- ret.removed_roles, ret.failed_removals;
-            ),
-            true,
-        )
-        .await?;
+        if let Some(ret) = ret {
+            ctx.respond_str(
+                &concat_format!(
+                    "Finished updating.\n";
+                    "Added {} roles, {} failed.\n" <- ret.added_roles, ret.failed_adds;
+                    "Removed {} roles, {} failed." <- ret.removed_roles, ret.failed_removals;
+                ),
+                true,
+            )
+            .await?;
+        } else {
+            ctx.respond_str("PosRoles are already being updated.", true)
+                .await?;
+        }
 
         Ok(())
     }
