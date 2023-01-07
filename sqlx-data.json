@@ -90,6 +90,40 @@
     },
     "query": "SELECT * FROM overrides\n            WHERE starboard_id=$1 AND\n            channel_ids && $2::bigint[]"
   },
+  "05d97ff2764bf6019e7db1dc6c96520b74b78789f2b6cbb9c65cc7157794c5b4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "max_members",
+          "ordinal": 2,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO posroles (role_id, guild_id, max_members) VALUES ($1, $2, $3) RETURNING *"
+  },
   "066998b6c842af003c90e4c71ae933524c0bef88b94b3dce92cc14e855852ad3": {
     "describe": {
       "columns": [
@@ -1500,6 +1534,38 @@
     },
     "query": "DELETE FROM autostar_channels\n            WHERE name=$1 AND guild_id=$2\n            RETURNING *"
   },
+  "58686e2078ceb6965927ac04490429be6ed392ce1f7a4e5c4d960442439f0314": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "max_members",
+          "ordinal": 2,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM posroles WHERE guild_id=$1 ORDER BY max_members ASC"
+  },
   "5a7c6d06bb7bc121a034f905c55ea3f431d2bb533c91e23f736caaf975798e0e": {
     "describe": {
       "columns": [
@@ -1544,6 +1610,38 @@
       }
     },
     "query": "INSERT INTO permroles\n            (role_id, guild_id)\n            VALUES ($1, $2)\n            RETURNING *"
+  },
+  "5d841328e429c98bdd5dbff9f22ad7a2fcaec557086e64afb120e13888cfbc1f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "max_members",
+          "ordinal": 2,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "DELETE FROM posroles WHERE role_id=$1 RETURNING *"
   },
   "5ec6ab40bae534952f5dd123e7838f338bcec7f6425c1e3bbd14cf8740d3a15f": {
     "describe": {
@@ -2193,39 +2291,6 @@
     },
     "query": "SELECT * FROM starboards WHERE id=$1"
   },
-  "7a19e3f59dc0cadbbc73567153274fac7187f3bb0e8e0e0ce30772f856f2d0ed": {
-    "describe": {
-      "columns": [
-        {
-          "name": "role_id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        },
-        {
-          "name": "guild_id",
-          "ordinal": 1,
-          "type_info": "Int8"
-        },
-        {
-          "name": "max_members",
-          "ordinal": 2,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int8"
-        ]
-      }
-    },
-    "query": "INSERT INTO posroles\n            (role_id, guild_id)\n            VALUES ($1, $2)\n            RETURNING *"
-  },
   "7e14b14e400319e69ca7b7a581257ee46e1b60ee05872f90474bc3c107a47e08": {
     "describe": {
       "columns": [
@@ -2564,6 +2629,26 @@
       }
     },
     "query": "INSERT INTO VOTES\n            (message_id, starboard_id, user_id,\n                target_author_id, is_downvote)\n            VALUES ($1, $2, $3, $4, $5)\n            RETURNING *"
+  },
+  "859e43bbc38d749b93411588b1a9d91fbb90180c0e32bb4172630acd39489cf3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) FROM posroles WHERE guild_id=$1"
   },
   "88357902cae7c5ecc5625d473a99b55a5acd4323de003c6fa89afd9543c7fe25": {
     "describe": {
@@ -2931,6 +3016,24 @@
       }
     },
     "query": "DELETE FROM permrole_starboards WHERE permrole_id=$1 AND starboard_id=$2 RETURNING *"
+  },
+  "afc906e64fa982b7771456bc5067bd56aca6073515c7afa37a4b1657fd9add39": {
+    "describe": {
+      "columns": [
+        {
+          "name": "guild_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT DISTINCT guild_id FROM posroles"
   },
   "b40efe37213d4d3b754f0e3f2c6889c2a866059568d8ffba713b7d5939626e35": {
     "describe": {
@@ -3738,6 +3841,39 @@
       }
     },
     "query": "INSERT INTO permrole_starboards\n            (permrole_id, starboard_id)\n            VALUES ($1, $2)\n            RETURNING *"
+  },
+  "dc4f22d509c59390a22da1c22cfef5f19513129dee0f39380535d6ce79124a3b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "role_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "max_members",
+          "ordinal": 2,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE posroles SET max_members=$1 WHERE role_id=$2 RETURNING *"
   },
   "de87a260c267723bfafe35d9638f4475b4fbb1ef85b95db45fd768a4fe69fce6": {
     "describe": {

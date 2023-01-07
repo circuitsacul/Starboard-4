@@ -7,7 +7,9 @@ use tokio::{
 };
 use twilight_gateway::cluster::Events;
 
-use crate::{client::bot::StarboardBot, events::handle_event};
+use crate::{
+    client::bot::StarboardBot, core::posroles::loop_update_posroles, events::handle_event,
+};
 
 use super::cooldowns::Cooldowns;
 
@@ -41,6 +43,9 @@ pub async fn run(mut events: Events, bot: StarboardBot) {
     let clone = bot.clone();
     tokio::spawn(async move { clone.cluster.up().await });
     tokio::spawn(shutdown_handler(bot.clone()));
+
+    // start background tasks
+    tokio::spawn(loop_update_posroles(bot.clone()));
 
     // handle events
     while let Some((shard_id, event)) = events.next().await {
