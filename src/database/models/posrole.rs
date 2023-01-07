@@ -49,9 +49,13 @@ impl PosRole {
     }
 
     pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
-        sqlx::query_as!(Self, "SELECT * FROM posroles WHERE guild_id=$1", guild_id,)
-            .fetch_all(pool)
-            .await
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM posroles WHERE guild_id=$1 ORDER BY max_members ASC",
+            guild_id,
+        )
+        .fetch_all(pool)
+        .await
     }
 
     pub async fn count(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<i64> {

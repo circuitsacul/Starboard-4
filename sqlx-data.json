@@ -1534,7 +1534,7 @@
     },
     "query": "DELETE FROM autostar_channels\n            WHERE name=$1 AND guild_id=$2\n            RETURNING *"
   },
-  "50ec7ec936adeb3af772c313ea2cdbb2d92ab10e126e7ce46e891b875a428630": {
+  "58686e2078ceb6965927ac04490429be6ed392ce1f7a4e5c4d960442439f0314": {
     "describe": {
       "columns": [
         {
@@ -1564,7 +1564,7 @@
         ]
       }
     },
-    "query": "SELECT * FROM posroles WHERE guild_id=$1"
+    "query": "SELECT * FROM posroles WHERE guild_id=$1 ORDER BY max_members ASC"
   },
   "5a7c6d06bb7bc121a034f905c55ea3f431d2bb533c91e23f736caaf975798e0e": {
     "describe": {
@@ -3016,6 +3016,24 @@
       }
     },
     "query": "DELETE FROM permrole_starboards WHERE permrole_id=$1 AND starboard_id=$2 RETURNING *"
+  },
+  "afc906e64fa982b7771456bc5067bd56aca6073515c7afa37a4b1657fd9add39": {
+    "describe": {
+      "columns": [
+        {
+          "name": "guild_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT DISTINCT guild_id FROM posroles"
   },
   "b40efe37213d4d3b754f0e3f2c6889c2a866059568d8ffba713b7d5939626e35": {
     "describe": {

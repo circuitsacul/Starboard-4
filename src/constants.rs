@@ -18,6 +18,9 @@ pub const PATREON_URL: &str = "https://patreon.com/CircuitSacul";
 pub const VOTE_URL: &str = "https://top.gg/bot/700796664276844612/vote";
 pub const REVIEW_URL: &str = "https://top.gg/bot/700796664276844612#reviews";
 
+// Tasks
+pub const UPDATE_PRS_DELAY: Duration = Duration::from_secs(60 * 60);
+
 // Cache size
 pub const MAX_MESSAGES: u32 = 10_000;
 pub const MAX_NAMES: u32 = 100;

@@ -1,4 +1,5 @@
 mod delete;
+mod refresh;
 mod set_max_members;
 mod view;
 
@@ -23,6 +24,8 @@ pub enum PosRoles {
     Delete(delete::Delete),
     #[command(name = "view")]
     View(view::View),
+    #[command(name = "refresh")]
+    Refresh(refresh::Refresh),
 }
 
 impl PosRoles {
@@ -31,6 +34,7 @@ impl PosRoles {
             Self::SetMaxMembers(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
             Self::View(cmd) => cmd.callback(ctx).await,
+            Self::Refresh(cmd) => cmd.callback(ctx).await,
         }
     }
 }
