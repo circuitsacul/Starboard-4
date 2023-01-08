@@ -1,6 +1,7 @@
 pub mod force;
 pub mod freeze;
 pub mod info;
+pub mod refresh;
 pub mod trash;
 pub mod trashcan;
 pub mod unforce;
@@ -46,6 +47,9 @@ pub enum Utils {
     UnTrash(trash::UnTrash),
     #[command(name = "trashcan")]
     TrashCan(trashcan::TrashCan),
+
+    #[command(name = "refresh")]
+    Refresh(refresh::Refresh),
 }
 
 impl Utils {
@@ -62,6 +66,8 @@ impl Utils {
             Self::Trash(cmd) => cmd.callback(ctx).await,
             Self::UnTrash(cmd) => cmd.callback(ctx).await,
             Self::TrashCan(cmd) => cmd.callback(ctx).await,
+
+            Self::Refresh(cmd) => cmd.callback(ctx).await,
         }
     }
 }

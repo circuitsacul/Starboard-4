@@ -10,7 +10,7 @@ use crate::{
         emoji::{EmojiCommon, SimpleEmoji},
     },
     database::{Message as DbMessage, StarboardMessage, Vote},
-    errors::StarboardResult,
+    errors::{StarboardError, StarboardResult},
     utils::{
         get_status::get_status, id_as_i64::GetI64, into_id::IntoId, snowflake_age::SnowflakeAge,
     },
@@ -41,19 +41,23 @@ impl RefreshMessage<'_> {
         }
     }
 
-    pub async fn refresh(&mut self, force: bool) -> StarboardResult<()> {
+    pub async fn refresh(&mut self, force: bool) -> StarboardResult<Option<Vec<StarboardError>>> {
         let orig = self.get_sql_message().await?;
         let guard = self.bot.locks.post_update_lock.lock(orig.message_id);
         if guard.is_none() {
-            return Ok(());
+            return Ok(None);
         }
 
         let configs = self.get_configs().await?;
+
+        let mut errors = Vec::new();
         for c in configs.iter() {
-            RefreshStarboard::new(self, c).refresh(force).await?;
+            if let Err(why) = RefreshStarboard::new(self, c).refresh(force).await {
+                errors.push(why);
+            }
         }
 
-        Ok(())
+        Ok(Some(errors))
     }
 
     // caching methods
