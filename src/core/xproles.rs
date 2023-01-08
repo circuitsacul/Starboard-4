@@ -37,17 +37,19 @@ pub async fn refresh_xpr(
                 continue;
             }
 
-            bot.http
+            let _ = bot
+                .http
                 .add_guild_member_role(guild_id, user_id, role_id)
-                .await?;
+                .await;
         } else {
             if !member_roles.contains(&role_id) {
                 continue;
             }
 
-            bot.http
+            let _ = bot
+                .http
                 .remove_guild_member_role(guild_id, user_id, role_id)
-                .await?;
+                .await;
         }
     }
 
