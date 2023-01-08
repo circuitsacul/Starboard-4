@@ -52,8 +52,6 @@ impl RenameStarboard {
                     .await?
             }
             Some(Some(_)) => {
-                ctx.bot.cache.guild_starboard_names.remove(&guild_id).await;
-
                 ctx.respond_str(
                     &format!(
                         "Renamed the starboard from '{}' to '{}'.",

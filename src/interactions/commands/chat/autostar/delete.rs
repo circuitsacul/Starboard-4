@@ -40,11 +40,6 @@ impl DeleteAutoStarChannel {
                 .edit_str("No autostar channel with that name was found.", true)
                 .await?;
         } else {
-            ctx.bot
-                .cache
-                .guild_autostar_channel_names
-                .remove(&guild_id)
-                .await;
             btn_ctx
                 .edit_str(&format!("Deleted autostar channel '{}'.", self.name), true)
                 .await?;

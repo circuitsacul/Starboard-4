@@ -47,11 +47,6 @@ pub struct Cache {
     pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
     pub guild_vote_emojis: AsyncDashMap<i64, Vec<String>>,
 
-    // autocomplete
-    pub guild_autostar_channel_names: stretto::AsyncCache<Id<GuildMarker>, Vec<String>>,
-    pub guild_starboard_names: stretto::AsyncCache<Id<GuildMarker>, Vec<String>>,
-    pub guild_override_names: stretto::AsyncCache<Id<GuildMarker>, Vec<String>>,
-
     // misc
     pub responses: stretto::AsyncCache<Id<MessageMarker>, Id<MessageMarker>>,
 }
@@ -69,24 +64,6 @@ impl Cache {
             .unwrap(),
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_vote_emojis: DashMap::new().into(),
-            guild_autostar_channel_names: stretto::AsyncCache::new(
-                (constants::MAX_NAMES * 10) as usize,
-                constants::MAX_NAMES.into(),
-                tokio::spawn,
-            )
-            .unwrap(),
-            guild_starboard_names: stretto::AsyncCache::new(
-                (constants::MAX_NAMES * 10) as usize,
-                constants::MAX_NAMES.into(),
-                tokio::spawn,
-            )
-            .unwrap(),
-            guild_override_names: stretto::AsyncCache::new(
-                (constants::MAX_NAMES * 10) as usize,
-                constants::MAX_NAMES.into(),
-                tokio::spawn,
-            )
-            .unwrap(),
             responses: stretto::AsyncCache::new(
                 (constants::MAX_STORED_RESPONSES * 10) as usize,
                 constants::MAX_STORED_RESPONSES.into(),

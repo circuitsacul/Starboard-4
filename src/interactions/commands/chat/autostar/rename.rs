@@ -52,12 +52,6 @@ impl RenameAutoStarChannel {
                     .await?
             }
             Some(Some(_)) => {
-                ctx.bot
-                    .cache
-                    .guild_autostar_channel_names
-                    .remove(&guild_id)
-                    .await;
-
                 ctx.respond_str(
                     &format!(
                         "Renamed the autostar channel from '{}' to '{}'.",

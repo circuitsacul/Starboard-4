@@ -41,11 +41,6 @@ impl DeleteStarboard {
                 .edit_str("No starboard with that name was found.", true)
                 .await?;
         } else {
-            ctx.bot
-                .cache
-                .guild_autostar_channel_names
-                .remove(&guild_id)
-                .await;
             ctx.bot.cache.guild_vote_emojis.remove(&guild_id_i64);
             btn_ctx
                 .edit_str(&format!("Deleted starboard '{}'.", self.name), true)

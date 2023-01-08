@@ -23,7 +23,6 @@ pub const UPDATE_PRS_DELAY: Duration = Duration::from_secs(60 * 60);
 
 // Cache size
 pub const MAX_MESSAGES: u32 = 10_000;
-pub const MAX_NAMES: u32 = 100;
 pub const MAX_STORED_RESPONSES: u32 = 100;
 
 // Cooldowns

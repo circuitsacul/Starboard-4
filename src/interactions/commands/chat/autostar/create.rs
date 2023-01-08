@@ -64,11 +64,6 @@ impl CreateAutoStarChannel {
             .await?;
         } else {
             ctx.bot.cache.autostar_channel_ids.insert(self.channel.id);
-            ctx.bot
-                .cache
-                .guild_autostar_channel_names
-                .remove(&guild_id)
-                .await;
 
             ctx.respond_str(
                 &format!("Created autostar channel '{name}' in <#{channel_id}>."),

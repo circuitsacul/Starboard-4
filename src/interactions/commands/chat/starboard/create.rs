@@ -63,7 +63,6 @@ impl CreateStarboard {
             )
             .await?;
         } else {
-            ctx.bot.cache.guild_starboard_names.remove(&guild_id).await;
             ctx.bot.cache.guild_vote_emojis.remove(&guild_id_i64);
 
             ctx.respond_str(
