@@ -25,15 +25,15 @@ pub struct Embedder<'config, 'bot> {
 }
 
 impl Embedder<'_, '_> {
-    pub fn build(&self, force_partial: bool) -> BuiltStarboardEmbed {
-        BuiltStarboardEmbed::build(self, force_partial)
+    pub fn build(&self, force_partial: bool, watermark: bool) -> BuiltStarboardEmbed {
+        BuiltStarboardEmbed::build(self, force_partial, watermark)
     }
 
     pub async fn send(
         &self,
         bot: &StarboardBot,
     ) -> StarboardResult<twilight_http::Response<twilight_model::channel::Message>> {
-        let built = match self.build(false) {
+        let built = match self.build(false, self.config.resolved.use_webhook) {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
         };
@@ -108,7 +108,7 @@ impl Embedder<'_, '_> {
             None
         };
 
-        match self.build(force_partial) {
+        match self.build(force_partial, wh.is_some()) {
             BuiltStarboardEmbed::Full(built) => {
                 if let Some(wh) = wh {
                     bot.http

@@ -6,7 +6,9 @@ use twilight_model::{
     util::Timestamp,
 };
 use twilight_util::{
-    builder::embed::{EmbedAuthorBuilder, EmbedBuilder, EmbedFieldBuilder, ImageSource},
+    builder::embed::{
+        EmbedAuthorBuilder, EmbedBuilder, EmbedFieldBuilder, EmbedFooterBuilder, ImageSource,
+    },
     snowflake::Snowflake,
 };
 
@@ -34,14 +36,14 @@ pub enum BuiltStarboardEmbed {
 }
 
 impl BuiltStarboardEmbed {
-    pub fn build(handle: &Embedder, force_partial: bool) -> Self {
+    pub fn build(handle: &Embedder, force_partial: bool, watermark: bool) -> Self {
         if let Some(orig) = &handle.orig_message {
             if !force_partial {
                 let parsed = ParsedMessage::parse(handle, orig);
 
                 return Self::Full(FullBuiltStarboardEmbed {
                     top_content: Self::build_top_content(handle),
-                    embeds: Self::build_embeds(handle, orig, &parsed),
+                    embeds: Self::build_embeds(handle, orig, &parsed, watermark),
                     upload_attachments: parsed.upload_attachments,
                 });
             }
@@ -91,13 +93,14 @@ impl BuiltStarboardEmbed {
         handle: &Embedder,
         orig: &CachedMessage,
         parsed: &ParsedMessage,
+        watermark: bool,
     ) -> Vec<Embed> {
         let mut embeds = Vec::new();
 
         if let Some(e) = Self::build_replied_embed(handle) {
             embeds.push(e);
         }
-        if let Some(e) = Self::build_primary_embed(handle, orig, parsed, false) {
+        if let Some(e) = Self::build_primary_embed(handle, orig, parsed, watermark, false) {
             embeds.push(e);
         }
 
@@ -116,13 +119,14 @@ impl BuiltStarboardEmbed {
             Some(msg) => msg,
         };
         let reply_parsed = ParsedMessage::parse(handle, ref_msg);
-        Self::build_primary_embed(handle, ref_msg, &reply_parsed, true)
+        Self::build_primary_embed(handle, ref_msg, &reply_parsed, false, true)
     }
 
     pub fn build_primary_embed(
         handle: &Embedder,
         orig: &CachedMessage,
         parsed: &ParsedMessage,
+        watermark: bool,
         is_reply: bool,
     ) -> Option<Embed> {
         let mut embed_is_empty = true;
@@ -259,6 +263,11 @@ impl BuiltStarboardEmbed {
             } else {
                 embed = embed.field(EmbedFieldBuilder::new(constants::ZWS, field).build());
             }
+        }
+
+        // watermark footer
+        if watermark {
+            embed = embed.footer(EmbedFooterBuilder::new("Powered by https://starboard.best"));
         }
 
         // placeholder content, if needed
