@@ -26,19 +26,10 @@ pub async fn get_valid_webhook(
         return Ok(None);
     }
 
-    let mut wh = bot
+    let name = format!("Webhook for '{}'", starboard.name);
+    let wh = bot
         .http
-        .create_webhook(starboard.channel_id.into_id(), "Starboard")?;
-
-    let bot_user = bot
-        .cache
-        .fog_user(bot, bot.config.bot_id.into_id())
-        .await?
-        .unwrap();
-
-    if let Some(avatar_url) = &bot_user.avatar_url {
-        wh = wh.avatar(avatar_url);
-    }
+        .create_webhook(starboard.channel_id.into_id(), &name)?;
 
     let Ok(wh) = wh.await else {
         return Ok(None);
