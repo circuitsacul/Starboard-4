@@ -17,7 +17,14 @@ pub struct CreateAutoStarChannel {
     /// The name of the autostar channel.
     name: String,
     /// The channel to create an autostar channel in.
-    #[command(channel_types = "guild_text")]
+    #[command(channel_types = r#"
+            guild_text
+            guild_voice
+            guild_announcement
+            announcement_thread
+            public_thread
+            private_thread
+        "#)]
     channel: InteractionChannel,
 }
 
