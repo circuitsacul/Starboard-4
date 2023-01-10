@@ -289,6 +289,45 @@ impl Cache {
         }
     }
 
+    pub async fn fog_parent_channel_id(
+        &self,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+        channel_id: Id<ChannelMarker>,
+    ) -> StarboardResult<Option<Id<ChannelMarker>>> {
+        let parent = self.guilds.with(&guild_id, |_, guild| {
+            let Some(guild) = guild else { return None; };
+
+            if guild.channels.contains_key(&channel_id) {
+                return Some(channel_id);
+            }
+
+            if let Some(parent) = guild.active_thread_parents.get(&channel_id) {
+                return Some(*parent);
+            }
+
+            None
+        });
+
+        if parent.is_some() {
+            return Ok(parent);
+        }
+
+        let Some(parent) = self.fetch_channel_or_thread_parent(bot, channel_id).await? else {
+            return Ok(None);
+        };
+
+        self.guilds.alter(&guild_id, |_, mut guild| {
+            guild.channels.insert(
+                parent.id,
+                CachedChannel::from_channel(guild.channels.get(&parent.id), &parent),
+            );
+            guild
+        });
+
+        Ok(Some(parent.id))
+    }
+
     pub async fn fog_channel_nsfw(
         &self,
         bot: &StarboardBot,

@@ -46,14 +46,28 @@ impl Embedder<'_, '_> {
         if self.config.resolved.use_webhook {
             loop {
                 if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, true).await? {
-                    let ret = bot
+                    let parent = bot
+                        .cache
+                        .fog_parent_channel_id(
+                            bot,
+                            self.config.starboard.guild_id.into_id(),
+                            self.config.starboard.channel_id.into_id(),
+                        )
+                        .await?
+                        .unwrap();
+
+                    let mut ret = bot
                         .http
                         .execute_webhook(wh.id, wh.token.as_ref().unwrap())
                         .content(&built.top_content)?
                         .embeds(&built.embeds)?
-                        .attachments(&attachments)?
-                        .wait()
-                        .await;
+                        .attachments(&attachments)?;
+
+                    if parent.get_i64() != self.config.starboard.channel_id {
+                        ret = ret.thread_id(self.config.starboard.channel_id.into_id());
+                    }
+
+                    let ret = ret.wait().await;
 
                     let err = match ret {
                         Err(err) => err,
@@ -64,10 +78,10 @@ impl Embedder<'_, '_> {
                         bot.cache.webhooks.remove(&wh.id);
                         continue;
                     }
-
-                    Starboard::disable_webhooks(&bot.pool, self.config.starboard.id).await?;
-                    break;
                 }
+
+                Starboard::disable_webhooks(&bot.pool, self.config.starboard.id).await?;
+                break;
             }
         }
 

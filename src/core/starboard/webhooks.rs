@@ -26,10 +26,18 @@ pub async fn get_valid_webhook(
         return Ok(None);
     }
 
+    let webhook_channel = bot
+        .cache
+        .fog_parent_channel_id(
+            bot,
+            starboard.guild_id.into_id(),
+            starboard.channel_id.into_id(),
+        )
+        .await?;
+    let Some(webhook_channel) = webhook_channel else { return Ok(None); };
+
     let name = format!("Webhook for '{}'", starboard.name);
-    let wh = bot
-        .http
-        .create_webhook(starboard.channel_id.into_id(), &name)?;
+    let wh = bot.http.create_webhook(webhook_channel, &name)?;
 
     let Ok(wh) = wh.await else {
         return Ok(None);
