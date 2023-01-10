@@ -3,9 +3,11 @@ use std::sync::Arc;
 use dashmap::{DashMap, DashSet};
 use twilight_gateway::Event;
 use twilight_model::{
-    channel::Channel,
+    channel::{Channel, Webhook},
     id::{
-        marker::{ChannelMarker, EmojiMarker, GuildMarker, MessageMarker, UserMarker},
+        marker::{
+            ChannelMarker, EmojiMarker, GuildMarker, MessageMarker, UserMarker, WebhookMarker,
+        },
         Id,
     },
 };
@@ -41,6 +43,7 @@ pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
     pub users: AsyncDashMap<Id<UserMarker>, Option<Arc<CachedUser>>>,
+    pub webhooks: AsyncDashMap<Id<WebhookMarker>, Arc<Webhook>>,
     pub messages: stretto::AsyncCache<Id<MessageMarker>, Option<Arc<CachedMessage>>>,
 
     // database side
@@ -56,6 +59,7 @@ impl Cache {
         Self {
             guilds: DashMap::new().into(),
             users: DashMap::new().into(),
+            webhooks: DashMap::new().into(),
             messages: stretto::AsyncCache::new(
                 (constants::MAX_MESSAGES * 10) as usize,
                 constants::MAX_MESSAGES.into(),
@@ -190,6 +194,39 @@ impl Cache {
         }
 
         Ok(self.get_user(user_id))
+    }
+
+    pub async fn fog_webhook(
+        &self,
+        bot: &StarboardBot,
+        webhook_id: Id<WebhookMarker>,
+    ) -> StarboardResult<Option<Arc<Webhook>>> {
+        let cached = self.webhooks.with(&webhook_id, |_, wh| {
+            wh.as_ref().map(|wh| wh.value().clone())
+        });
+
+        if cached.is_some() {
+            return Ok(cached);
+        }
+
+        let wh = bot.http.webhook(webhook_id).await;
+
+        let wh = match wh {
+            Err(why) => {
+                if get_status(&why) == Some(404) {
+                    None
+                } else {
+                    return Err(why.into());
+                }
+            }
+            Ok(wh) => {
+                let wh = Arc::new(wh.model().await.unwrap());
+                self.webhooks.insert(webhook_id, wh.clone());
+                Some(wh)
+            }
+        };
+
+        Ok(wh)
     }
 
     pub async fn fog_message(

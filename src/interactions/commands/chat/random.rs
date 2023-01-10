@@ -137,7 +137,7 @@ impl RandomPost {
         let config = get_config(&ctx.bot, sb, orig_msg.channel_id).await?;
         let embedder = get_embedder(&ctx.bot, &config, orig_msg, msg).await?;
 
-        let built = embedder.build(false);
+        let built = embedder.build(false, false);
         let built = match built {
             BuiltStarboardEmbed::Partial(_) => unreachable!("didn't get full embed"),
             BuiltStarboardEmbed::Full(built) => built,

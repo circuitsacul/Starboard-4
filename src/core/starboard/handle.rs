@@ -11,9 +11,7 @@ use crate::{
     },
     database::{Message as DbMessage, StarboardMessage, Vote},
     errors::{StarboardError, StarboardResult},
-    utils::{
-        get_status::get_status, id_as_i64::GetI64, into_id::IntoId, snowflake_age::SnowflakeAge,
-    },
+    utils::{id_as_i64::GetI64, into_id::IntoId, snowflake_age::SnowflakeAge},
 };
 
 use super::{
@@ -221,18 +219,12 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             )
             .await?;
 
-            let (ret, retry_on_err, delete_on_ok) = match action {
+            let (delete, retry) = match action {
                 MessageStatus::Remove => {
-                    let ret = self
-                        .refresh
-                        .bot
-                        .http
-                        .delete_message(
-                            self.config.starboard.channel_id.into_id(),
-                            sb_msg.starboard_message_id.into_id(),
-                        )
-                        .await;
-                    (ret.map(|_| ()), false, true)
+                    embedder
+                        .delete(self.refresh.bot, sb_msg.starboard_message_id.into_id())
+                        .await?;
+                    (true, false)
                 }
                 MessageStatus::Send(full_update) | MessageStatus::Update(full_update) => {
                     let as_id: Id<MessageMarker> = sb_msg.starboard_message_id.into_id();
@@ -245,35 +237,26 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                             .trigger(&self.config.starboard.channel_id.into_id())
                             .is_some()
                     {
-                        (Ok(()), false, false)
+                        (false, false)
                     } else {
-                        let ret = embedder
+                        let deleted = embedder
                             .edit(
                                 self.refresh.bot,
                                 sb_msg.starboard_message_id.into_id(),
                                 !full_update,
                             )
-                            .await;
-                        (ret.map(|_| ()), true, false)
+                            .await?;
+                        (deleted, true)
                     }
                 }
             };
 
-            if let Err(why) = ret {
-                if matches!(get_status(&why), Some(404)) {
-                    StarboardMessage::delete(&self.refresh.bot.pool, sb_msg.starboard_message_id)
-                        .await?;
-                    Ok(retry_on_err)
-                } else {
-                    Err(why.into())
-                }
-            } else {
-                if delete_on_ok {
-                    StarboardMessage::delete(&self.refresh.bot.pool, sb_msg.starboard_message_id)
-                        .await?;
-                }
-                Ok(false)
+            if delete {
+                StarboardMessage::delete(&self.refresh.bot.pool, sb_msg.starboard_message_id)
+                    .await?;
             }
+
+            Ok(retry)
         } else {
             if !matches!(action, MessageStatus::Send(_)) {
                 return Ok(false);
