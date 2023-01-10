@@ -11,7 +11,7 @@ use twilight_model::{
 };
 use twilight_util::builder::InteractionResponseDataBuilder;
 
-use crate::client::bot::StarboardBot;
+use crate::{client::bot::StarboardBot, errors::StarboardResult};
 
 pub type CommandCtx = Ctx<CommandData>;
 pub type ComponentCtx = Ctx<MessageComponentInteractionData>;
@@ -25,7 +25,7 @@ pub struct Ctx<T> {
     responded: bool,
 }
 
-type TwResult = Result<Response<Message>, twilight_http::Error>;
+type TwResult = StarboardResult<Response<Message>>;
 
 impl<T> Ctx<T> {
     pub fn new(shard_id: u64, bot: Arc<StarboardBot>, interaction: Interaction, data: T) -> Self {
@@ -60,16 +60,16 @@ impl<T> Ctx<T> {
                 followup = followup.allowed_mentions(Some(mentions));
             }
             if let Some(attachments) = &data.attachments {
-                followup = followup.attachments(attachments).unwrap();
+                followup = followup.attachments(attachments)?;
             }
             if let Some(components) = &data.components {
-                followup = followup.components(components).unwrap();
+                followup = followup.components(components)?;
             }
             if let Some(content) = &data.content {
-                followup = followup.content(content).unwrap();
+                followup = followup.content(content)?;
             }
             if let Some(embeds) = &data.embeds {
-                followup = followup.embeds(embeds).unwrap();
+                followup = followup.embeds(embeds)?;
             }
             if let Some(flags) = data.flags {
                 followup = followup.flags(flags);
@@ -78,7 +78,7 @@ impl<T> Ctx<T> {
                 followup = followup.tts(tts);
             }
 
-            followup.await
+            followup.await.map_err(|e| e.into())
         } else {
             i.create_response(
                 self.interaction.id,
@@ -89,7 +89,9 @@ impl<T> Ctx<T> {
 
             self.responded = true;
 
-            i.response(&self.interaction.token).await
+            i.response(&self.interaction.token)
+                .await
+                .map_err(|e| e.into())
         }
     }
 

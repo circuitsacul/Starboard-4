@@ -59,7 +59,7 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> StarboardResul
                         event.channel_id
                     ) + &reasons.join("\n - ")
                 };
-                notify::notify(bot, event.author.id, &message).await;
+                notify::notify(bot, event.author.id, &message).await?;
             }
 
             continue;

@@ -63,15 +63,13 @@ impl RefreshMessage<'_> {
         self.configs.replace(Arc::new(configs));
     }
 
-    async fn get_configs(&mut self) -> sqlx::Result<Arc<Vec<StarboardConfig>>> {
+    async fn get_configs(&mut self) -> StarboardResult<Arc<Vec<StarboardConfig>>> {
         if self.configs.is_none() {
             let msg = self.get_sql_message().await?;
             let guild_id = msg.guild_id.into_id();
             let channel_id = msg.channel_id.into_id();
 
-            let configs = StarboardConfig::list_for_channel(self.bot, guild_id, channel_id)
-                .await
-                .unwrap();
+            let configs = StarboardConfig::list_for_channel(self.bot, guild_id, channel_id).await?;
             self.set_configs(configs);
         }
 
@@ -262,12 +260,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 return Ok(false);
             }
 
-            let msg = embedder
-                .send(self.refresh.bot)
-                .await?
-                .model()
-                .await
-                .unwrap();
+            let msg = embedder.send(self.refresh.bot).await?.model().await?;
             StarboardMessage::create(
                 &self.refresh.bot.pool,
                 orig.message_id,

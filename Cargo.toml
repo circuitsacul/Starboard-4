@@ -9,6 +9,7 @@ edition = "2021"
 twilight-gateway = "0.14.0"
 twilight-http = "0.14.0"
 twilight-model = "0.14.0"
+twilight-validate = "0.14.0"
 twilight-util = { version = "0.14.0", features = ["builder", "snowflake"] }
 twilight-interactions = "0.14.0"
 twilight-mention = "0.14.0"

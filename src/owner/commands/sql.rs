@@ -105,8 +105,7 @@ pub async fn run_sql(
         let ret = bot
             .http
             .update_message(channel_id, to_edit)
-            .content(Some(&final_result))
-            .unwrap()
+            .content(Some(&final_result))?
             .await;
 
         if ret.is_ok() {
@@ -117,13 +116,11 @@ pub async fn run_sql(
     let msg = bot
         .http
         .create_message(channel_id)
-        .content(&final_result)
-        .unwrap()
+        .content(&final_result)?
         .reply(message_id)
         .await?
         .model()
-        .await
-        .unwrap();
+        .await?;
 
     bot.cache.responses.insert(message_id, msg.id, 1).await;
     bot.cache.responses.wait().await.unwrap();

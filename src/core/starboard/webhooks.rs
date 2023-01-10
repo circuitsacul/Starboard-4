@@ -28,8 +28,7 @@ pub async fn get_valid_webhook(
 
     let mut wh = bot
         .http
-        .create_webhook(starboard.channel_id.into_id(), "Starboard")
-        .unwrap();
+        .create_webhook(starboard.channel_id.into_id(), "Starboard")?;
 
     let bot_user = bot
         .cache
@@ -44,7 +43,7 @@ pub async fn get_valid_webhook(
     let Ok(wh) = wh.await else {
         return Ok(None);
     };
-    let wh = Arc::new(wh.model().await.unwrap());
+    let wh = Arc::new(wh.model().await?);
 
     bot.cache.webhooks.insert(wh.id, wh.clone());
 

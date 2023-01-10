@@ -49,12 +49,9 @@ impl Embedder<'_, '_> {
                     let ret = bot
                         .http
                         .execute_webhook(wh.id, wh.token.as_ref().unwrap())
-                        .content(&built.top_content)
-                        .unwrap()
-                        .embeds(&built.embeds)
-                        .unwrap()
-                        .attachments(&attachments)
-                        .unwrap()
+                        .content(&built.top_content)?
+                        .embeds(&built.embeds)?
+                        .attachments(&attachments)?
                         .wait()
                         .await;
 
@@ -76,12 +73,9 @@ impl Embedder<'_, '_> {
 
         bot.http
             .create_message(self.config.starboard.channel_id.into_id())
-            .content(&built.top_content)
-            .unwrap()
-            .embeds(&built.embeds)
-            .unwrap()
-            .attachments(&attachments)
-            .unwrap()
+            .content(&built.top_content)?
+            .embeds(&built.embeds)?
+            .attachments(&attachments)?
             .await
             .map_err(|e| e.into())
     }
@@ -113,18 +107,14 @@ impl Embedder<'_, '_> {
                 if let Some(wh) = wh {
                     bot.http
                         .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
-                        .content(Some(&built.top_content))
-                        .unwrap()
-                        .embeds(Some(&built.embeds))
-                        .unwrap()
+                        .content(Some(&built.top_content))?
+                        .embeds(Some(&built.embeds))?
                         .await?;
                 } else {
                     bot.http
                         .update_message(sb_channel_id, message_id)
-                        .content(Some(&built.top_content))
-                        .unwrap()
-                        .embeds(Some(&built.embeds))
-                        .unwrap()
+                        .content(Some(&built.top_content))?
+                        .embeds(Some(&built.embeds))?
                         .await?;
                 }
             }
@@ -132,14 +122,12 @@ impl Embedder<'_, '_> {
                 if let Some(wh) = wh {
                     bot.http
                         .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
-                        .content(Some(&built.top_content))
-                        .unwrap()
+                        .content(Some(&built.top_content))?
                         .await?;
                 } else {
                     bot.http
                         .update_message(sb_channel_id, message_id)
-                        .content(Some(&built.top_content))
-                        .unwrap()
+                        .content(Some(&built.top_content))?
                         .await?;
                 }
             }

@@ -117,12 +117,14 @@ impl StarboardBot {
 
         eprintln!("{msg}");
         if let Some(chid) = self.config.error_channel {
-            let _ = self
-                .http
-                .create_message(chid.into_id())
-                .content(msg)
-                .unwrap()
-                .await;
+            let ret = self.http.create_message(chid.into_id()).content(msg);
+            let ret = match ret {
+                Ok(ret) => ret,
+                Err(why) => return eprintln!("{why}"),
+            };
+            if let Err(why) = ret.await {
+                eprintln!("{why}");
+            }
         }
     }
 }

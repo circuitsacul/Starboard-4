@@ -75,11 +75,13 @@ impl AutoStarChannel {
             .push_bind(self.guild_id)
             .push(" RETURNING *");
 
-        builder
-            .build()
-            .fetch_optional(pool)
-            .await
-            .map(|r| r.map(|r| AutoStarChannel::from_row(&r).unwrap()))
+        let ret = builder.build().fetch_optional(pool).await?;
+
+        if let Some(ret) = ret {
+            Ok(Some(AutoStarChannel::from_row(&ret)?))
+        } else {
+            Ok(None)
+        }
     }
 
     pub async fn rename(

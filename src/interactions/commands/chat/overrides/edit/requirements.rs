@@ -70,7 +70,7 @@ impl EditRequirements {
             let starboard = Starboard::get(&ctx.bot.pool, ov.starboard_id)
                 .await?
                 .unwrap();
-            let mut resolved = StarboardConfig::new(starboard, vec![ov]).unwrap();
+            let mut resolved = StarboardConfig::new(starboard, vec![ov])?;
 
             (resolved.overrides.remove(0), resolved.resolved)
         };
