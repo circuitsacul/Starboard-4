@@ -1877,6 +1877,19 @@
     },
     "query": "SELECT * FROM overrides WHERE guild_id=$1"
   },
+  "69b90fd8e2ce06e4b21d9216260fddd889c6f3b23454f884073a8f0c719f6eb1": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE starboards SET webhook_id=$1 WHERE id=$2"
+  },
   "6b5b308d63aea59fd9add4f55683542950d367bcea2800e55f0e1f059cc575e8": {
     "describe": {
       "columns": [
@@ -2772,6 +2785,18 @@
       }
     },
     "query": "UPDATE overrides SET overrides=$1 WHERE id=$2 RETURNING *"
+  },
+  "8ebe2f3f7ea74aa02940f579111f68e03c429e711fd5e7dd808eafaf47a8e394": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE starboards SET use_webhook=false WHERE id=$1"
   },
   "94fb8ddf71c63a97b616fad7736ae4c47ed8841ff760d7186e4b7af1cbdbe2d2": {
     "describe": {

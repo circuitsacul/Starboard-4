@@ -106,6 +106,31 @@ impl Starboard {
             .map(|r| r.map(|r| starboard_from_row!(r)))
     }
 
+    pub async fn set_webhook(
+        pool: &sqlx::PgPool,
+        starboard_id: i32,
+        webhook_id: Option<i64>,
+    ) -> sqlx::Result<()> {
+        sqlx::query!(
+            "UPDATE starboards SET webhook_id=$1 WHERE id=$2",
+            webhook_id,
+            starboard_id
+        )
+        .fetch_optional(pool)
+        .await?;
+        Ok(())
+    }
+
+    pub async fn disable_webhooks(pool: &sqlx::PgPool, starboard_id: i32) -> sqlx::Result<()> {
+        sqlx::query!(
+            "UPDATE starboards SET use_webhook=false WHERE id=$1",
+            starboard_id
+        )
+        .fetch_optional(pool)
+        .await?;
+        Ok(())
+    }
+
     pub async fn rename(
         pool: &sqlx::PgPool,
         name: &String,

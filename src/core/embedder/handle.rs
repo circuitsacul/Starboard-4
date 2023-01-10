@@ -5,9 +5,10 @@ use twilight_model::id::{marker::MessageMarker, Id};
 use crate::{
     cache::models::{message::CachedMessage, user::CachedUser},
     client::bot::StarboardBot,
-    core::starboard::config::StarboardConfig,
-    database::Message as DbMessage,
-    utils::into_id::IntoId,
+    core::starboard::{config::StarboardConfig, webhooks::get_valid_webhook},
+    database::{Message as DbMessage, Starboard},
+    errors::StarboardResult,
+    utils::{get_status::get_status, id_as_i64::GetI64, into_id::IntoId},
 };
 
 use super::{attachment_handle::VecAttachments, builder::BuiltStarboardEmbed};
@@ -31,8 +32,7 @@ impl Embedder<'_, '_> {
     pub async fn send(
         &self,
         bot: &StarboardBot,
-    ) -> Result<twilight_http::Response<twilight_model::channel::Message>, twilight_http::Error>
-    {
+    ) -> StarboardResult<twilight_http::Response<twilight_model::channel::Message>> {
         let built = match self.build(false) {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
@@ -43,20 +43,47 @@ impl Embedder<'_, '_> {
             bot.handle_error(&e).await;
         }
 
-        let ret = bot
-            .http
+        if self.config.resolved.use_webhook {
+            loop {
+                if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, true).await? {
+                    let ret = bot
+                        .http
+                        .execute_webhook(wh.id, wh.token.as_ref().unwrap())
+                        .content(&built.top_content)
+                        .unwrap()
+                        .embeds(&built.embeds)
+                        .unwrap()
+                        .attachments(&attachments)
+                        .unwrap()
+                        .wait()
+                        .await;
+
+                    let err = match ret {
+                        Err(err) => err,
+                        Ok(msg) => return Ok(msg),
+                    };
+
+                    if get_status(&err) == Some(404) {
+                        bot.cache.webhooks.remove(&wh.id);
+                        continue;
+                    }
+
+                    Starboard::disable_webhooks(&bot.pool, self.config.starboard.id).await?;
+                    break;
+                }
+            }
+        }
+
+        bot.http
             .create_message(self.config.starboard.channel_id.into_id())
             .content(&built.top_content)
             .unwrap()
             .embeds(&built.embeds)
             .unwrap()
-            .attachments(&attachments);
-
-        if let Err(why) = &ret {
-            dbg!(why);
-        }
-
-        ret.unwrap().await
+            .attachments(&attachments)
+            .unwrap()
+            .await
+            .map_err(|e| e.into())
     }
 
     pub async fn edit(
@@ -64,25 +91,90 @@ impl Embedder<'_, '_> {
         bot: &StarboardBot,
         message_id: Id<MessageMarker>,
         force_partial: bool,
-    ) -> Result<twilight_http::Response<twilight_model::channel::Message>, twilight_http::Error>
-    {
+    ) -> StarboardResult<bool> {
+        let sb_channel_id = self.config.starboard.channel_id.into_id();
+
+        let Some(msg) = bot.cache.fog_message(bot, sb_channel_id, message_id).await? else {
+            return Ok(true);
+        };
+
+        let wh = if msg.author_id.get() != bot.config.bot_id {
+            if Some(msg.author_id.get_i64()) != self.config.starboard.webhook_id {
+                return Ok(false);
+            }
+
+            get_valid_webhook(bot, &self.config.starboard, false).await?
+        } else {
+            None
+        };
+
         match self.build(force_partial) {
             BuiltStarboardEmbed::Full(built) => {
-                bot.http
-                    .update_message(self.config.starboard.channel_id.into_id(), message_id)
-                    .content(Some(&built.top_content))
-                    .unwrap()
-                    .embeds(Some(&built.embeds))
-                    .unwrap()
-                    .await
+                if let Some(wh) = wh {
+                    bot.http
+                        .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
+                        .content(Some(&built.top_content))
+                        .unwrap()
+                        .embeds(Some(&built.embeds))
+                        .unwrap()
+                        .await?;
+                } else {
+                    bot.http
+                        .update_message(sb_channel_id, message_id)
+                        .content(Some(&built.top_content))
+                        .unwrap()
+                        .embeds(Some(&built.embeds))
+                        .unwrap()
+                        .await?;
+                }
             }
             BuiltStarboardEmbed::Partial(built) => {
-                bot.http
-                    .update_message(self.config.starboard.channel_id.into_id(), message_id)
-                    .content(Some(&built.top_content))
-                    .unwrap()
-                    .await
+                if let Some(wh) = wh {
+                    bot.http
+                        .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
+                        .content(Some(&built.top_content))
+                        .unwrap()
+                        .await?;
+                } else {
+                    bot.http
+                        .update_message(sb_channel_id, message_id)
+                        .content(Some(&built.top_content))
+                        .unwrap()
+                        .await?;
+                }
+            }
+        };
+
+        Ok(false)
+    }
+
+    pub async fn delete(
+        &self,
+        bot: &StarboardBot,
+        message_id: Id<MessageMarker>,
+    ) -> StarboardResult<()> {
+        let channel_id = self.config.starboard.channel_id.into_id();
+
+        let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await? else {
+            return Ok(());
+        };
+
+        if let Some(wh_id) = self.config.starboard.webhook_id {
+            if wh_id == msg.author_id.get_i64() {
+                if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, false).await? {
+                    let ret = bot
+                        .http
+                        .delete_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
+                        .await;
+                    if ret.is_ok() {
+                        return Ok(());
+                    }
+                }
             }
         }
+
+        let _ = bot.http.delete_message(channel_id, message_id).await;
+
+        Ok(())
     }
 }
