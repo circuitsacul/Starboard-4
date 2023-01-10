@@ -3,21 +3,20 @@ use twilight_model::{
     id::{marker::UserMarker, Id},
 };
 
-use crate::client::bot::StarboardBot;
+use crate::{client::bot::StarboardBot, errors::StarboardResult};
 
 use super::dm;
 
-pub async fn notify(bot: &StarboardBot, user_id: Id<UserMarker>, message: &str) {
+pub async fn notify(
+    bot: &StarboardBot,
+    user_id: Id<UserMarker>,
+    message: &str,
+) -> StarboardResult<()> {
     if bot.config.development {
         println!("Development, skipping notification:");
         println!("{message}");
-        return;
+        return Ok(());
     }
-
-    let create = match dm::dm(bot, user_id).await {
-        Err(_) => return,
-        Ok(create) => create,
-    };
 
     let comp = Component::ActionRow(ActionRow {
         components: vec![Component::Button(Button {
@@ -30,10 +29,11 @@ pub async fn notify(bot: &StarboardBot, user_id: Id<UserMarker>, message: &str) 
         })],
     });
 
-    let _ = create
-        .content(message)
-        .unwrap()
-        .components(&[comp])
-        .unwrap()
+    let _ = dm::dm(bot, user_id)
+        .await?
+        .content(message)?
+        .components(&[comp])?
         .await;
+
+    Ok(())
 }

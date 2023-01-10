@@ -42,7 +42,7 @@ async fn get_config(
 ) -> StarboardResult<StarboardConfig> {
     let overrides =
         StarboardOverride::list_by_starboard_and_channels(&bot.pool, sb.id, &[channel_id]).await?;
-    Ok(StarboardConfig::new(sb, overrides).unwrap())
+    Ok(StarboardConfig::new(sb, overrides)?)
 }
 
 async fn get_embedder<'config, 'bot>(

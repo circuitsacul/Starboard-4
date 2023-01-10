@@ -77,7 +77,7 @@ pub async fn simple(
         .content(prompt)
         .components(components(danger))
         .build();
-    let msg = ctx.respond(cmd).await?.model().await.unwrap();
+    let msg = ctx.respond(cmd).await?.model().await?;
     let ret = wait_for_result(
         ctx.bot.clone(),
         msg.id,
@@ -95,10 +95,8 @@ pub async fn simple(
         ctx.bot
             .http
             .update_message(msg.channel_id, msg.id)
-            .content(Some("Canceled."))
-            .unwrap()
-            .components(Some(&[]))
-            .unwrap()
+            .content(Some("Canceled."))?
+            .components(Some(&[]))?
             .await?;
     }
 

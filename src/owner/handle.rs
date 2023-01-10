@@ -45,8 +45,7 @@ pub async fn handle_message(
     if let Err(err) = ret {
         bot.http
             .create_message(channel_id)
-            .content(&err.to_string())
-            .unwrap()
+            .content(&err.to_string())?
             .await?;
     }
 

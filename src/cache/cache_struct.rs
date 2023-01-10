@@ -159,7 +159,7 @@ impl Cache {
             });
 
             if must_fetch {
-                let channel = bot.http.channel(channel_id).await?.model().await.unwrap();
+                let channel = bot.http.channel(channel_id).await?.model().await?;
                 current_channel_id = channel.parent_id;
             }
         }
@@ -180,7 +180,7 @@ impl Cache {
         if !self.users.contains_key(&user_id) {
             let user_get = bot.http.user(user_id).await;
             let user = match user_get {
-                Ok(user) => Some(Arc::new(user.model().await.unwrap().into())),
+                Ok(user) => Some(Arc::new(user.model().await?.into())),
                 Err(why) => {
                     if get_status(&why) == Some(404) {
                         None
@@ -220,7 +220,7 @@ impl Cache {
                 }
             }
             Ok(wh) => {
-                let wh = Arc::new(wh.model().await.unwrap());
+                let wh = Arc::new(wh.model().await?);
                 self.webhooks.insert(webhook_id, wh.clone());
                 Some(wh)
             }
@@ -248,7 +248,7 @@ impl Cache {
                     return Err(why.into());
                 }
             }
-            Ok(msg) => Some(Arc::new(msg.model().await.unwrap().into())),
+            Ok(msg) => Some(Arc::new(msg.model().await?.into())),
         };
 
         self.messages.insert(message_id, msg, 1).await;
@@ -276,7 +276,7 @@ impl Cache {
                     }
                 }
             };
-            Ok(Some(channel.model().await.unwrap()))
+            Ok(Some(channel.model().await?))
         }
 
         let Some(channel) = get_channel(bot, channel_id).await? else {

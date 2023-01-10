@@ -11,6 +11,12 @@ pub enum StarboardError {
     #[error(transparent)]
     TwilightHttp(#[from] twilight_http::Error),
     #[error(transparent)]
+    MessageValidationError(#[from] twilight_validate::message::MessageValidationError),
+    #[error(transparent)]
+    ValidationError(#[from] twilight_validate::request::ValidationError),
+    #[error(transparent)]
+    DeserializeBodyError(#[from] twilight_http::response::DeserializeBodyError),
+    #[error(transparent)]
     Reqwest(#[from] reqwest::Error),
     #[error(transparent)]
     InteractionParseError(#[from] twilight_interactions::error::ParseError),

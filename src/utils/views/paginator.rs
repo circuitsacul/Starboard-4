@@ -105,7 +105,7 @@ pub async fn simple(
             }
 
             let msg = ctx.respond(int_data.build()).await?;
-            let msg_id = msg.model().await.unwrap().id;
+            let msg_id = msg.model().await?.id;
             message_id = Some(msg_id);
             msg_id
         };
@@ -140,7 +140,7 @@ pub async fn simple(
             let i = ctx.bot.interaction_client().await;
             let mut update = i.update_response(&ctx.interaction.token);
             let comp = components(current_page, last_page, true);
-            update = update.components(Some(&comp)).unwrap();
+            update = update.components(Some(&comp))?;
             update.await?;
             return Ok(());
         };

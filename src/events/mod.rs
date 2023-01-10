@@ -48,8 +48,7 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
                         "See `/help` for more information on Starboard. If you don't see ",
                         "slash commands, try reinviting me using the \"Add to Server\" ",
                         "button on my profile.",
-                    ))
-                    .unwrap()
+                    ))?
                     .reply(event.id)
                     .await;
             }
