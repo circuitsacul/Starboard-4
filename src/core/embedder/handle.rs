@@ -43,6 +43,9 @@ impl Embedder<'_, '_> {
             bot.handle_error(&e).await;
         }
 
+        let guild_id = self.config.starboard.guild_id.into_id();
+        let sb_channel_id = self.config.starboard.channel_id.into_id();
+
         if self.config.resolved.use_webhook {
             loop {
                 if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, true).await? {
@@ -50,8 +53,8 @@ impl Embedder<'_, '_> {
                         .cache
                         .fog_parent_channel_id(
                             bot,
-                            self.config.starboard.guild_id.into_id(),
-                            self.config.starboard.channel_id.into_id(),
+                            guild_id,
+                            sb_channel_id,
                         )
                         .await?
                         .unwrap();
@@ -63,8 +66,8 @@ impl Embedder<'_, '_> {
                         .embeds(&built.embeds)?
                         .attachments(&attachments)?;
 
-                    if parent.get_i64() != self.config.starboard.channel_id {
-                        ret = ret.thread_id(self.config.starboard.channel_id.into_id());
+                    if parent != sb_channel_id {
+                        ret = ret.thread_id(sb_channel_id);
                     }
 
                     let ret = ret.wait().await;
@@ -100,6 +103,7 @@ impl Embedder<'_, '_> {
         message_id: Id<MessageMarker>,
         force_partial: bool,
     ) -> StarboardResult<bool> {
+        let guild_id = self.config.starboard.guild_id.into_id();
         let sb_channel_id = self.config.starboard.channel_id.into_id();
 
         let Some(msg) = bot.cache.fog_message(bot, sb_channel_id, message_id).await? else {
@@ -115,7 +119,7 @@ impl Embedder<'_, '_> {
 
             let parent = bot
                 .cache
-                .fog_parent_channel_id(bot, self.config.starboard.guild_id.into_id(), sb_channel_id)
+                .fog_parent_channel_id(bot, guild_id, sb_channel_id)
                 .await?
                 .unwrap();
 
@@ -175,9 +179,9 @@ impl Embedder<'_, '_> {
         bot: &StarboardBot,
         message_id: Id<MessageMarker>,
     ) -> StarboardResult<()> {
-        let channel_id = self.config.starboard.channel_id.into_id();
+        let sb_channel_id = self.config.starboard.channel_id.into_id();
 
-        let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await? else {
+        let Some(msg) = bot.cache.fog_message(bot, sb_channel_id, message_id).await? else {
             return Ok(());
         };
 
@@ -189,7 +193,7 @@ impl Embedder<'_, '_> {
                         .fog_parent_channel_id(
                             bot,
                             self.config.starboard.guild_id.into_id(),
-                            channel_id,
+                            sb_channel_id,
                         )
                         .await?
                         .unwrap();
@@ -200,8 +204,8 @@ impl Embedder<'_, '_> {
                         message_id,
                     );
 
-                    if parent != channel_id {
-                        ud = ud.thread_id(channel_id);
+                    if parent != sb_channel_id {
+                        ud = ud.thread_id(sb_channel_id);
                     }
 
                     let ret = ud.await;
@@ -212,7 +216,7 @@ impl Embedder<'_, '_> {
             }
         }
 
-        let _ = bot.http.delete_message(channel_id, message_id).await;
+        let _ = bot.http.delete_message(sb_channel_id, message_id).await;
 
         Ok(())
     }

@@ -24,6 +24,7 @@ pub struct CreateStarboard {
             announcement_thread
             public_thread
             private_thread
+            guild_forum
         "#)]
     channel: InteractionChannel,
 }
