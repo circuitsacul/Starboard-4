@@ -1,27 +1,62 @@
-use thiserror::Error;
+use snafu::Backtrace;
 
 pub type StarboardResult<T> = Result<T, StarboardError>;
 
-#[derive(Error, Debug)]
+#[derive(Debug, snafu::Snafu)]
 pub enum StarboardError {
-    #[error(transparent)]
-    Sqlx(#[from] sqlx::Error),
-    #[error(transparent)]
-    Serde(#[from] serde_json::Error),
-    #[error(transparent)]
-    TwilightHttp(#[from] twilight_http::Error),
-    #[error(transparent)]
-    MessageValidationError(#[from] twilight_validate::message::MessageValidationError),
-    #[error(transparent)]
-    ValidationError(#[from] twilight_validate::request::ValidationError),
-    #[error(transparent)]
-    DeserializeBodyError(#[from] twilight_http::response::DeserializeBodyError),
-    #[error(transparent)]
-    Reqwest(#[from] reqwest::Error),
-    #[error(transparent)]
-    InteractionParseError(#[from] twilight_interactions::error::ParseError),
-    #[error(transparent)]
-    ClusterCommandError(#[from] twilight_gateway::cluster::ClusterCommandError),
-    #[error(transparent)]
-    ClusterStartoError(#[from] twilight_gateway::cluster::ClusterStartError),
+    #[snafu(context(false))]
+    Sqlx {
+        source: sqlx::Error,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    Serde {
+        source: serde_json::Error,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    TwilightHttp {
+        source: twilight_http::Error,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    MessageValidationError {
+        source: twilight_validate::message::MessageValidationError,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    ValidationError {
+        source: twilight_validate::request::ValidationError,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    DeserializeBodyError {
+        source: twilight_http::response::DeserializeBodyError,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    Reqwest {
+        source: reqwest::Error,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    InteractionParseError {
+        source: twilight_interactions::error::ParseError,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    ClusterCommandError {
+        source: twilight_gateway::cluster::ClusterCommandError,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    ClusterStartError {
+        source: twilight_gateway::cluster::ClusterStartError,
+        backtrace: Backtrace,
+    },
+    #[snafu(context(false))]
+    JoinError {
+        source: tokio::task::JoinError,
+        backtrace: Backtrace,
+    },
 }
