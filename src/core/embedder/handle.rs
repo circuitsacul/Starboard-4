@@ -106,24 +106,38 @@ impl Embedder<'_, '_> {
             return Ok(true);
         };
 
-        let wh = if msg.author_id.get() != bot.config.bot_id {
+        let (wh, is_thread) = if msg.author_id.get() != bot.config.bot_id {
             if Some(msg.author_id.get_i64()) != self.config.starboard.webhook_id {
                 return Ok(false);
             }
 
-            get_valid_webhook(bot, &self.config.starboard, false).await?
+            let wh = get_valid_webhook(bot, &self.config.starboard, false).await?;
+
+            let parent = bot
+                .cache
+                .fog_parent_channel_id(bot, self.config.starboard.guild_id.into_id(), sb_channel_id)
+                .await?
+                .unwrap();
+
+            (wh, sb_channel_id != parent)
         } else {
-            None
+            (None, false)
         };
 
         match self.build(force_partial, wh.is_some()) {
             BuiltStarboardEmbed::Full(built) => {
                 if let Some(wh) = wh {
-                    bot.http
+                    let mut ud = bot
+                        .http
                         .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
                         .content(Some(&built.top_content))?
-                        .embeds(Some(&built.embeds))?
-                        .await?;
+                        .embeds(Some(&built.embeds))?;
+
+                    if is_thread {
+                        ud = ud.thread_id(sb_channel_id);
+                    }
+
+                    ud.await?;
                 } else {
                     bot.http
                         .update_message(sb_channel_id, message_id)
@@ -134,10 +148,16 @@ impl Embedder<'_, '_> {
             }
             BuiltStarboardEmbed::Partial(built) => {
                 if let Some(wh) = wh {
-                    bot.http
+                    let mut ud = bot
+                        .http
                         .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
-                        .content(Some(&built.top_content))?
-                        .await?;
+                        .content(Some(&built.top_content))?;
+
+                    if is_thread {
+                        ud = ud.thread_id(sb_channel_id);
+                    }
+
+                    ud.await?;
                 } else {
                     bot.http
                         .update_message(sb_channel_id, message_id)
@@ -164,10 +184,27 @@ impl Embedder<'_, '_> {
         if let Some(wh_id) = self.config.starboard.webhook_id {
             if wh_id == msg.author_id.get_i64() {
                 if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, false).await? {
-                    let ret = bot
-                        .http
-                        .delete_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
-                        .await;
+                    let parent = bot
+                        .cache
+                        .fog_parent_channel_id(
+                            bot,
+                            self.config.starboard.guild_id.into_id(),
+                            channel_id,
+                        )
+                        .await?
+                        .unwrap();
+
+                    let mut ud = bot.http.delete_webhook_message(
+                        wh.id,
+                        wh.token.as_ref().unwrap(),
+                        message_id,
+                    );
+
+                    if parent != channel_id {
+                        ud = ud.thread_id(channel_id);
+                    }
+
+                    let ret = ud.await;
                     if ret.is_ok() {
                         return Ok(());
                     }
