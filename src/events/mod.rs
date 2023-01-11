@@ -25,7 +25,7 @@ async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBo
             Ok(_) => {}
             Err(why) => bot.handle_error(&why).await,
         },
-        Err(why) => bot.handle_error(&why).await,
+        Err(why) => bot.handle_error(&why.into()).await,
     }
 }
 
