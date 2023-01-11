@@ -1,5 +1,6 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Write};
 
+use snafu::ErrorCompat;
 use sqlx::PgPool;
 use tokio::sync::RwLock;
 use twilight_gateway::{
@@ -14,7 +15,10 @@ use twilight_model::{
 use twilight_standby::Standby;
 
 use crate::{
-    cache::Cache, client::config::Config, errors::StarboardResult, utils::into_id::IntoId,
+    cache::Cache,
+    client::config::Config,
+    errors::{StarboardError, StarboardResult},
+    utils::into_id::IntoId,
 };
 
 use super::{cooldowns::Cooldowns, locks::Locks};
@@ -105,19 +109,27 @@ impl StarboardBot {
         }
     }
 
-    pub async fn handle_error<E>(&self, err: &E)
-    where
-        E: std::error::Error + ?Sized,
-    {
+    pub async fn handle_error(&self, err: &StarboardError) {
         sentry::capture_error(&err);
 
-        let msg = format!("{err}");
-        let msg = msg.trim();
-        let msg = if msg.is_empty() { "Some Error" } else { msg };
+        let msg = format!("{err}").trim().to_string();
+        let mut msg = if msg.is_empty() {
+            "Some Error".to_string()
+        } else {
+            msg
+        };
+
+        if let Some(bt) = ErrorCompat::backtrace(err) {
+            writeln!(msg, "\n```rs\n{bt:?}\n```").unwrap();
+        }
+
+        if msg.len() > 2_000 {
+            msg = msg[..1_990].to_string() + "...\n```";
+        }
 
         eprintln!("{msg}");
         if let Some(chid) = self.config.error_channel {
-            let ret = self.http.create_message(chid.into_id()).content(msg);
+            let ret = self.http.create_message(chid.into_id()).content(&msg);
             let ret = match ret {
                 Ok(ret) => ret,
                 Err(why) => return eprintln!("{why}"),
