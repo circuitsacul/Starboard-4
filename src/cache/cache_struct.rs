@@ -3,7 +3,7 @@ use std::sync::Arc;
 use dashmap::{DashMap, DashSet};
 use twilight_gateway::Event;
 use twilight_model::{
-    channel::{Channel, Webhook},
+    channel::{Channel, ChannelType, Webhook},
     id::{
         marker::{
             ChannelMarker, EmojiMarker, GuildMarker, MessageMarker, UserMarker, WebhookMarker,
@@ -123,6 +123,24 @@ impl Cache {
             guild
                 .as_ref()
                 .and_then(|guild| guild.emojis.get(&emoji_id).copied())
+        })
+    }
+
+    pub fn is_channel_forum(
+        &self,
+        guild_id: Id<GuildMarker>,
+        channel_id: Id<ChannelMarker>,
+    ) -> bool {
+        self.guilds.with(&guild_id, |_, guild| {
+            guild
+                .as_ref()
+                .and_then(|guild| {
+                    guild
+                        .channels
+                        .get(&channel_id)
+                        .map(|channel| channel.kind == ChannelType::GuildForum)
+                })
+                .unwrap_or(false)
         })
     }
 
