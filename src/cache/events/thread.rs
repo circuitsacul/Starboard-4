@@ -5,7 +5,10 @@ use twilight_model::gateway::payload::incoming::{
     ThreadCreate, ThreadDelete, ThreadListSync, ThreadUpdate,
 };
 
-use crate::cache::{cache_struct::Cache, update::UpdateCache};
+use crate::{
+    cache::{cache_struct::Cache, update::UpdateCache},
+    utils::into_id::IntoId,
+};
 
 #[async_trait]
 impl UpdateCache for ThreadCreate {
@@ -27,6 +30,7 @@ impl UpdateCache for ThreadDelete {
             guild.active_thread_parents.remove(&self.id);
             guild
         });
+        cache.messages.remove(&self.id.get().into_id()).await;
     }
 }
 

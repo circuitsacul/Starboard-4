@@ -138,7 +138,11 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
             core::starboard::reaction_events::handle_reaction_remove(&bot, event).await?;
         }
         Event::MessageDelete(event) => {
-            core::starboard::link_events::handle_message_delete(&bot, event).await?;
+            core::starboard::link_events::handle_message_delete(&bot, event.id).await?;
+        }
+        Event::ThreadDelete(event) => {
+            core::starboard::link_events::handle_message_delete(&bot, event.id.get().into_id())
+                .await?;
         }
         _ => {}
     }
