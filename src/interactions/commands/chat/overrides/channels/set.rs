@@ -21,15 +21,20 @@ pub struct SetOverrideChannels {
 
 impl SetOverrideChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx).get_i64();
+        let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
-        let channel_ids: Vec<_> = textable_channel_ids(&ctx.bot, guild_id, &self.channels);
+        let channel_ids: Vec<_> = textable_channel_ids(&ctx.bot, guild_id, &self.channels)
+            .await?
+            .into_iter()
+            .collect();
         if let Err(why) = StarboardOverride::validate_channels(&channel_ids) {
             ctx.respond_str(&why, true).await?;
             return Ok(());
         }
-        let ov = StarboardOverride::set_channels(&ctx.bot.pool, guild_id, &self.name, &channel_ids)
-            .await?;
+        let ov =
+            StarboardOverride::set_channels(&ctx.bot.pool, guild_id_i64, &self.name, &channel_ids)
+                .await?;
 
         if ov.is_none() {
             ctx.respond_str(

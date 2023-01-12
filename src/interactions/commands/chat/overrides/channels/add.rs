@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
@@ -22,12 +20,12 @@ pub struct AddOverrideChannels {
 
 impl AddOverrideChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx).get_i64();
+        let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
-        let ov = StarboardOverride::get(&ctx.bot.pool, guild_id, &self.name).await?;
+        let ov = StarboardOverride::get(&ctx.bot.pool, guild_id_i64, &self.name).await?;
         if let Some(ov) = ov {
-            let mut channel_ids: HashSet<_> =
-                textable_channel_ids(&ctx.bot, guild_id, &self.channels);
+            let mut channel_ids = textable_channel_ids(&ctx.bot, guild_id, &self.channels).await?;
             channel_ids.extend(ov.channel_ids);
             let new_channels: Vec<_> = channel_ids.into_iter().collect();
 
@@ -35,9 +33,13 @@ impl AddOverrideChannels {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
-            let ret =
-                StarboardOverride::set_channels(&ctx.bot.pool, guild_id, &self.name, &new_channels)
-                    .await?;
+            let ret = StarboardOverride::set_channels(
+                &ctx.bot.pool,
+                guild_id_i64,
+                &self.name,
+                &new_channels,
+            )
+            .await?;
 
             if ret.is_some() {
                 ctx.respond_str(

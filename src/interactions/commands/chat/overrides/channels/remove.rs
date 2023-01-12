@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
@@ -22,11 +20,12 @@ pub struct RemoveOverrideChannels {
 
 impl RemoveOverrideChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx).get_i64();
+        let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
-        let ov = StarboardOverride::get(&ctx.bot.pool, guild_id, &self.name).await?;
+        let ov = StarboardOverride::get(&ctx.bot.pool, guild_id_i64, &self.name).await?;
         if let Some(ov) = ov {
-            let to_remove: HashSet<_> = textable_channel_ids(&ctx.bot, guild_id, &self.channels);
+            let to_remove = textable_channel_ids(&ctx.bot, guild_id, &self.channels).await?;
             let channel_ids: Vec<_> = ov
                 .channel_ids
                 .iter()
@@ -34,9 +33,13 @@ impl RemoveOverrideChannels {
                 .filter(|id| !to_remove.contains(id))
                 .collect();
 
-            let ret =
-                StarboardOverride::set_channels(&ctx.bot.pool, guild_id, &self.name, &channel_ids)
-                    .await?;
+            let ret = StarboardOverride::set_channels(
+                &ctx.bot.pool,
+                guild_id_i64,
+                &self.name,
+                &channel_ids,
+            )
+            .await?;
 
             if ret.is_some() {
                 ctx.respond_str(
