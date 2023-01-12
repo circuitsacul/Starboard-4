@@ -110,7 +110,7 @@ impl StarboardBot {
     }
 
     pub async fn handle_error(&self, err: &StarboardError) {
-        sentry::capture_error(&err);
+        sentry::capture_error(err);
 
         let msg = format!("{err}").trim().to_string();
         let mut msg = if msg.is_empty() {
@@ -123,11 +123,12 @@ impl StarboardBot {
             writeln!(msg, "\n```rs\n{bt:?}\n```").unwrap();
         }
 
+        eprintln!("{msg}");
+
         if msg.len() > 2_000 {
             msg = msg[..1_990].to_string() + "...\n```";
         }
 
-        eprintln!("{msg}");
         if let Some(chid) = self.config.error_channel {
             let ret = self.http.create_message(chid.into_id()).content(&msg);
             let ret = match ret {
