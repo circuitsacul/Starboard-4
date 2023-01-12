@@ -190,7 +190,6 @@ impl Cache {
             }
         }
 
-        dbg!(&channel_ids);
         Ok(channel_ids)
     }
 
