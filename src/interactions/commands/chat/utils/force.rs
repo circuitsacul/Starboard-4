@@ -31,11 +31,11 @@ impl Force {
         let guild_id = get_guild_id!(ctx);
 
         // validate that the channel is in the guild
-        if ctx.bot.cache.guilds.with(&guild_id, |_, guild| {
-            guild
-                .as_ref()
-                .map(|g| g.channels.contains_key(&channel_id.into_id()))
-        }) != Some(true)
+        if !ctx
+            .bot
+            .cache
+            .guild_has_channel(&ctx.bot, guild_id, channel_id.into_id())
+            .await?
         {
             ctx.respond_str("That message belongs to a different server.", true)
                 .await?;

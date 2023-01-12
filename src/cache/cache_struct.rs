@@ -334,6 +334,9 @@ impl Cache {
         let Some(parent) = self.fetch_channel_or_thread_parent(bot, channel_id).await? else {
             return Ok(None);
         };
+        if parent.guild_id != Some(guild_id) {
+            return Ok(None);
+        }
 
         self.guilds.alter(&guild_id, |_, mut guild| {
             guild.channels.insert(
@@ -344,6 +347,26 @@ impl Cache {
         });
 
         Ok(Some(parent.id))
+    }
+
+    pub async fn guild_has_channel(
+        &self,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+        channel_id: Id<ChannelMarker>,
+    ) -> StarboardResult<bool> {
+        let parent_id = self
+            .fog_parent_channel_id(bot, guild_id, channel_id)
+            .await?;
+        let Some(parent_id) = parent_id else {
+            return Ok(false);
+        };
+
+        Ok(self.guilds.with(&guild_id, |_, guild| {
+            guild
+                .as_ref()
+                .map_or(false, |guild| guild.channels.contains_key(&parent_id))
+        }))
     }
 
     pub async fn fog_channel_nsfw(
