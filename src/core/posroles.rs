@@ -64,7 +64,7 @@ pub async fn update_posroles_for_guild(
     let mut leaderboard = Member::list_by_xp_exclude_deleted(
         &bot.pool,
         guild_id.get_i64(),
-        lb_size as i64 * 2,
+        lb_size as i64,
         &bot.cache,
     )
     .await?;
