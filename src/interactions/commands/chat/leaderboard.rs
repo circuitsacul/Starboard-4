@@ -16,13 +16,23 @@ use crate::{
     desc = "Show the servers leaderboard.",
     dm_permission = false
 )]
-pub struct Leaderboard;
+pub struct Leaderboard {
+    /// Whether to include users who've left. False by default.
+    #[command(rename = "include-gone")]
+    include_gone: Option<bool>,
+}
 
 impl Leaderboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx);
+        let guild_id = get_guild_id!(ctx).get_i64();
 
-        let lb = Member::list_by_xp(&ctx.bot.pool, guild_id.get_i64(), 99).await?;
+        let include_gone = self.include_gone == Some(true);
+
+        let lb = if include_gone {
+            Member::list_by_xp(&ctx.bot.pool, guild_id, 99).await?
+        } else {
+            Member::list_by_xp_exclude_deleted(&ctx.bot.pool, guild_id, 99, &ctx.bot.cache).await?
+        };
         let mut pages = Vec::new();
         let mut current_page = String::new();
 
@@ -52,7 +62,11 @@ impl Leaderboard {
                     (
                         None,
                         Some(vec![embed::build()
-                            .title("Leaderboard")
+                            .title(if include_gone {
+                                "Leaderboard (Including Gone)"
+                            } else {
+                                "Leaderboard"
+                            })
                             .description(p)
                             .build()]),
                     )

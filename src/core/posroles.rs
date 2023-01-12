@@ -61,8 +61,13 @@ pub async fn update_posroles_for_guild(
     let pr_ids: Vec<Id<RoleMarker>> = posroles.iter().map(|pr| pr.role_id.into_id()).collect();
 
     let lb_size: i32 = posroles.iter().map(|pr| pr.max_members).sum();
-    let mut leaderboard =
-        Member::list_by_xp(&bot.pool, guild_id.get_i64(), lb_size as i64 * 2).await?;
+    let mut leaderboard = Member::list_by_xp_exclude_deleted(
+        &bot.pool,
+        guild_id.get_i64(),
+        lb_size as i64 * 2,
+        &bot.cache,
+    )
+    .await?;
 
     for pr in posroles {
         let role_id: Id<RoleMarker> = pr.role_id.into_id();
