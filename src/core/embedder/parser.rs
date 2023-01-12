@@ -152,7 +152,12 @@ impl ParsedMessage {
 
                         upload_attachments.push(handle);
                     }
-                    _ => {}
+                    StickerFormatType::Unknown(format) => {
+                        eprintln!("Unkown sticker format type {format}.")
+                    }
+                    unhandled => {
+                        eprintln!("Twilight added sticker format type {unhandled:?}.");
+                    }
                 }
             }
 
