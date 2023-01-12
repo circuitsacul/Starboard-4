@@ -177,11 +177,20 @@ impl Cache {
             });
 
             if must_fetch {
-                let channel = bot.http.channel(channel_id).await?.model().await?;
-                current_channel_id = channel.parent_id;
+                let fetch = bot.http.channel(channel_id).await;
+                match fetch {
+                    Ok(fetch) => {
+                        current_channel_id = fetch.model().await?.parent_id;
+                    }
+                    Err(why) if get_status(&why) != Some(404) => {
+                        return Err(why.into());
+                    }
+                    _ => {}
+                };
             }
         }
 
+        dbg!(&channel_ids);
         Ok(channel_ids)
     }
 
