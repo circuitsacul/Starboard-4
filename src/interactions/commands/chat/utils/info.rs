@@ -38,6 +38,12 @@ impl Info {
             return Ok(());
         };
 
+        if sql_msg.guild_id != guild_id {
+            ctx.respond_str("That message belongs to a different server.", true)
+                .await?;
+            return Ok(());
+        }
+
         let link = fmt_message_link(guild_id, sql_msg.channel_id, sql_msg.message_id);
         let mut emb = embed::build().description(concat_format!(
             "original: `{}` [jump]({})" <- sql_msg.message_id, link;
