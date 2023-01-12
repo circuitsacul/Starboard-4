@@ -10,7 +10,7 @@ use super::{
     image_only_embed::maybe_get_attachment_handle,
     imgur::{modify_imgur_embed, ImgurResult},
     youtube::modify_yt_embed,
-    AttachmentHandle, Embedder,
+    AttachmentHandle,
 };
 
 pub type StickerNames = String;
@@ -29,7 +29,7 @@ pub struct ParsedMessage {
 }
 
 impl ParsedMessage {
-    pub fn parse(_handle: &Embedder, orig: &CachedMessage) -> Self {
+    pub fn parse(orig: &CachedMessage) -> Self {
         let (sticker_names_str, primary_image, url_list, embeds, upload_attachments) =
             Self::parse_attachments(orig);
 

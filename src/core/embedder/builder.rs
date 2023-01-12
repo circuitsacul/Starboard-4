@@ -39,7 +39,7 @@ impl BuiltStarboardEmbed {
     pub fn build(handle: &Embedder, force_partial: bool, watermark: bool) -> Self {
         if let Some(orig) = &handle.orig_message {
             if !force_partial {
-                let parsed = ParsedMessage::parse(handle, orig);
+                let parsed = ParsedMessage::parse(orig);
 
                 return Self::Full(FullBuiltStarboardEmbed {
                     top_content: Self::build_top_content(handle),
@@ -118,7 +118,7 @@ impl BuiltStarboardEmbed {
             None => return None,
             Some(msg) => msg,
         };
-        let reply_parsed = ParsedMessage::parse(handle, ref_msg);
+        let reply_parsed = ParsedMessage::parse(ref_msg);
         Self::build_primary_embed(handle, ref_msg, &reply_parsed, false, true)
     }
 
