@@ -47,7 +47,18 @@ impl Embedder<'_, '_> {
         let sb_channel_id = self.config.starboard.channel_id.into_id();
 
         let forum_post_name = if bot.cache.is_channel_forum(guild_id, sb_channel_id) {
-            Some("New Post")
+            let name = &built.embeds[0].author.as_ref().unwrap().name;
+            let mut content = &*self.orig_message.as_ref().unwrap().content;
+            if content.is_empty() {
+                content = "Click to see attachments";
+            }
+
+            let mut desc = format!("{name}: {content}");
+            if desc.len() > 100 {
+                desc = desc[..100 - 3].to_string() + "...";
+            }
+
+            Some(desc)
         } else {
             None
         };
@@ -72,7 +83,7 @@ impl Embedder<'_, '_> {
                         ret = ret.thread_id(sb_channel_id);
                     }
 
-                    if let Some(name) = forum_post_name {
+                    if let Some(name) = &forum_post_name {
                         ret = ret.thread_name(name);
                     }
 
@@ -97,7 +108,7 @@ impl Embedder<'_, '_> {
         if let Some(name) = forum_post_name {
             let ret = bot
                 .http
-                .create_forum_thread(sb_channel_id, name)
+                .create_forum_thread(sb_channel_id, &name)
                 .message()
                 .content(&built.top_content)?
                 .embeds(&built.embeds)?
