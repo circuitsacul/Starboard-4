@@ -36,7 +36,7 @@ impl ViewAutoStarChannels {
                     .map(|v| v.to_string())
                     .unwrap_or_else(|| "none".to_string());
                 let asc_settings = concat_format!(
-                    "channel: <#{}>\n" <- asc.channel_id;
+                    "This autostar channel is in <#{}>.\n\n" <- asc.channel_id;
                     "emojis: {}\n" <- emojis;
                     "min-chars: {}\n" <- asc.min_chars;
                     "max-chars: {}\n" <- max_chars;

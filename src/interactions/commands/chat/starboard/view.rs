@@ -34,6 +34,10 @@ impl ViewStarboard {
 
                 let embed = embed::build()
                     .title(format!("Starboard '{}'", &config.starboard.name))
+                    .description(format!(
+                        "This starboard is in <#{}>.",
+                        config.starboard.channel_id
+                    ))
                     .field(
                         EmbedFieldBuilder::new("Requirements", pretty.requirements)
                             .inline()
