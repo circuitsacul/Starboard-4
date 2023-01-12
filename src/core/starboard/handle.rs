@@ -260,7 +260,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 return Ok(false);
             }
 
-            let msg = embedder.send(self.refresh.bot).await?.model().await?;
+            let msg = embedder.send(self.refresh.bot).await?;
             StarboardMessage::create(
                 &self.refresh.bot.pool,
                 orig.message_id,

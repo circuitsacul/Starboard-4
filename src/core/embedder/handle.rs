@@ -32,7 +32,7 @@ impl Embedder<'_, '_> {
     pub async fn send(
         &self,
         bot: &StarboardBot,
-    ) -> StarboardResult<twilight_http::Response<twilight_model::channel::Message>> {
+    ) -> StarboardResult<twilight_model::channel::Message> {
         let built = match self.build(false, self.config.resolved.use_webhook) {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
@@ -43,41 +43,81 @@ impl Embedder<'_, '_> {
             bot.handle_error(&e).await;
         }
 
+        let guild_id = self.config.starboard.guild_id.into_id();
+        let sb_channel_id = self.config.starboard.channel_id.into_id();
+
+        let forum_post_name = if bot.cache.is_channel_forum(guild_id, sb_channel_id) {
+            Some("New Post")
+        } else {
+            None
+        };
+
         if self.config.resolved.use_webhook {
             loop {
                 if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, true).await? {
-                    let ret = bot
+                    let parent = bot
+                        .cache
+                        .fog_parent_channel_id(bot, guild_id, sb_channel_id)
+                        .await?
+                        .unwrap();
+
+                    let mut ret = bot
                         .http
                         .execute_webhook(wh.id, wh.token.as_ref().unwrap())
                         .content(&built.top_content)?
                         .embeds(&built.embeds)?
-                        .attachments(&attachments)?
-                        .wait()
-                        .await;
+                        .attachments(&attachments)?;
+
+                    if parent != sb_channel_id {
+                        ret = ret.thread_id(sb_channel_id);
+                    }
+
+                    if let Some(name) = forum_post_name {
+                        ret = ret.thread_name(name);
+                    }
+
+                    let ret = ret.wait().await;
 
                     let err = match ret {
                         Err(err) => err,
-                        Ok(msg) => return Ok(msg),
+                        Ok(msg) => return Ok(msg.model().await?),
                     };
 
                     if get_status(&err) == Some(404) {
                         bot.cache.webhooks.remove(&wh.id);
                         continue;
                     }
-
-                    Starboard::disable_webhooks(&bot.pool, self.config.starboard.id).await?;
-                    break;
                 }
+
+                Starboard::disable_webhooks(&bot.pool, self.config.starboard.id).await?;
+                break;
             }
         }
 
-        bot.http
-            .create_message(self.config.starboard.channel_id.into_id())
-            .content(&built.top_content)?
-            .embeds(&built.embeds)?
-            .attachments(&attachments)?
-            .await
-            .map_err(|e| e.into())
+        if let Some(name) = forum_post_name {
+            let ret = bot
+                .http
+                .create_forum_thread(sb_channel_id, name)
+                .message()
+                .content(&built.top_content)?
+                .embeds(&built.embeds)?
+                .attachments(&attachments)?
+                .await?
+                .model()
+                .await?;
+
+            Ok(ret.message)
+        } else {
+            Ok(bot
+                .http
+                .create_message(self.config.starboard.channel_id.into_id())
+                .content(&built.top_content)?
+                .embeds(&built.embeds)?
+                .attachments(&attachments)?
+                .await?
+                .model()
+                .await?)
+        }
     }
 
     pub async fn edit(
@@ -86,33 +126,55 @@ impl Embedder<'_, '_> {
         message_id: Id<MessageMarker>,
         force_partial: bool,
     ) -> StarboardResult<bool> {
+        let guild_id = self.config.starboard.guild_id.into_id();
         let sb_channel_id = self.config.starboard.channel_id.into_id();
 
-        let Some(msg) = bot.cache.fog_message(bot, sb_channel_id, message_id).await? else {
+        let is_forum = bot.cache.is_channel_forum(guild_id, sb_channel_id);
+        let real_channel_id = if is_forum {
+            message_id.get().into_id()
+        } else {
+            sb_channel_id
+        };
+
+        let Some(msg) = bot.cache.fog_message(bot, real_channel_id, message_id).await? else {
             return Ok(true);
         };
 
-        let wh = if msg.author_id.get() != bot.config.bot_id {
+        let (wh, is_thread) = if msg.author_id.get() != bot.config.bot_id {
             if Some(msg.author_id.get_i64()) != self.config.starboard.webhook_id {
                 return Ok(false);
             }
 
-            get_valid_webhook(bot, &self.config.starboard, false).await?
+            let wh = get_valid_webhook(bot, &self.config.starboard, false).await?;
+
+            let parent = bot
+                .cache
+                .fog_parent_channel_id(bot, guild_id, sb_channel_id)
+                .await?
+                .unwrap();
+
+            (wh, sb_channel_id != parent)
         } else {
-            None
+            (None, false)
         };
 
         match self.build(force_partial, wh.is_some()) {
             BuiltStarboardEmbed::Full(built) => {
                 if let Some(wh) = wh {
-                    bot.http
+                    let mut ud = bot
+                        .http
                         .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
                         .content(Some(&built.top_content))?
-                        .embeds(Some(&built.embeds))?
-                        .await?;
+                        .embeds(Some(&built.embeds))?;
+
+                    if is_thread || is_forum {
+                        ud = ud.thread_id(real_channel_id);
+                    }
+
+                    ud.await?;
                 } else {
                     bot.http
-                        .update_message(sb_channel_id, message_id)
+                        .update_message(real_channel_id, message_id)
                         .content(Some(&built.top_content))?
                         .embeds(Some(&built.embeds))?
                         .await?;
@@ -120,13 +182,19 @@ impl Embedder<'_, '_> {
             }
             BuiltStarboardEmbed::Partial(built) => {
                 if let Some(wh) = wh {
-                    bot.http
+                    let mut ud = bot
+                        .http
                         .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
-                        .content(Some(&built.top_content))?
-                        .await?;
+                        .content(Some(&built.top_content))?;
+
+                    if is_thread || is_forum {
+                        ud = ud.thread_id(real_channel_id);
+                    }
+
+                    ud.await?;
                 } else {
                     bot.http
-                        .update_message(sb_channel_id, message_id)
+                        .update_message(real_channel_id, message_id)
                         .content(Some(&built.top_content))?
                         .await?;
                 }
@@ -141,19 +209,45 @@ impl Embedder<'_, '_> {
         bot: &StarboardBot,
         message_id: Id<MessageMarker>,
     ) -> StarboardResult<()> {
-        let channel_id = self.config.starboard.channel_id.into_id();
+        let sb_channel_id = self.config.starboard.channel_id.into_id();
 
-        let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await? else {
+        let is_forum = bot
+            .cache
+            .is_channel_forum(self.config.starboard.guild_id.into_id(), sb_channel_id);
+        let real_channel_id = if is_forum {
+            message_id.get().into_id()
+        } else {
+            sb_channel_id
+        };
+
+        let Some(msg) = bot.cache.fog_message(bot, real_channel_id, message_id).await? else {
             return Ok(());
         };
 
         if let Some(wh_id) = self.config.starboard.webhook_id {
             if wh_id == msg.author_id.get_i64() {
                 if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, false).await? {
-                    let ret = bot
-                        .http
-                        .delete_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
-                        .await;
+                    let parent = bot
+                        .cache
+                        .fog_parent_channel_id(
+                            bot,
+                            self.config.starboard.guild_id.into_id(),
+                            sb_channel_id,
+                        )
+                        .await?
+                        .unwrap();
+
+                    let mut ud = bot.http.delete_webhook_message(
+                        wh.id,
+                        wh.token.as_ref().unwrap(),
+                        message_id,
+                    );
+
+                    if parent != sb_channel_id || is_forum {
+                        ud = ud.thread_id(real_channel_id);
+                    }
+
+                    let ret = ud.await;
                     if ret.is_ok() {
                         return Ok(());
                     }
@@ -161,7 +255,7 @@ impl Embedder<'_, '_> {
             }
         }
 
-        let _ = bot.http.delete_message(channel_id, message_id).await;
+        let _ = bot.http.delete_message(real_channel_id, message_id).await;
 
         Ok(())
     }

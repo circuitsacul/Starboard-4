@@ -3,7 +3,7 @@ use std::sync::Arc;
 use dashmap::{DashMap, DashSet};
 use twilight_gateway::Event;
 use twilight_model::{
-    channel::{Channel, Webhook},
+    channel::{Channel, ChannelType, Webhook},
     id::{
         marker::{
             ChannelMarker, EmojiMarker, GuildMarker, MessageMarker, UserMarker, WebhookMarker,
@@ -123,6 +123,24 @@ impl Cache {
             guild
                 .as_ref()
                 .and_then(|guild| guild.emojis.get(&emoji_id).copied())
+        })
+    }
+
+    pub fn is_channel_forum(
+        &self,
+        guild_id: Id<GuildMarker>,
+        channel_id: Id<ChannelMarker>,
+    ) -> bool {
+        self.guilds.with(&guild_id, |_, guild| {
+            guild
+                .as_ref()
+                .and_then(|guild| {
+                    guild
+                        .channels
+                        .get(&channel_id)
+                        .map(|channel| channel.kind == ChannelType::GuildForum)
+                })
+                .unwrap_or(false)
         })
     }
 
@@ -287,6 +305,45 @@ impl Cache {
         } else {
             Ok(Some(channel))
         }
+    }
+
+    pub async fn fog_parent_channel_id(
+        &self,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+        channel_id: Id<ChannelMarker>,
+    ) -> StarboardResult<Option<Id<ChannelMarker>>> {
+        let parent = self.guilds.with(&guild_id, |_, guild| {
+            let Some(guild) = guild else { return None; };
+
+            if guild.channels.contains_key(&channel_id) {
+                return Some(channel_id);
+            }
+
+            if let Some(parent) = guild.active_thread_parents.get(&channel_id) {
+                return Some(*parent);
+            }
+
+            None
+        });
+
+        if parent.is_some() {
+            return Ok(parent);
+        }
+
+        let Some(parent) = self.fetch_channel_or_thread_parent(bot, channel_id).await? else {
+            return Ok(None);
+        };
+
+        self.guilds.alter(&guild_id, |_, mut guild| {
+            guild.channels.insert(
+                parent.id,
+                CachedChannel::from_channel(guild.channels.get(&parent.id), &parent),
+            );
+            guild
+        });
+
+        Ok(Some(parent.id))
     }
 
     pub async fn fog_channel_nsfw(

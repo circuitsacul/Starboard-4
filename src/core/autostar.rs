@@ -1,8 +1,12 @@
 use std::time::Duration;
 
-use twilight_model::gateway::payload::incoming::MessageCreate;
+use twilight_model::id::{
+    marker::{ChannelMarker, MessageMarker},
+    Id,
+};
 
 use crate::{
+    cache::models::message::CachedMessage,
     client::bot::StarboardBot,
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::AutoStarChannel,
@@ -12,14 +16,19 @@ use crate::{
 
 use super::has_image::has_image;
 
-pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> StarboardResult<()> {
-    // Ignore DMs
-    if event.guild_id.is_none() {
-        return Ok(());
-    }
-
+pub async fn handle(
+    bot: &StarboardBot,
+    autostar_channel_id: Id<ChannelMarker>,
+    channel_id: Id<ChannelMarker>,
+    message_id: Id<MessageMarker>,
+    message: &CachedMessage,
+) -> StarboardResult<()> {
     // Check the cache...
-    if !bot.cache.autostar_channel_ids.contains(&event.channel_id) {
+    if !bot
+        .cache
+        .autostar_channel_ids
+        .contains(&autostar_channel_id)
+    {
         return Ok(());
     }
 
@@ -27,39 +36,43 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> StarboardResul
     if bot
         .cooldowns
         .autostar_send
-        .trigger(&event.channel_id)
+        .trigger(&autostar_channel_id)
         .is_some()
     {
         return Ok(());
     }
 
     // Fetch the autostar channels
-    let asc = AutoStarChannel::list_by_channel(&bot.pool, event.channel_id.get_i64()).await?;
+    let asc = AutoStarChannel::list_by_channel(&bot.pool, autostar_channel_id.get_i64()).await?;
 
     // If none, remove the channel id from the cache
     if asc.is_empty() {
-        bot.cache.autostar_channel_ids.remove(&event.channel_id);
+        bot.cache.autostar_channel_ids.remove(&autostar_channel_id);
         return Ok(());
     }
 
     // Handle the autostar channels
     for a in asc {
-        let status = get_status(bot, &a, event).await;
+        let status = get_status(bot, &a, message_id, message).await;
 
         if matches!(status, Status::InvalidStay) {
             continue;
         }
         if let Status::InvalidRemove(reasons) = status {
-            let _ = bot.http.delete_message(event.channel_id, event.id).await;
+            let _ = bot.http.delete_message(channel_id, message_id).await;
 
-            if !event.author.bot {
-                let message = {
+            let send = bot
+                .cache
+                .fog_user(bot, message.author_id)
+                .await?
+                .map_or(false, |u| !u.is_bot);
+            if send {
+                let to_send = {
                     format!(
-                        "Your message in <#{}> was deleted for the following reason(s):\n",
-                        event.channel_id
+                        "Your message in <#{channel_id}> was deleted for the following reason(s):\n"
                     ) + &reasons.join("\n - ")
                 };
-                notify::notify(bot, event.author.id, &message).await?;
+                notify::notify(bot, message.author_id, &to_send).await?;
             }
 
             continue;
@@ -68,7 +81,7 @@ pub async fn handle(bot: &StarboardBot, event: &MessageCreate) -> StarboardResul
         for emoji in Vec::<SimpleEmoji>::from_stored(a.emojis) {
             let _ = bot
                 .http
-                .create_reaction(event.channel_id, event.id, &emoji.reactable())
+                .create_reaction(channel_id, message_id, &emoji.reactable())
                 .await;
         }
     }
@@ -82,7 +95,12 @@ enum Status {
     InvalidRemove(Vec<String>),
 }
 
-async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCreate) -> Status {
+async fn get_status(
+    bot: &StarboardBot,
+    asc: &AutoStarChannel,
+    message_id: Id<MessageMarker>,
+    event: &CachedMessage,
+) -> Status {
     let mut invalid = Vec::new();
 
     if asc.min_chars != 0 && event.content.len() < asc.min_chars as usize {
@@ -101,7 +119,7 @@ async fn get_status(bot: &StarboardBot, asc: &AutoStarChannel, event: &MessageCr
     if asc.require_image && !has_image(&event.embeds, &event.attachments) {
         tokio::time::sleep(Duration::from_secs(3)).await;
 
-        let updated_msg = bot.cache.messages.get(&event.id);
+        let updated_msg = bot.cache.messages.get(&message_id);
         let mut still_invalid = true;
 
         if let Some(msg) = updated_msg {
