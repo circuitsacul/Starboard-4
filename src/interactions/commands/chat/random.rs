@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
+use twilight_model::{
+    application::interaction::application_command::InteractionChannel, user::User,
+};
 
 use crate::{
     client::bot::StarboardBot,
@@ -15,7 +18,14 @@ use crate::{
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
-fn get_post_query(starboard_id: i32) -> sqlx::QueryBuilder<'static, sqlx::Postgres> {
+fn get_post_query(
+    starboard_id: i32,
+    allow_nsfw: bool,
+    channel: Option<i64>,
+    author: Option<i64>,
+    min_points: Option<i16>,
+    max_points: Option<i16>,
+) -> sqlx::QueryBuilder<'static, sqlx::Postgres> {
     let init_query = r#"
     SELECT * FROM starboard_messages
     WHERE EXISTS (
@@ -26,11 +36,30 @@ fn get_post_query(starboard_id: i32) -> sqlx::QueryBuilder<'static, sqlx::Postgr
     let mut builder = sqlx::QueryBuilder::<sqlx::Postgres>::new(init_query);
 
     // subquery
-    builder.push(" AND is_nsfw=false");
+    if !allow_nsfw {
+        builder.push(" AND is_nsfw=false");
+    }
+
+    if let Some(channel) = channel {
+        builder.push(" AND channel_id=").push_bind(channel);
+    }
+    if let Some(author) = author {
+        builder.push(" AND author_id=").push_bind(author);
+    }
 
     // outer query
-    builder.push(") AND starboard_id=");
-    builder.push_bind(starboard_id);
+    builder.push(") AND starboard_id=").push_bind(starboard_id);
+
+    if let Some(min_points) = min_points {
+        builder
+            .push(" AND last_known_point_count >= ")
+            .push_bind(min_points);
+    }
+    if let Some(max_points) = max_points {
+        builder
+            .push(" AND last_known_point_count <= ")
+            .push_bind(max_points);
+    }
 
     builder
 }
@@ -103,13 +132,28 @@ pub struct RandomPost {
     /// The starboard to get a random post from.
     #[command(autocomplete = true)]
     starboard: String,
+
+    /// Only show messages with at least this many points.
+    #[command(rename = "min-points", max_value = 32767, min_value = -32767)]
+    min_points: Option<i64>,
+    /// Only show messages with at most this many points.
+    #[command(rename = "max-points", max_value = 32767, min_value = -32767)]
+    max_points: Option<i64>,
+    /// Only show messages that were sent in this channel.
+    channel: Option<InteractionChannel>,
+    /// Only show messages sent by this user.
+    author: Option<User>,
+    /// Whether to allow messages from NSFW starboards.
+    #[command(rename = "allow-nsfw")]
+    allow_nsfw: Option<bool>,
 }
 
 impl RandomPost {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx).get_i64();
+        let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
-        let Some(sb) = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id).await? else {
+        let Some(sb) = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id_i64).await? else {
             ctx.respond_str(&format!("Starboard '{}' does not exist.", self.starboard), true).await?;
             return Ok(());
         };
@@ -122,7 +166,31 @@ impl RandomPost {
             return Ok(());
         }
 
-        let mut builder = get_post_query(sb.id);
+        if self.allow_nsfw == Some(true) {
+            let nsfw = ctx
+                .bot
+                .cache
+                .fog_channel_nsfw(&ctx.bot, guild_id, ctx.interaction.channel_id.unwrap())
+                .await?
+                .unwrap();
+            if !nsfw {
+                ctx.respond_str(
+                    "You can't allow NSFW messages here, since this channel isn't NSFW.",
+                    true,
+                )
+                .await?;
+                return Ok(());
+            }
+        }
+
+        let mut builder = get_post_query(
+            sb.id,
+            self.allow_nsfw.unwrap_or(false),
+            self.channel.map(|ch| ch.id.get_i64()),
+            self.author.map(|user| user.id.get_i64()),
+            self.min_points.map(|v| v as i16),
+            self.max_points.map(|v| v as i16),
+        );
         builder.push(" ORDER BY random()");
         let msg: Option<StarboardMessage> = builder
             .build_query_as()
