@@ -25,6 +25,8 @@ pub enum PermRoles {
     Create(create::CreatePermRole),
     #[command(name = "delete")]
     Delete(delete::DeletePermRole),
+    #[command(name = "clear-deleted")]
+    ClearDeleted(delete::ClearDeleted),
     #[command(name = "edit")]
     Edit(edit::EditPermRole),
     #[command(name = "edit-starboard")]
@@ -37,6 +39,7 @@ impl PermRoles {
             Self::View(cmd) => cmd.callback(ctx).await,
             Self::Create(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
+            Self::ClearDeleted(cmd) => cmd.callback(ctx).await,
             Self::Edit(cmd) => cmd.callback(ctx).await,
             Self::EditStarboard(cmd) => cmd.callback(ctx).await,
         }

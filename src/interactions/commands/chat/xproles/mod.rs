@@ -21,6 +21,8 @@ pub enum XPRoles {
     SetXP(setxp::SetXP),
     #[command(name = "delete")]
     Delete(delete::Delete),
+    #[command(name = "clear-deleted")]
+    ClearDeleted(delete::ClearDeleted),
     #[command(name = "view")]
     View(view::View),
 }
@@ -30,6 +32,7 @@ impl XPRoles {
         match self {
             Self::SetXP(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
+            Self::ClearDeleted(cmd) => cmd.callback(ctx).await,
             Self::View(cmd) => cmd.callback(ctx).await,
         }
     }

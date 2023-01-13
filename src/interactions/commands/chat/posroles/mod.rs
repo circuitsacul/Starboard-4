@@ -22,6 +22,8 @@ pub enum PosRoles {
     SetMaxMembers(set_max_members::SetMaxMembers),
     #[command(name = "delete")]
     Delete(delete::Delete),
+    #[command(name = "clear-deleted")]
+    ClearDeleted(delete::ClearDeleted),
     #[command(name = "view")]
     View(view::View),
     #[command(name = "refresh")]
@@ -33,6 +35,7 @@ impl PosRoles {
         match self {
             Self::SetMaxMembers(cmd) => cmd.callback(ctx).await,
             Self::Delete(cmd) => cmd.callback(ctx).await,
+            Self::ClearDeleted(cmd) => cmd.callback(ctx).await,
             Self::View(cmd) => cmd.callback(ctx).await,
             Self::Refresh(cmd) => cmd.callback(ctx).await,
         }
