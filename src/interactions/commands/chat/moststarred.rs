@@ -180,6 +180,7 @@ async fn scrolling_paginator(
             &["moststarred_scroller::next"],
             message_id.unwrap(),
             user_id,
+            60 * 5,
         )
         .await;
 

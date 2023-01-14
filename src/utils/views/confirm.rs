@@ -55,8 +55,14 @@ pub async fn wait_for_result(
     message_id: Id<MessageMarker>,
     user_id: Id<UserMarker>,
 ) -> Option<(ComponentCtx, bool)> {
-    let btn_ctx =
-        wait_for_button(bot, &["confirm::yes", "confirm::no"], message_id, user_id).await?;
+    let btn_ctx = wait_for_button(
+        bot,
+        &["confirm::yes", "confirm::no"],
+        message_id,
+        user_id,
+        30,
+    )
+    .await?;
 
     let conf = match &*btn_ctx.data.custom_id {
         "confirm::yes" => true,

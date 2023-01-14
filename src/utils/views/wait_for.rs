@@ -15,6 +15,7 @@ pub async fn wait_for_button(
     button_ids: &'static [&'static str],
     message_id: Id<MessageMarker>,
     user_id: Id<UserMarker>,
+    timeout: u64,
 ) -> Option<ComponentCtx> {
     let check = move |int: &Interaction| {
         let data = match &int.data {
@@ -43,7 +44,7 @@ pub async fn wait_for_button(
     };
 
     let event = tokio::time::timeout(
-        Duration::from_secs(30),
+        Duration::from_secs(timeout),
         bot.standby.wait_for_component(message_id, check),
     )
     .await
