@@ -25,6 +25,7 @@ pub async fn handle_command(ctx: CommandCtx) -> StarboardResult<()> {
         "leaderboard" => chat::leaderboard::Leaderboard,
         "stats" => chat::stats::Stats,
         "random" => chat::random::RandomPost,
+        "moststarred" => chat::moststarred::Moststarred,
         "autostar" => chat::autostar::AutoStar,
         "starboards" => chat::starboard::Starboard,
         "overrides" => chat::overrides::Overrides,

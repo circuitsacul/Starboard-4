@@ -18,7 +18,7 @@ use crate::{
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
-fn get_post_query(
+pub fn get_post_query(
     starboard_id: i32,
     allow_nsfw: bool,
     channel: Option<i64>,
@@ -64,7 +64,7 @@ fn get_post_query(
     builder
 }
 
-async fn get_config(
+pub async fn get_config(
     bot: &StarboardBot,
     sb: Starboard,
     channel_id: i64,
@@ -74,12 +74,12 @@ async fn get_config(
     Ok(StarboardConfig::new(sb, overrides)?)
 }
 
-async fn get_embedder<'config, 'bot>(
+pub async fn get_embedder<'config, 'bot>(
     bot: &'bot StarboardBot,
     config: &'config StarboardConfig,
     orig_sql_msg: Message,
     msg: StarboardMessage,
-) -> StarboardResult<Embedder<'config, 'bot>> {
+) -> StarboardResult<Option<Embedder<'config, 'bot>>> {
     let orig_msg = bot
         .cache
         .fog_message(
@@ -87,8 +87,10 @@ async fn get_embedder<'config, 'bot>(
             orig_sql_msg.channel_id.into_id(),
             orig_sql_msg.message_id.into_id(),
         )
-        .await?
-        .unwrap();
+        .await?;
+    let Some(orig_msg) = orig_msg else {
+        return Ok(None);
+    };
     let orig_author = bot
         .cache
         .fog_user(bot, orig_sql_msg.author_id.into_id())
@@ -119,7 +121,7 @@ async fn get_embedder<'config, 'bot>(
         orig_sql_message: Arc::new(orig_sql_msg),
     };
 
-    Ok(embedder)
+    Ok(Some(embedder))
 }
 
 #[derive(CommandModel, CreateCommand)]
@@ -203,7 +205,9 @@ impl RandomPost {
 
         let orig_msg = Message::get(&ctx.bot.pool, msg.message_id).await?.unwrap();
         let config = get_config(&ctx.bot, sb, orig_msg.channel_id).await?;
-        let embedder = get_embedder(&ctx.bot, &config, orig_msg, msg).await?;
+        let embedder = get_embedder(&ctx.bot, &config, orig_msg, msg)
+            .await?
+            .unwrap();
 
         let built = embedder.build(false, false);
         let built = match built {

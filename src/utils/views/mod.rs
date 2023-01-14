@@ -1,3 +1,3 @@
 pub mod confirm;
 pub mod paginator;
-mod wait_for;
+pub mod wait_for;

@@ -8,7 +8,7 @@ use crate::database::{
     StarboardSettings,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Starboard {
     pub id: i32,
     pub name: String,
