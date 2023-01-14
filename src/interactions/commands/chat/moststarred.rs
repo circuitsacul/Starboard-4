@@ -89,7 +89,7 @@ impl Moststarred {
             self.min_points.map(|v| v as i16),
             self.max_points.map(|v| v as i16),
         );
-        query.push(" ORDER BY last_known_point_count DESC LIMIT 100");
+        query.push(" ORDER BY last_known_point_count DESC");
 
         scrolling_paginator(ctx, query, sb).await?;
 
