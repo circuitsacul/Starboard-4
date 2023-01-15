@@ -41,25 +41,6 @@ impl Disable {
             guild_id
         };
 
-        // if self.enabled {
-        //     let is_member = ctx.bot.cache.guilds.with(&guild_id.into_id(), |_, guild| {
-        //         let Some(guild) = guild else { return false; };
-
-        //         guild.members.contains_key(&user_id.into_id())
-        //     });
-
-        //     if !is_member {
-        //         ctx.respond_str(
-        //             "You cannot enable autoredeem for a server you are not in.",
-        //             true,
-        //         )
-        //         .await?;
-        //         return Ok(());
-        //     }
-
-        //     map_dup_none!(Member::create(&ctx.bot.pool, user_id, guild_id))?;
-        // }
-
         Member::set_autoredeem_enabled(&ctx.bot.pool, user_id, guild_id, false).await?;
 
         ctx.respond_str("Autoredeem disabled.", true).await?;
