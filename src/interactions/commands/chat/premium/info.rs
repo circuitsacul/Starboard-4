@@ -66,7 +66,7 @@ impl Info {
                 "\nAutoredeem will automatically take credits from your account when the server ",
                 "runs out of premium. This will only occur if Starboard is still in that server ",
                 "and you are still in that server.\n\n Disable it at any time by using ",
-                "`/autoredeem disable`."
+                "`/premium autoredeem disable`."
             ));
 
             emb = emb.field(EmbedFieldBuilder::new("Autoredeem", value));

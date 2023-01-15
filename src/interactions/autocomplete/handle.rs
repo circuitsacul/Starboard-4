@@ -62,7 +62,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
         "moststarred starboard" => starboard_name_autocomplete(&ctx).await?,
         "utils force starboard" => starboard_name_autocomplete(&ctx).await?,
         "utils unforce starboard" => starboard_name_autocomplete(&ctx).await?,
-        "premium autoredeem server" => autoredeem_autocomplete(&ctx, focused).await?,
+        "premium autoredeem disable server" => autoredeem_autocomplete(&ctx, focused).await?,
         // autostar channels
         "autostar delete name" => autostar_name_autocomplete(&ctx).await?,
         "autostar view name" => autostar_name_autocomplete(&ctx).await?,
