@@ -1,13 +1,13 @@
 mod info;
 
-use twilight_interactions::command::{CreateCommand, CommandModel};
+use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::{interactions::context::CommandCtx, errors::StarboardResult};
+use crate::{errors::StarboardResult, interactions::context::CommandCtx};
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "premium",
-    desc = "Premium-releated commands. See /premium-locks for locks.",
+    desc = "Premium-releated commands. See /premium-locks for locks."
 )]
 pub enum Premium {
     #[command(name = "info")]
