@@ -257,6 +257,26 @@
     },
     "query": "SELECT channel_id FROM autostar_channels"
   },
+  "18672a6e3dd3c7d703acbbd3ded2d36793f5f7272eedd8b47d468c4ec0959621": {
+    "describe": {
+      "columns": [
+        {
+          "name": "guild_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT guild_id FROM members WHERE user_id=$1 AND autoredeem_enabled=true"
+  },
   "1e3823ed8de2274b2c2a479c0a03934943a9559bfbd646bf44b43b0d2a02fb6c": {
     "describe": {
       "columns": [

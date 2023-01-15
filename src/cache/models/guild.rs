@@ -8,6 +8,7 @@ use twilight_model::id::{
 use super::{channel::CachedChannel, member::CachedMember};
 
 pub struct CachedGuild {
+    pub name: String,
     /// all custom emojis mapped to whether they are animated
     pub emojis: HashMap<Id<EmojiMarker>, bool>,
     /// all textable channels except for threads

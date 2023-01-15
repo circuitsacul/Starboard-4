@@ -90,6 +90,20 @@ impl Member {
         Ok(ret)
     }
 
+    pub async fn list_autoredeem_by_user(
+        pool: &sqlx::PgPool,
+        user_id: i64,
+    ) -> sqlx::Result<Vec<i64>> {
+        let rows = sqlx::query!(
+            "SELECT guild_id FROM members WHERE user_id=$1 AND autoredeem_enabled=true",
+            user_id
+        )
+        .fetch_all(pool)
+        .await?;
+
+        Ok(rows.into_iter().map(|r| r.guild_id).collect())
+    }
+
     pub async fn get(
         pool: &sqlx::PgPool,
         guild_id: i64,
