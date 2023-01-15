@@ -7,8 +7,8 @@ use twilight_util::builder::InteractionResponseDataBuilder;
 use crate::{errors::StarboardResult, interactions::context::CommandCtx};
 
 use super::{
-    autostar_name::autostar_name_autocomplete, override_name::override_name_autocomplete,
-    starboard_name::starboard_name_autocomplete,
+    autoredeem::autoredeem_autocomplete, autostar_name::autostar_name_autocomplete,
+    override_name::override_name_autocomplete, starboard_name::starboard_name_autocomplete,
 };
 
 pub fn get_sub_options(options: &Vec<CommandDataOption>) -> Option<&Vec<CommandDataOption>> {
@@ -23,7 +23,7 @@ pub fn get_sub_options(options: &Vec<CommandDataOption>) -> Option<&Vec<CommandD
     }
 }
 
-pub fn qualified_name(ctx: &CommandCtx) -> String {
+fn parse(ctx: &CommandCtx) -> (String, &str) {
     let mut name = ctx.data.name.clone();
     let options;
 
@@ -44,10 +44,10 @@ pub fn qualified_name(ctx: &CommandCtx) -> String {
     }
 
     for option in options {
-        if matches!(option.value, CommandOptionValue::Focused(_, _)) {
+        if let CommandOptionValue::Focused(val, _) = &option.value {
             name.push(' ');
             name.push_str(&option.name);
-            return name;
+            return (name, val);
         }
     }
 
@@ -55,12 +55,14 @@ pub fn qualified_name(ctx: &CommandCtx) -> String {
 }
 
 pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
-    let options = match qualified_name(&ctx).as_str() {
+    let (qual_name, focused) = parse(&ctx);
+    let options = match qual_name.as_str() {
         // misc
         "random starboard" => starboard_name_autocomplete(&ctx).await?,
         "moststarred starboard" => starboard_name_autocomplete(&ctx).await?,
         "utils force starboard" => starboard_name_autocomplete(&ctx).await?,
         "utils unforce starboard" => starboard_name_autocomplete(&ctx).await?,
+        "premium autoredeem server" => autoredeem_autocomplete(&ctx, focused).await?,
         // autostar channels
         "autostar delete name" => autostar_name_autocomplete(&ctx).await?,
         "autostar view name" => autostar_name_autocomplete(&ctx).await?,

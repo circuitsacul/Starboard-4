@@ -39,6 +39,24 @@ impl Member {
         .await
     }
 
+    pub async fn set_autoredeem_enabled(
+        pool: &sqlx::PgPool,
+        user_id: i64,
+        guild_id: i64,
+        autoredeem_enabled: bool,
+    ) -> sqlx::Result<()> {
+        sqlx::query!(
+            "UPDATE members SET autoredeem_enabled=$1 WHERE user_id=$2 AND guild_id=$3",
+            autoredeem_enabled,
+            user_id,
+            guild_id,
+        )
+        .fetch_all(pool)
+        .await?;
+
+        Ok(())
+    }
+
     pub async fn list_by_xp(
         pool: &sqlx::PgPool,
         guild_id: i64,

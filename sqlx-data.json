@@ -3769,6 +3769,20 @@
     },
     "query": "DELETE FROM xproles WHERE role_id=$1 RETURNING *"
   },
+  "ca6765443683c4135bf4fa61d4934e5a235e582766b7bb9b0c48cf89ebf485c8": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Bool",
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE members SET autoredeem_enabled=$1 WHERE user_id=$2 AND guild_id=$3"
+  },
   "cb9b3ce9131ac41057770317c912a7c71f79dfc2818f9d0f547acb9939516027": {
     "describe": {
       "columns": [

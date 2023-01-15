@@ -50,7 +50,7 @@ impl Info {
                 break 'out;
             }
 
-            let mut value = "AutoRedeem is enabled for the following servers:\n".to_string();
+            let mut value = "Autoredeem is enabled for the following servers:\n".to_string();
             for guild_id in ar {
                 ctx.bot.cache.guilds.with(&guild_id.into_id(), |_, guild| {
                     if let Some(guild) = &guild {
@@ -63,13 +63,13 @@ impl Info {
             }
 
             value.push_str(concat!(
-                "\n\nAutoRedeem will automatically take credits from your account when the server ",
+                "\nAutoredeem will automatically take credits from your account when the server ",
                 "runs out of premium. This will only occur if Starboard is still in that server ",
                 "and you are still in that server.\n\n Disable it at any time by using ",
                 "`/autoredeem disable`."
             ));
 
-            emb = emb.field(EmbedFieldBuilder::new("AutoRedeem", value));
+            emb = emb.field(EmbedFieldBuilder::new("Autoredeem", value));
         }
 
         ctx.respond(
