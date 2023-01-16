@@ -45,11 +45,16 @@ impl Embedder<'_, '_> {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
         };
-        let (attachments, errors) = built.upload_attachments.as_attachments(bot).await;
 
-        for e in errors {
-            bot.handle_error(&e).await;
-        }
+        let attachments = if is_prem {
+            let (attachments, errors) = built.upload_attachments.as_attachments(bot).await;
+            for e in errors {
+                bot.handle_error(&e).await;
+            }
+            Some(attachments)
+        } else {
+            None
+        };
 
         let forum_post_name = if bot.cache.is_channel_forum(guild_id, sb_channel_id) {
             let name = &built.embeds[0].author.as_ref().unwrap().name;
@@ -81,8 +86,11 @@ impl Embedder<'_, '_> {
                         .http
                         .execute_webhook(wh.id, wh.token.as_ref().unwrap())
                         .content(&built.top_content)?
-                        .embeds(&built.embeds)?
-                        .attachments(&attachments)?;
+                        .embeds(&built.embeds)?;
+
+                    if let Some(attachments) = &attachments {
+                        ret = ret.attachments(attachments)?;
+                    }
 
                     if parent != sb_channel_id {
                         ret = ret.thread_id(sb_channel_id);
@@ -111,28 +119,30 @@ impl Embedder<'_, '_> {
         }
 
         if let Some(name) = forum_post_name {
-            let ret = bot
+            let mut ret = bot
                 .http
                 .create_forum_thread(sb_channel_id, &name)
                 .message()
                 .content(&built.top_content)?
-                .embeds(&built.embeds)?
-                .attachments(&attachments)?
-                .await?
-                .model()
-                .await?;
+                .embeds(&built.embeds)?;
 
-            Ok(ret.message)
+            if let Some(attachments) = &attachments {
+                ret = ret.attachments(attachments)?;
+            };
+
+            Ok(ret.await?.model().await?.message)
         } else {
-            Ok(bot
+            let mut ret = bot
                 .http
                 .create_message(self.config.starboard.channel_id.into_id())
                 .content(&built.top_content)?
-                .embeds(&built.embeds)?
-                .attachments(&attachments)?
-                .await?
-                .model()
-                .await?)
+                .embeds(&built.embeds)?;
+
+            if let Some(attachments) = &attachments {
+                ret = ret.attachments(attachments)?;
+            }
+
+            Ok(ret.await?.model().await?)
         }
     }
 
