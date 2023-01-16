@@ -3,6 +3,7 @@ use twilight_model::application::interaction::application_command::InteractionCh
 
 use crate::{
     constants,
+    core::premium::is_premium::is_guild_premium,
     database::{validation, AutoStarChannel, Guild},
     errors::StarboardResult,
     get_guild_id,
@@ -45,11 +46,17 @@ impl CreateAutoStarChannel {
         };
 
         let count = AutoStarChannel::count_by_guild(&ctx.bot.pool, guild_id_i64).await?;
-        if count >= constants::MAX_AUTOSTAR {
+        let limit = if is_guild_premium(&ctx.bot, guild_id).await? {
+            constants::MAX_PREM_AUTOSTAR
+        } else {
+            constants::MAX_AUTOSTAR
+        };
+        if count >= limit {
             ctx.respond_str(
                 &format!(
-                    "You can only have up to {} autostar channels.",
-                    constants::MAX_AUTOSTAR
+                    "You can only have up to {} autostar channels. The premium limit is {}.",
+                    limit,
+                    constants::MAX_PREM_AUTOSTAR,
                 ),
                 true,
             )

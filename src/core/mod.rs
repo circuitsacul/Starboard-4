@@ -4,6 +4,7 @@ pub mod emoji;
 pub mod has_image;
 pub mod permroles;
 pub mod posroles;
+pub mod premium;
 pub mod starboard;
 pub mod stats;
 pub mod xproles;

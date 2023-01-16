@@ -39,7 +39,9 @@ pub const MAX_MAX_CHARS: i16 = 5_000;
 pub const MAX_MIN_CHARS: i16 = 5_000;
 
 pub const MAX_ASC_EMOJIS: usize = 3;
+pub const MAX_PREM_ASC_EMOJIS: usize = 10;
 pub const MAX_AUTOSTAR: i64 = 3;
+pub const MAX_PREM_AUTOSTAR: i64 = 10;
 
 // Starboard Validation
 pub const MIN_REQUIRED: i16 = 1;
@@ -57,7 +59,9 @@ pub const MAX_NEWER_THAN: i64 = YEAR_SECONDS * 50;
 pub const MAX_OLDER_THAN: i64 = YEAR_SECONDS * 50;
 
 pub const MAX_VOTE_EMOJIS: usize = 3;
+pub const MAX_PREM_VOTE_EMOJIS: usize = 10;
 pub const MAX_STARBOARDS: i64 = 3;
+pub const MAX_PREM_STARBOARDS: i64 = 10;
 
 // Override Validation
 pub const MAX_CHANNELS_PER_OVERRIDE: usize = 100;

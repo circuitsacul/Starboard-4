@@ -3,6 +3,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     core::{
         emoji::{EmojiCommon, SimpleEmoji},
+        premium::is_premium::is_guild_premium,
         starboard::config::StarboardConfig,
     },
     database::{
@@ -76,6 +77,8 @@ impl EditRequirements {
         };
         let mut settings = ov.get_overrides()?;
 
+        let is_prem = is_guild_premium(&ctx.bot, guild_id).await?;
+
         if let Some(val) = self.required {
             let val = val as i16;
             if let Err(why) =
@@ -120,6 +123,7 @@ impl EditRequirements {
                 .downvote_emojis
                 .as_ref()
                 .unwrap_or(&resolved.downvote_emojis),
+            is_prem,
         ) {
             ctx.respond_str(&why, true).await?;
             return Ok(());

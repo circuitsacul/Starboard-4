@@ -5,7 +5,10 @@ use twilight_model::id::{marker::MessageMarker, Id};
 use crate::{
     cache::models::{message::CachedMessage, user::CachedUser},
     client::bot::StarboardBot,
-    core::starboard::{config::StarboardConfig, webhooks::get_valid_webhook},
+    core::{
+        premium::is_premium::is_guild_premium,
+        starboard::{config::StarboardConfig, webhooks::get_valid_webhook},
+    },
     database::{Message as DbMessage, Starboard},
     errors::StarboardResult,
     utils::{get_status::get_status, id_as_i64::GetI64, into_id::IntoId},
@@ -33,7 +36,12 @@ impl Embedder<'_, '_> {
         &self,
         bot: &StarboardBot,
     ) -> StarboardResult<twilight_model::channel::Message> {
-        let built = match self.build(false, self.config.resolved.use_webhook) {
+        let guild_id = self.config.starboard.guild_id.into_id();
+        let sb_channel_id = self.config.starboard.channel_id.into_id();
+
+        let is_prem = is_guild_premium(bot, guild_id).await?;
+
+        let built = match self.build(false, self.config.resolved.use_webhook && !is_prem) {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
         };
@@ -42,9 +50,6 @@ impl Embedder<'_, '_> {
         for e in errors {
             bot.handle_error(&e).await;
         }
-
-        let guild_id = self.config.starboard.guild_id.into_id();
-        let sb_channel_id = self.config.starboard.channel_id.into_id();
 
         let forum_post_name = if bot.cache.is_channel_forum(guild_id, sb_channel_id) {
             let name = &built.embeds[0].author.as_ref().unwrap().name;
@@ -169,7 +174,9 @@ impl Embedder<'_, '_> {
             (None, false)
         };
 
-        match self.build(force_partial, wh.is_some()) {
+        let is_prem = is_guild_premium(bot, guild_id).await?;
+
+        match self.build(force_partial, wh.is_some() && !is_prem) {
             BuiltStarboardEmbed::Full(built) => {
                 if let Some(wh) = wh {
                     let mut ud = bot

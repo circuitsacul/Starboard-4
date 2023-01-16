@@ -10,7 +10,7 @@ use crate::{
     utils::id_as_i64::GetI64,
 };
 
-use super::xproles::refresh_xpr;
+use super::{premium::is_premium::is_guild_premium, xproles::refresh_xpr};
 
 #[derive(Default)]
 pub struct MemberStats {
@@ -144,7 +144,9 @@ pub async fn refresh_xp(
 
     Member::set_xp(&bot.pool, user_id.get_i64(), guild_id.get_i64(), stats.xp).await?;
 
-    refresh_xpr(bot, guild_id, user_id).await?;
+    if is_guild_premium(bot, guild_id).await? {
+        refresh_xpr(bot, guild_id, user_id).await?;
+    }
 
     Ok(())
 }
