@@ -1115,6 +1115,32 @@
     },
     "query": "INSERT INTO users\n            (user_id, is_bot)\n            VALUES ($1, $2)\n            RETURNING *"
   },
+  "2dc58b352d1b425b1b3c94e71b0b4f3dfd052c19dddd79f767a82fad9c78dc7f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "guild_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "premium_end",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM guilds WHERE guild_id=$1"
+  },
   "374879d017c0a2ea236967ecdf63041b0ae471ee8d8beb4ff8c1824fdbd09116": {
     "describe": {
       "columns": [

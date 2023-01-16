@@ -1,4 +1,4 @@
-use std::fmt::Write;
+use std::{borrow::Cow, fmt::Write};
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::channel::message::MessageFlags;
@@ -6,7 +6,7 @@ use twilight_util::builder::embed::EmbedFieldBuilder;
 
 use crate::{
     concat_format, constants,
-    database::{Member, User},
+    database::{Guild, Member, User},
     errors::StarboardResult,
     interactions::context::CommandCtx,
     utils::{embed, id_as_i64::GetI64, into_id::IntoId},
@@ -71,6 +71,19 @@ impl Info {
 
             emb = emb.field(EmbedFieldBuilder::new("Autoredeem", value));
         }
+
+        if let Some(guild_id) = ctx.interaction.guild_id {
+            if let Some(guild) = Guild::get(&ctx.bot.pool, guild_id.get_i64()).await? {
+                let value = match guild.premium_end {
+                    None => Cow::Borrowed("This server does not have premium."),
+                    Some(end) => Cow::Owned(format!(
+                        "This server has premium until <t:{}:F>.",
+                        end.timestamp()
+                    )),
+                };
+                emb = emb.field(EmbedFieldBuilder::new("Server Premium", value));
+            };
+        };
 
         ctx.respond(
             ctx.build_resp()
