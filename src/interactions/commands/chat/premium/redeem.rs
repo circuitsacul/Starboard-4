@@ -3,6 +3,7 @@ use std::borrow::Cow;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
+    constants,
     core::premium::redeem::{redeem_premium, RedeemPremiumResult},
     database::Guild,
     errors::StarboardResult,
@@ -47,10 +48,12 @@ impl Redeem {
             &mut ctx,
             &format!(
                 concat!(
-                    "{}. Doing this will will add {1} months (each \"month\" is 31 days), and ",
-                    "cost you {1} credits. Do you wish to continue?"
+                    "{} Doing this will will add {} month(s) of premium (each \"month\" is 31 ",
+                    "days), and cost you {} credits. Do you wish to continue?"
                 ),
-                end_pretty, self.months
+                end_pretty,
+                self.months,
+                self.months * constants::CREDITS_PER_MONTH as i64
             ),
             false,
         )
