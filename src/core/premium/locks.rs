@@ -3,6 +3,7 @@ use crate::{
     constants,
     database::{AutoStarChannel, Starboard},
     errors::StarboardResult,
+    utils::into_id::IntoId,
 };
 
 pub async fn refresh_premium_locks(
@@ -17,12 +18,20 @@ pub async fn refresh_premium_locks(
         )
         .fetch_all(&bot.pool)
         .await?;
-        sqlx::query!(
-            "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1",
+
+        let channel_ids = sqlx::query!(
+            "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1
+            RETURNING channel_id",
             guild_id
         )
         .fetch_all(&bot.pool)
         .await?;
+        for row in channel_ids {
+            bot.cache
+                .autostar_channel_ids
+                .insert(row.channel_id.into_id());
+        }
+
         return Ok(());
     }
 

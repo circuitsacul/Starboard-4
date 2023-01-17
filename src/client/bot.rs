@@ -75,12 +75,14 @@ impl StarboardBot {
             .expect("failed to run migrations");
 
         // load autostar channels
-        let asc: Vec<_> = sqlx::query!("SELECT channel_id FROM autostar_channels")
-            .fetch_all(&pool)
-            .await?
-            .into_iter()
-            .map(|rec| Id::<ChannelMarker>::new(rec.channel_id as u64))
-            .collect();
+        let asc: Vec<_> = sqlx::query!(
+            "SELECT DISTINCT channel_id FROM autostar_channels WHERE premium_locked=false"
+        )
+        .fetch_all(&pool)
+        .await?
+        .into_iter()
+        .map(|rec| Id::<ChannelMarker>::new(rec.channel_id as u64))
+        .collect();
 
         let mut map = dashmap::DashSet::new();
         map.extend(asc);

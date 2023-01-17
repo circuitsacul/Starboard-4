@@ -180,6 +180,24 @@
     },
     "query": "DELETE FROM permroles WHERE role_id=$1 RETURNING *"
   },
+  "07968e9d46bb8092416c850fa3b0af62f9a28d603d7d3cc5877690e2c9c3ef4c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "channel_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT DISTINCT channel_id FROM autostar_channels WHERE premium_locked=false"
+  },
   "08d0ded05e0b03c89892109f492fee7fa6e7a47afd18bf4155524593ce92aaca": {
     "describe": {
       "columns": [
@@ -250,24 +268,6 @@
       }
     },
     "query": "SELECT * FROM overrides WHERE guild_id=$1 AND name=$2"
-  },
-  "16edc7667e56b3d3aad9ff4d1bb32de3bd233361e9577eb449c58e3bbfa01ca0": {
-    "describe": {
-      "columns": [
-        {
-          "name": "channel_id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        }
-      ],
-      "nullable": [
-        false
-      ],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "SELECT channel_id FROM autostar_channels"
   },
   "18672a6e3dd3c7d703acbbd3ded2d36793f5f7272eedd8b47d468c4ec0959621": {
     "describe": {
@@ -1708,18 +1708,6 @@
     },
     "query": "INSERT INTO permroles\n            (role_id, guild_id)\n            VALUES ($1, $2)\n            RETURNING *"
   },
-  "5d7c731fcd851a8742dea3d46ff5b9ca58b3a6caab9f5a466b9f384bd118beec": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int8"
-        ]
-      }
-    },
-    "query": "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1"
-  },
   "5d841328e429c98bdd5dbff9f22ad7a2fcaec557086e64afb120e13888cfbc1f": {
     "describe": {
       "columns": [
@@ -2788,6 +2776,26 @@
       }
     },
     "query": "SELECT id FROM starboards WHERE guild_id=$1 LIMIT $2"
+  },
+  "82e54b6ff6299fea34bee9dd2fae37a322847f47509d78aff2cf65a7f56b4c95": {
+    "describe": {
+      "columns": [
+        {
+          "name": "channel_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1\n            RETURNING channel_id"
   },
   "843c355ffb0acbd4e70a883ead71d8d03488e7e3cc22e60cd410996e81be759d": {
     "describe": {
