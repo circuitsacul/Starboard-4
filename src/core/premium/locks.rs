@@ -1,9 +1,5 @@
 use crate::{
-    client::bot::StarboardBot,
-    constants,
-    database::{AutoStarChannel, Starboard},
-    errors::StarboardResult,
-    utils::into_id::IntoId,
+    client::bot::StarboardBot, constants, errors::StarboardResult, utils::into_id::IntoId,
 };
 
 pub async fn refresh_premium_locks(
@@ -11,32 +7,40 @@ pub async fn refresh_premium_locks(
     guild_id: i64,
     premium: bool,
 ) -> StarboardResult<()> {
+    // unlock everything first
+    sqlx::query!(
+        "UPDATE starboards SET premium_locked=false WHERE guild_id=$1",
+        guild_id
+    )
+    .fetch_all(&bot.pool)
+    .await?;
+    let unlocked_asc_channel_ids = sqlx::query!(
+        "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1
+        RETURNING channel_id",
+        guild_id
+    )
+    .fetch_all(&bot.pool)
+    .await?;
+    for row in unlocked_asc_channel_ids {
+        bot.cache
+            .autostar_channel_ids
+            .insert(row.channel_id.into_id());
+    }
+
+    // if premium, just return
     if premium {
-        sqlx::query!(
-            "UPDATE starboards SET premium_locked=false WHERE guild_id=$1",
-            guild_id
-        )
-        .fetch_all(&bot.pool)
-        .await?;
-
-        let channel_ids = sqlx::query!(
-            "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1
-            RETURNING channel_id",
-            guild_id
-        )
-        .fetch_all(&bot.pool)
-        .await?;
-        for row in channel_ids {
-            bot.cache
-                .autostar_channel_ids
-                .insert(row.channel_id.into_id());
-        }
-
         return Ok(());
     }
 
-    // starboards
-    let count = Starboard::count_by_guild(&bot.pool, guild_id).await?;
+    // lock starboards
+    let count = sqlx::query!(
+        "SELECT count(*) as count FROM starboards WHERE guild_id=$1 AND premium_locked=false",
+        guild_id
+    )
+    .fetch_one(&bot.pool)
+    .await?
+    .count
+    .unwrap();
     let to_lock = count - constants::MAX_STARBOARDS;
     if to_lock > 0 {
         let sb_ids = sqlx::query!(
@@ -54,8 +58,16 @@ pub async fn refresh_premium_locks(
         .await?;
     }
 
-    // autostar channels
-    let count = AutoStarChannel::count_by_guild(&bot.pool, guild_id).await?;
+    // lock autostar channels
+    let count = sqlx::query!(
+        "SELECT count(*) as count FROM autostar_channels WHERE guild_id=$1 AND 
+        premium_locked=false",
+        guild_id
+    )
+    .fetch_one(&bot.pool)
+    .await?
+    .count
+    .unwrap();
     let to_lock = count - constants::MAX_AUTOSTAR;
     if to_lock > 0 {
         let asc_ids = sqlx::query!(

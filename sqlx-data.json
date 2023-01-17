@@ -269,6 +269,26 @@
     },
     "query": "SELECT * FROM overrides WHERE guild_id=$1 AND name=$2"
   },
+  "0f8091a3bbaf9d14d2fec8eb5467d2b350b6175d35596e5576b4afb078f8bc7b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "channel_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1\n        RETURNING channel_id"
+  },
   "18672a6e3dd3c7d703acbbd3ded2d36793f5f7272eedd8b47d468c4ec0959621": {
     "describe": {
       "columns": [
@@ -2189,6 +2209,26 @@
     },
     "query": "SELECT * FROM xproles WHERE guild_id=$1 ORDER BY required DESC"
   },
+  "71da158d194f732eb561670f52249305966b553f38ebf7839b0a5064f02c0ebf": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) as count FROM autostar_channels WHERE guild_id=$1 AND \n        premium_locked=false"
+  },
   "7584c85655f379fc8a95a4b0fe7e3d060711300ba1ec6e28d01bd7536ba4c53b": {
     "describe": {
       "columns": [
@@ -2777,17 +2817,17 @@
     },
     "query": "SELECT id FROM starboards WHERE guild_id=$1 LIMIT $2"
   },
-  "82e54b6ff6299fea34bee9dd2fae37a322847f47509d78aff2cf65a7f56b4c95": {
+  "808413db7d391b1d278bcdf3e12cbd4d9825180b02775ef70c62e0998d629782": {
     "describe": {
       "columns": [
         {
-          "name": "channel_id",
+          "name": "count",
           "ordinal": 0,
           "type_info": "Int8"
         }
       ],
       "nullable": [
-        false
+        null
       ],
       "parameters": {
         "Left": [
@@ -2795,7 +2835,7 @@
         ]
       }
     },
-    "query": "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1\n            RETURNING channel_id"
+    "query": "SELECT count(*) as count FROM starboards WHERE guild_id=$1 AND premium_locked=false"
   },
   "843c355ffb0acbd4e70a883ead71d8d03488e7e3cc22e60cd410996e81be759d": {
     "describe": {
