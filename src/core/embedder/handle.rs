@@ -39,7 +39,7 @@ impl Embedder<'_, '_> {
         let guild_id = self.config.starboard.guild_id.into_id();
         let sb_channel_id = self.config.starboard.channel_id.into_id();
 
-        let is_prem = is_guild_premium(bot, guild_id).await?;
+        let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
 
         let built = match self.build(false, self.config.resolved.use_webhook && !is_prem) {
             BuiltStarboardEmbed::Full(built) => built,
@@ -184,7 +184,7 @@ impl Embedder<'_, '_> {
             (None, false)
         };
 
-        let is_prem = is_guild_premium(bot, guild_id).await?;
+        let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
 
         match self.build(force_partial, wh.is_some() && !is_prem) {
             BuiltStarboardEmbed::Full(built) => {

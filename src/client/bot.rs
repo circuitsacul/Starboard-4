@@ -1,5 +1,9 @@
-use std::fmt::{Debug, Write};
+use std::{
+    fmt::{Debug, Write},
+    sync::Arc,
+};
 
+use futures::Future;
 use snafu::ErrorCompat;
 use sqlx::PgPool;
 use tokio::sync::RwLock;
@@ -138,6 +142,15 @@ impl StarboardBot {
             if let Err(why) = ret.await {
                 eprintln!("{why}");
             }
+        }
+    }
+
+    pub async fn catch_future_errors<T, E: Into<StarboardError>>(
+        bot: Arc<StarboardBot>,
+        future: impl Future<Output = Result<T, E>>,
+    ) {
+        if let Err(err) = future.await {
+            bot.handle_error(&err.into()).await;
         }
     }
 }

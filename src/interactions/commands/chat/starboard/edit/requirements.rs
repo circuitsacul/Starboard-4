@@ -68,7 +68,7 @@ impl EditRequirements {
                 Some(starboard) => starboard,
             };
 
-        let is_prem = is_guild_premium(&ctx.bot, guild_id).await?;
+        let is_prem = is_guild_premium(&ctx.bot, guild_id_i64).await?;
 
         if let Some(val) = self.required {
             let val = val as i16;

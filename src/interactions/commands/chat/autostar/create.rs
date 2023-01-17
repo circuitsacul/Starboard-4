@@ -32,9 +32,8 @@ pub struct CreateAutoStarChannel {
 
 impl CreateAutoStarChannel {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx);
-        let guild_id_i64 = guild_id.get_i64();
-        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id_i64))?;
+        let guild_id = get_guild_id!(ctx).get_i64();
+        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id))?;
         let channel_id = self.channel.id.get_i64();
 
         let name = match validation::name::validate_name(&self.name) {
@@ -45,7 +44,7 @@ impl CreateAutoStarChannel {
             Ok(name) => name,
         };
 
-        let count = AutoStarChannel::count_by_guild(&ctx.bot.pool, guild_id_i64).await?;
+        let count = AutoStarChannel::count_by_guild(&ctx.bot.pool, guild_id).await?;
         let limit = if is_guild_premium(&ctx.bot, guild_id).await? {
             constants::MAX_PREM_AUTOSTAR
         } else {
@@ -68,7 +67,7 @@ impl CreateAutoStarChannel {
             &ctx.bot.pool,
             &name,
             channel_id,
-            guild_id_i64,
+            guild_id,
         ))?;
 
         if ret.is_none() {

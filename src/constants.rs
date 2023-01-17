@@ -8,6 +8,9 @@ pub const BOT_COLOR: u32 = 0xFFE19C;
 
 pub const YEAR_SECONDS: i64 = 31_557_600;
 pub const MONTH_SECONDS: i64 = 2_630_016;
+pub const MONTH_DAYS: u64 = 31;
+
+pub const CREDITS_PER_MONTH: u64 = 3;
 
 // Links
 pub const INVITE_URL: &str = "https://discord.com/api/oauth2/authorize?client_id=700796664276844612&permissions=805661760&scope=bot%20applications.commands";
@@ -20,6 +23,7 @@ pub const REVIEW_URL: &str = "https://top.gg/bot/700796664276844612#reviews";
 
 // Tasks
 pub const UPDATE_PRS_DELAY: Duration = Duration::from_secs(60 * 60);
+pub const CHECK_EXPIRED_PREMIUM: Duration = Duration::from_secs(60 * 60);
 
 // Cache size
 pub const MAX_MESSAGES: u32 = 10_000;

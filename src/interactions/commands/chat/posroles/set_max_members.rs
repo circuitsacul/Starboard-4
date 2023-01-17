@@ -22,8 +22,7 @@ pub struct SetMaxMembers {
 
 impl SetMaxMembers {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx);
-        let guild_id_i64 = guild_id.get_i64();
+        let guild_id = get_guild_id!(ctx).get_i64();
 
         if !is_guild_premium(&ctx.bot, guild_id).await? {
             ctx.respond_str("Only premium servers can use this command.", true)
@@ -37,7 +36,7 @@ impl SetMaxMembers {
             return Ok(());
         }
 
-        let count = PosRole::count(&ctx.bot.pool, guild_id_i64).await?;
+        let count = PosRole::count(&ctx.bot.pool, guild_id).await?;
         if count >= constants::MAX_POSROLES {
             ctx.respond_str(
                 &format!(
@@ -54,7 +53,7 @@ impl SetMaxMembers {
         let posrole = map_dup_none!(PosRole::create(
             &ctx.bot.pool,
             role_id,
-            guild_id_i64,
+            guild_id,
             self.max_members as i32,
         ))?;
 

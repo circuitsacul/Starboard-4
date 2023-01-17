@@ -39,6 +39,18 @@
     },
     "query": "INSERT INTO members (user_id, guild_id) VALUES ($1, $2) RETURNING *"
   },
+  "018749d2c5df13cc9bcefe6a7cad5d957b60cdb4631d72727c1ff2f690cb5494": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4Array"
+        ]
+      }
+    },
+    "query": "UPDATE autostar_channels SET premium_locked=true WHERE id=any($1)"
+  },
   "04b5d7f155912898490d7858fdcb12e19e97f14ed5e8c89c727880fcaecfd376": {
     "describe": {
       "columns": [
@@ -586,6 +598,32 @@
       }
     },
     "query": "SELECT * FROM members WHERE guild_id=$1 AND user_id=$2"
+  },
+  "22d422ce0c5ebeed7f0281b848e9cf0bed37de6a45d1c211367530323bcb1b34": {
+    "describe": {
+      "columns": [
+        {
+          "name": "guild_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "premium_end",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM guilds WHERE guild_id=$1 FOR UPDATE"
   },
   "234c6ea2740620a51ee59fd0dcbe4a54fa4be45c02312f69c7bdfa81e9e43ee3": {
     "describe": {
@@ -1657,6 +1695,18 @@
     },
     "query": "INSERT INTO permroles\n            (role_id, guild_id)\n            VALUES ($1, $2)\n            RETURNING *"
   },
+  "5d7c731fcd851a8742dea3d46ff5b9ca58b3a6caab9f5a466b9f384bd118beec": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1"
+  },
   "5d841328e429c98bdd5dbff9f22ad7a2fcaec557086e64afb120e13888cfbc1f": {
     "describe": {
       "columns": [
@@ -1805,6 +1855,26 @@
     },
     "query": "UPDATE members SET xp=$1 WHERE user_id=$2 AND guild_id=$3 RETURNING *"
   },
+  "624cc73a723098f569d744a61b7ea796a22c550cc4cb65d38d94df268b4d88b0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "guild_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "UPDATE guilds SET premium_end=null WHERE premium_end IS NOT NULL AND premium_end < $1\n        RETURNING guild_id"
+  },
   "62dfbdacb72b9b8d9dba195684068e31c3daddf4e9682041c8a87697c9bebd7d": {
     "describe": {
       "columns": [
@@ -1935,6 +2005,50 @@
       }
     },
     "query": "UPDATE starboards SET webhook_id=$1 WHERE id=$2"
+  },
+  "69f2d397b93fb222e6076507f22afef9e02e567908deaf3e0482dbb173066a58": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_bot",
+          "ordinal": 1,
+          "type_info": "Bool"
+        },
+        {
+          "name": "credits",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "donated_cents",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "patreon_status",
+          "ordinal": 4,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM users WHERE user_id=$1 FOR UPDATE"
   },
   "6b5b308d63aea59fd9add4f55683542950d367bcea2800e55f0e1f059cc575e8": {
     "describe": {
@@ -2641,6 +2755,27 @@
     },
     "query": "UPDATE starboards SET name=$1 WHERE name=$2 AND guild_id=$3\n            RETURNING *"
   },
+  "807200d602df1c43433036aaba5c7116dd1b50fb7ca792f4aa78c243f0f84229": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT id FROM starboards WHERE guild_id=$1 LIMIT $2"
+  },
   "843c355ffb0acbd4e70a883ead71d8d03488e7e3cc22e60cd410996e81be759d": {
     "describe": {
       "columns": [
@@ -2832,6 +2967,26 @@
     },
     "query": "UPDATE overrides SET overrides=$1 WHERE id=$2 RETURNING *"
   },
+  "8e1d277d941255a7c289675b488a87f25a4732d590e93935b41f8465e71b98ce": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT user_id FROM members WHERE autoredeem_enabled=true AND guild_id=$1"
+  },
   "8ebe2f3f7ea74aa02940f579111f68e03c429e711fd5e7dd808eafaf47a8e394": {
     "describe": {
       "columns": [],
@@ -2938,6 +3093,18 @@
       }
     },
     "query": "SELECT * FROM autostar_channels WHERE channel_id = $1"
+  },
+  "97abcbb4aaaf6f0fe7b72030f36ee861e41dfb38c6cd7d0b53159c8fa44f920e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE starboards SET premium_locked=false WHERE guild_id=$1"
   },
   "9d4eb12dd28fd734427d327dcfef36db627cc97700fa3213217ac6f577e75206": {
     "describe": {
@@ -3888,6 +4055,18 @@
     },
     "query": "SELECT COUNT(*) as count FROM permroles WHERE guild_id=$1"
   },
+  "d4f19cc69a92ec5ad0d9d99faa90965a4b60e6203fc76d608db0602a896cb74a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4Array"
+        ]
+      }
+    },
+    "query": "UPDATE starboards SET premium_locked=true WHERE id=any($1)"
+  },
   "db47dd094d91342ad83996e3ebe7cacc85c7f77f1e7ecd0c9d8ba6914fb9ec8a": {
     "describe": {
       "columns": [
@@ -3959,6 +4138,19 @@
       }
     },
     "query": "UPDATE posroles SET max_members=$1 WHERE role_id=$2 RETURNING *"
+  },
+  "dcb3fb61d0ac4850f9f1447e3ccbbab1825e0642c00e56cdad0114b51c04cfb0": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Timestamptz",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE guilds SET premium_end=$1 WHERE guild_id=$2"
   },
   "de87a260c267723bfafe35d9638f4475b4fbb1ef85b95db45fd768a4fe69fce6": {
     "describe": {
@@ -4264,6 +4456,27 @@
       }
     },
     "query": "DELETE FROM starboard_messages WHERE starboard_message_id=$1\n            RETURNING *"
+  },
+  "ea4387441dc21ba831cdeedc41d8b94f5ebc09b7ada5af51fe76adb5a5c89f89": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT id FROM autostar_channels WHERE guild_id=$1 LIMIT $2"
   },
   "f593aa1cbdba23466e32e06ffbd59144e044dfad3f355cdb385b6941d28580ea": {
     "describe": {
