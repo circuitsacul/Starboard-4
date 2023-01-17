@@ -1153,6 +1153,19 @@
     },
     "query": "INSERT INTO users\n            (user_id, is_bot)\n            VALUES ($1, $2)\n            RETURNING *"
   },
+  "2dbccc87a00302144edb336fe6c8d8f74bb00dd1fc1db8b31c63ede846dfc899": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE users SET credits = credits - $1 WHERE user_id=$2"
+  },
   "2dc58b352d1b425b1b3c94e71b0b4f3dfd052c19dddd79f767a82fad9c78dc7f": {
     "describe": {
       "columns": [

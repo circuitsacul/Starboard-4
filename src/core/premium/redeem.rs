@@ -69,7 +69,14 @@ pub async fn redeem_premium(
         new_end,
         guild_id
     )
-    .fetch_one(&mut tx)
+    .fetch_all(&mut tx)
+    .await?;
+    sqlx::query!(
+        "UPDATE users SET credits = credits - $1 WHERE user_id=$2",
+        credits as i32,
+        user_id,
+    )
+    .fetch_all(&mut tx)
     .await?;
 
     // commit the transaction and return
