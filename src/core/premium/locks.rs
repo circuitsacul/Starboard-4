@@ -37,7 +37,6 @@ pub async fn refresh_premium_locks(
         )
         .fetch_all(&bot.pool)
         .await?;
-        dbg!(&sb_ids);
         sqlx::query!(
             "UPDATE starboards SET premium_locked=true WHERE id=any($1)",
             &sb_ids.into_iter().map(|r| r.id).collect::<Vec<_>>()
@@ -57,7 +56,6 @@ pub async fn refresh_premium_locks(
         )
         .fetch_all(&bot.pool)
         .await?;
-        dbg!(&asc_ids);
         sqlx::query!(
             "UPDATE autostar_channels SET premium_locked=true WHERE id=any($1)",
             &asc_ids.into_iter().map(|r| r.id).collect::<Vec<_>>()
