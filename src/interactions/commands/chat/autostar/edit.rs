@@ -39,8 +39,7 @@ impl EditAutoStar {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
 
-        let asc =
-            AutoStarChannel::get_by_name(&ctx.bot.pool, &self.name, guild_id_i64).await?;
+        let asc = AutoStarChannel::get_by_name(&ctx.bot.pool, &self.name, guild_id_i64).await?;
         let mut asc = match asc {
             None => {
                 ctx.respond_str("No autostar channel with that name was found.", true)

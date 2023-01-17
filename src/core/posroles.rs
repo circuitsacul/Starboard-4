@@ -50,7 +50,10 @@ pub async fn loop_update_posroles(bot: Arc<StarboardBot>) {
             if !is_prem {
                 continue;
             }
-            let task = tokio::spawn(update_posroles_for_guild(bot.clone(), guild.guild_id.into_id()));
+            let task = tokio::spawn(update_posroles_for_guild(
+                bot.clone(),
+                guild.guild_id.into_id(),
+            ));
             tasks.push(task);
         }
 

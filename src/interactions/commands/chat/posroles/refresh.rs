@@ -5,7 +5,8 @@ use crate::{
     core::{posroles::update_posroles_for_guild, premium::is_premium::is_guild_premium},
     errors::StarboardResult,
     get_guild_id,
-    interactions::context::CommandCtx, utils::id_as_i64::GetI64,
+    interactions::context::CommandCtx,
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
