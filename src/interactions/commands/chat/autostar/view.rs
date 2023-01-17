@@ -35,7 +35,18 @@ impl ViewAutoStarChannels {
                     .max_chars
                     .map(|v| v.to_string())
                     .unwrap_or_else(|| "none".to_string());
+
+                let note = if asc.premium_locked {
+                    concat!(
+                        "This autostar channel is locked because it exceeds the non-premium ",
+                        "limit.\n\n"
+                    )
+                } else {
+                    ""
+                };
+
                 let asc_settings = concat_format!(
+                    "{}" <- note;
                     "This autostar channel is in <#{}>.\n\n" <- asc.channel_id;
                     "emojis: {}\n" <- emojis;
                     "min-chars: {}\n" <- asc.min_chars;
@@ -67,14 +78,18 @@ impl ViewAutoStarChannels {
 
             let mut desc = String::new();
             for a in asc.into_iter() {
-                writeln!(
+                write!(
                     desc,
                     "'{}' in <#{}>: {}",
                     a.name,
                     a.channel_id,
-                    Vec::<SimpleEmoji>::from_stored(a.emojis).into_readable(&ctx.bot, guild_id)
+                    Vec::<SimpleEmoji>::from_stored(a.emojis).into_readable(&ctx.bot, guild_id),
                 )
                 .unwrap();
+                if a.premium_locked {
+                    write!(desc, " (premium-locked)").unwrap();
+                }
+                writeln!(desc).unwrap();
             }
             let emb = embed::build()
                 .title("Autostar Channels")

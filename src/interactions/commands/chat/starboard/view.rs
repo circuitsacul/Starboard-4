@@ -32,12 +32,22 @@ impl ViewStarboard {
                 let config = StarboardConfig::new(starboard, vec![])?;
                 let pretty = format_settings(&ctx.bot, guild_id, &config);
 
+                let mut desc = String::new();
+                if config.starboard.premium_locked {
+                    desc.push_str(concat!(
+                        "This starboard is locked because it exceeds the non-premium limit.\n\n"
+                    ));
+                }
+                write!(
+                    desc,
+                    "This starboard is in <#{}>.",
+                    config.starboard.channel_id
+                )
+                .unwrap();
+
                 let embed = embed::build()
                     .title(format!("Starboard '{}'", &config.starboard.name))
-                    .description(format!(
-                        "This starboard is in <#{}>.",
-                        config.starboard.channel_id
-                    ))
+                    .description(desc)
                     .field(
                         EmbedFieldBuilder::new("Requirements", pretty.requirements)
                             .inline()
@@ -75,7 +85,11 @@ impl ViewStarboard {
                 let mut final_result = String::new();
 
                 for sb in starboards {
-                    writeln!(final_result, "'{}' in <#{}>", sb.name, sb.channel_id).unwrap();
+                    write!(final_result, "'{}' in <#{}>", sb.name, sb.channel_id).unwrap();
+                    if sb.premium_locked {
+                        write!(final_result, " (premium-locked)").unwrap();
+                    }
+                    writeln!(final_result).unwrap();
                 }
 
                 let embed = embed::build()
