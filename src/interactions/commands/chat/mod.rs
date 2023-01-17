@@ -7,6 +7,7 @@ pub mod permroles;
 pub mod ping;
 pub mod posroles;
 pub mod premium;
+pub mod premium_locks;
 pub mod random;
 pub mod starboard;
 pub mod stats;
