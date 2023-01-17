@@ -50,6 +50,10 @@ impl RefreshMessage<'_> {
 
         let mut errors = Vec::new();
         for c in configs.iter() {
+            if !c.resolved.enabled || c.starboard.premium_locked {
+                continue;
+            }
+
             if let Err(why) = RefreshStarboard::new(self, c).refresh(force).await {
                 errors.push(why);
             }

@@ -19,6 +19,7 @@ impl UpdateCache for GuildCreate {
             .collect();
 
         let guild = CachedGuild {
+            name: self.name.clone(),
             emojis: self.emojis.iter().map(|e| (e.id, e.animated)).collect(),
             channels,
             active_thread_parents: self

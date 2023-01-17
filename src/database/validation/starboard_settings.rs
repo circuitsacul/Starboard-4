@@ -76,7 +76,11 @@ pub fn validate_cooldown(capacity: i16, period: i16) -> Result<(), String> {
     }
 }
 
-pub fn validate_vote_emojis(upvote: &[String], downvote: &[String]) -> Result<(), String> {
+pub fn validate_vote_emojis(
+    upvote: &[String],
+    downvote: &[String],
+    premium: bool,
+) -> Result<(), String> {
     let unique_upvote: HashSet<_> = upvote.iter().collect();
     let unique_downvote: HashSet<_> = downvote.iter().collect();
 
@@ -90,10 +94,20 @@ pub fn validate_vote_emojis(upvote: &[String], downvote: &[String]) -> Result<()
         );
     }
 
-    if unique_upvote.len() + unique_downvote.len() > constants::MAX_VOTE_EMOJIS {
+    let limit = if premium {
+        constants::MAX_PREM_VOTE_EMOJIS
+    } else {
+        constants::MAX_VOTE_EMOJIS
+    };
+
+    if unique_upvote.len() + unique_downvote.len() > limit {
         return Err(format!(
-            "You cannot have more than {} upvote and downvote emojis per starbard.",
-            constants::MAX_VOTE_EMOJIS
+            concat!(
+                "You cannot have more than {} upvote and downvote emojis per starbard. ",
+                "The premium limit is {}.",
+            ),
+            limit,
+            constants::MAX_PREM_VOTE_EMOJIS,
         ));
     }
 

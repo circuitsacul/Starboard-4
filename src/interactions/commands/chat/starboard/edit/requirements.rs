@@ -1,7 +1,10 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    core::emoji::{EmojiCommon, SimpleEmoji},
+    core::{
+        emoji::{EmojiCommon, SimpleEmoji},
+        premium::is_premium::is_guild_premium,
+    },
     database::{
         validation::{self, time_delta::parse_time_delta},
         Starboard,
@@ -65,6 +68,8 @@ impl EditRequirements {
                 Some(starboard) => starboard,
             };
 
+        let is_prem = is_guild_premium(&ctx.bot, guild_id_i64).await?;
+
         if let Some(val) = self.required {
             let val = val as i16;
             if let Err(why) = validation::starboard_settings::validate_required(
@@ -105,6 +110,7 @@ impl EditRequirements {
         if let Err(why) = validation::starboard_settings::validate_vote_emojis(
             &starboard.settings.upvote_emojis,
             &starboard.settings.downvote_emojis,
+            is_prem,
         ) {
             ctx.respond_str(&why, true).await?;
             return Ok(());

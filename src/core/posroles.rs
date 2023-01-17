@@ -13,6 +13,8 @@ use crate::{
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
+use super::premium::is_premium::is_guild_premium;
+
 pub struct GuildPRUpdateResult {
     pub removed_roles: i32,
     pub added_roles: i32,
@@ -28,16 +30,45 @@ pub async fn loop_update_posroles(bot: Arc<StarboardBot>) {
             .fetch_all(&bot.pool)
             .await;
 
-        let Ok(guilds) = guilds else {
-            sentry::capture_message("Updating posroles failed due to query.", sentry::Level::Error);
-            continue;
+        let guilds = match guilds {
+            Ok(guilds) => guilds,
+            Err(err) => {
+                bot.handle_error(&err.into()).await;
+                continue;
+            }
         };
 
+        let mut tasks = Vec::new();
         for guild in guilds {
-            tokio::spawn(update_posroles_for_guild(
+            let is_prem = match is_guild_premium(&bot, guild.guild_id).await {
+                Ok(is_prem) => is_prem,
+                Err(why) => {
+                    bot.handle_error(&why).await;
+                    continue;
+                }
+            };
+            if !is_prem {
+                continue;
+            }
+            let task = tokio::spawn(update_posroles_for_guild(
                 bot.clone(),
                 guild.guild_id.into_id(),
             ));
+            tasks.push(task);
+        }
+
+        for t in tasks {
+            let ret = t.await;
+            let ret = match ret {
+                Ok(ret) => ret,
+                Err(err) => {
+                    bot.handle_error(&err.into()).await;
+                    continue;
+                }
+            };
+            if let Err(err) = ret {
+                bot.handle_error(&err.into()).await;
+            }
         }
     }
 }

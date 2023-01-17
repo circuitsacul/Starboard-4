@@ -5,7 +5,10 @@ use twilight_model::id::{marker::MessageMarker, Id};
 use crate::{
     cache::models::{message::CachedMessage, user::CachedUser},
     client::bot::StarboardBot,
-    core::starboard::{config::StarboardConfig, webhooks::get_valid_webhook},
+    core::{
+        premium::is_premium::is_guild_premium,
+        starboard::{config::StarboardConfig, webhooks::get_valid_webhook},
+    },
     database::{Message as DbMessage, Starboard},
     errors::StarboardResult,
     utils::{get_status::get_status, id_as_i64::GetI64, into_id::IntoId},
@@ -33,18 +36,25 @@ impl Embedder<'_, '_> {
         &self,
         bot: &StarboardBot,
     ) -> StarboardResult<twilight_model::channel::Message> {
-        let built = match self.build(false, self.config.resolved.use_webhook) {
+        let guild_id = self.config.starboard.guild_id.into_id();
+        let sb_channel_id = self.config.starboard.channel_id.into_id();
+
+        let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
+
+        let built = match self.build(false, self.config.resolved.use_webhook && !is_prem) {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
         };
-        let (attachments, errors) = built.upload_attachments.as_attachments(bot).await;
 
-        for e in errors {
-            bot.handle_error(&e).await;
-        }
-
-        let guild_id = self.config.starboard.guild_id.into_id();
-        let sb_channel_id = self.config.starboard.channel_id.into_id();
+        let attachments = if is_prem {
+            let (attachments, errors) = built.upload_attachments.as_attachments(bot).await;
+            for e in errors {
+                bot.handle_error(&e).await;
+            }
+            Some(attachments)
+        } else {
+            None
+        };
 
         let forum_post_name = if bot.cache.is_channel_forum(guild_id, sb_channel_id) {
             let name = &built.embeds[0].author.as_ref().unwrap().name;
@@ -76,8 +86,11 @@ impl Embedder<'_, '_> {
                         .http
                         .execute_webhook(wh.id, wh.token.as_ref().unwrap())
                         .content(&built.top_content)?
-                        .embeds(&built.embeds)?
-                        .attachments(&attachments)?;
+                        .embeds(&built.embeds)?;
+
+                    if let Some(attachments) = &attachments {
+                        ret = ret.attachments(attachments)?;
+                    }
 
                     if parent != sb_channel_id {
                         ret = ret.thread_id(sb_channel_id);
@@ -106,28 +119,30 @@ impl Embedder<'_, '_> {
         }
 
         if let Some(name) = forum_post_name {
-            let ret = bot
+            let mut ret = bot
                 .http
                 .create_forum_thread(sb_channel_id, &name)
                 .message()
                 .content(&built.top_content)?
-                .embeds(&built.embeds)?
-                .attachments(&attachments)?
-                .await?
-                .model()
-                .await?;
+                .embeds(&built.embeds)?;
 
-            Ok(ret.message)
+            if let Some(attachments) = &attachments {
+                ret = ret.attachments(attachments)?;
+            };
+
+            Ok(ret.await?.model().await?.message)
         } else {
-            Ok(bot
+            let mut ret = bot
                 .http
                 .create_message(self.config.starboard.channel_id.into_id())
                 .content(&built.top_content)?
-                .embeds(&built.embeds)?
-                .attachments(&attachments)?
-                .await?
-                .model()
-                .await?)
+                .embeds(&built.embeds)?;
+
+            if let Some(attachments) = &attachments {
+                ret = ret.attachments(attachments)?;
+            }
+
+            Ok(ret.await?.model().await?)
         }
     }
 
@@ -169,7 +184,9 @@ impl Embedder<'_, '_> {
             (None, false)
         };
 
-        match self.build(force_partial, wh.is_some()) {
+        let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
+
+        match self.build(force_partial, wh.is_some() && !is_prem) {
             BuiltStarboardEmbed::Full(built) => {
                 if let Some(wh) = wh {
                     let mut ud = bot

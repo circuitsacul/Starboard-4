@@ -150,11 +150,18 @@ impl AutoStarChannel {
     }
 
     // validation
-    pub fn set_emojis(&mut self, val: Vec<String>) -> Result<(), String> {
-        if val.len() > constants::MAX_ASC_EMOJIS {
+    pub fn set_emojis(&mut self, val: Vec<String>, premium: bool) -> Result<(), String> {
+        let limit = if premium {
+            constants::MAX_PREM_ASC_EMOJIS
+        } else {
+            constants::MAX_ASC_EMOJIS
+        };
+
+        if val.len() > limit {
             return Err(format!(
-                "You can only have up to {} emojis per autostar channel.",
-                constants::MAX_ASC_EMOJIS
+                "You can only have up to {} emojis per autostar channel. The premium limit is {}.",
+                limit,
+                constants::MAX_PREM_ASC_EMOJIS,
             ));
         }
 

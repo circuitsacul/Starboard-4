@@ -4,6 +4,7 @@ use thousands::Separable;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
+    core::premium::is_premium::is_guild_premium,
     database::PosRole,
     errors::StarboardResult,
     get_guild_id,
@@ -18,6 +19,12 @@ pub struct View;
 impl View {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
+
+        if !is_guild_premium(&ctx.bot, guild_id).await? {
+            ctx.respond_str("Only premium servers can use this command.", true)
+                .await?;
+            return Ok(());
+        }
 
         let posroles = PosRole::list_by_guild(&ctx.bot.pool, guild_id).await?;
         if posroles.is_empty() {

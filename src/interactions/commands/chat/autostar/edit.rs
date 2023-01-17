@@ -1,7 +1,10 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    core::emoji::{EmojiCommon, SimpleEmoji},
+    core::{
+        emoji::{EmojiCommon, SimpleEmoji},
+        premium::is_premium::is_guild_premium,
+    },
     database::AutoStarChannel,
     errors::StarboardResult,
     get_guild_id,
@@ -34,9 +37,9 @@ pub struct EditAutoStar {
 impl EditAutoStar {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
-        let asc =
-            AutoStarChannel::get_by_name(&ctx.bot.pool, &self.name, guild_id.get_i64()).await?;
+        let asc = AutoStarChannel::get_by_name(&ctx.bot.pool, &self.name, guild_id_i64).await?;
         let mut asc = match asc {
             None => {
                 ctx.respond_str("No autostar channel with that name was found.", true)
@@ -46,9 +49,11 @@ impl EditAutoStar {
             Some(asc) => asc,
         };
 
+        let is_prem = is_guild_premium(&ctx.bot, guild_id_i64).await?;
+
         if let Some(val) = self.emojis {
             let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
-            if let Err(why) = asc.set_emojis(emojis) {
+            if let Err(why) = asc.set_emojis(emojis, is_prem) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }

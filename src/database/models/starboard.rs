@@ -4,7 +4,6 @@ use crate::database::{
     helpers::{
         query::build_update::build_update, settings::starboard::call_with_starboard_settings,
     },
-    models::starboard_settings::{settings_from_record, settings_from_row},
     StarboardSettings,
 };
 
@@ -22,7 +21,9 @@ pub struct Starboard {
 }
 
 macro_rules! starboard_from_record {
-    ($record: expr) => {
+    ($record: expr) => {{
+        use crate::database::helpers::settings::starboard::call_with_starboard_settings;
+        use crate::database::models::starboard_settings::settings_from_record;
         Starboard {
             id: $record.id,
             name: $record.name,
@@ -32,11 +33,15 @@ macro_rules! starboard_from_record {
             premium_locked: $record.premium_locked,
             settings: call_with_starboard_settings!(settings_from_record, $record),
         }
-    };
+    }};
 }
 
+pub(crate) use starboard_from_record;
+
 macro_rules! starboard_from_row {
-    ($record: expr) => {
+    ($record: expr) => {{
+        use crate::database::helpers::settings::starboard::call_with_starboard_settings;
+        use crate::database::models::starboard_settings::settings_from_row;
         Starboard {
             id: $record.get("id"),
             name: $record.get("name"),
@@ -46,8 +51,10 @@ macro_rules! starboard_from_row {
             premium_locked: $record.get("premium_locked"),
             settings: call_with_starboard_settings!(settings_from_row, $record),
         }
-    };
+    }};
 }
+
+pub(crate) use starboard_from_row;
 
 impl Starboard {
     pub async fn create(

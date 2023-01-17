@@ -1,5 +1,9 @@
-use std::fmt::{Debug, Write};
+use std::{
+    fmt::{Debug, Write},
+    sync::Arc,
+};
 
+use futures::Future;
 use snafu::ErrorCompat;
 use sqlx::PgPool;
 use tokio::sync::RwLock;
@@ -71,12 +75,14 @@ impl StarboardBot {
             .expect("failed to run migrations");
 
         // load autostar channels
-        let asc: Vec<_> = sqlx::query!("SELECT channel_id FROM autostar_channels")
-            .fetch_all(&pool)
-            .await?
-            .into_iter()
-            .map(|rec| Id::<ChannelMarker>::new(rec.channel_id as u64))
-            .collect();
+        let asc: Vec<_> = sqlx::query!(
+            "SELECT DISTINCT channel_id FROM autostar_channels WHERE premium_locked=false"
+        )
+        .fetch_all(&pool)
+        .await?
+        .into_iter()
+        .map(|rec| Id::<ChannelMarker>::new(rec.channel_id as u64))
+        .collect();
 
         let mut map = dashmap::DashSet::new();
         map.extend(asc);
@@ -138,6 +144,15 @@ impl StarboardBot {
             if let Err(why) = ret.await {
                 eprintln!("{why}");
             }
+        }
+    }
+
+    pub async fn catch_future_errors<T, E: Into<StarboardError>>(
+        bot: Arc<StarboardBot>,
+        future: impl Future<Output = Result<T, E>>,
+    ) {
+        if let Err(err) = future.await {
+            bot.handle_error(&err.into()).await;
         }
     }
 }

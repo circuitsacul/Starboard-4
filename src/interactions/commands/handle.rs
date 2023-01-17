@@ -33,6 +33,8 @@ pub async fn handle_command(ctx: CommandCtx) -> StarboardResult<()> {
         "xproles" => chat::xproles::XPRoles,
         "posroles" => chat::posroles::PosRoles,
         "utils" => chat::utils::Utils,
+        "premium" => chat::premium::Premium,
+        "premium-locks" => chat::premium_locks::PremiumLocks,
     );
 
     Ok(())

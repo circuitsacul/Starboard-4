@@ -3,6 +3,7 @@ use twilight_model::application::interaction::application_command::InteractionCh
 
 use crate::{
     constants,
+    core::premium::is_premium::is_guild_premium,
     database::{validation, Guild, Starboard},
     errors::StarboardResult,
     get_guild_id,
@@ -31,17 +32,22 @@ pub struct CreateStarboard {
 
 impl CreateStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx);
-        let guild_id_i64 = guild_id.get_i64();
-        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id_i64))?;
+        let guild_id = get_guild_id!(ctx).get_i64();
+        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id))?;
         let channel_id = self.channel.id.get_i64();
 
-        let count = Starboard::count_by_guild(&ctx.bot.pool, guild_id_i64).await?;
-        if count >= constants::MAX_STARBOARDS {
+        let count = Starboard::count_by_guild(&ctx.bot.pool, guild_id).await?;
+        let limit = if is_guild_premium(&ctx.bot, guild_id).await? {
+            constants::MAX_PREM_STARBOARDS
+        } else {
+            constants::MAX_STARBOARDS
+        };
+        if count >= limit {
             ctx.respond_str(
                 &format!(
-                    "You can only have up to {} starboards.",
-                    constants::MAX_STARBOARDS
+                    "You can only have up to {} starboards. The premium limit is {}.",
+                    limit,
+                    constants::MAX_PREM_STARBOARDS,
                 ),
                 true,
             )
@@ -61,7 +67,7 @@ impl CreateStarboard {
             &ctx.bot.pool,
             &name,
             channel_id,
-            guild_id.get_i64(),
+            guild_id,
         ))?;
 
         if ret.is_none() {
@@ -71,7 +77,7 @@ impl CreateStarboard {
             )
             .await?;
         } else {
-            ctx.bot.cache.guild_vote_emojis.remove(&guild_id_i64);
+            ctx.bot.cache.guild_vote_emojis.remove(&guild_id);
 
             ctx.respond_str(
                 &format!("Created starboard '{name}' in <#{channel_id}>."),

@@ -44,6 +44,7 @@ pub async fn handle(
 
     // Fetch the autostar channels
     let asc = AutoStarChannel::list_by_channel(&bot.pool, autostar_channel_id.get_i64()).await?;
+    let asc: Vec<_> = asc.into_iter().filter(|a| !a.premium_locked).collect();
 
     // If none, remove the channel id from the cache
     if asc.is_empty() {

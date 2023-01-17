@@ -3,6 +3,7 @@ use twilight_model::application::interaction::application_command::InteractionCh
 
 use crate::{
     constants,
+    core::premium::is_premium::is_guild_premium,
     database::{validation, AutoStarChannel, Guild},
     errors::StarboardResult,
     get_guild_id,
@@ -31,9 +32,8 @@ pub struct CreateAutoStarChannel {
 
 impl CreateAutoStarChannel {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx);
-        let guild_id_i64 = guild_id.get_i64();
-        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id_i64))?;
+        let guild_id = get_guild_id!(ctx).get_i64();
+        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id))?;
         let channel_id = self.channel.id.get_i64();
 
         let name = match validation::name::validate_name(&self.name) {
@@ -44,12 +44,18 @@ impl CreateAutoStarChannel {
             Ok(name) => name,
         };
 
-        let count = AutoStarChannel::count_by_guild(&ctx.bot.pool, guild_id_i64).await?;
-        if count >= constants::MAX_AUTOSTAR {
+        let count = AutoStarChannel::count_by_guild(&ctx.bot.pool, guild_id).await?;
+        let limit = if is_guild_premium(&ctx.bot, guild_id).await? {
+            constants::MAX_PREM_AUTOSTAR
+        } else {
+            constants::MAX_AUTOSTAR
+        };
+        if count >= limit {
             ctx.respond_str(
                 &format!(
-                    "You can only have up to {} autostar channels.",
-                    constants::MAX_AUTOSTAR
+                    "You can only have up to {} autostar channels. The premium limit is {}.",
+                    limit,
+                    constants::MAX_PREM_AUTOSTAR,
                 ),
                 true,
             )
@@ -61,7 +67,7 @@ impl CreateAutoStarChannel {
             &ctx.bot.pool,
             &name,
             channel_id,
-            guild_id_i64,
+            guild_id,
         ))?;
 
         if ret.is_none() {

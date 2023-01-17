@@ -39,13 +39,14 @@ pub struct StarboardSettings {
 }
 
 macro_rules! settings_from_record {
-    ($has_settings: expr, $($name: ident),*) => {
+    ($has_settings: expr, $($name: ident),*) => {{
+        use crate::database::models::starboard_settings::StarboardSettings;
         StarboardSettings {
             $(
                 $name: $has_settings.$name,
             )*
         }
-    };
+    }};
 }
 macro_rules! settings_from_row {
     ($has_settings: expr, $($name: ident),*) => {
