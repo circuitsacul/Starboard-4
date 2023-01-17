@@ -1,5 +1,6 @@
 mod autoredeem;
 mod info;
+mod locks;
 mod redeem;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
@@ -18,6 +19,8 @@ pub enum Premium {
     Autoredeem(autoredeem::Autoredeem),
     #[command(name = "redeem")]
     Redeem(redeem::Redeem),
+    #[command(name = "locks")]
+    Locks(locks::Locks),
 }
 
 impl Premium {
@@ -26,6 +29,7 @@ impl Premium {
             Self::Info(cmd) => cmd.callback(ctx).await,
             Self::Autoredeem(cmd) => cmd.callback(ctx).await,
             Self::Redeem(cmd) => cmd.callback(ctx).await,
+            Self::Locks(cmd) => cmd.callback(ctx).await,
         }
     }
 }
