@@ -50,8 +50,10 @@ async fn process_expired_guild(bot: Arc<StarboardBot>, guild_id: i64) -> Starboa
     while let Some(member) = stream.try_next().await? {
         let ret = redeem_premium(&bot, member.user_id, guild_id, 1, Some(None)).await?;
 
-        if ret == RedeemPremiumResult::Ok {
-            break;
+        match ret {
+            RedeemPremiumResult::Ok => break, // successfully added premium
+            RedeemPremiumResult::StateMismatch => break, // the server has premium now
+            RedeemPremiumResult::TooFewCredits => (), // try another member
         }
     }
 
