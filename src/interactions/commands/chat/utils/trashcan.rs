@@ -27,19 +27,11 @@ impl TrashCan {
         let pages = trashed.chunks(50).map(|chunk| {
             chunk
                 .iter()
-                .map(|message| {
-                    let Message {
-                        message_id,
-                        channel_id,
-                        trash_reason,
-                        ..
-                    } = message;
+                .map(|msg| {
+                    let reason = msg.trash_reason.as_deref().unwrap_or("No reason given.");
+                    let link = fmt_message_link(guild_id, msg.channel_id, msg.message_id);
 
-                    format!(
-                        "[{}]({})\n",
-                        trash_reason.as_deref().unwrap_or("No reason given."),
-                        fmt_message_link(guild_id, channel_id, message_id),
-                    )
+                    format!("[{reason}]({link})\n")
                 })
                 .collect::<String>()
         });
