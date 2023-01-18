@@ -67,7 +67,7 @@ pub async fn loop_update_posroles(bot: Arc<StarboardBot>) {
                 }
             };
             if let Err(err) = ret {
-                bot.handle_error(&err.into()).await;
+                bot.handle_error(&err).await;
             }
         }
     }
