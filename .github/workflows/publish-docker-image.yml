@@ -23,10 +23,10 @@ jobs:
       -
         name: Set Tag Name
         id: tag
-        run: echo ::set-output name=tag::$(git describe --tags --abbrev=0)
+        run: echo "TAG_NAME=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
       -
         name: Build and push
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: circuitsacul/starboard:${{ steps.tag.outputs.tag }}
+          tags: circuitsacul/starboard:${{ env.TAG_NAME }}
