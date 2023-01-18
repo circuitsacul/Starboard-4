@@ -28,4 +28,30 @@ impl User {
             .fetch_optional(pool)
             .await
     }
+
+    pub async fn add_credits(pool: &sqlx::PgPool, user_id: i64, credits: i32) -> sqlx::Result<()> {
+        sqlx::query!(
+            "UPDATE users SET credits = credits + $1 WHERE user_id=$2",
+            credits,
+            user_id
+        )
+        .fetch_all(pool)
+        .await?;
+        Ok(())
+    }
+
+    pub async fn set_patreon_status(
+        pool: &sqlx::PgPool,
+        user_id: i64,
+        patreon_status: i16,
+    ) -> sqlx::Result<()> {
+        sqlx::query!(
+            "UPDATE users SET patreon_status=$1 WHERE user_id=$2",
+            patreon_status,
+            user_id
+        )
+        .fetch_all(pool)
+        .await?;
+        Ok(())
+    }
 }

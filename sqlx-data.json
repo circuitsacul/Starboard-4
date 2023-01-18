@@ -812,6 +812,38 @@
     },
     "query": "UPDATE overrides SET name=$1 WHERE name=$2 AND guild_id=$3 RETURNING *"
   },
+  "29f33bd6db6938eafebc842e5a8ccdc22c67299762ba828c12f4da6f3b28fb69": {
+    "describe": {
+      "columns": [
+        {
+          "name": "patreon_id",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "discord_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "last_patreon_total_cents",
+          "ordinal": 2,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM patrons WHERE patreon_id=$1"
+  },
   "2a46ead99e78a1709b76021c12fe29efbd86668d704b9701f4d5af8d05054113": {
     "describe": {
       "columns": [
@@ -2616,6 +2648,19 @@
     },
     "query": "SELECT * FROM starboards WHERE id=$1"
   },
+  "76f0d2873e1e40c5936f08cb165bd7eb0e7fa26b422be37c747a8ce8d93495ba": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "UPDATE patrons SET last_patreon_total_cents=$1 WHERE patreon_id=$2"
+  },
   "7e14b14e400319e69ca7b7a581257ee46e1b60ee05872f90474bc3c107a47e08": {
     "describe": {
       "columns": [
@@ -3016,6 +3061,19 @@
     },
     "query": "SELECT count(*) FROM posroles WHERE guild_id=$1"
   },
+  "86a6918e81e9ade16762da1d29ea1e031aaf97fca5fcbbc90e48e6fa568bd6fd": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "UPDATE patrons SET discord_id=$1 WHERE patreon_id=$2"
+  },
   "88357902cae7c5ecc5625d473a99b55a5acd4323de003c6fa89afd9543c7fe25": {
     "describe": {
       "columns": [
@@ -3087,6 +3145,38 @@
       }
     },
     "query": "DELETE FROM overrides WHERE guild_id=$1 AND name=$2 RETURNING *"
+  },
+  "8922d567b5bf4617bde6089db2954a7bd25227fe7b2c10ff877f4975258794e0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "patreon_id",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "discord_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "last_patreon_total_cents",
+          "ordinal": 2,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM patrons WHERE discord_id=$1"
   },
   "894b0279e3aa8ee0f633c1773d0c253313a0b2f5fb7abbf2f7f3723e5967d217": {
     "describe": {
@@ -3347,6 +3437,19 @@
     },
     "query": "UPDATE messages SET forced_to=$1 WHERE message_id=$2 RETURNING *"
   },
+  "9d724f18b7a680d92c5d182379fb111f1d1d4da55650e8ceeee18ed8bba01e49": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE users SET credits = credits + $1 WHERE user_id=$2"
+  },
   "9dad93f96c1564677617a97044b59d8c62f5f1eca0de3ad975843575e2835b31": {
     "describe": {
       "columns": [
@@ -3387,6 +3490,19 @@
       }
     },
     "query": "INSERT INTO starboard_messages\n            (message_id, starboard_id, starboard_message_id, last_known_point_count)\n            VALUES ($1, $2, $3, $4)\n            RETURNING *"
+  },
+  "9f703e380d7482765beb5b56ce9681344cae0dca572a74f0c67204407a60baf7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int2",
+          "Int8"
+        ]
+      }
+    },
+    "query": "UPDATE users SET patreon_status=$1 WHERE user_id=$2"
   },
   "ae21651e28e5e8de6d8d5889653c3a0609a56f4db7879652447c01c019cab317": {
     "describe": {
@@ -4168,6 +4284,48 @@
       }
     },
     "query": "SELECT COUNT(*) as count FROM votes WHERE message_id=$1 AND starboard_id=$2\n            AND is_downvote=false"
+  },
+  "ce5911bc8c121ea9fb2066022bda191d93ba8b6409dc43ad11ccf18183dffadc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "is_bot",
+          "ordinal": 1,
+          "type_info": "Bool"
+        },
+        {
+          "name": "credits",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "donated_cents",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "patreon_status",
+          "ordinal": 4,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM users WHERE patreon_status!=0 OR donated_cents!=0"
   },
   "d199f08a2ada23a1b5bf29fc97a3f14fa479f58b382ba51f264aa6234234f42b": {
     "describe": {

@@ -9,7 +9,12 @@ use twilight_gateway::cluster::Events;
 
 use crate::{
     client::bot::StarboardBot,
-    core::{posroles::loop_update_posroles, premium::expire::loop_expire_premium},
+    core::{
+        posroles::loop_update_posroles,
+        premium::{
+            expire::loop_expire_premium, patreon::patreon_loop, roles::loop_update_supporter_roles,
+        },
+    },
     events::handle_event,
 };
 
@@ -49,6 +54,8 @@ pub async fn run(mut events: Events, bot: StarboardBot) {
     // start background tasks
     tokio::spawn(loop_update_posroles(bot.clone()));
     tokio::spawn(loop_expire_premium(bot.clone()));
+    tokio::spawn(patreon_loop(bot.clone()));
+    tokio::spawn(loop_update_supporter_roles(bot.clone()));
 
     // handle events
     while let Some((shard_id, event)) = events.next().await {

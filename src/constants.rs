@@ -24,6 +24,8 @@ pub const REVIEW_URL: &str = "https://top.gg/bot/700796664276844612#reviews";
 // Tasks
 pub const UPDATE_PRS_DELAY: Duration = Duration::from_secs(60 * 60);
 pub const CHECK_EXPIRED_PREMIUM: Duration = Duration::from_secs(60 * 60);
+pub const UPDATE_PATREON_DELAY: Duration = Duration::from_secs(60);
+pub const UPDATE_SUPPORTER_ROLES_DELAY: Duration = Duration::from_secs(60);
 
 // Cache size
 pub const MAX_MESSAGES: u32 = 10_000;
