@@ -21,8 +21,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
+        name: Checkout Repository
+        uses: actions/checkout@v3
+      -
         name: Set Tag Name
-        id: tag
         run: echo "TAG_NAME=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
       -
         name: Build and push
