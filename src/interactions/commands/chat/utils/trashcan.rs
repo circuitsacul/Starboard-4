@@ -24,30 +24,30 @@ impl TrashCan {
             return Ok(());
         }
 
-        let mut pages = Vec::new();
-        let mut curr_page = String::new();
+        let pages = trashed.chunks(50).map(|chunk| {
+            chunk
+                .iter()
+                .map(|message| {
+                    let Message {
+                        message_id,
+                        channel_id,
+                        trash_reason,
+                        ..
+                    } = message;
 
-        for (idx, item) in trashed.into_iter().enumerate() {
-            if idx % 50 == 0 && idx != 0 {
-                pages.push(curr_page);
-                curr_page = String::new();
-            }
-
-            let link = fmt_message_link(guild_id, item.channel_id, item.message_id);
-            curr_page.push_str(&format!(
-                "[{}]({})\n",
-                item.trash_reason
-                    .unwrap_or_else(|| "No reason given.".to_string()),
-                link,
-            ));
-        }
-
-        pages.push(curr_page);
+                    format!(
+                        "[{}]({})\n",
+                        trash_reason.as_deref().unwrap_or("No reason given."),
+                        fmt_message_link(guild_id, channel_id, message_id),
+                    )
+                })
+                .collect::<String>()
+        });
 
         let author_id = ctx.interaction.author_id().unwrap();
         paginator::simple(
             &mut ctx,
-            pages.into_iter().map(|page| (Some(page), None)).collect(),
+            pages.map(|page| (Some(page), None)).collect(),
             author_id,
             true,
         )

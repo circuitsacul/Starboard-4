@@ -1,5 +1,3 @@
-use std::fmt::Write;
-
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
@@ -33,31 +31,22 @@ impl Leaderboard {
         } else {
             Member::list_by_xp_exclude_deleted(&ctx.bot.pool, guild_id, 99, &ctx.bot.cache).await?
         };
-        let mut pages = Vec::new();
-        let mut current_page = String::new();
 
-        for (idx, member) in lb.into_iter().enumerate() {
-            if idx % 9 == 0 && idx != 0 {
-                pages.push(current_page);
-                current_page = String::new();
-            }
-
-            writeln!(
-                current_page,
-                "`#{}` <@{}> - {} XP",
-                idx + 1,
-                member.user_id,
-                member.xp
-            )
-            .unwrap();
-        }
-        pages.push(current_page);
+        let mut idx = 0;
+        let pages = lb.chunks(9).map(|chunk| {
+            chunk
+                .iter()
+                .map(|Member { user_id, xp, .. }| {
+                    idx += 1;
+                    format!("`#{idx}` <@{user_id}> - {xp} XP\n")
+                })
+                .collect::<String>()
+        });
 
         let author_id = ctx.interaction.author_id().unwrap();
         paginator::simple(
             &mut ctx,
             pages
-                .into_iter()
                 .map(|p| {
                     (
                         None,
