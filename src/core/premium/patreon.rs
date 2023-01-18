@@ -6,7 +6,10 @@ use crate::{
     database::{Patron, User},
     errors::StarboardResult,
     map_dup_none,
+    utils::into_id::IntoId,
 };
+
+use super::roles::update_supporter_roles;
 
 #[derive(Debug)]
 struct PatronData {
@@ -49,8 +52,23 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
         };
 
         // update the discord ID if needed
-        if patron.discord_id != sql_patron.discord_id {
+        if sql_patron.discord_id != patron.discord_id {
+            if let Some(old_user_id) = sql_patron.discord_id {
+                // moved or unlinked discord account
+                User::set_patreon_status(&bot.pool, old_user_id, 0).await?;
+
+                let clone = bot.clone();
+                tokio::spawn(async move {
+                    let ret = update_supporter_roles(&clone, old_user_id.into_id()).await;
+                    if let Err(err) = ret {
+                        clone.handle_error(&err).await;
+                    }
+                });
+                // TODO: notify them
+            }
+
             sql_patron.discord_id = patron.discord_id;
+
             if let Some(user_id) = patron.discord_id {
                 map_dup_none!(User::create(&bot.pool, user_id, false))?;
             }
@@ -62,13 +80,18 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
         let user = User::get(&bot.pool, user_id).await?.unwrap();
 
         let cents_difference = patron.total_cents as i64 - sql_patron.last_patreon_total_cents;
-        if cents_difference <= 0 {
-            continue;
+        if cents_difference > 0 {
+            let credits = (cents_difference as f64 / 100_f64).round() as i32;
+            User::add_credits(&bot.pool, user.user_id, credits).await?;
+            Patron::set_total_cents(&bot.pool, &patron.patreon_id, patron.total_cents as i64)
+                .await?;
         }
 
-        let credits = (cents_difference as f64 / 100_f64).round() as i32;
-        User::add_credits(&bot.pool, user.user_id, credits).await?;
-        Patron::set_total_cents(&bot.pool, &patron.patreon_id, patron.total_cents as i64).await?;
+        // update the patron status
+        if user.patreon_status != patron.status {
+            User::set_patreon_status(&bot.pool, user.user_id, patron.status).await?;
+            // TODO: notify user for status change
+        }
     }
 
     Ok(())

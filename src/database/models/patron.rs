@@ -27,6 +27,12 @@ impl Patron {
         .await
     }
 
+    pub async fn get_by_user(pool: &sqlx::PgPool, user_id: i64) -> sqlx::Result<Vec<Self>> {
+        sqlx::query_as!(Self, "SELECT * FROM patrons WHERE discord_id=$1", user_id)
+            .fetch_all(pool)
+            .await
+    }
+
     pub async fn set_discord_id(
         pool: &sqlx::PgPool,
         patreon_id: &str,

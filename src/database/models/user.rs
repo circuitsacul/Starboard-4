@@ -39,4 +39,19 @@ impl User {
         .await?;
         Ok(())
     }
+
+    pub async fn set_patreon_status(
+        pool: &sqlx::PgPool,
+        user_id: i64,
+        patreon_status: i16,
+    ) -> sqlx::Result<()> {
+        sqlx::query!(
+            "UPDATE users SET patreon_status=$1 WHERE user_id=$2",
+            patreon_status,
+            user_id
+        )
+        .fetch_all(pool)
+        .await?;
+        Ok(())
+    }
 }
