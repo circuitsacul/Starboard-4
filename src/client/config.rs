@@ -3,6 +3,7 @@ use std::env;
 
 pub struct Config {
     pub token: String,
+    pub patreon_token: Option<String>,
     pub sentry: Option<String>,
     pub shards: u64,
     pub db_url: String,
@@ -19,6 +20,7 @@ impl Config {
             Err(why) => eprintln!("Failed to load .env: {why}"),
         };
         let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set");
+        let patreon_token = env::var("PATREON_TOKEN").ok();
         let sentry = env::var("SENTRY_URL").ok();
         let shards = env::var("SHARDS")
             .unwrap_or_else(|_| "1".to_string())
@@ -44,6 +46,7 @@ impl Config {
 
         Config {
             token,
+            patreon_token,
             sentry,
             shards,
             db_url,
