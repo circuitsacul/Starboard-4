@@ -21,8 +21,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
+        name: Set Tag Name
+        id: tag
+        run: echo ::set-output tag=tag::$(git describe --tags --abbrev=0)
+      -
         name: Build and push
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: circuitsacul/starboard:$(git describe --tags --abbrev=0)
+          tags: circuitsacul/starboard:${{ steps.tag.outputs.tag }}
