@@ -6,7 +6,7 @@ use crate::{
     database::{Patron, User},
     errors::StarboardResult,
     map_dup_none,
-    utils::into_id::IntoId,
+    utils::{into_id::IntoId, notify::notify},
 };
 
 use super::roles::update_supporter_roles;
@@ -64,7 +64,16 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
                         clone.handle_error(&err).await;
                     }
                 });
-                // TODO: notify them
+
+                notify(
+                    &bot,
+                    old_user_id.into_id(),
+                    concat!(
+                        "Just letting you know that it looks like you unlinked your Discord ",
+                        "account from Patreon."
+                    ),
+                )
+                .await?;
             }
 
             sql_patron.discord_id = patron.discord_id;
@@ -90,8 +99,19 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
         // update the patron status
         if user.patreon_status != patron.status {
             User::set_patreon_status(&bot.pool, user.user_id, patron.status).await?;
-            // TODO: notify user for status change
+            continue;
         }
+        // user.patreon_status != patron.status
+
+        let message = match (user.patreon_status, patron.status) {
+            (0 | 3, 1 | 2) => {
+                "Thanks for becoming a patron! Redeem your credits using `/premium redeem`."
+            }
+            (_, 2) => "Just letting you know that Patreon declined your last payment.",
+            _ => continue,
+        };
+
+        notify(&bot, user_id.into_id(), message).await?;
     }
 
     Ok(())
