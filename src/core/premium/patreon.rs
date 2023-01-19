@@ -99,19 +99,17 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
         // update the patron status
         if user.patreon_status != patron.status {
             User::set_patreon_status(&bot.pool, user.user_id, patron.status).await?;
-            continue;
+
+            let message = match (user.patreon_status, patron.status) {
+                (0 | 3, 1 | 2) => {
+                    "Thanks for becoming a patron! Redeem your credits using `/premium redeem`."
+                }
+                (_, 2) => "Just letting you know that Patreon declined your last payment.",
+                _ => continue,
+            };
+
+            notify(&bot, user_id.into_id(), message).await?;
         }
-        // user.patreon_status != patron.status
-
-        let message = match (user.patreon_status, patron.status) {
-            (0 | 3, 1 | 2) => {
-                "Thanks for becoming a patron! Redeem your credits using `/premium redeem`."
-            }
-            (_, 2) => "Just letting you know that Patreon declined your last payment.",
-            _ => continue,
-        };
-
-        notify(&bot, user_id.into_id(), message).await?;
     }
 
     Ok(())
