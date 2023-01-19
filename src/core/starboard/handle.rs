@@ -11,7 +11,7 @@ use crate::{
     },
     database::{Message as DbMessage, StarboardMessage, Vote},
     errors::{StarboardError, StarboardResult},
-    utils::{id_as_i64::GetI64, into_id::IntoId, snowflake_age::SnowflakeAge},
+    utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
 use super::{
