@@ -4,6 +4,7 @@ use twilight_gateway::Event;
 use twilight_model::gateway::payload::outgoing::RequestGuildMembers;
 
 use crate::{
+    cache::models::message::CachedMessage,
     client::bot::StarboardBot,
     core,
     errors::StarboardResult,
@@ -40,31 +41,31 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
                 post_commands(bot).await;
             }
         }
-        Event::ThreadCreate(event) => {
-            let Some(guild_id) = event.guild_id else {
-                return Ok(());
-            };
-            let Some(parent_id) = event.parent_id else {
-                return Ok(());
-            };
+        // Event::ThreadCreate(event) => {
+        //     let Some(guild_id) = event.guild_id else {
+        //         return Ok(());
+        //     };
+        //     let Some(parent_id) = event.parent_id else {
+        //         return Ok(());
+        //     };
 
-            if bot.cache.is_channel_forum(guild_id, parent_id) {
-                let msg = bot
-                    .cache
-                    .fog_message(&bot, event.id, event.id.get().into_id())
-                    .await?;
-                if let Some(msg) = msg {
-                    core::autostar::handle(
-                        &bot,
-                        parent_id,
-                        event.id,
-                        event.id.get().into_id(),
-                        &msg,
-                    )
-                    .await?;
-                }
-            }
-        }
+        //     if bot.cache.is_channel_forum(guild_id, parent_id) {
+        //         let msg = bot
+        //             .cache
+        //             .fog_message(&bot, event.id, event.id.get().into_id())
+        //             .await?;
+        //         if let Some(msg) = msg {
+        //             core::autostar::handle(
+        //                 &bot,
+        //                 parent_id,
+        //                 event.id,
+        //                 event.id.get().into_id(),
+        //                 &msg,
+        //             )
+        //             .await?;
+        //         }
+        //     }
+        // }
         Event::MessageCreate(event) => {
             if event.content == format!("<@{}>", bot.config.bot_id) {
                 let _ = bot
@@ -83,42 +84,32 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
                 return Ok(());
             }
 
-            let msg = bot
-                .cache
-                .fog_message(&bot, event.channel_id, event.id)
-                .await?;
+            let channel_id = event.channel_id;
+            let message_id = event.id;
+            let msg: CachedMessage = event.0.into();
+            core::autostar::handle(&bot, channel_id, channel_id, message_id, &msg).await?;
 
-            if let Some(msg) = msg {
-                core::autostar::handle(&bot, event.channel_id, event.channel_id, event.id, &msg)
-                    .await?;
-
-                crate::owner::handle::handle_message(
-                    shard_id,
-                    &bot,
-                    event.channel_id,
-                    event.id,
-                    &msg,
-                    false,
-                )
-                .await?;
-            }
+            crate::owner::handle::handle_message(
+                shard_id, &bot, channel_id, message_id, &msg, false,
+            )
+            .await?;
         }
         Event::MessageUpdate(event) => {
-            let msg = bot
-                .cache
-                .fog_message(&bot, event.channel_id, event.id)
-                .await?;
-            if let Some(msg) = msg {
-                crate::owner::handle::handle_message(
-                    shard_id,
-                    &bot,
-                    event.channel_id,
-                    event.id,
-                    &msg,
-                    true,
-                )
-                .await?;
-            }
+            // let msg = bot
+            //     .cache
+            //     .fog_message(&bot, event.channel_id, event.id)
+            //     .await?;
+            // if let Some(msg) = msg {
+            //     crate::owner::handle::handle_message(
+            //         shard_id,
+            //         &bot,
+            //         event.channel_id,
+            //         event.id,
+            //         &msg,
+            //         true,
+            //     )
+            //     .await?;
+            // }
 
             core::starboard::link_events::handle_message_update(&bot, event).await?;
         }
