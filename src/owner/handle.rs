@@ -1,5 +1,7 @@
+use std::sync::Arc;
+
 use twilight_model::id::{
-    marker::{ChannelMarker, MessageMarker},
+    marker::{ChannelMarker, MessageMarker, UserMarker},
     Id,
 };
 
@@ -14,13 +16,26 @@ pub async fn handle_message(
     bot: &StarboardBot,
     channel_id: Id<ChannelMarker>,
     message_id: Id<MessageMarker>,
-    message: &CachedMessage,
+    author_id: Id<UserMarker>,
+    message: Option<&CachedMessage>,
     is_edit: bool,
 ) -> StarboardResult<()> {
     // first check that this is a command being run by the bot owner
-    if !bot.config.owner_ids.contains(&message.author_id.get()) {
+    if !bot.config.owner_ids.contains(&author_id.get()) {
         return Ok(());
     }
+
+    let message_owner: Arc<CachedMessage>;
+    let message = match message {
+        Some(msg) => msg,
+        None => {
+            let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await? else {
+                return Ok(());
+            };
+            message_owner = msg;
+            &message_owner
+        }
+    };
 
     // split by space
     let tokens: Vec<_> = message.content.trim().split([' ', '\n']).collect();

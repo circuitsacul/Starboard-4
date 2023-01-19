@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 use twilight_model::id::{
     marker::{ChannelMarker, MessageMarker},
@@ -21,7 +21,7 @@ pub async fn handle(
     autostar_channel_id: Id<ChannelMarker>,
     channel_id: Id<ChannelMarker>,
     message_id: Id<MessageMarker>,
-    message: &CachedMessage,
+    message: Option<&CachedMessage>,
 ) -> StarboardResult<()> {
     // Check the cache...
     if !bot
@@ -51,6 +51,18 @@ pub async fn handle(
         bot.cache.autostar_channel_ids.remove(&autostar_channel_id);
         return Ok(());
     }
+
+    let message_owner: Arc<CachedMessage>;
+    let message = match message {
+        Some(msg) => msg,
+        None => {
+            let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await? else {
+                return Ok(());
+            };
+            message_owner = msg;
+            &message_owner
+        }
+    };
 
     // Handle the autostar channels
     for a in asc {
