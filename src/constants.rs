@@ -28,7 +28,7 @@ pub const UPDATE_PATREON_DELAY: Duration = Duration::from_secs(60);
 pub const UPDATE_SUPPORTER_ROLES_DELAY: Duration = Duration::from_secs(60);
 
 // Cache size
-pub const MAX_MESSAGES: u32 = 10_000;
+pub const MAX_MESSAGES: u32 = 100_000;
 pub const MAX_STORED_RESPONSES: u32 = 100;
 
 // Cooldowns
