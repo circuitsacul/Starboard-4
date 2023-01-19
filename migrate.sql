@@ -7,8 +7,6 @@
 -- Please report an issue for any failure with the reproduction steps.
  BEGIN; 
 
-TABLESPACE pg_default;
-
 -- manual
 alter table aschannels rename to autostar_channels;
 alter table sb_messages rename to starboard_messages;
@@ -34,142 +32,132 @@ alter sequence aschannels_id_seq rename to autostar_channels_id_seq;
 delete from starboard_messages where starboard_message_id is null;
 
 -- drop foreign keys
-ALTER TABLE IF EXISTS public.xproles DROP CONSTRAINT IF EXISTS guild_id_fk;
-ALTER TABLE IF EXISTS public.votes DROP CONSTRAINT IF EXISTS message_id_fk;
-ALTER TABLE IF EXISTS public.votes DROP CONSTRAINT IF EXISTS starboard_id_fk;
-ALTER TABLE IF EXISTS public.votes DROP CONSTRAINT IF EXISTS target_author_id_fk;
-ALTER TABLE IF EXISTS public.votes DROP CONSTRAINT IF EXISTS user_id_fk;
-ALTER TABLE IF EXISTS public.overrides DROP CONSTRAINT IF EXISTS guild_fk;
-ALTER TABLE IF EXISTS public.overrides DROP CONSTRAINT IF EXISTS starboard_fk;
-ALTER TABLE IF EXISTS public.autostar_channels DROP CONSTRAINT IF EXISTS guild_id_fk;
-ALTER TABLE IF EXISTS public.permrole_starboards DROP CONSTRAINT IF EXISTS permrole_id_fk;
-ALTER TABLE IF EXISTS public.permrole_starboards DROP CONSTRAINT IF EXISTS starboard_id_fk;
-ALTER TABLE IF EXISTS public.permroles DROP CONSTRAINT IF EXISTS guild_id_fk;
-ALTER TABLE IF EXISTS public.members DROP CONSTRAINT IF EXISTS guildid_fk;
-ALTER TABLE IF EXISTS public.members DROP CONSTRAINT IF EXISTS userid_fk;
-ALTER TABLE IF EXISTS public.messages DROP CONSTRAINT IF EXISTS author_id_fk;
-ALTER TABLE IF EXISTS public.messages DROP CONSTRAINT IF EXISTS guild_id_fk;
-ALTER TABLE IF EXISTS public.posroles DROP CONSTRAINT IF EXISTS guild_id_fk;
-ALTER TABLE IF EXISTS public.starboards DROP CONSTRAINT IF EXISTS guild_id_fk;
-ALTER TABLE IF EXISTS public.starboard_messages DROP CONSTRAINT IF EXISTS message_id_fk;
-ALTER TABLE IF EXISTS public.starboard_messages DROP CONSTRAINT IF EXISTS starboard_id_fk;
-ALTER TABLE IF EXISTS public.posrole_members DROP CONSTRAINT IF EXISTS role_id_fk;
-ALTER TABLE IF EXISTS public.posrole_members DROP CONSTRAINT IF EXISTS user_id_fk;
+ALTER TABLE public.xproles DROP CONSTRAINT guild_id_fk;
+ALTER TABLE public.votes DROP CONSTRAINT message_id_fk;
+ALTER TABLE public.votes DROP CONSTRAINT starboard_id_fk;
+ALTER TABLE public.votes DROP CONSTRAINT target_author_id_fk;
+ALTER TABLE public.votes DROP CONSTRAINT user_id_fk;
+ALTER TABLE public.overrides DROP CONSTRAINT guild_fk;
+ALTER TABLE public.overrides DROP CONSTRAINT starboard_fk;
+ALTER TABLE public.autostar_channels DROP CONSTRAINT guild_id_fk;
+ALTER TABLE public.permrole_starboards DROP CONSTRAINT permrole_id_fk;
+ALTER TABLE public.permrole_starboards DROP CONSTRAINT starboard_id_fk;
+ALTER TABLE public.permroles DROP CONSTRAINT guild_id_fk;
+ALTER TABLE public.members DROP CONSTRAINT guildid_fk;
+ALTER TABLE public.members DROP CONSTRAINT userid_fk;
+ALTER TABLE public.messages DROP CONSTRAINT author_id_fk;
+ALTER TABLE public.messages DROP CONSTRAINT guild_id_fk;
+ALTER TABLE public.posroles DROP CONSTRAINT guild_id_fk;
+ALTER TABLE public.starboards DROP CONSTRAINT guild_id_fk;
+ALTER TABLE public.starboard_messages DROP CONSTRAINT message_id_fk;
+ALTER TABLE public.starboard_messages DROP CONSTRAINT starboard_id_fk;
+ALTER TABLE public.posrole_members DROP CONSTRAINT role_id_fk;
+ALTER TABLE public.posrole_members DROP CONSTRAINT user_id_fk;
 
 -- misc
-ALTER TABLE IF EXISTS public._sqlx_migrations
-    OWNER to starboard;
-DROP TABLE IF EXISTS public._migrations CASCADE;
+DROP TABLE public._migrations CASCADE;
 
 -- users
 ALTER TABLE public.users
     ALTER COLUMN user_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.users
+ALTER TABLE public.users
     ALTER COLUMN user_id SET STORAGE PLAIN;
 
-ALTER TABLE IF EXISTS public.users
+ALTER TABLE public.users
     ALTER COLUMN credits SET DEFAULT 0;
 
-ALTER TABLE IF EXISTS public.users
+ALTER TABLE public.users
     ALTER COLUMN donated_cents SET DEFAULT 0;
 
-ALTER TABLE IF EXISTS public.users
+ALTER TABLE public.users
     ALTER COLUMN patreon_status SET DEFAULT 0;
-ALTER TABLE IF EXISTS public.users DROP CONSTRAINT IF EXISTS _users_user_id_primary_key;
+ALTER TABLE public.users DROP CONSTRAINT _users_user_id_primary_key;
 
-ALTER TABLE IF EXISTS public.users
+ALTER TABLE public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (user_id);
 
 -- patrons
 ALTER TABLE public.patrons
     ALTER COLUMN discord_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.patrons
+ALTER TABLE public.patrons
     ALTER COLUMN discord_id SET STORAGE PLAIN;
 
-ALTER TABLE IF EXISTS public.patrons
+ALTER TABLE public.patrons
     ALTER COLUMN last_patreon_total_cents SET DEFAULT 0;
-ALTER TABLE IF EXISTS public.patrons DROP CONSTRAINT IF EXISTS _patrons_patreon_id_primary_key;
+ALTER TABLE public.patrons DROP CONSTRAINT _patrons_patreon_id_primary_key;
 
-ALTER TABLE IF EXISTS public.patrons
+ALTER TABLE public.patrons
     ADD CONSTRAINT patrons_pkey PRIMARY KEY (patreon_id);
-ALTER TABLE IF EXISTS public.patrons
+ALTER TABLE public.patrons
     ADD CONSTRAINT patrons_discord_id_fkey FOREIGN KEY (discord_id)
     REFERENCES public.users (user_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE RESTRICT;
-CREATE INDEX IF NOT EXISTS patrons__discord_id
-    ON public.patrons USING btree
-    (discord_id ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-DROP INDEX IF EXISTS public._btree_index_patrons__discord_id;
+DROP INDEX public._btree_index_patrons__discord_id;
 
 -- guilds
 ALTER TABLE public.guilds
     ALTER COLUMN guild_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.guilds
+ALTER TABLE public.guilds
     ALTER COLUMN guild_id SET STORAGE PLAIN;
-ALTER TABLE IF EXISTS public.guilds DROP CONSTRAINT IF EXISTS _guilds_guild_id_primary_key;
+ALTER TABLE public.guilds DROP CONSTRAINT _guilds_guild_id_primary_key;
 
-ALTER TABLE IF EXISTS public.guilds
+ALTER TABLE public.guilds
     ADD CONSTRAINT guilds_pkey PRIMARY KEY (guild_id);
-CREATE INDEX IF NOT EXISTS guilds__premium_end
-    ON public.guilds USING btree
-    (premium_end ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-DROP INDEX IF EXISTS public._btree_index_guilds__premium_end;
+DROP INDEX public._btree_index_guilds__premium_end;
 
 -- messages
 ALTER TABLE public.messages
     ALTER COLUMN message_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ALTER COLUMN message_id SET STORAGE PLAIN;
 
 ALTER TABLE public.messages
     ALTER COLUMN guild_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ALTER COLUMN guild_id SET STORAGE PLAIN;
 
 ALTER TABLE public.messages
     ALTER COLUMN channel_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ALTER COLUMN channel_id SET STORAGE PLAIN;
 
 ALTER TABLE public.messages
     ALTER COLUMN author_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ALTER COLUMN author_id SET STORAGE PLAIN;
 
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ALTER COLUMN forced_to SET DEFAULT '{}'::integer[];
 
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ALTER COLUMN trashed SET DEFAULT false;
 
 ALTER TABLE public.messages
     ALTER COLUMN trash_reason TYPE character varying COLLATE pg_catalog."default";
 
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ALTER COLUMN frozen SET DEFAULT false;
-ALTER TABLE IF EXISTS public.messages DROP CONSTRAINT IF EXISTS _messages_message_id_primary_key;
+ALTER TABLE public.messages DROP CONSTRAINT _messages_message_id_primary_key;
 
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ADD CONSTRAINT messages_pkey PRIMARY KEY (message_id);
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ADD CONSTRAINT messages_author_id_fkey FOREIGN KEY (author_id)
     REFERENCES public.users (user_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.messages
+ALTER TABLE public.messages
     ADD CONSTRAINT messages_guild_id_fkey FOREIGN KEY (guild_id)
     REFERENCES public.guilds (guild_id) MATCH SIMPLE
     ON UPDATE CASCADE
@@ -179,437 +167,358 @@ ALTER TABLE IF EXISTS public.messages
 ALTER TABLE public.members
     ALTER COLUMN user_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.members
+ALTER TABLE public.members
     ALTER COLUMN user_id SET STORAGE PLAIN;
 
 ALTER TABLE public.members
     ALTER COLUMN guild_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.members
+ALTER TABLE public.members
     ALTER COLUMN guild_id SET STORAGE PLAIN;
 
-ALTER TABLE IF EXISTS public.members
+ALTER TABLE public.members
     ALTER COLUMN xp SET DEFAULT 0;
 
-ALTER TABLE IF EXISTS public.members
+ALTER TABLE public.members
     ALTER COLUMN autoredeem_enabled SET DEFAULT false;
-ALTER TABLE IF EXISTS public.members DROP CONSTRAINT IF EXISTS _members_user_id_guild_id_primary_key;
+ALTER TABLE public.members DROP CONSTRAINT _members_user_id_guild_id_primary_key;
 
-ALTER TABLE IF EXISTS public.members
+ALTER TABLE public.members
     ADD CONSTRAINT members_pkey PRIMARY KEY (user_id, guild_id);
-ALTER TABLE IF EXISTS public.members
+ALTER TABLE public.members
     ADD CONSTRAINT members_guild_id_fkey FOREIGN KEY (guild_id)
     REFERENCES public.guilds (guild_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.members
+ALTER TABLE public.members
     ADD CONSTRAINT members_user_id_fkey FOREIGN KEY (user_id)
     REFERENCES public.users (user_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
-CREATE INDEX IF NOT EXISTS members__autoredeem_enabled
-    ON public.members USING btree
-    (autoredeem_enabled ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-CREATE INDEX IF NOT EXISTS members__xp
-    ON public.members USING btree
-    (xp ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-CREATE INDEX IF NOT EXISTS members__guild_id
-    ON public.members USING btree
-    (guild_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-DROP INDEX IF EXISTS public._btree_index_members__autoredeem_enabled;
-DROP INDEX IF EXISTS public._btree_index_members__xp;
-DROP INDEX IF EXISTS public._btree_index_members__guild_id;
+DROP INDEX public._btree_index_members__autoredeem_enabled;
+DROP INDEX public._btree_index_members__xp;
+DROP INDEX public._btree_index_members__guild_id;
 
 -- starboards
 ALTER TABLE public.starboards
     ALTER COLUMN channel_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN channel_id SET STORAGE PLAIN;
 
 ALTER TABLE public.starboards
     ALTER COLUMN guild_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN guild_id SET STORAGE PLAIN;
 
 ALTER TABLE public.starboards
     ALTER COLUMN webhook_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN webhook_id SET STORAGE PLAIN;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN premium_locked SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN display_emoji SET DEFAULT '⭐'::text;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN ping_author SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN use_server_profile SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN extra_embeds SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN use_webhook SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN color DROP NOT NULL;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN jump_to_message SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN attachments_list SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN replied_to SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN required SET DEFAULT 3;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN required_remove SET DEFAULT 0;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN upvote_emojis SET DEFAULT '{⭐}'::text[];
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN downvote_emojis SET DEFAULT '{}'::text[];
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN self_vote SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN allow_bots SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN require_image SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN older_than SET DEFAULT 0;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN newer_than SET DEFAULT 0;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN enabled SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN autoreact_upvote SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN autoreact_downvote SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN remove_invalid_reactions SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN link_deletes SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN link_edits SET DEFAULT true;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN private SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN xp_multiplier SET DEFAULT 1.0;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN cooldown_enabled SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN cooldown_count SET DEFAULT 5;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ALTER COLUMN cooldown_period SET DEFAULT 5;
-ALTER TABLE IF EXISTS public.starboards DROP CONSTRAINT IF EXISTS _starboards_id_primary_key;
+ALTER TABLE public.starboards DROP CONSTRAINT _starboards_id_primary_key;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ADD CONSTRAINT starboards_pkey PRIMARY KEY (id);
 
-ALTER TABLE IF EXISTS public.starboards DROP CONSTRAINT IF EXISTS sb_guild_name_unique;
+ALTER TABLE public.starboards DROP CONSTRAINT sb_guild_name_unique;
 
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ADD CONSTRAINT starboards_guild_id_name_key UNIQUE (guild_id, name);
-ALTER TABLE IF EXISTS public.starboards
+ALTER TABLE public.starboards
     ADD CONSTRAINT starboards_guild_id_fkey FOREIGN KEY (guild_id)
     REFERENCES public.guilds (guild_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
-CREATE INDEX IF NOT EXISTS starboards__channel_id
-    ON public.starboards USING btree
-    (channel_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-CREATE INDEX IF NOT EXISTS starboards__guild_id_name
-    ON public.starboards USING btree
-    (guild_id ASC NULLS LAST, name COLLATE pg_catalog."default" ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-DROP INDEX IF EXISTS public._btree_index_starboards__guild_id_name;
-DROP INDEX IF EXISTS public._btree_index_starboards__channel_id;
+DROP INDEX public._btree_index_starboards__guild_id_name;
+DROP INDEX public._btree_index_starboards__channel_id;
 
 -- overrides
 ALTER TABLE public.overrides
     ALTER COLUMN guild_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.overrides
+ALTER TABLE public.overrides
     ALTER COLUMN guild_id SET STORAGE PLAIN;
 
 ALTER TABLE public.overrides
     ALTER COLUMN channel_ids TYPE bigint[];
-ALTER TABLE IF EXISTS public.overrides
+ALTER TABLE public.overrides
     ALTER COLUMN channel_ids SET DEFAULT '{}'::bigint[];
 
-ALTER TABLE IF EXISTS public.overrides
+ALTER TABLE public.overrides
     ALTER COLUMN overrides SET DEFAULT '{}'::json;
-ALTER TABLE IF EXISTS public.overrides DROP CONSTRAINT IF EXISTS _overrides_id_primary_key;
+ALTER TABLE public.overrides DROP CONSTRAINT _overrides_id_primary_key;
 
-ALTER TABLE IF EXISTS public.overrides
+ALTER TABLE public.overrides
     ADD CONSTRAINT overrides_pkey PRIMARY KEY (id);
-ALTER TABLE IF EXISTS public.overrides
+ALTER TABLE public.overrides
     ADD CONSTRAINT overrides_guild_id_fkey FOREIGN KEY (guild_id)
     REFERENCES public.guilds (guild_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.overrides
+ALTER TABLE public.overrides
     ADD CONSTRAINT overrides_starboard_id_fkey FOREIGN KEY (starboard_id)
     REFERENCES public.starboards (id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
-CREATE UNIQUE INDEX IF NOT EXISTS overrides__guild_id_name
-    ON public.overrides USING btree
-    (guild_id ASC NULLS LAST, name COLLATE pg_catalog."default" ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-CREATE INDEX IF NOT EXISTS overrides__starboard_id
-    ON public.overrides USING btree
-    (starboard_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-CREATE INDEX IF NOT EXISTS overrides__channel_ids
-    ON public.overrides USING gin
-    (channel_ids)
-    TABLESPACE pg_default;
-
-DROP INDEX IF EXISTS public._btree_index_overrides__starboard_id;
-DROP INDEX IF EXISTS public._btree_index_overrides__guild_id_name;
-DROP INDEX IF EXISTS public._gin_index_overrides__channel_ids;
+DROP INDEX public._btree_index_overrides__starboard_id;
+DROP INDEX public._btree_index_overrides__guild_id_name;
+DROP INDEX public._gin_index_overrides__channel_ids;
 
 -- xproles
 ALTER TABLE public.xproles
     ALTER COLUMN role_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.xproles
+ALTER TABLE public.xproles
     ALTER COLUMN role_id SET STORAGE PLAIN;
 
 ALTER TABLE public.xproles
     ALTER COLUMN guild_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.xproles
+ALTER TABLE public.xproles
     ALTER COLUMN guild_id SET STORAGE PLAIN;
-ALTER TABLE IF EXISTS public.xproles DROP CONSTRAINT IF EXISTS _xproles_role_id_primary_key;
+ALTER TABLE public.xproles DROP CONSTRAINT _xproles_role_id_primary_key;
 
-ALTER TABLE IF EXISTS public.xproles
+ALTER TABLE public.xproles
     ADD CONSTRAINT xproles_pkey PRIMARY KEY (role_id);
-ALTER TABLE IF EXISTS public.xproles
+ALTER TABLE public.xproles
     ADD CONSTRAINT xproles_guild_id_fkey FOREIGN KEY (guild_id)
     REFERENCES public.guilds (guild_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
-CREATE INDEX IF NOT EXISTS xproles__guild_id
-    ON public.xproles USING btree
-    (guild_id ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-DROP INDEX IF EXISTS public._btree_index_xproles__guild_id;
+DROP INDEX public._btree_index_xproles__guild_id;
 
 -- votes
 ALTER TABLE public.votes
     ALTER COLUMN message_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.votes
+ALTER TABLE public.votes
     ALTER COLUMN message_id SET STORAGE PLAIN;
 
 ALTER TABLE public.votes
     ALTER COLUMN user_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.votes
+ALTER TABLE public.votes
     ALTER COLUMN user_id SET STORAGE PLAIN;
 
 ALTER TABLE public.votes
     ALTER COLUMN target_author_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.votes
+ALTER TABLE public.votes
     ALTER COLUMN target_author_id SET STORAGE PLAIN;
-ALTER TABLE IF EXISTS public.votes DROP CONSTRAINT IF EXISTS _votes_message_id_starboard_id_user_id_primary_key;
+ALTER TABLE public.votes DROP CONSTRAINT _votes_message_id_starboard_id_user_id_primary_key;
 
-ALTER TABLE IF EXISTS public.votes
+ALTER TABLE public.votes
     ADD CONSTRAINT votes_pkey PRIMARY KEY (message_id, starboard_id, user_id);
-ALTER TABLE IF EXISTS public.votes
+ALTER TABLE public.votes
     ADD CONSTRAINT votes_message_id_fkey FOREIGN KEY (message_id)
     REFERENCES public.messages (message_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.votes
+ALTER TABLE public.votes
     ADD CONSTRAINT votes_starboard_id_fkey FOREIGN KEY (starboard_id)
     REFERENCES public.starboards (id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.votes
+ALTER TABLE public.votes
     ADD CONSTRAINT votes_target_author_id_fkey FOREIGN KEY (target_author_id)
     REFERENCES public.users (user_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.votes
+ALTER TABLE public.votes
     ADD CONSTRAINT votes_user_id_fkey FOREIGN KEY (user_id)
     REFERENCES public.users (user_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
-CREATE INDEX IF NOT EXISTS votes__is_downvote
-    ON public.votes USING btree
-    (is_downvote ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-CREATE INDEX IF NOT EXISTS votes__target_author_id
-    ON public.votes USING btree
-    (target_author_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-CREATE INDEX IF NOT EXISTS votes__message_id
-    ON public.votes USING btree
-    (message_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-CREATE INDEX IF NOT EXISTS votes__user_id
-    ON public.votes USING btree
-    (user_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-CREATE INDEX IF NOT EXISTS votes__starboard_id
-    ON public.votes USING btree
-    (starboard_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-DROP INDEX IF EXISTS public._btree_index_votes__target_author_id;
-DROP INDEX IF EXISTS public._btree_index_votes__user_id;
-DROP INDEX IF EXISTS public._btree_index_votes__message_id;
-DROP INDEX IF EXISTS public._btree_index_votes__is_downvote;
-DROP INDEX IF EXISTS public._btree_index_votes__starboard_id;
+DROP INDEX public._btree_index_votes__target_author_id;
+DROP INDEX public._btree_index_votes__user_id;
+DROP INDEX public._btree_index_votes__message_id;
+DROP INDEX public._btree_index_votes__is_downvote;
+DROP INDEX public._btree_index_votes__starboard_id;
 
 -- autostar_channels
 ALTER TABLE public.autostar_channels
     ALTER COLUMN channel_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ALTER COLUMN channel_id SET STORAGE PLAIN;
 
 ALTER TABLE public.autostar_channels
     ALTER COLUMN guild_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ALTER COLUMN guild_id SET STORAGE PLAIN;
 
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ALTER COLUMN premium_locked SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ALTER COLUMN emojis SET DEFAULT '{}'::text[];
 
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ALTER COLUMN min_chars SET DEFAULT 0;
 
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ALTER COLUMN require_image SET DEFAULT false;
 
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ALTER COLUMN delete_invalid SET DEFAULT false;
-ALTER TABLE IF EXISTS public.autostar_channels DROP CONSTRAINT IF EXISTS _aschannels_id_primary_key;
+ALTER TABLE public.autostar_channels DROP CONSTRAINT _aschannels_id_primary_key;
 
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ADD CONSTRAINT autostar_channels_pkey PRIMARY KEY (id);
 
-ALTER TABLE IF EXISTS public.autostar_channels DROP CONSTRAINT IF EXISTS asc_guild_name_unique;
+ALTER TABLE public.autostar_channels DROP CONSTRAINT asc_guild_name_unique;
 
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ADD CONSTRAINT autostar_channels_guild_id_name_key UNIQUE (guild_id, name);
-ALTER TABLE IF EXISTS public.autostar_channels
+ALTER TABLE public.autostar_channels
     ADD CONSTRAINT autostar_channels_guild_id_fkey FOREIGN KEY (guild_id)
     REFERENCES public.guilds (guild_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
-CREATE INDEX IF NOT EXISTS aschannels__channel_id
-    ON public.autostar_channels USING btree
-    (channel_id ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-CREATE INDEX IF NOT EXISTS aschannels__guild_id_name
-    ON public.autostar_channels USING btree
-    (guild_id ASC NULLS LAST, name COLLATE pg_catalog."default" ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-DROP INDEX IF EXISTS public._btree_index_aschannels__guild_id_name;
-DROP INDEX IF EXISTS public._btree_index_aschannels__channel_id;
+DROP INDEX public._btree_index_aschannels__guild_id_name;
+DROP INDEX public._btree_index_aschannels__channel_id;
 
 -- permroles
-ALTER TABLE IF EXISTS public.permroles
+ALTER TABLE public.permroles
     ALTER COLUMN role_id SET STORAGE PLAIN;
 
 ALTER TABLE public.permroles
     ALTER COLUMN guild_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.permroles
+ALTER TABLE public.permroles
     ALTER COLUMN guild_id SET STORAGE PLAIN;
-ALTER TABLE IF EXISTS public.permroles DROP CONSTRAINT IF EXISTS _permroles_role_id_primary_key;
+ALTER TABLE public.permroles DROP CONSTRAINT _permroles_role_id_primary_key;
 
-ALTER TABLE IF EXISTS public.permroles
+ALTER TABLE public.permroles
     ADD CONSTRAINT permroles_pkey PRIMARY KEY (role_id);
-ALTER TABLE IF EXISTS public.permroles
+ALTER TABLE public.permroles
     ADD CONSTRAINT permroles_guild_id_fkey FOREIGN KEY (guild_id)
     REFERENCES public.guilds (guild_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
-CREATE INDEX IF NOT EXISTS permroles__guild_id
-    ON public.permroles USING btree
-    (guild_id ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-DROP INDEX IF EXISTS public._btree_index_permroles__guild_id;
+DROP INDEX public._btree_index_permroles__guild_id;
 
 -- permrole_starboards
 ALTER TABLE public.permrole_starboards
     ALTER COLUMN permrole_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.permrole_starboards
+ALTER TABLE public.permrole_starboards
     ALTER COLUMN permrole_id SET STORAGE PLAIN;
-ALTER TABLE IF EXISTS public.permrole_starboards DROP CONSTRAINT IF EXISTS _permrole_starboards_permrole_id_starboard_id_primary_key;
+ALTER TABLE public.permrole_starboards DROP CONSTRAINT _permrole_starboards_permrole_id_starboard_id_primary_key;
 
-ALTER TABLE IF EXISTS public.permrole_starboards
+ALTER TABLE public.permrole_starboards
     ADD CONSTRAINT permrole_starboards_pkey PRIMARY KEY (permrole_id, starboard_id);
-ALTER TABLE IF EXISTS public.permrole_starboards
+ALTER TABLE public.permrole_starboards
     ADD CONSTRAINT permrole_starboards_permrole_id_fkey FOREIGN KEY (permrole_id)
     REFERENCES public.permroles (role_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.permrole_starboards
+ALTER TABLE public.permrole_starboards
     ADD CONSTRAINT permrole_starboards_starboard_id_fkey FOREIGN KEY (starboard_id)
     REFERENCES public.starboards (id) MATCH SIMPLE
     ON UPDATE CASCADE
@@ -621,104 +530,86 @@ ALTER TABLE public.permroles
 ALTER TABLE public.posroles
     ALTER COLUMN role_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.posroles
+ALTER TABLE public.posroles
     ALTER COLUMN role_id SET STORAGE PLAIN;
 
 ALTER TABLE public.posroles
     ALTER COLUMN guild_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.posroles
+ALTER TABLE public.posroles
     ALTER COLUMN guild_id SET STORAGE PLAIN;
-ALTER TABLE IF EXISTS public.posroles DROP CONSTRAINT IF EXISTS _posroles_role_id_primary_key;
+ALTER TABLE public.posroles DROP CONSTRAINT _posroles_role_id_primary_key;
 
-ALTER TABLE IF EXISTS public.posroles
+ALTER TABLE public.posroles
     ADD CONSTRAINT posroles_pkey PRIMARY KEY (role_id);
-ALTER TABLE IF EXISTS public.posroles
+ALTER TABLE public.posroles
     ADD CONSTRAINT posroles_guild_id_fkey FOREIGN KEY (guild_id)
     REFERENCES public.guilds (guild_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
-CREATE UNIQUE INDEX IF NOT EXISTS posroles__guild_id_max_members
-    ON public.posroles USING btree
-    (guild_id ASC NULLS LAST, max_members ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-DROP INDEX IF EXISTS public._btree_index_posroles__guild_id_max_members;
+DROP INDEX public._btree_index_posroles__guild_id_max_members;
 
 -- starboard_messages
 ALTER TABLE public.starboard_messages
     ALTER COLUMN message_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.starboard_messages
+ALTER TABLE public.starboard_messages
     ALTER COLUMN message_id SET STORAGE PLAIN;
 
 ALTER TABLE public.starboard_messages
     ALTER COLUMN starboard_message_id TYPE bigint;
-ALTER TABLE IF EXISTS public.starboard_messages
+ALTER TABLE public.starboard_messages
     ALTER COLUMN starboard_message_id SET NOT NULL;
 
-ALTER TABLE IF EXISTS public.starboard_messages
+ALTER TABLE public.starboard_messages
     ALTER COLUMN starboard_message_id SET STORAGE PLAIN;
 
-ALTER TABLE IF EXISTS public.starboard_messages
+ALTER TABLE public.starboard_messages
     ALTER COLUMN last_known_point_count SET DEFAULT 0;
-ALTER TABLE IF EXISTS public.starboard_messages DROP CONSTRAINT IF EXISTS _sb_messages_message_id_starboard_id_primary_key;
+ALTER TABLE public.starboard_messages DROP CONSTRAINT _sb_messages_message_id_starboard_id_primary_key;
 
-ALTER TABLE IF EXISTS public.starboard_messages
+ALTER TABLE public.starboard_messages
     ADD CONSTRAINT starboard_messages_pkey PRIMARY KEY (message_id, starboard_id);
-ALTER TABLE IF EXISTS public.starboard_messages
+ALTER TABLE public.starboard_messages
     ADD CONSTRAINT starboard_messages_message_id_fkey FOREIGN KEY (message_id)
     REFERENCES public.messages (message_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.starboard_messages
+ALTER TABLE public.starboard_messages
     ADD CONSTRAINT starboard_messages_starboard_id_fkey FOREIGN KEY (starboard_id)
     REFERENCES public.starboards (id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
-CREATE INDEX IF NOT EXISTS sb_messages__last_known_point_count
-    ON public.starboard_messages USING btree
-    (last_known_point_count ASC NULLS LAST)
-    TABLESPACE pg_default;
 
-CREATE INDEX IF NOT EXISTS sb_messages__starboard_id
-    ON public.starboard_messages USING btree
-    (starboard_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-CREATE UNIQUE INDEX IF NOT EXISTS sb_messages__sb_message_id
-    ON public.starboard_messages USING btree
-    (starboard_message_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-DROP INDEX IF EXISTS public._btree_index_sb_messages__starboard_id;
-DROP INDEX IF EXISTS public._btree_index_sb_messages__last_known_point_count;
-DROP INDEX IF EXISTS public._btree_index_sb_messages__sb_message_id;
+DROP INDEX public._btree_index_sb_messages__starboard_id;
+DROP INDEX public._btree_index_sb_messages__last_known_point_count;
+DROP INDEX public._btree_index_sb_messages__sb_message_id;
 
 -- posrole_members
 ALTER TABLE public.posrole_members
     ALTER COLUMN role_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.posrole_members
+ALTER TABLE public.posrole_members
     ALTER COLUMN role_id SET STORAGE PLAIN;
 
 ALTER TABLE public.posrole_members
     ALTER COLUMN user_id TYPE bigint;
 
-ALTER TABLE IF EXISTS public.posrole_members
+ALTER TABLE public.posrole_members
     ALTER COLUMN user_id SET STORAGE PLAIN;
-ALTER TABLE IF EXISTS public.posrole_members DROP CONSTRAINT IF EXISTS _posrole_members_role_id_user_id_primary_key;
+ALTER TABLE public.posrole_members DROP CONSTRAINT _posrole_members_role_id_user_id_primary_key;
 
-ALTER TABLE IF EXISTS public.posrole_members
+ALTER TABLE public.posrole_members
     ADD CONSTRAINT posrole_members_pkey PRIMARY KEY (role_id, user_id);
-ALTER TABLE IF EXISTS public.posrole_members
+ALTER TABLE public.posrole_members
     ADD CONSTRAINT posrole_members_role_id_fkey FOREIGN KEY (role_id)
     REFERENCES public.posroles (role_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
-ALTER TABLE IF EXISTS public.posrole_members
+ALTER TABLE public.posrole_members
     ADD CONSTRAINT posrole_members_user_id_fkey FOREIGN KEY (user_id)
     REFERENCES public.users (user_id) MATCH SIMPLE
     ON UPDATE CASCADE
