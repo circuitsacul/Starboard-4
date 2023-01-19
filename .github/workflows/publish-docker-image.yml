@@ -31,4 +31,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: circuitsacul/starboard:${{ env.TAG_NAME }}
+          tags: circuitsacul/starboard:${{ env.TAG_NAME }},circuitsacul/starboard:latest
