@@ -162,7 +162,10 @@ impl Cache {
             channel_ids.push(channel_id);
 
             let must_fetch = self.guilds.with(&guild_id, |_, guild| {
-                let guild = guild.as_ref().unwrap();
+                let Some(guild) = &guild else {
+                    eprintln!("Warning: no cached guild.");
+                    return true;
+                };
 
                 if let Some(thread_parent_id) = guild.active_thread_parents.get(&channel_id) {
                     current_channel_id = Some(*thread_parent_id);
@@ -430,7 +433,7 @@ impl Cache {
         // since this is 100% going to be a parent channel, and since discord always
         // includes the `nsfw` parameter for channels fetched over the api, this
         // should be safe.
-        let is_nsfw = parent.nsfw.unwrap();
+        let is_nsfw = parent.nsfw.unwrap_or(false);
 
         // cache the value
         self.guilds.alter(&guild_id, |_, mut guild| {
