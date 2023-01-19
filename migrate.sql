@@ -6,16 +6,6 @@
 -- and may require manual changes to the script to ensure changes are applied in the correct order.
 -- Please report an issue for any failure with the reproduction steps.
  BEGIN; 
- CREATE TABLE IF NOT EXISTS public._sqlx_migrations
-(
-    version bigint NOT NULL,
-    description text COLLATE pg_catalog."default" NOT NULL,
-    installed_on timestamp with time zone NOT NULL DEFAULT 'now()',
-    success boolean NOT NULL,
-    checksum bytea NOT NULL,
-    execution_time bigint NOT NULL,
-    CONSTRAINT _sqlx_migrations_pkey PRIMARY KEY (version)
-)
 
 TABLESPACE pg_default;
 
