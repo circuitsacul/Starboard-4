@@ -56,24 +56,29 @@ pub struct Cache {
 
 impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
+        let messages = stretto::AsyncCacheBuilder::new(
+            (constants::MAX_MESSAGES * 10) as usize,
+            constants::MAX_MESSAGES.into(),
+        )
+        .set_ignore_internal_cost(true)
+        .finalize(tokio::spawn)
+        .unwrap();
+        let responses = stretto::AsyncCacheBuilder::new(
+            (constants::MAX_STORED_RESPONSES * 10) as usize,
+            constants::MAX_STORED_RESPONSES.into(),
+        )
+        .set_ignore_internal_cost(true)
+        .finalize(tokio::spawn)
+        .unwrap();
+
         Self {
             guilds: DashMap::new().into(),
             users: DashMap::new().into(),
             webhooks: DashMap::new().into(),
-            messages: stretto::AsyncCache::new(
-                (constants::MAX_MESSAGES * 10) as usize,
-                constants::MAX_MESSAGES.into(),
-                tokio::spawn,
-            )
-            .unwrap(),
+            messages,
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_vote_emojis: DashMap::new().into(),
-            responses: stretto::AsyncCache::new(
-                (constants::MAX_STORED_RESPONSES * 10) as usize,
-                constants::MAX_STORED_RESPONSES.into(),
-                tokio::spawn,
-            )
-            .unwrap(),
+            responses,
         }
     }
 
