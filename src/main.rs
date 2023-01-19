@@ -10,6 +10,7 @@ pub mod macros;
 pub mod owner;
 pub mod utils;
 
+use snafu::ErrorCompat;
 use tokio::main;
 
 use crate::client::{bot::StarboardBot, config::Config, runner::run};
@@ -31,6 +32,10 @@ async fn main() {
     let (events, starboard) = match StarboardBot::new(config).await {
         Ok(val) => val,
         Err(why) => {
+            eprintln!("{}", &why);
+            if let Some(bt) = ErrorCompat::backtrace(&why) {
+                eprintln!("{:#?}", &bt);
+            }
             sentry::capture_error(&why);
             return;
         }

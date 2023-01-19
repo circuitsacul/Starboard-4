@@ -126,7 +126,7 @@ impl StarboardBot {
         };
 
         if let Some(bt) = ErrorCompat::backtrace(err) {
-            writeln!(msg, "\n```rs\n{bt:?}\n```").unwrap();
+            writeln!(msg, "\n```rs\n{bt:#?}\n```").unwrap();
         }
 
         eprintln!("{msg}");
