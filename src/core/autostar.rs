@@ -66,7 +66,7 @@ pub async fn handle(
 
     // Handle the autostar channels
     for a in asc {
-        let status = get_status(bot, &a, message_id, message).await;
+        let status = get_status(bot, &a, message_id, channel_id, message).await?;
 
         if matches!(status, Status::InvalidStay) {
             continue;
@@ -112,8 +112,9 @@ async fn get_status(
     bot: &StarboardBot,
     asc: &AutoStarChannel,
     message_id: Id<MessageMarker>,
+    channel_id: Id<ChannelMarker>,
     event: &CachedMessage,
-) -> Status {
+) -> StarboardResult<Status> {
     let mut invalid = Vec::new();
 
     if asc.min_chars != 0 && event.content.len() < asc.min_chars as usize {
@@ -132,22 +133,15 @@ async fn get_status(
     if asc.require_image && !has_image(&event.embeds, &event.attachments) {
         tokio::time::sleep(Duration::from_secs(3)).await;
 
-        let updated_msg = bot.cache.messages.get(&message_id);
+        let updated_msg = bot.cache.fog_message(bot, channel_id, message_id).await?;
         let mut still_invalid = true;
 
-        if let Some(msg) = updated_msg {
-            let msg = match msg.value() {
-                None => return Status::InvalidStay,
-                Some(msg) => msg,
-            };
-            if has_image(&msg.embeds, &msg.attachments) {
-                still_invalid = false;
-            }
-        } else {
-            eprintln!(concat!(
-                "Warning: autostar channel message was not cached. Likely means the cache is ",
-                "being overwhelmed."
-            ))
+        let msg = match updated_msg {
+            None => return Ok(Status::InvalidStay),
+            Some(msg) => msg,
+        };
+        if has_image(&msg.embeds, &msg.attachments) {
+            still_invalid = false;
         }
 
         if still_invalid {
@@ -156,10 +150,10 @@ async fn get_status(
     }
 
     if invalid.is_empty() {
-        Status::Valid
+        Ok(Status::Valid)
     } else if asc.delete_invalid {
-        Status::InvalidRemove(invalid)
+        Ok(Status::InvalidRemove(invalid))
     } else {
-        Status::InvalidStay
+        Ok(Status::InvalidStay)
     }
 }

@@ -277,10 +277,10 @@ impl Cache {
             Ok(msg) => Some(Arc::new(msg.model().await?.into())),
         };
 
+        let ret = msg.clone();
         self.messages.insert(message_id, msg, 1).await;
 
-        self.messages.wait().await.unwrap();
-        Ok(self.messages.get(&message_id).unwrap().value().clone())
+        Ok(ret)
     }
 
     async fn fetch_channel_or_thread_parent(
