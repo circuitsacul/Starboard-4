@@ -295,9 +295,15 @@ CREATE INDEX IF NOT EXISTS aschannels__channel_id ON autostar_channels USING BTR
 
 CREATE INDEX IF NOT EXISTS guilds__premium_end ON guilds USING BTREE ((premium_end));
 
-CREATE INDEX IF NOT EXISTS members__guild_id ON members USING BTREE ((guild_id));
-CREATE INDEX IF NOT EXISTS members__autoredeem_enabled ON members USING BTREE ((autoredeem_enabled));
-CREATE INDEX IF NOT EXISTS members__xp ON members USING BTREE ((xp));
+CREATE INDEX IF NOT EXISTS messages__trashed ON messages USING HASH (trashed)
+    WHERE trashed=true;
+
+CREATE INDEX IF NOT EXISTS members__guild_id ON members USING HASH ((guild_id));
+CREATE INDEX IF NOT EXISTS members__user_id ON members USING HASH ((user_id));
+CREATE INDEX IF NOT EXISTS members__autoredeem_enabled ON members USING HASH ((autoredeem_enabled))
+    WHERE autoredeem_enabled=true;
+CREATE INDEX IF NOT EXISTS members__guild_id_xp ON members USING BTREE ((guild_id), (xp))
+    WHERE xp > 0;
 
 CREATE UNIQUE INDEX IF NOT EXISTS overrides__guild_id_name ON overrides USING BTREE ((guild_id), (name));
 CREATE INDEX IF NOT EXISTS overrides__starboard_id ON overrides USING BTREE ((starboard_id));
