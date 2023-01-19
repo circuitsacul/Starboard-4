@@ -14,6 +14,7 @@ pub struct Config {
     pub main_guild: Option<u64>,
     pub patron_role: Option<u64>,
     pub supporter_role: Option<u64>,
+    pub proxy: Option<String>,
 }
 
 impl Config {
@@ -51,6 +52,8 @@ impl Config {
         let patron_role = env::var("PATRON_ROLE").ok().map(|v| v.parse().unwrap());
         let supporter_role = env::var("SUPPORTER_ROLE").ok().map(|v| v.parse().unwrap());
 
+        let proxy = env::var("PROXY").ok();
+
         Config {
             token,
             patreon_token,
@@ -64,6 +67,7 @@ impl Config {
             main_guild,
             patron_role,
             supporter_role,
+            proxy,
         }
     }
 }

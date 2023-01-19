@@ -63,7 +63,11 @@ impl StarboardBot {
             .await?;
 
         // Setup HTTP connection
-        let http = HttpClient::new(config.token.clone());
+        let mut http = HttpClient::builder().token(config.token.clone());
+        if let Some(proxy) = &config.proxy {
+            http = http.proxy(proxy.to_owned(), true);
+        }
+        let http = http.build();
 
         // Setup database connection
         let pool = PgPool::connect(&config.db_url).await?;
