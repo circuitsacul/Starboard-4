@@ -15,6 +15,7 @@ use twilight_util::{
 use crate::{
     cache::models::message::CachedMessage,
     constants,
+    core::emoji::{EmojiCommon, SimpleEmoji},
     utils::{id_as_i64::GetI64, into_id::IntoId, message_link::fmt_message_link},
 };
 
@@ -57,8 +58,11 @@ impl BuiltStarboardEmbed {
     pub fn build_top_content(handle: &Embedder) -> String {
         let mut top_content = String::new();
 
-        if let Some(ref emoji) = handle.config.resolved.display_emoji {
-            top_content.push_str(emoji);
+        if let Some(emoji) = handle.config.resolved.display_emoji.clone() {
+            let emoji = SimpleEmoji::from_stored(emoji);
+            top_content.push_str(
+                &emoji.into_readable(handle.bot, handle.config.starboard.guild_id.into_id()),
+            );
         }
         write!(
             top_content,
