@@ -203,22 +203,6 @@ CREATE TABLE IF NOT EXISTS posroles (
     PRIMARY KEY (role_id)
 );
 
-CREATE TABLE IF NOT EXISTS posrole_members (
-    role_id BIGINT NOT NULL,
-    user_id BIGINT NOT NULL,
-
-    FOREIGN KEY (role_id) REFERENCES posroles (role_id)
-        MATCH SIMPLE
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users (user_id)
-        MATCH SIMPLE
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-
-    PRIMARY KEY (role_id, user_id)
-);
-
 CREATE TABLE IF NOT EXISTS messages (
     message_id BIGINT NOT NULL,
     guild_id BIGINT NOT NULL,

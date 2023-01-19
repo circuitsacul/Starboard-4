@@ -588,31 +588,6 @@ DROP INDEX public._btree_index_sb_messages__last_known_point_count;
 DROP INDEX public._btree_index_sb_messages__sb_message_id;
 
 -- posrole_members
-ALTER TABLE public.posrole_members
-    ALTER COLUMN role_id TYPE bigint;
-
-ALTER TABLE public.posrole_members
-    ALTER COLUMN role_id SET STORAGE PLAIN;
-
-ALTER TABLE public.posrole_members
-    ALTER COLUMN user_id TYPE bigint;
-
-ALTER TABLE public.posrole_members
-    ALTER COLUMN user_id SET STORAGE PLAIN;
-ALTER TABLE public.posrole_members DROP CONSTRAINT _posrole_members_role_id_user_id_primary_key;
-
-ALTER TABLE public.posrole_members
-    ADD CONSTRAINT posrole_members_pkey PRIMARY KEY (role_id, user_id);
-ALTER TABLE public.posrole_members
-    ADD CONSTRAINT posrole_members_role_id_fkey FOREIGN KEY (role_id)
-    REFERENCES public.posroles (role_id) MATCH SIMPLE
-    ON UPDATE CASCADE
-    ON DELETE CASCADE;
-
-ALTER TABLE public.posrole_members
-    ADD CONSTRAINT posrole_members_user_id_fkey FOREIGN KEY (user_id)
-    REFERENCES public.users (user_id) MATCH SIMPLE
-    ON UPDATE CASCADE
-    ON DELETE CASCADE;
+DROP TABLE posrole_members;
 
  END;

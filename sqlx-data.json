@@ -3967,33 +3967,6 @@
     },
     "query": "SELECT COUNT(*) as count FROM autostar_channels WHERE guild_id=$1"
   },
-  "c66e16c0479be2132e8339140c7826b315455db068de46eddbf1904c757e5d48": {
-    "describe": {
-      "columns": [
-        {
-          "name": "role_id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 1,
-          "type_info": "Int8"
-        }
-      ],
-      "nullable": [
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int8"
-        ]
-      }
-    },
-    "query": "INSERT INTO posrole_members\n            (role_id, user_id)\n            VALUES ($1, $2)\n            RETURNING *"
-  },
   "c8266927b57a94836c7b29a75e5dc0af1d84bedf80a033417d4a9ac51ff1a4c4": {
     "describe": {
       "columns": [

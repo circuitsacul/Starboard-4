@@ -6,7 +6,6 @@ pub mod patron;
 pub mod permrole;
 pub mod permrole_starboard;
 pub mod posrole;
-pub mod posrole_member;
 pub mod starboard;
 pub mod starboard_message;
 pub mod starboard_override;
