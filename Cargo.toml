@@ -34,3 +34,6 @@ sentry = "0.29.0"
 floodgate = "0.5.0"
 thousands = "0.2.0"
 snafu = { version = "0.7.4", features = ["backtraces-impl-backtrace-crate"] }
+
+[patch.crates-io]
+twilight-model = { git = 'https://github.com/twilight-rs/twilight.git', branch="zeyla/fix-model-channel-member-count-signed" }
