@@ -33,7 +33,7 @@ pub const MAX_STORED_RESPONSES: u32 = 100;
 
 // Cooldowns
 pub const AUTOSTAR_COOLDOWN: (u64, Duration) = (5, Duration::from_secs(20));
-pub const OLD_MESSAGE_EDIT: (u64, Duration) = (2, Duration::from_secs(10));
+pub const MESSAGE_EDIT: (u64, Duration) = (2, Duration::from_secs(10));
 pub const XP_REFRESH: (u64, Duration) = (1, Duration::from_secs(60 * 10));
 
 // Common Validation

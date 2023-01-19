@@ -229,15 +229,13 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                     (true, false)
                 }
                 MessageStatus::Send(full_update) | MessageStatus::Update(full_update) => {
-                    let as_id: Id<MessageMarker> = sb_msg.starboard_message_id.into_id();
-                    if as_id.age().as_secs() > 3600
-                        && self
-                            .refresh
-                            .bot
-                            .cooldowns
-                            .old_message_edit
-                            .trigger(&self.config.starboard.channel_id.into_id())
-                            .is_some()
+                    if self
+                        .refresh
+                        .bot
+                        .cooldowns
+                        .message_edit
+                        .trigger(&self.config.starboard.channel_id.into_id())
+                        .is_some()
                     {
                         (false, false)
                     } else {
