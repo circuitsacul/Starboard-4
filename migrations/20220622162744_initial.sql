@@ -1,11 +1,11 @@
-CREATE TABLE guilds (
+CREATE TABLE IF NOT EXISTS guilds (
     guild_id BIGINT NOT NULL,
     premium_end TIMESTAMPTZ,
 
     PRIMARY KEY (guild_id)
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id BIGINT NOT NULL,
     is_bot BOOLEAN NOT NULL,
     credits INTEGER NOT NULL DEFAULT 0,
@@ -16,7 +16,7 @@ CREATE TABLE users (
     PRIMARY KEY (user_id)
 );
 
-CREATE TABLE patrons (
+CREATE TABLE IF NOT EXISTS patrons (
     patreon_id VARCHAR(64) NOT NULL,
     discord_id BIGINT,
     last_patreon_total_cents BIGINT NOT NULL DEFAULT 0,
@@ -29,7 +29,7 @@ CREATE TABLE patrons (
     PRIMARY KEY (patreon_id)
 );
 
-CREATE TABLE members (
+CREATE TABLE IF NOT EXISTS members (
     user_id BIGINT NOT NULL,
     guild_id BIGINT NOT NULL,
     xp REAL NOT NULL DEFAULT 0,
@@ -47,7 +47,7 @@ CREATE TABLE members (
     PRIMARY KEY (user_id, guild_id)
 );
 
-CREATE TABLE starboards (
+CREATE TABLE IF NOT EXISTS starboards (
     id SERIAL NOT NULL,
     name TEXT NOT NULL,
     channel_id BIGINT NOT NULL,
@@ -102,7 +102,7 @@ CREATE TABLE starboards (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE overrides (
+CREATE TABLE IF NOT EXISTS overrides (
     id SERIAL NOT NULL,
     guild_id BIGINT NOT NULL,
     name TEXT NOT NULL,
@@ -122,7 +122,7 @@ CREATE TABLE overrides (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE permroles (
+CREATE TABLE IF NOT EXISTS permroles (
     role_id BIGINT NOT NULL,
     guild_id BIGINT NOT NULL,
     obtain_xproles BOOLEAN,
@@ -137,7 +137,7 @@ CREATE TABLE permroles (
     PRIMARY KEY (role_id)
 );
 
-CREATE TABLE permrole_starboards (
+CREATE TABLE IF NOT EXISTS permrole_starboards (
     permrole_id BIGINT NOT NULL,
     starboard_id INTEGER NOT NULL,
     give_votes BOOLEAN,
@@ -155,7 +155,7 @@ CREATE TABLE permrole_starboards (
     PRIMARY KEY (permrole_id, starboard_id)
 );
 
-CREATE TABLE autostar_channels (
+CREATE TABLE IF NOT EXISTS autostar_channels (
     id SERIAL NOT NULL,
     name TEXT NOT NULL,
     channel_id BIGINT NOT NULL,
@@ -177,7 +177,7 @@ CREATE TABLE autostar_channels (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE xproles (
+CREATE TABLE IF NOT EXISTS xproles (
     role_id BIGINT NOT NULL,
     guild_id BIGINT NOT NULL,
     required SMALLINT NOT NULL,
@@ -190,7 +190,7 @@ CREATE TABLE xproles (
     PRIMARY KEY (role_id)
 );
 
-CREATE TABLE posroles (
+CREATE TABLE IF NOT EXISTS posroles (
     role_id BIGINT NOT NULL,
     guild_id BIGINT NOT NULL,
     max_members INTEGER NOT NULL,
@@ -203,7 +203,7 @@ CREATE TABLE posroles (
     PRIMARY KEY (role_id)
 );
 
-CREATE TABLE posrole_members (
+CREATE TABLE IF NOT EXISTS posrole_members (
     role_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
 
@@ -219,7 +219,7 @@ CREATE TABLE posrole_members (
     PRIMARY KEY (role_id, user_id)
 );
 
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     message_id BIGINT NOT NULL,
     guild_id BIGINT NOT NULL,
     channel_id BIGINT NOT NULL,
@@ -242,7 +242,7 @@ CREATE TABLE messages (
     PRIMARY KEY (message_id)
 );
 
-CREATE TABLE starboard_messages (
+CREATE TABLE IF NOT EXISTS starboard_messages (
     message_id BIGINT NOT NULL,
     starboard_id INTEGER NOT NULL,
     starboard_message_id BIGINT NOT NULL,
@@ -260,7 +260,7 @@ CREATE TABLE starboard_messages (
     PRIMARY KEY (message_id, starboard_id)
 );
 
-CREATE TABLE votes (
+CREATE TABLE IF NOT EXISTS votes (
     message_id BIGINT NOT NULL,
     starboard_id INTEGER NOT NULL,
     user_id BIGINT NOT NULL,
@@ -288,26 +288,36 @@ CREATE TABLE votes (
 );
 
 -- indexes
-CREATE INDEX _btree_index_patrons__discord_id ON patrons USING BTREE ((discord_id));
-CREATE INDEX _btree_index_aschannels__guild_id_name ON autostar_channels USING BTREE ((guild_id), (name));
-CREATE INDEX _btree_index_aschannels__channel_id ON autostar_channels USING BTREE ((channel_id));
-CREATE INDEX _btree_index_guilds__premium_end ON guilds USING BTREE ((premium_end));
-CREATE INDEX _btree_index_members__guild_id ON members USING BTREE ((guild_id));
-CREATE INDEX _btree_index_members__autoredeem_enabled ON members USING BTREE ((autoredeem_enabled));
-CREATE INDEX _btree_index_members__xp ON members USING BTREE ((xp));
-CREATE UNIQUE INDEX _btree_index_overrides__guild_id_name ON overrides USING BTREE ((guild_id), (name));
-CREATE INDEX _btree_index_overrides__starboard_id ON overrides USING BTREE ((starboard_id));
-CREATE INDEX _gin_index_overrides__channel_ids ON overrides USING GIN ((channel_ids));
-CREATE UNIQUE INDEX _btree_index_sb_messages__sb_message_id ON starboard_messages USING BTREE ((starboard_message_id));
-CREATE INDEX _btree_index_sb_messages__last_known_point_count ON starboard_messages USING BTREE ((last_known_point_count));
-CREATE INDEX _btree_index_sb_messages__starboard_id ON starboard_messages USING BTREE ((starboard_id));
-CREATE INDEX _btree_index_permroles__guild_id ON permroles USING BTREE ((guild_id));
-CREATE UNIQUE INDEX _btree_index_posroles__guild_id_max_members ON posroles USING BTREE ((guild_id), (max_members));
-CREATE INDEX _btree_index_starboards__guild_id_name ON starboards USING BTREE ((guild_id), (name));
-CREATE INDEX _btree_index_starboards__channel_id ON starboards USING BTREE ((channel_id));
-CREATE INDEX _btree_index_xproles__guild_id ON xproles USING BTREE ((guild_id));
-CREATE INDEX _btree_index_votes__starboard_id ON votes USING BTREE ((starboard_id));
-CREATE INDEX _btree_index_votes__user_id ON votes USING BTREE ((user_id));
-CREATE INDEX _btree_index_votes__message_id ON votes USING BTREE ((message_id));
-CREATE INDEX _btree_index_votes__target_author_id ON votes USING BTREE ((target_author_id));
-CREATE INDEX _btree_index_votes__is_downvote ON votes USING BTREE ((is_downvote));
+CREATE INDEX IF NOT EXISTS patrons__discord_id ON patrons USING BTREE ((discord_id));
+
+CREATE INDEX IF NOT EXISTS aschannels__guild_id_name ON autostar_channels USING BTREE ((guild_id), (name));
+CREATE INDEX IF NOT EXISTS aschannels__channel_id ON autostar_channels USING BTREE ((channel_id));
+
+CREATE INDEX IF NOT EXISTS guilds__premium_end ON guilds USING BTREE ((premium_end));
+
+CREATE INDEX IF NOT EXISTS members__guild_id ON members USING BTREE ((guild_id));
+CREATE INDEX IF NOT EXISTS members__autoredeem_enabled ON members USING BTREE ((autoredeem_enabled));
+CREATE INDEX IF NOT EXISTS members__xp ON members USING BTREE ((xp));
+
+CREATE UNIQUE INDEX IF NOT EXISTS overrides__guild_id_name ON overrides USING BTREE ((guild_id), (name));
+CREATE INDEX IF NOT EXISTS overrides__starboard_id ON overrides USING BTREE ((starboard_id));
+CREATE INDEX IF NOT EXISTS overrides__channel_ids ON overrides USING GIN ((channel_ids));
+
+CREATE UNIQUE INDEX IF NOT EXISTS sb_messages__sb_message_id ON starboard_messages USING BTREE ((starboard_message_id));
+CREATE INDEX IF NOT EXISTS sb_messages__last_known_point_count ON starboard_messages USING BTREE ((last_known_point_count));
+CREATE INDEX IF NOT EXISTS sb_messages__starboard_id ON starboard_messages USING BTREE ((starboard_id));
+
+CREATE INDEX IF NOT EXISTS permroles__guild_id ON permroles USING BTREE ((guild_id));
+
+CREATE UNIQUE INDEX IF NOT EXISTS posroles__guild_id_max_members ON posroles USING BTREE ((guild_id), (max_members));
+
+CREATE INDEX IF NOT EXISTS starboards__guild_id_name ON starboards USING BTREE ((guild_id), (name));
+CREATE INDEX IF NOT EXISTS starboards__channel_id ON starboards USING BTREE ((channel_id));
+
+CREATE INDEX IF NOT EXISTS xproles__guild_id ON xproles USING BTREE ((guild_id));
+
+CREATE INDEX IF NOT EXISTS votes__starboard_id ON votes USING BTREE ((starboard_id));
+CREATE INDEX IF NOT EXISTS votes__user_id ON votes USING BTREE ((user_id));
+CREATE INDEX IF NOT EXISTS votes__message_id ON votes USING BTREE ((message_id));
+CREATE INDEX IF NOT EXISTS votes__target_author_id ON votes USING BTREE ((target_author_id));
+CREATE INDEX IF NOT EXISTS votes__is_downvote ON votes USING BTREE ((is_downvote));
