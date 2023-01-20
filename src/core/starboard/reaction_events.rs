@@ -121,7 +121,7 @@ pub async fn handle_reaction_add(
                     &emoji.reactable(),
                     event.user_id,
                 )
-                .await?;
+                .await;
         }
         VoteStatus::Valid((upvote, downvote)) => {
             // create reactor data
