@@ -42,29 +42,29 @@ impl Leaderboard {
                 })
                 .collect::<String>()
         });
+        let pages: Vec<_> = pages
+            .map(|p| {
+                (
+                    None,
+                    Some(vec![embed::build()
+                        .title(if include_gone {
+                            "Leaderboard (Including Gone)"
+                        } else {
+                            "Leaderboard"
+                        })
+                        .description(p)
+                        .build()]),
+                )
+            })
+            .collect();
+
+        if pages.is_empty() {
+            ctx.respond_str("Nothing to show.", true).await?;
+            return Ok(());
+        }
 
         let author_id = ctx.interaction.author_id().unwrap();
-        paginator::simple(
-            &mut ctx,
-            pages
-                .map(|p| {
-                    (
-                        None,
-                        Some(vec![embed::build()
-                            .title(if include_gone {
-                                "Leaderboard (Including Gone)"
-                            } else {
-                                "Leaderboard"
-                            })
-                            .description(p)
-                            .build()]),
-                    )
-                })
-                .collect(),
-            author_id,
-            false,
-        )
-        .await?;
+        paginator::simple(&mut ctx, pages, author_id, false).await?;
 
         Ok(())
     }
