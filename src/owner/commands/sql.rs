@@ -81,18 +81,20 @@ pub async fn run_sql(
         results.push(result);
     }
 
-    if rollback || bot.config.development {
+    let commited = if rollback || !bot.config.development {
         tx.rollback().await?;
+        false
     } else {
         tx.commit().await?;
-    }
+        true
+    };
 
     let mut final_result = String::new();
 
-    if !rollback && !bot.config.development {
-        final_result.push_str("Cannot commit on production bot.\n\n");
-    } else if !rollback {
-        final_result.push_str("These queries were commited.\n");
+    if !commited {
+        final_result.push_str("**Not** commited.\n\n");
+    } else {
+        final_result.push_str("Commited.\n\n");
     }
 
     for result in results {
