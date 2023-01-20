@@ -135,14 +135,17 @@ impl BuiltStarboardEmbed {
     ) -> Option<Embed> {
         let mut embed_is_empty = true;
         let mut zws_fields: Vec<String> = Vec::new();
-        let mut embed =
-            EmbedBuilder::new().color(handle.config.resolved.color.map(|c| c as u32).unwrap_or(
-                if is_reply {
-                    constants::EMBED_DARK_BG
-                } else {
-                    constants::BOT_COLOR
-                },
-            ));
+        let color = if is_reply {
+            constants::EMBED_DARK_BG
+        } else {
+            handle
+                .config
+                .resolved
+                .color
+                .map(|c| c as u32)
+                .unwrap_or(constants::BOT_COLOR)
+        };
+        let mut embed = EmbedBuilder::new().color(color);
 
         let (link, mid_i64) = {
             let mid = match is_reply {
