@@ -154,7 +154,10 @@ impl SystemContent for Message {
                 "**{}** pinned **a message** to this channel. See all **pinned messages**.",
                 self.author.name,
             ),
-            _ => unreachable!("Unhandled MessageType."),
+            unkown => {
+                eprintln!("Warning: unkown message type {unkown:?}");
+                self.content.clone()
+            }
         }
     }
 }
