@@ -2415,7 +2415,7 @@ dependencies = [
 [[package]]
 name = "twilight-model"
 version = "0.14.2"
-source = "git+https://github.com/circuitsacul/twilight-fixed-deserialization.git?branch=main#2d3663b7972af742375d19c71655dee2789cbe0f"
+source = "git+https://github.com/twilight-rs/twilight.git?branch=zeyla/fix-model-channel-member-count-signed#701193d504f1c898265f1191ee7874fef521f704"
 dependencies = [
  "bitflags",
  "serde",
