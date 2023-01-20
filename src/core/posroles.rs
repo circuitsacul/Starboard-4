@@ -73,6 +73,61 @@ pub async fn loop_update_posroles(bot: Arc<StarboardBot>) {
     }
 }
 
+async fn set_role(
+    bot: &StarboardBot,
+    guild_id: Id<GuildMarker>,
+    user_id: Id<UserMarker>,
+    posrole_ids: &[Id<RoleMarker>],
+    role_id: Option<Id<RoleMarker>>,
+) -> Option<(i32, i32, i32, i32)> {
+    let mut failed_adds = 0;
+    let mut added_roles = 0;
+    let mut failed_removals = 0;
+    let mut removed_roles = 0;
+
+    let Some((to_remove, to_add)) = bot.cache.guilds.with(&guild_id, |_, g| {
+        let Some(g) = g else {
+            return None;
+        };
+        let Some(member) = g.members.get(&user_id) else {
+            return None;
+        };
+
+        let to_remove: Vec<_> = posrole_ids.iter().filter(|pr| member.roles.contains(*pr) && Some(**pr) != role_id).collect();
+        let to_add = role_id.filter(|&role_id| !member.roles.contains(&role_id));
+
+        Some((to_remove, to_add))
+    }) else {
+        return None;
+    };
+
+    if let Some(role_id) = to_add {
+        let ret = bot
+            .http
+            .add_guild_member_role(guild_id, user_id, role_id)
+            .await;
+        if ret.is_err() {
+            failed_adds += 1;
+        } else {
+            added_roles += 1;
+        }
+    }
+
+    for role in to_remove {
+        let ret = bot
+            .http
+            .remove_guild_member_role(guild_id, user_id, *role)
+            .await;
+        if ret.is_err() {
+            failed_removals += 1;
+        } else {
+            removed_roles += 1;
+        }
+    }
+
+    Some((added_roles, failed_adds, removed_roles, failed_removals))
+}
+
 pub async fn update_posroles_for_guild(
     bot: Arc<StarboardBot>,
     guild_id: Id<GuildMarker>,
@@ -89,9 +144,9 @@ pub async fn update_posroles_for_guild(
     let guild_id_i64 = guild_id.get_i64();
 
     let posroles = PosRole::list_by_guild(&bot.pool, guild_id_i64).await?;
-    let pr_ids: Vec<Id<RoleMarker>> = posroles.iter().map(|pr| pr.role_id.into_id()).collect();
+    let posrole_ids: Vec<Id<RoleMarker>> = posroles.iter().map(|pr| pr.role_id.into_id()).collect();
 
-    let lb_size: i32 = posroles.iter().map(|pr| pr.max_members).sum();
+    let lb_size = posroles.iter().map(|pr| pr.max_members).sum::<i32>() * 2;
     let mut leaderboard = Member::list_by_xp_exclude_deleted(
         &bot.pool,
         guild_id.get_i64(),
@@ -110,45 +165,25 @@ pub async fn update_posroles_for_guild(
         for member in leaderboard.drain(..to_drain) {
             let user_id: Id<UserMarker> = member.user_id.into_id();
 
-            let Some((to_remove, has_current)) = bot.cache.guilds.with(&guild_id, |_, g| {
-                let Some(g) = g else {
-                    return None;
-                };
-                let Some(member) = g.members.get(&user_id) else {
-                    return None;
-                };
-
-                let to_remove: Vec<_> = pr_ids.iter().filter(|pr| member.roles.contains(*pr) && **pr != role_id).collect();
-                let has_current = member.roles.contains(&role_id);
-
-                Some((to_remove, has_current))
-            }) else {
-                continue;
-            };
-
-            if !has_current {
-                let ret = bot
-                    .http
-                    .add_guild_member_role(guild_id, user_id, role_id)
-                    .await;
-                if ret.is_err() {
-                    failed_adds += 1;
-                } else {
-                    added_roles += 1;
-                }
+            let ret = set_role(&bot, guild_id, user_id, &posrole_ids, Some(role_id)).await;
+            if let Some((aw, af, rw, rf)) = ret {
+                added_roles += aw;
+                failed_adds += af;
+                removed_roles += rw;
+                failed_removals += rf;
             }
+        }
+    }
 
-            for role in to_remove {
-                let ret = bot
-                    .http
-                    .remove_guild_member_role(guild_id, user_id, *role)
-                    .await;
-                if ret.is_err() {
-                    failed_removals += 1;
-                } else {
-                    removed_roles += 1;
-                }
-            }
+    for member in leaderboard {
+        let user_id: Id<UserMarker> = member.user_id.into_id();
+
+        let ret = set_role(&bot, guild_id, user_id, &posrole_ids, None).await;
+        if let Some((aw, af, rw, rf)) = ret {
+            added_roles += aw;
+            failed_adds += af;
+            removed_roles += rw;
+            failed_removals += rf;
         }
     }
 
