@@ -29,11 +29,17 @@ pub async fn run_sql(
         bot.cache.responses.get(&message_id).map(|id| id.read())
     };
 
+    let mut rollback = false;
+
     let blocks = parse_code_blocks(message.content.strip_prefix("star sql").unwrap());
     let mut results = Vec::new();
 
     let mut tx = bot.pool.begin().await?;
     for (code, meta) in &blocks {
+        if meta.get("rollback").map_or(true, |v| v.parse().unwrap()) {
+            rollback = true;
+        }
+
         let return_results = meta.get("return").is_some();
         let total_execs = meta.get("runs").map_or(1, |v| v.parse().unwrap()).max(1);
 
@@ -74,9 +80,21 @@ pub async fn run_sql(
         };
         results.push(result);
     }
-    tx.rollback().await?;
+
+    if rollback || bot.config.development {
+        tx.rollback().await?;
+    } else {
+        tx.commit().await?;
+    }
 
     let mut final_result = String::new();
+
+    if !rollback && !bot.config.development {
+        final_result.push_str("Cannot commit on production bot.\n\n");
+    } else if !rollback {
+        final_result.push_str("These queries were commited.\n");
+    }
+
     for result in results {
         final_result.push_str(&concat_format!(
             "Query {} ran {} times, " <- result.tag, result.execution_times.len();
