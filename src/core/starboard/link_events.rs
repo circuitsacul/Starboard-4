@@ -16,7 +16,7 @@ pub async fn handle_message_update(
     bot: Arc<StarboardBot>,
     event: Box<MessageUpdate>,
 ) -> StarboardResult<()> {
-    let msg = match DbMessage::get_original(&bot.pool, event.id.get_i64()).await? {
+    let msg = match DbMessage::get(&bot.pool, event.id.get_i64()).await? {
         Some(msg) => msg,
         None => return Ok(()),
     };
