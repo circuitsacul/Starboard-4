@@ -28,7 +28,6 @@ macro_rules! call_with_override_settings {
             remove_invalid_reactions,
             link_deletes,
             link_edits,
-            xp_multiplier,
             cooldown_enabled,
             cooldown_count,
             cooldown_period
