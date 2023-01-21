@@ -49,6 +49,8 @@ impl Cooldowns {
 
                 cooldown.autostar_send.cycle();
                 cooldown.starboard_custom_cooldown.cycle();
+                cooldown.message_edit.cycle();
+                cooldown.xp_refresh.cycle();
             }
         });
     }
