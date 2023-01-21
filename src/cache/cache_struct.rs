@@ -276,8 +276,11 @@ impl Cache {
         let msg = bot.http.message(channel_id, message_id).await;
         let msg = match msg {
             Err(why) => {
-                if get_status(&why) == Some(404) {
+                let status = get_status(&why);
+                if status == Some(404) {
                     None
+                } else if status == Some(403) {
+                    return Ok(None);
                 } else {
                     return Err(why.into());
                 }
