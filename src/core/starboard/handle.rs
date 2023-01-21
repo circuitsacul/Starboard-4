@@ -10,7 +10,7 @@ use crate::{
         emoji::{EmojiCommon, SimpleEmoji},
     },
     database::{Message as DbMessage, StarboardMessage, Vote},
-    errors::{StarboardError, StarboardResult},
+    errors::StarboardResult,
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
@@ -19,17 +19,18 @@ use super::{
     msg_status::{get_message_status, MessageStatus},
 };
 
-pub struct RefreshMessage<'bot> {
-    bot: &'bot StarboardBot,
+#[derive(Clone)]
+pub struct RefreshMessage {
+    bot: Arc<StarboardBot>,
     /// The id of the inputted message. May or may not be the original.
     message_id: Id<MessageMarker>,
     sql_message: Option<Arc<DbMessage>>,
     orig_message: Option<Option<Arc<CachedMessage>>>,
-    configs: Option<Arc<Vec<StarboardConfig>>>,
+    configs: Option<Arc<Vec<Arc<StarboardConfig>>>>,
 }
 
-impl RefreshMessage<'_> {
-    pub fn new(bot: &StarboardBot, message_id: Id<MessageMarker>) -> RefreshMessage {
+impl RefreshMessage {
+    pub fn new(bot: Arc<StarboardBot>, message_id: Id<MessageMarker>) -> RefreshMessage {
         RefreshMessage {
             bot,
             message_id,
@@ -39,42 +40,49 @@ impl RefreshMessage<'_> {
         }
     }
 
-    pub async fn refresh(&mut self, force: bool) -> StarboardResult<Option<Vec<StarboardError>>> {
+    pub async fn refresh(&mut self, force: bool) -> StarboardResult<bool> {
         let orig = self.get_sql_message().await?;
-        let guard = self.bot.locks.post_update_lock.lock(orig.message_id);
+        let clone = self.bot.clone();
+        let guard = clone.locks.post_update_lock.lock(orig.message_id);
         if guard.is_none() {
-            return Ok(None);
+            return Ok(false);
         }
 
         let configs = self.get_configs().await?;
 
-        let mut errors = Vec::new();
+        let mut tasks = Vec::new();
         for c in configs.iter() {
             if !c.resolved.enabled || c.starboard.premium_locked {
                 continue;
             }
 
-            if let Err(why) = RefreshStarboard::new(self, c).refresh(force).await {
-                errors.push(why);
+            let mut refresh = RefreshStarboard::new(self.to_owned(), c.to_owned());
+            tasks.push(tokio::spawn(async move { refresh.refresh(force).await }));
+        }
+
+        for t in tasks {
+            if let Ok(Err(why)) = t.await {
+                self.bot.handle_error(&why).await;
             }
         }
 
-        Ok(Some(errors))
+        Ok(true)
     }
 
     // caching methods
-    pub fn set_configs(&mut self, configs: Vec<StarboardConfig>) {
+    pub fn set_configs(&mut self, configs: Vec<Arc<StarboardConfig>>) {
         self.configs.replace(Arc::new(configs));
     }
 
-    async fn get_configs(&mut self) -> StarboardResult<Arc<Vec<StarboardConfig>>> {
+    async fn get_configs(&mut self) -> StarboardResult<Arc<Vec<Arc<StarboardConfig>>>> {
         if self.configs.is_none() {
             let msg = self.get_sql_message().await?;
             let guild_id = msg.guild_id.into_id();
             let channel_id = msg.channel_id.into_id();
 
-            let configs = StarboardConfig::list_for_channel(self.bot, guild_id, channel_id).await?;
-            self.set_configs(configs);
+            let configs =
+                StarboardConfig::list_for_channel(&self.bot, guild_id, channel_id).await?;
+            self.set_configs(configs.into_iter().map(Arc::new).collect());
         }
 
         Ok(self.configs.as_ref().unwrap().clone())
@@ -105,7 +113,7 @@ impl RefreshMessage<'_> {
                 .bot
                 .cache
                 .fog_message(
-                    self.bot,
+                    &self.bot,
                     sql_message.channel_id.into_id(),
                     sql_message.message_id.into_id(),
                 )
@@ -118,13 +126,13 @@ impl RefreshMessage<'_> {
     }
 }
 
-struct RefreshStarboard<'this, 'bot> {
-    refresh: &'this mut RefreshMessage<'bot>,
-    config: &'this StarboardConfig,
+struct RefreshStarboard {
+    refresh: RefreshMessage,
+    config: Arc<StarboardConfig>,
 }
 
-impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
-    pub fn new(refresh: &'this mut RefreshMessage<'bot>, config: &'this StarboardConfig) -> Self {
+impl RefreshStarboard {
+    pub fn new(refresh: RefreshMessage, config: Arc<StarboardConfig>) -> Self {
         Self { refresh, config }
     }
 
@@ -159,7 +167,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             .refresh
             .bot
             .cache
-            .fog_user(self.refresh.bot, sql_message.author_id.into_id())
+            .fog_user(&self.refresh.bot, sql_message.author_id.into_id())
             .await?;
         let (ref_msg, ref_msg_author) = if let Some(msg) = &orig_message {
             if let Some(id) = msg.referenced_message {
@@ -167,7 +175,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                     .refresh
                     .bot
                     .cache
-                    .fog_message(self.refresh.bot, sql_message.channel_id.into_id(), id)
+                    .fog_message(&self.refresh.bot, sql_message.channel_id.into_id(), id)
                     .await?;
 
                 let ref_msg_author = match &ref_msg {
@@ -176,7 +184,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                         self.refresh
                             .bot
                             .cache
-                            .fog_user(self.refresh.bot, ref_msg.author_id)
+                            .fog_user(&self.refresh.bot, ref_msg.author_id)
                             .await?,
                     ),
                 };
@@ -189,21 +197,21 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             (None, None)
         };
 
+        let sb_msg = self.get_starboard_message().await?;
         let embedder = Embedder {
-            bot: self.refresh.bot,
+            bot: &self.refresh.bot,
             points,
-            config: self.config,
+            config: &self.config,
             orig_message,
             orig_message_author,
             referenced_message: ref_msg,
             referenced_message_author: ref_msg_author,
             orig_sql_message: sql_message,
         };
-        let sb_msg = self.get_starboard_message().await?;
 
         let action = get_message_status(
-            self.refresh.bot,
-            self.config,
+            &self.refresh.bot,
+            &self.config,
             &orig,
             embedder.orig_message.is_none(),
             points,
@@ -224,7 +232,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
             let (delete, retry) = match action {
                 MessageStatus::Remove => {
                     embedder
-                        .delete(self.refresh.bot, sb_msg.starboard_message_id.into_id())
+                        .delete(&self.refresh.bot, sb_msg.starboard_message_id.into_id())
                         .await?;
                     (true, false)
                 }
@@ -241,7 +249,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                     } else {
                         let deleted = embedder
                             .edit(
-                                self.refresh.bot,
+                                &self.refresh.bot,
                                 sb_msg.starboard_message_id.into_id(),
                                 !full_update,
                             )
@@ -262,7 +270,7 @@ impl<'this, 'bot> RefreshStarboard<'this, 'bot> {
                 return Ok(false);
             }
 
-            let msg = embedder.send(self.refresh.bot).await?;
+            let msg = embedder.send(&self.refresh.bot).await?;
             StarboardMessage::create(
                 &self.refresh.bot.pool,
                 orig.message_id,

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use twilight_model::gateway::payload::incoming::{ReactionAdd, ReactionRemove};
 
 use crate::{
@@ -16,7 +18,7 @@ use super::{
 };
 
 pub async fn handle_reaction_add(
-    bot: &StarboardBot,
+    bot: Arc<StarboardBot>,
     event: Box<ReactionAdd>,
 ) -> StarboardResult<()> {
     let guild_id = match event.guild_id {
@@ -36,7 +38,7 @@ pub async fn handle_reaction_add(
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
 
-    if !StarboardConfig::is_guild_vote_emoji(bot, guild_id.get_i64(), &emoji.raw).await? {
+    if !StarboardConfig::is_guild_vote_emoji(&bot, guild_id.get_i64(), &emoji.raw).await? {
         return Ok(());
     }
 
@@ -47,14 +49,14 @@ pub async fn handle_reaction_add(
             let (author_is_bot, author_id) = {
                 let orig_msg_obj = bot
                     .cache
-                    .fog_message(bot, event.channel_id, event.message_id)
+                    .fog_message(&bot, event.channel_id, event.message_id)
                     .await?;
                 let orig_msg_obj = match orig_msg_obj {
                     None => return Ok(()),
                     Some(obj) => obj,
                 };
 
-                let user = bot.cache.fog_user(bot, orig_msg_obj.author_id).await?;
+                let user = bot.cache.fog_user(&bot, orig_msg_obj.author_id).await?;
                 let is_bot = user.map(|u| u.is_bot).unwrap_or(false);
                 (is_bot, orig_msg_obj.author_id.get_i64())
             };
@@ -64,7 +66,7 @@ pub async fn handle_reaction_add(
 
             let is_nsfw = bot
                 .cache
-                .fog_channel_nsfw(bot, guild_id, event.channel_id)
+                .fog_channel_nsfw(&bot, guild_id, event.channel_id)
                 .await?
                 .unwrap();
 
@@ -94,7 +96,7 @@ pub async fn handle_reaction_add(
         }
     };
 
-    let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
+    let configs = StarboardConfig::list_for_channel(&bot, guild_id, event.channel_id).await?;
     let vote = VoteContext {
         emoji: &emoji,
         reactor_id: event.user_id,
@@ -105,7 +107,7 @@ pub async fn handle_reaction_add(
         message_has_image: None,
         message_is_frozen: orig_msg.frozen,
     };
-    let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
+    let status = VoteStatus::get_vote_status(&bot, vote, configs).await?;
 
     // for future user, since orig_msg is moved
     let author_id = orig_msg.author_id;
@@ -162,20 +164,20 @@ pub async fn handle_reaction_add(
             }
 
             let all_configs: Vec<_> = upvote.into_iter().chain(downvote).collect();
-            let mut refresh = RefreshMessage::new(bot, event.message_id);
-            refresh.set_configs(all_configs);
+            let mut refresh = RefreshMessage::new(bot.clone(), event.message_id);
+            refresh.set_configs(all_configs.into_iter().map(Arc::new).collect());
             refresh.set_sql_message(orig_msg);
             refresh.refresh(false).await?;
         }
     }
 
-    refresh_xp(bot, guild_id, author_id.into_id()).await?;
+    refresh_xp(&bot, guild_id, author_id.into_id()).await?;
 
     Ok(())
 }
 
 pub async fn handle_reaction_remove(
-    bot: &StarboardBot,
+    bot: Arc<StarboardBot>,
     event: Box<ReactionRemove>,
 ) -> StarboardResult<()> {
     let guild_id = match event.guild_id {
@@ -190,7 +192,7 @@ pub async fn handle_reaction_remove(
     let author = User::get(&bot.pool, orig.author_id).await?.unwrap();
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
-    let configs = StarboardConfig::list_for_channel(bot, guild_id, event.channel_id).await?;
+    let configs = StarboardConfig::list_for_channel(&bot, guild_id, event.channel_id).await?;
     let vote = VoteContext {
         emoji: &emoji,
         reactor_id: event.user_id,
@@ -201,7 +203,7 @@ pub async fn handle_reaction_remove(
         message_has_image: None,
         message_is_frozen: orig.frozen,
     };
-    let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
+    let status = VoteStatus::get_vote_status(&bot, vote, configs).await?;
 
     match status {
         VoteStatus::Valid((upvote, downvote)) => {
@@ -211,15 +213,15 @@ pub async fn handle_reaction_remove(
                 Vote::delete(&bot.pool, orig.message_id, config.starboard.id, user_id).await?;
             }
 
-            let mut refresh = RefreshMessage::new(bot, event.message_id);
+            let mut refresh = RefreshMessage::new(bot.clone(), event.message_id);
             refresh.set_sql_message(orig);
-            refresh.set_configs(all_configs);
+            refresh.set_configs(all_configs.into_iter().map(Arc::new).collect());
             refresh.refresh(false).await?;
         }
         VoteStatus::Ignore | VoteStatus::Remove => (),
     }
 
-    refresh_xp(bot, guild_id, author.user_id.into_id()).await?;
+    refresh_xp(&bot, guild_id, author.user_id.into_id()).await?;
 
     Ok(())
 }

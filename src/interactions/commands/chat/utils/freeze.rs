@@ -44,7 +44,7 @@ impl Freeze {
             .unwrap();
         ctx.respond_str("Message frozen.", true).await?;
 
-        let mut refresh = RefreshMessage::new(&ctx.bot, orig.message_id.into_id());
+        let mut refresh = RefreshMessage::new(ctx.bot, orig.message_id.into_id());
         refresh.refresh(true).await?;
 
         Ok(())
@@ -81,7 +81,7 @@ impl UnFreeze {
             .unwrap();
         ctx.respond_str("Message unfrozen.", true).await?;
 
-        let mut refresh = RefreshMessage::new(&ctx.bot, orig.message_id.into_id());
+        let mut refresh = RefreshMessage::new(ctx.bot, orig.message_id.into_id());
         refresh.refresh(true).await?;
 
         Ok(())

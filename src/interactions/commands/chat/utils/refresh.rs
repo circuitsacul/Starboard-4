@@ -43,21 +43,11 @@ impl Refresh {
 
         ctx.defer(true).await?;
 
-        let ret = RefreshMessage::new(&ctx.bot, message_id.into_id())
+        RefreshMessage::new(ctx.bot.clone(), message_id.into_id())
             .refresh(true)
             .await?;
 
-        let resp = if ret.map_or(false, |ret| !ret.is_empty()) {
-            concat!(
-                "Some starboards failed to update. I might be missing permission to send ",
-                "messages in the starboard channel, or I might be missing permission to ",
-                "view the channel that the original message is in.",
-            )
-        } else {
-            "Message refreshed."
-        };
-
-        ctx.respond_str(resp, true).await?;
+        ctx.respond_str("Message refreshed.", true).await?;
 
         Ok(())
     }
