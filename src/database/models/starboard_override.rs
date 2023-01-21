@@ -10,7 +10,7 @@ pub struct StarboardOverride {
     pub starboard_id: i32,
     pub channel_ids: Vec<i64>,
 
-    overrides: serde_json::Value,
+    pub overrides: serde_json::Value,
 }
 
 impl StarboardOverride {

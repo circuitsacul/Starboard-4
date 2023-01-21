@@ -47,7 +47,11 @@ impl ViewOverride {
             let embed = embed::build()
                 .title(format!("Override '{}'", &name))
                 .description(format!(
-                    "This override applies to the following channels: {channels}"
+                    concat!(
+                        "This override belongs to the starboard '{}'.\n\n",
+                        "This override applies to the following channels: {}",
+                    ),
+                    &config.starboard.name, channels,
                 ))
                 .field(
                     EmbedFieldBuilder::new("Requirements", pretty.requirements)
@@ -82,10 +86,16 @@ impl ViewOverride {
                 let mut final_result = String::new();
 
                 for ov in overrides {
+                    let sb = Starboard::get(&ctx.bot.pool, ov.starboard_id)
+                        .await?
+                        .unwrap();
+
                     writeln!(
                         final_result,
-                        "override '{}' in {} channel(s)",
+                        "'{}': {} overwritten settings for starboard '{}' in {} channel(s)",
                         ov.name,
+                        ov.overrides.as_object().unwrap().len(),
+                        sb.name,
                         ov.channel_ids.len()
                     )
                     .unwrap();
