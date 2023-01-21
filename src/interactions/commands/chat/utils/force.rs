@@ -132,7 +132,7 @@ impl Force {
         }
 
         Message::set_forced(&ctx.bot.pool, orig.message_id, &forced).await?;
-        RefreshMessage::new(&ctx.bot, orig.message_id.into_id())
+        RefreshMessage::new(ctx.bot.clone(), orig.message_id.into_id())
             .refresh(true)
             .await?;
         ctx.respond_str("Message forced.", true).await?;

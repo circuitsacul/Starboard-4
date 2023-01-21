@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use twilight_model::{
     gateway::payload::incoming::MessageUpdate,
     id::{marker::MessageMarker, Id},
@@ -11,7 +13,7 @@ use crate::{
 use super::handle::RefreshMessage;
 
 pub async fn handle_message_update(
-    bot: &StarboardBot,
+    bot: Arc<StarboardBot>,
     event: Box<MessageUpdate>,
 ) -> StarboardResult<()> {
     let msg = match DbMessage::get_original(&bot.pool, event.id.get_i64()).await? {
@@ -27,7 +29,7 @@ pub async fn handle_message_update(
 }
 
 pub async fn handle_message_delete(
-    bot: &StarboardBot,
+    bot: Arc<StarboardBot>,
     message_id: Id<MessageMarker>,
 ) -> StarboardResult<()> {
     let msg = match DbMessage::get_original(&bot.pool, message_id.get_i64()).await? {

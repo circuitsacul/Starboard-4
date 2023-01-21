@@ -46,7 +46,7 @@ impl Trash {
 
         Message::set_trashed(&ctx.bot.pool, orig.message_id, true, self.reason.as_deref()).await?;
         ctx.respond_str("Message trashed.", true).await?;
-        RefreshMessage::new(&ctx.bot, orig.message_id.into_id())
+        RefreshMessage::new(ctx.bot, orig.message_id.into_id())
             .refresh(true)
             .await?;
 
@@ -83,7 +83,7 @@ impl UnTrash {
 
         Message::set_trashed(&ctx.bot.pool, orig.message_id, false, None).await?;
         ctx.respond_str("Message untrashed.", true).await?;
-        RefreshMessage::new(&ctx.bot, orig.message_id.into_id())
+        RefreshMessage::new(ctx.bot, orig.message_id.into_id())
             .refresh(true)
             .await?;
 

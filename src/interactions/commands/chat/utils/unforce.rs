@@ -62,7 +62,7 @@ impl UnForce {
         }
 
         ctx.respond_str("Message unforced.", true).await?;
-        RefreshMessage::new(&ctx.bot, msg.message_id.into_id())
+        RefreshMessage::new(ctx.bot, msg.message_id.into_id())
             .refresh(true)
             .await?;
 
