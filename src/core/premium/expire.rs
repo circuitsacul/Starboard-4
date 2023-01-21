@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use crate::{
     client::bot::StarboardBot, constants, core::premium::locks::refresh_premium_locks,
-    errors::StarboardResult,
+    errors::StarboardResult, utils::into_id::IntoId,
 };
 
 use super::{
@@ -40,15 +40,28 @@ async fn check_expired_premium(bot: Arc<StarboardBot>) -> StarboardResult<()> {
     Ok(())
 }
 
-async fn process_expired_guild(bot: Arc<StarboardBot>, guild_id: i64) -> StarboardResult<()> {
+async fn process_expired_guild(bot: Arc<StarboardBot>, guild_id_i64: i64) -> StarboardResult<()> {
     let mut stream = sqlx::query!(
         "SELECT user_id FROM members WHERE autoredeem_enabled=true AND guild_id=$1",
-        guild_id
+        guild_id_i64
     )
     .fetch(&bot.pool);
 
+    let guild_id = guild_id_i64.into_id();
+
     while let Some(member) = stream.try_next().await? {
-        let ret = redeem_premium(&bot, member.user_id, guild_id, 1, Some(None)).await?;
+        let user_id = member.user_id.into_id();
+
+        let in_guild = bot.cache.guilds.with(&guild_id, |_, guild| {
+            let Some(guild) = guild else { return false; };
+            guild.members.contains_key(&user_id)
+        });
+
+        if !in_guild {
+            continue;
+        }
+
+        let ret = redeem_premium(&bot, member.user_id, guild_id_i64, 1, Some(None)).await?;
 
         match ret {
             RedeemPremiumResult::Ok => break, // successfully added premium
@@ -57,7 +70,12 @@ async fn process_expired_guild(bot: Arc<StarboardBot>, guild_id: i64) -> Starboa
         }
     }
 
-    refresh_premium_locks(&bot, guild_id, is_guild_premium(&bot, guild_id).await?).await?;
+    refresh_premium_locks(
+        &bot,
+        guild_id_i64,
+        is_guild_premium(&bot, guild_id_i64).await?,
+    )
+    .await?;
 
     Ok(())
 }
