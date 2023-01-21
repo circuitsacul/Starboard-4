@@ -1,10 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::{
-        validation::{self, cooldown::parse_cooldown},
-        StarboardOverride,
-    },
+    database::{validation::cooldown::parse_cooldown, StarboardOverride},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -35,9 +32,6 @@ pub struct EditBehavior {
     /// If the original message is edted, whether to also update the content of the starboard message.
     #[command(rename = "link-edits")]
     link_edits: Option<bool>,
-    /// How much XP each upvote on this starboard counts for.
-    #[command(rename = "xp-multiplier", min_value = -10, max_value = 10)]
-    xp_multiplier: Option<f64>,
     /// Whether to enable the per-user vote cooldown.
     #[command(rename = "cooldown-enabled")]
     cooldown_enabled: Option<bool>,
@@ -76,14 +70,6 @@ impl EditBehavior {
         }
         if let Some(val) = self.link_edits {
             settings.link_edits = Some(val);
-        }
-        if let Some(val) = self.xp_multiplier {
-            let val = val.to_string().parse().unwrap();
-            if let Err(why) = validation::starboard_settings::validate_xp_multiplier(val) {
-                ctx.respond_str(&why, true).await?;
-                return Ok(());
-            }
-            settings.xp_multiplier = Some(val);
         }
         if let Some(val) = self.cooldown_enabled {
             settings.cooldown_enabled = Some(val);

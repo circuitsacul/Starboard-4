@@ -58,8 +58,6 @@ pub struct OverrideValues {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub link_edits: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub xp_multiplier: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub cooldown_enabled: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub cooldown_count: Option<i16>,

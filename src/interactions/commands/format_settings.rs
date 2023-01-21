@@ -93,9 +93,9 @@ pub fn format_settings(
         remove_invalid_reactions, "remove-invalid-reactions", res.remove_invalid_reactions;
         link_deletes, "link-deletes", res.link_deletes;
         link_edits, "link-edits", res.link_edits;
-        xp_multiplier, "xp-multiplier", res.xp_multiplier;
         cooldown_enabled, "cooldown-enabled", res.cooldown_enabled;
     ) + &cooldown
+        + &format!("xp-multiplier: {}\n", res.xp_multiplier)
         + &format!("private: {}", res.private);
 
     FormattedStarboardSettings {
