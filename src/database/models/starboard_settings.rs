@@ -36,6 +36,8 @@ pub struct StarboardSettings {
     pub cooldown_enabled: bool,
     pub cooldown_count: i16,
     pub cooldown_period: i16,
+    pub exclusive_group: Option<i32>,
+    pub exclusive_group_priority: i16,
 }
 
 macro_rules! settings_from_record {

@@ -20,6 +20,7 @@ pub async fn get_message_status(
     message: &DbMessage,
     deleted: bool,
     points: i32,
+    violates_exclusive_group: bool,
 ) -> StarboardResult<MessageStatus> {
     let guild_id = starboard_config.starboard.guild_id.into_id();
     let sb_channel_id = starboard_config.starboard.channel_id.into_id();
@@ -40,6 +41,8 @@ pub async fn get_message_status(
         Ok(MessageStatus::Remove)
     } else if message.forced_to.contains(&starboard_config.starboard.id) {
         Ok(MessageStatus::Send(starboard_config.resolved.link_edits))
+    } else if violates_exclusive_group {
+        Ok(MessageStatus::Remove)
     } else if message.frozen {
         Ok(MessageStatus::Update(false))
     } else if points >= starboard_config.resolved.required as _ {

@@ -73,6 +73,9 @@ pub const MAX_PREM_STARBOARDS: i64 = 10;
 pub const MAX_CHANNELS_PER_OVERRIDE: usize = 100;
 pub const MAX_OVERRIDES_PER_STARBOARD: i64 = 10;
 
+// Exclusive Group Validation
+pub const MAX_EXCLUSIVE_GROUPS: i64 = 10;
+
 // PermRole Validation
 pub const MAX_PERMROLES: i64 = 50;
 
