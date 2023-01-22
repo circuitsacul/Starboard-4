@@ -486,6 +486,16 @@
           "name": "cooldown_period",
           "ordinal": 34,
           "type_info": "Int2"
+        },
+        {
+          "name": "exclusive_group",
+          "ordinal": 35,
+          "type_info": "Int4"
+        },
+        {
+          "name": "exclusive_group_priority",
+          "ordinal": 36,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -523,6 +533,8 @@
         false,
         false,
         false,
+        false,
+        true,
         false
       ],
       "parameters": {
@@ -1111,6 +1123,16 @@
           "name": "cooldown_period",
           "ordinal": 34,
           "type_info": "Int2"
+        },
+        {
+          "name": "exclusive_group",
+          "ordinal": 35,
+          "type_info": "Int4"
+        },
+        {
+          "name": "exclusive_group_priority",
+          "ordinal": 36,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -1148,6 +1170,8 @@
         false,
         false,
         false,
+        false,
+        true,
         false
       ],
       "parameters": {
@@ -1386,6 +1410,19 @@
     },
     "query": "UPDATE permroles SET obtain_xproles=$1, give_votes=$2,\n            receive_votes=$3 WHERE role_id=$4 RETURNING *"
   },
+  "38f5219ee87e5959d6a2699f356e1d2e5ddd337c69fb84a1facba971c00c6491": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE overrides SET overrides = (overrides::jsonb - 'exclusive_group')::json\n            WHERE guild_id=$1 AND (overrides::jsonb->'exclusive_group')::int=$2"
+  },
   "3d80c09db40235cdb95e62e6aec95fcb75aae0b927b8e0d171bacd4954fb5f7b": {
     "describe": {
       "columns": [
@@ -1563,6 +1600,16 @@
           "name": "cooldown_period",
           "ordinal": 34,
           "type_info": "Int2"
+        },
+        {
+          "name": "exclusive_group",
+          "ordinal": 35,
+          "type_info": "Int4"
+        },
+        {
+          "name": "exclusive_group_priority",
+          "ordinal": 36,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -1600,6 +1647,8 @@
         false,
         false,
         false,
+        false,
+        true,
         false
       ],
       "parameters": {
@@ -1643,6 +1692,38 @@
       }
     },
     "query": "UPDATE xproles SET required=$1 WHERE role_id=$2 RETURNING *"
+  },
+  "443ac1e7a47fe77b43199d6f45b73fc3eedd89069d6ddec9151dfcf1f00dd5d0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM exclusive_groups WHERE guild_id=$1"
   },
   "4799c2a2b60b149a964d4e435f3991a8b12a9ecdd8f5d413fbbe01649b185470": {
     "describe": {
@@ -1769,6 +1850,59 @@
       }
     },
     "query": "UPDATE starboards SET premium_locked=true WHERE id=$1"
+  },
+  "547c91c3123679eeba6fd26712759be60899c7b71883f9cb05108c566776ee76": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "DELETE FROM exclusive_groups WHERE guild_id=$1 AND name=$2 RETURNING *"
+  },
+  "562fc143cd647dcb06a8723063611d3bed3610c13e29835e469792e2a8a560b0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT count(*) as count FROM exclusive_groups WHERE guild_id=$1"
   },
   "58686e2078ceb6965927ac04490429be6ed392ce1f7a4e5c4d960442439f0314": {
     "describe": {
@@ -2601,6 +2735,16 @@
           "name": "cooldown_period",
           "ordinal": 34,
           "type_info": "Int2"
+        },
+        {
+          "name": "exclusive_group",
+          "ordinal": 35,
+          "type_info": "Int4"
+        },
+        {
+          "name": "exclusive_group_priority",
+          "ordinal": 36,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -2638,6 +2782,8 @@
         false,
         false,
         false,
+        false,
+        true,
         false
       ],
       "parameters": {
@@ -2660,6 +2806,38 @@
       }
     },
     "query": "UPDATE patrons SET last_patreon_total_cents=$1 WHERE patreon_id=$2"
+  },
+  "7856adfb09b3b73485c29802058ff4f1934b9896fcf336d43c3e1be2d0ad851e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM exclusive_groups WHERE id=$1"
   },
   "7e14b14e400319e69ca7b7a581257ee46e1b60ee05872f90474bc3c107a47e08": {
     "describe": {
@@ -2903,6 +3081,16 @@
           "name": "cooldown_period",
           "ordinal": 34,
           "type_info": "Int2"
+        },
+        {
+          "name": "exclusive_group",
+          "ordinal": 35,
+          "type_info": "Int4"
+        },
+        {
+          "name": "exclusive_group_priority",
+          "ordinal": 36,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -2940,6 +3128,8 @@
         false,
         false,
         false,
+        false,
+        true,
         false
       ],
       "parameters": {
@@ -3228,6 +3418,40 @@
       }
     },
     "query": "UPDATE overrides SET overrides=$1 WHERE id=$2 RETURNING *"
+  },
+  "8c59da184de8a19d36836b98af74944d451f1cf355fd805b32eb9d5c88d3f3e2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "UPDATE exclusive_groups SET name=$1 WHERE guild_id=$2 AND name=$3 RETURNING *"
   },
   "8e1d277d941255a7c289675b488a87f25a4732d590e93935b41f8465e71b98ce": {
     "describe": {
@@ -4144,6 +4368,16 @@
           "name": "cooldown_period",
           "ordinal": 34,
           "type_info": "Int2"
+        },
+        {
+          "name": "exclusive_group",
+          "ordinal": 35,
+          "type_info": "Int4"
+        },
+        {
+          "name": "exclusive_group_priority",
+          "ordinal": 36,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -4181,6 +4415,8 @@
         false,
         false,
         false,
+        false,
+        true,
         false
       ],
       "parameters": {
@@ -4337,6 +4573,19 @@
       }
     },
     "query": "SELECT * FROM starboard_messages WHERE\n            starboard_message_id=$1"
+  },
+  "d2192a5eaead76cd2abb995e65cafef282e68c062f4ab01476f60b7b305eb142": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int8"
+        ]
+      }
+    },
+    "query": "INSERT INTO exclusive_groups (name, guild_id) VALUES ($1, $2)"
   },
   "d2dd5c48fa02b14f38ff569070f4c430279774fea649afbf2c40ae66b15c581b": {
     "describe": {
@@ -4780,6 +5029,16 @@
           "name": "cooldown_period",
           "ordinal": 34,
           "type_info": "Int2"
+        },
+        {
+          "name": "exclusive_group",
+          "ordinal": 35,
+          "type_info": "Int4"
+        },
+        {
+          "name": "exclusive_group_priority",
+          "ordinal": 36,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -4817,6 +5076,8 @@
         false,
         false,
         false,
+        false,
+        true,
         false
       ],
       "parameters": {
@@ -4958,6 +5219,39 @@
       }
     },
     "query": "INSERT INTO messages (message_id, guild_id, channel_id,\n                author_id, is_nsfw)\n            VALUES ($1, $2, $3, $4, $5) RETURNING *"
+  },
+  "e6e08203c3447354197f739c2ff8db17c98c48e8f6ac88d94dd3b7fd9a448e7c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM exclusive_groups WHERE guild_id=$1 AND name=$2"
   },
   "e9e76e4a6a8d54a55c8a4fae15d8f7db699e77cc99182ed49ad2398838b65cc0": {
     "describe": {

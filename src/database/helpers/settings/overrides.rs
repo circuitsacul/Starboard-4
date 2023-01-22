@@ -30,7 +30,9 @@ macro_rules! call_with_override_settings {
             link_edits,
             cooldown_enabled,
             cooldown_count,
-            cooldown_period
+            cooldown_period,
+            exclusive_group,
+            exclusive_group_priority
         )
     };
 }

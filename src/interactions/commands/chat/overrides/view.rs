@@ -42,7 +42,7 @@ impl ViewOverride {
             let channels: Vec<_> = ov.channel_ids.iter().map(|id| format!("<#{id}>")).collect();
             let channels = channels.join(", ");
             let config = StarboardConfig::new(sb, vec![ov])?;
-            let pretty = format_settings(&ctx.bot, guild_id, &config);
+            let pretty = format_settings(&ctx.bot, guild_id, &config).await?;
 
             let embed = embed::build()
                 .title(format!("Override '{}'", &name))

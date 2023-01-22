@@ -15,13 +15,15 @@ use crate::{
         emoji::{EmojiCommon, SimpleEmoji},
         starboard::config::StarboardConfig,
     },
+    database::ExclusiveGroup,
+    errors::StarboardResult,
 };
 
-pub fn format_settings(
+pub async fn format_settings(
     bot: &StarboardBot,
     guild_id: Id<GuildMarker>,
     config: &StarboardConfig,
-) -> FormattedStarboardSettings {
+) -> StarboardResult<FormattedStarboardSettings> {
     let ov_values = config
         .overrides
         .get(0)
@@ -73,6 +75,23 @@ pub fn format_settings(
         format_duration(Duration::from_secs(res.newer_than as u64)).to_string()
     };
 
+    let owner: String;
+    let exclusive_group = {
+        match res.exclusive_group {
+            None => "*no group*",
+            Some(group) => {
+                let group = ExclusiveGroup::get(&bot.pool, group).await?;
+                match group {
+                    Some(group) => {
+                        owner = group.name;
+                        &owner
+                    }
+                    None => "*no group*",
+                }
+            }
+        }
+    };
+
     let cooldown = {
         let is_bold = ov_values.as_ref().map_or(false, |ov| {
             ov.cooldown_count.is_some() || ov.cooldown_period.is_some()
@@ -96,9 +115,13 @@ pub fn format_settings(
         cooldown_enabled, "cooldown-enabled", res.cooldown_enabled;
     ) + &cooldown
         + &format!("xp-multiplier: {}\n", res.xp_multiplier)
-        + &format!("private: {}", res.private);
+        + &format!("private: {}\n", res.private)
+        + &settings!(
+            exclusive_group, "exclusive-group", exclusive_group;
+            exclusive_group_priority, "exclusive-group-priority", res.exclusive_group_priority;
+        );
 
-    FormattedStarboardSettings {
+    let settings = FormattedStarboardSettings {
         style: settings!(
             display_emoji, "display-emoji", display_emoji;
             ping_author, "ping-author", res.ping_author;
@@ -126,7 +149,9 @@ pub fn format_settings(
             newer_than, "newer-than", newer_than;
         ),
         behavior,
-    }
+    };
+
+    Ok(settings)
 }
 
 #[derive(Debug)]

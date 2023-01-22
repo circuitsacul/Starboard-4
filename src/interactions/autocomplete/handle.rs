@@ -8,6 +8,7 @@ use crate::{errors::StarboardResult, interactions::context::CommandCtx};
 
 use super::{
     autoredeem::autoredeem_autocomplete, autostar_name::autostar_name_autocomplete,
+    exclusive_group_name::exclusive_group_name_autocomplete,
     override_name::override_name_autocomplete, starboard_name::starboard_name_autocomplete,
 };
 
@@ -80,6 +81,9 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
         "starboards edit style name" => starboard_name_autocomplete(&ctx).await?,
         "starboards edit requirements name" => starboard_name_autocomplete(&ctx).await?,
         "starboards edit behavior name" => starboard_name_autocomplete(&ctx).await?,
+        "starboards edit behavior exclusive-group" => {
+            exclusive_group_name_autocomplete(&ctx).await?
+        }
         "starboards rename current-name" => starboard_name_autocomplete(&ctx).await?,
         // overrides
         "overrides create starboard" => starboard_name_autocomplete(&ctx).await?,
@@ -90,10 +94,16 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
         "overrides channels add override" => override_name_autocomplete(&ctx).await?,
         "overrides edit requirements name" => override_name_autocomplete(&ctx).await?,
         "overrides edit behavior name" => override_name_autocomplete(&ctx).await?,
+        "overrides edit behavior exclusive-group" => {
+            exclusive_group_name_autocomplete(&ctx).await?
+        }
         "overrides edit style name" => override_name_autocomplete(&ctx).await?,
         "overrides edit embed-style name" => override_name_autocomplete(&ctx).await?,
         "overrides edit reset name" => override_name_autocomplete(&ctx).await?,
         "overrides view name" => override_name_autocomplete(&ctx).await?,
+        // exclusive groups
+        "exclusive-groups delete name" => exclusive_group_name_autocomplete(&ctx).await?,
+        "exclusive-groups rename original-name" => exclusive_group_name_autocomplete(&ctx).await?,
         // permroles
         "permroles edit-starboard starboard" => starboard_name_autocomplete(&ctx).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),

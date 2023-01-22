@@ -3,7 +3,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     database::{
         validation::{self, cooldown::parse_cooldown},
-        Starboard,
+        ExclusiveGroup, Starboard,
     },
     errors::StarboardResult,
     get_guild_id,
@@ -45,13 +45,22 @@ pub struct EditBehavior {
     cooldown_enabled: Option<bool>,
     /// The size of the cooldown (e.x. "5/6" means 5 votes per 6 seconds).
     cooldown: Option<String>,
+    /// Add this starboard to an exclusive group (only one at a time).
+    #[command(rename = "exclusive-group", autocomplete = true)]
+    exclusive_group: Option<String>,
+    /// Remove this starboard from the exclusive group.
+    #[command(rename = "remove-exclusive-group")]
+    remove_exclusive_group: Option<bool>,
+    #[command(rename = "exclusive-group-priority", min_value=-50, max_value=50)]
+    /// Set the priority of this starboard in the exclusive group.
+    exclusive_group_priority: Option<i64>,
 }
 
 impl EditBehavior {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx);
+        let guild_id = get_guild_id!(ctx).get_i64();
         let mut starboard =
-            match Starboard::get_by_name(&ctx.bot.pool, &self.name, guild_id.get_i64()).await? {
+            match Starboard::get_by_name(&ctx.bot.pool, &self.name, guild_id).await? {
                 None => {
                     ctx.respond_str("No starboard with that name was found.", true)
                         .await?;
@@ -102,6 +111,25 @@ impl EditBehavior {
             };
             starboard.settings.cooldown_count = capacity;
             starboard.settings.cooldown_period = period;
+        }
+        if let Some(val) = self.exclusive_group {
+            let group = ExclusiveGroup::get_by_name(&ctx.bot.pool, guild_id, &val).await?;
+            let Some(group) = group else {
+                ctx.respond_str(&format!(concat!(
+                    "Exclusive group '{}' does not exist. If you meant to remove the exclusive ",
+                    "group, use `remove-exclusive-group: True` instead."
+                ), val), true).await?;
+                return Ok(());
+            };
+            starboard.settings.exclusive_group = Some(group.id);
+        }
+        if let Some(val) = self.remove_exclusive_group {
+            if val {
+                starboard.settings.exclusive_group = None;
+            }
+        }
+        if let Some(val) = self.exclusive_group_priority {
+            starboard.settings.exclusive_group_priority = val as i16;
         }
 
         starboard.update_settings(&ctx.bot.pool).await?;

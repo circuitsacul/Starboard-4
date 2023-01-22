@@ -1,4 +1,5 @@
 pub mod autostar;
+pub mod exclusive_groups;
 pub mod help;
 pub mod leaderboard;
 pub mod moststarred;

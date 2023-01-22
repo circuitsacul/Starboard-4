@@ -32,7 +32,9 @@ macro_rules! call_with_starboard_settings {
             cooldown_enabled,
             cooldown_count,
             cooldown_period,
-            private
+            private,
+            exclusive_group,
+            exclusive_group_priority
         )
     };
 }
