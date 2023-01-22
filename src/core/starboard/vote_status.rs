@@ -28,18 +28,18 @@ pub struct VoteContext<'a> {
 }
 
 #[derive(Debug)]
-pub enum VoteStatus {
+pub enum VoteStatus<'a> {
     Ignore,
     Remove,
-    Valid((Vec<StarboardConfig>, Vec<StarboardConfig>)),
+    Valid((Vec<&'a StarboardConfig>, Vec<&'a StarboardConfig>)),
 }
 
-impl VoteStatus {
+impl<'a> VoteStatus<'a> {
     pub async fn get_vote_status(
         bot: &StarboardBot,
         vote: VoteContext<'_>,
-        configs: Vec<StarboardConfig>,
-    ) -> StarboardResult<VoteStatus> {
+        configs: &'a [StarboardConfig],
+    ) -> StarboardResult<VoteStatus<'a>> {
         if vote.message_is_frozen {
             return Ok(VoteStatus::Ignore);
         }
@@ -64,7 +64,7 @@ impl VoteStatus {
             Downvote,
         }
 
-        let eval_config = |config: StarboardConfig| {
+        let eval_config = |config: &'a StarboardConfig| -> Option<(&'a StarboardConfig, VoteType)> {
             // skip disabled configurations
             if !config.resolved.enabled || config.starboard.premium_locked {
                 return None;
@@ -123,7 +123,7 @@ impl VoteStatus {
 
         let mut invalid_exists_2 = false;
 
-        for (config, vote_type) in configs.into_iter().filter_map(eval_config) {
+        for (config, vote_type) in configs.iter().filter_map(eval_config) {
             // check reactor/author role permissions
             let reactor_perms = Permissions::get_permissions(
                 bot,

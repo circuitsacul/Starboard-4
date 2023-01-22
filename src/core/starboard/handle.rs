@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use twilight_model::id::{marker::MessageMarker, Id};
 
@@ -18,6 +18,35 @@ use super::{
     config::StarboardConfig,
     msg_status::{get_message_status, MessageStatus},
 };
+
+async fn refresh_exclusive_group(
+    refresh: RefreshMessage,
+    mut configs: Vec<Arc<StarboardConfig>>,
+    force: bool,
+) -> StarboardResult<()> {
+    configs.sort_by(|l, r| {
+        l.resolved
+            .exclusive_group_priority
+            .cmp(&r.resolved.exclusive_group_priority)
+    });
+
+    let mut message_exists = false;
+    for config in configs {
+        let ret = RefreshStarboard::new(refresh.clone(), config.to_owned())
+            .refresh(force, message_exists)
+            .await;
+
+        message_exists = match ret {
+            Err(why) => {
+                refresh.bot.handle_error(&why).await;
+                continue;
+            }
+            Ok(has_message) => has_message || message_exists,
+        };
+    }
+
+    Ok(())
+}
 
 #[derive(Clone)]
 pub struct RefreshMessage {
@@ -49,15 +78,38 @@ impl RefreshMessage {
         }
 
         let configs = self.get_configs().await?;
+        let mut lone = Vec::new();
+        let mut grouped = HashMap::new();
 
-        let mut tasks = Vec::new();
         for c in configs.iter() {
             if !c.resolved.enabled || c.starboard.premium_locked {
                 continue;
             }
 
-            let mut refresh = RefreshStarboard::new(self.to_owned(), c.to_owned());
-            tasks.push(tokio::spawn(async move { refresh.refresh(force).await }));
+            if let Some(group_id) = c.resolved.exclusive_group {
+                grouped
+                    .entry(group_id)
+                    .or_insert_with(Vec::new)
+                    .push(Arc::clone(c));
+            } else {
+                lone.push(Arc::clone(c));
+            }
+        }
+
+        let mut tasks = Vec::new();
+
+        for group in grouped.into_values() {
+            tasks.push(tokio::spawn(refresh_exclusive_group(
+                self.to_owned(),
+                group,
+                force,
+            )));
+        }
+        for config in lone {
+            let mut refresh = RefreshStarboard::new(self.to_owned(), config.to_owned());
+            tasks.push(tokio::spawn(async move {
+                refresh.refresh(force, false).await.map(|_| ())
+            }));
         }
 
         for t in tasks {
@@ -136,23 +188,31 @@ impl RefreshStarboard {
         Self { refresh, config }
     }
 
-    pub async fn refresh(&mut self, force: bool) -> StarboardResult<()> {
+    pub async fn refresh(
+        &mut self,
+        force: bool,
+        violates_exclusive_group: bool,
+    ) -> StarboardResult<bool> {
         // I use a loop because recursion inside async functions requires another crate :(
         let mut tries = 0;
         loop {
             if tries == 2 {
-                return Ok(());
+                return Ok(false);
             }
             tries += 1;
-            let retry = self.refresh_one(force).await?;
+            let (retry, exists) = self.refresh_one(force, violates_exclusive_group).await?;
             match retry {
                 true => continue,
-                false => return Ok(()),
+                false => return Ok(exists),
             }
         }
     }
 
-    async fn refresh_one(&mut self, force: bool) -> StarboardResult<bool> {
+    async fn refresh_one(
+        &mut self,
+        force: bool,
+        violates_exclusive_group: bool,
+    ) -> StarboardResult<(bool, bool)> {
         let orig = self.refresh.get_sql_message().await?;
         let points = Vote::count(
             &self.refresh.bot.pool,
@@ -215,12 +275,16 @@ impl RefreshStarboard {
             &orig,
             embedder.orig_message.is_none(),
             points,
+            violates_exclusive_group,
         )
         .await?;
 
         if let Some(sb_msg) = sb_msg {
-            if !force && points == sb_msg.last_known_point_count as i32 {
-                return Ok(false);
+            if !force
+                && points == sb_msg.last_known_point_count as i32
+                && !matches!(action, MessageStatus::Remove)
+            {
+                return Ok((false, true));
             }
             StarboardMessage::set_last_point_count(
                 &self.refresh.bot.pool,
@@ -229,12 +293,12 @@ impl RefreshStarboard {
             )
             .await?;
 
-            let (delete, retry) = match action {
+            let (retry, deleted) = match action {
                 MessageStatus::Remove => {
                     embedder
                         .delete(&self.refresh.bot, sb_msg.starboard_message_id.into_id())
                         .await?;
-                    (true, false)
+                    (false, true)
                 }
                 MessageStatus::Send(full_update) | MessageStatus::Update(full_update) => {
                     if self
@@ -254,20 +318,20 @@ impl RefreshStarboard {
                                 !full_update,
                             )
                             .await?;
-                        (deleted, true)
+                        (deleted, deleted)
                     }
                 }
             };
 
-            if delete {
+            if deleted {
                 StarboardMessage::delete(&self.refresh.bot.pool, sb_msg.starboard_message_id)
                     .await?;
             }
 
-            Ok(retry)
+            Ok((retry, !deleted))
         } else {
             if !matches!(action, MessageStatus::Send(_)) {
-                return Ok(false);
+                return Ok((false, false));
             }
 
             let msg = embedder.send(&self.refresh.bot).await?;
@@ -301,7 +365,7 @@ impl RefreshStarboard {
                     .await;
             }
 
-            Ok(false)
+            Ok((false, true))
         }
     }
 

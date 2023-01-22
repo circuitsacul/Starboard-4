@@ -107,7 +107,7 @@ pub async fn handle_reaction_add(
         message_has_image: None,
         message_is_frozen: orig_msg.frozen,
     };
-    let status = VoteStatus::get_vote_status(&bot, vote, configs).await?;
+    let status = VoteStatus::get_vote_status(&bot, vote, &configs).await?;
 
     // for future user, since orig_msg is moved
     let author_id = orig_msg.author_id;
@@ -163,9 +163,8 @@ pub async fn handle_reaction_add(
                 .await?;
             }
 
-            let all_configs: Vec<_> = upvote.into_iter().chain(downvote).collect();
             let mut refresh = RefreshMessage::new(bot.clone(), event.message_id);
-            refresh.set_configs(all_configs.into_iter().map(Arc::new).collect());
+            refresh.set_configs(configs.into_iter().map(Arc::new).collect());
             refresh.set_sql_message(orig_msg);
             refresh.refresh(false).await?;
         }
@@ -203,7 +202,7 @@ pub async fn handle_reaction_remove(
         message_has_image: None,
         message_is_frozen: orig.frozen,
     };
-    let status = VoteStatus::get_vote_status(&bot, vote, configs).await?;
+    let status = VoteStatus::get_vote_status(&bot, vote, &configs).await?;
 
     match status {
         VoteStatus::Valid((upvote, downvote)) => {
@@ -215,7 +214,7 @@ pub async fn handle_reaction_remove(
 
             let mut refresh = RefreshMessage::new(bot.clone(), event.message_id);
             refresh.set_sql_message(orig);
-            refresh.set_configs(all_configs.into_iter().map(Arc::new).collect());
+            refresh.set_configs(configs.into_iter().map(Arc::new).collect());
             refresh.refresh(false).await?;
         }
         VoteStatus::Ignore | VoteStatus::Remove => (),
