@@ -39,7 +39,7 @@ pub async fn handle_message_delete(
 
     let mut refresh = RefreshMessage::new(bot, message_id);
     refresh.set_sql_message(msg);
-    refresh.refresh(true).await?;
+    refresh.refresh(false).await?;
 
     Ok(())
 }
