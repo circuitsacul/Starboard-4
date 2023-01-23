@@ -6,7 +6,9 @@ use twilight_model::{
 };
 
 use crate::{
-    client::bot::StarboardBot, database::DbMessage, errors::StarboardResult,
+    client::bot::StarboardBot,
+    database::{DbMessage, StarboardMessage},
+    errors::StarboardResult,
     utils::id_as_i64::GetI64,
 };
 
@@ -32,10 +34,18 @@ pub async fn handle_message_delete(
     bot: Arc<StarboardBot>,
     message_id: Id<MessageMarker>,
 ) -> StarboardResult<()> {
-    let msg = match DbMessage::get_original(&bot.pool, message_id.get_i64()).await? {
+    let message_id_i64 = message_id.get_i64();
+    let msg = match DbMessage::get_original(&bot.pool, message_id_i64).await? {
         Some(msg) => msg,
         None => return Ok(()),
     };
+
+    if message_id != msg.message_id {
+        // this means that a starboard message was deleted, so we want to remove that
+        // from the database so that the affected starboard can resend it without
+        // needing force=true
+        StarboardMessage::delete(&bot.pool, message_id_i64).await?;
+    }
 
     let mut refresh = RefreshMessage::new(bot, message_id);
     refresh.set_sql_message(msg);
