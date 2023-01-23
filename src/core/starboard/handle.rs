@@ -21,20 +21,25 @@ use super::{
 
 async fn refresh_exclusive_group(
     refresh: RefreshMessage,
-    mut configs: Vec<Arc<StarboardConfig>>,
+    configs: Vec<Arc<StarboardConfig>>,
     force: bool,
 ) -> StarboardResult<()> {
-    configs.sort_by(|l, r| {
-        l.resolved
-            .exclusive_group_priority
-            .cmp(&r.resolved.exclusive_group_priority)
-    });
+    let mut refreshers = Vec::new();
+    for config in configs {
+        let mut ref_sb = RefreshStarboard::new(refresh.clone(), config);
+        let sort_key = (
+            ref_sb.config.resolved.exclusive_group_priority,
+            ref_sb.has_message_on_starboard().await?,
+        );
+
+        refreshers.push((sort_key, ref_sb));
+    }
+
+    refreshers.sort_by(|left, right| right.0.cmp(&left.0));
 
     let mut message_exists = false;
-    for config in configs {
-        let ret = RefreshStarboard::new(refresh.clone(), config.to_owned())
-            .refresh(force, message_exists)
-            .await;
+    for (_, mut ref_sb) in refreshers {
+        let ret = ref_sb.refresh(force, message_exists).await;
 
         message_exists = match ret {
             Err(why) => {
@@ -186,6 +191,10 @@ struct RefreshStarboard {
 impl RefreshStarboard {
     pub fn new(refresh: RefreshMessage, config: Arc<StarboardConfig>) -> Self {
         Self { refresh, config }
+    }
+
+    pub async fn has_message_on_starboard(&mut self) -> StarboardResult<bool> {
+        Ok(self.get_starboard_message().await?.is_some())
     }
 
     pub async fn refresh(
