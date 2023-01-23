@@ -4,13 +4,15 @@ use twilight_util::builder::embed::EmbedFieldBuilder;
 
 use crate::{
     concat_format,
-    database::{DbMessage, Starboard, StarboardMessage},
+    core::starboard::config::StarboardConfig,
+    database::{DbMessage, Starboard, StarboardMessage, StarboardOverride, Vote},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
     utils::{
         embed,
         id_as_i64::GetI64,
+        into_id::IntoId,
         message_link::{fmt_message_link, parse_message_link},
     },
 };
@@ -54,19 +56,49 @@ impl Info {
         ));
 
         for starboard in Starboard::list_by_guild(&ctx.bot.pool, guild_id).await? {
-            let sb_msg =
-                StarboardMessage::get_by_starboard(&ctx.bot.pool, sql_msg.message_id, starboard.id)
-                    .await?;
+            let points = Vote::count(&ctx.bot.pool, sql_msg.message_id, starboard.id).await?;
+
+            let channel_ids = ctx
+                .bot
+                .cache
+                .qualified_channel_ids(&ctx.bot, guild_id.into_id(), sql_msg.channel_id.into_id())
+                .await?;
+            let channel_ids = channel_ids
+                .into_iter()
+                .map(|id| id.get_i64())
+                .collect::<Vec<_>>();
+            let overrides = StarboardOverride::list_by_starboard_and_channels(
+                &ctx.bot.pool,
+                starboard.id,
+                &channel_ids,
+            )
+            .await?;
+
+            let config = StarboardConfig::new(starboard, overrides)?;
+
+            let sb_msg = StarboardMessage::get_by_starboard(
+                &ctx.bot.pool,
+                sql_msg.message_id,
+                config.starboard.id,
+            )
+            .await?;
             let link = sb_msg
-                .map(|m| fmt_message_link(guild_id, starboard.channel_id, m.starboard_message_id))
+                .map(|m| {
+                    fmt_message_link(
+                        guild_id,
+                        config.starboard.channel_id,
+                        m.starboard_message_id,
+                    )
+                })
                 .map(|link| format!("[jump]({link})"))
                 .unwrap_or_else(|| "Not on starboard.".to_string());
             emb = emb.field(
                 EmbedFieldBuilder::new(
-                    starboard.name,
+                    config.starboard.name,
                     concat_format!(
                         "{}\n" <- link;
-                        "forced: {}" <- sql_msg.forced_to.contains(&starboard.id);
+                        "points: {}/{}\n" <- points, config.resolved.required;
+                        "forced: {}" <- sql_msg.forced_to.contains(&config.starboard.id);
                     ),
                 )
                 .build(),
