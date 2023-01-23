@@ -55,7 +55,7 @@ pub async fn handle_reaction_add(
         }
     };
 
-    let configs = StarboardConfig::list_for_channel(&bot, guild_id, event.channel_id).await?;
+    let configs = StarboardConfig::list_for_channel(&bot, guild_id, orig_msg.channel_id.into_id()).await?;
     let vote = VoteContext {
         emoji: &emoji,
         reactor_id: event.user_id,
@@ -142,7 +142,7 @@ pub async fn handle_reaction_remove(
     let author = DbUser::get(&bot.pool, orig.author_id).await?.unwrap();
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
-    let configs = StarboardConfig::list_for_channel(&bot, guild_id, event.channel_id).await?;
+    let configs = StarboardConfig::list_for_channel(&bot, guild_id, orig.channel_id.into_id()).await?;
     let vote = VoteContext {
         emoji: &emoji,
         reactor_id: event.user_id,
