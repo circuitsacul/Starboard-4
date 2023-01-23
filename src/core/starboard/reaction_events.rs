@@ -13,6 +13,7 @@ use crate::{
 use super::{
     config::StarboardConfig,
     handle::RefreshMessage,
+    message::get_or_create_original,
     vote_status::{VoteContext, VoteStatus},
 };
 
@@ -41,58 +42,16 @@ pub async fn handle_reaction_add(
         return Ok(());
     }
 
-    let orig_msg = DbMessage::get_original(&bot.pool, event.message_id.get_i64()).await?;
-    let (orig_msg, author_is_bot) = match orig_msg {
+    let (Some(orig_msg), author_is_bot) = get_or_create_original(&bot, guild_id, event.channel_id, event.message_id).await? else {
+        return Ok(());
+    };
+    let author_is_bot = match author_is_bot {
+        Some(val) => val,
         None => {
-            // author data
-            let (author_is_bot, author_id) = {
-                let orig_msg_obj = bot
-                    .cache
-                    .fog_message(&bot, event.channel_id, event.message_id)
-                    .await?;
-                let orig_msg_obj = match orig_msg_obj {
-                    None => return Ok(()),
-                    Some(obj) => obj,
-                };
-
-                let user = bot.cache.fog_user(&bot, orig_msg_obj.author_id).await?;
-                let is_bot = user.map(|u| u.is_bot).unwrap_or(false);
-                (is_bot, orig_msg_obj.author_id.get_i64())
-            };
-
-            DbUser::create(&bot.pool, author_id, author_is_bot).await?;
-            DbMember::create(&bot.pool, author_id, guild_id.get_i64()).await?;
-
-            let is_nsfw = bot
-                .cache
-                .fog_channel_nsfw(&bot, guild_id, event.channel_id)
+            DbUser::get(&bot.pool, orig_msg.author_id)
                 .await?
-                .unwrap();
-
-            // message
-            let orig = DbMessage::create(
-                &bot.pool,
-                event.message_id.get_i64(),
-                guild_id.get_i64(),
-                event.channel_id.get_i64(),
-                author_id,
-                is_nsfw,
-            )
-            .await?;
-
-            match orig {
-                Some(msg) => (msg, author_is_bot),
-                None => {
-                    let msg = DbMessage::get(&bot.pool, event.message_id.get_i64())
-                        .await?
-                        .unwrap();
-                    (msg, author_is_bot)
-                }
-            }
-        }
-        Some(msg) => {
-            let user = DbUser::get(&bot.pool, msg.author_id).await?.unwrap();
-            (msg, user.is_bot)
+                .unwrap()
+                .is_bot
         }
     };
 

@@ -1,8 +1,8 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    core::starboard::handle::RefreshMessage,
-    database::{DbMessage, DbUser, Starboard},
+    core::starboard::{handle::RefreshMessage, message::get_or_create_original},
+    database::{DbMessage, Starboard},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -68,56 +68,21 @@ impl Force {
             return Ok(());
         }
 
-        let orig = DbMessage::get_original(&ctx.bot.pool, message_id).await?;
-        let orig = match orig {
-            Some(orig) => orig,
-            None => {
-                let orig_obj = ctx
-                    .bot
-                    .cache
-                    .fog_message(&ctx.bot, channel_id.into_id(), message_id.into_id())
-                    .await;
-
-                let Ok(orig_obj) = orig_obj else {
-                    ctx.respond_str(
-                        concat!(
-                            "I don't have the necessary permissions to see that message. Make ",
-                            "sure I have the 'view channel' and 'read message history' ",
-                            "permissions in that channel."
-                        ), true).await?;
-                    return Ok(());
-                };
-
-                let Some(orig_obj) = orig_obj else {
-                    ctx.respond_str("That message doesn't exist.", true).await?;
-                    return Ok(());
-                };
-
-                let author = ctx.bot.cache.fog_user(&ctx.bot, orig_obj.author_id).await?;
-                let is_bot = match author {
-                    Some(user) => user.is_bot,
-                    None => false,
-                };
-                DbUser::create(&ctx.bot.pool, orig_obj.author_id.get_i64(), is_bot).await?;
-
-                let is_nsfw = ctx
-                    .bot
-                    .cache
-                    .fog_channel_nsfw(&ctx.bot, guild_id, channel_id.into_id())
-                    .await?
-                    .unwrap();
-
-                DbMessage::create(
-                    &ctx.bot.pool,
-                    message_id,
-                    guild_id.get_i64(),
-                    channel_id,
-                    orig_obj.author_id.get_i64(),
-                    is_nsfw,
-                )
-                .await?
-                .unwrap()
-            }
+        let ret = get_or_create_original(
+            &ctx.bot,
+            guild_id,
+            channel_id.into_id(),
+            message_id.into_id(),
+        )
+        .await?;
+        let (Some(orig), _) = ret else {
+            ctx.respond_str(
+                concat!(
+                    "I don't have the necessary permissions to see that message. Make ",
+                    "sure I have the 'view channel' and 'read message history' ",
+                    "permissions in that channel."
+                ), true).await?;
+            return Ok(());
         };
 
         let mut forced = forced;
