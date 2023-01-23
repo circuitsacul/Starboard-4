@@ -22,8 +22,10 @@ pub struct Starboard {
 
 macro_rules! starboard_from_record {
     ($record: expr) => {{
-        use crate::database::helpers::settings::starboard::call_with_starboard_settings;
-        use crate::database::models::starboard_settings::settings_from_record;
+        use crate::database::{
+            helpers::settings::starboard::call_with_starboard_settings,
+            models::starboard_settings::settings_from_record,
+        };
         Starboard {
             id: $record.id,
             name: $record.name,
@@ -40,8 +42,10 @@ pub(crate) use starboard_from_record;
 
 macro_rules! starboard_from_row {
     ($record: expr) => {{
-        use crate::database::helpers::settings::starboard::call_with_starboard_settings;
-        use crate::database::models::starboard_settings::settings_from_row;
+        use crate::database::{
+            helpers::settings::starboard::call_with_starboard_settings,
+            models::starboard_settings::settings_from_row,
+        };
         Starboard {
             id: $record.get("id"),
             name: $record.get("name"),
