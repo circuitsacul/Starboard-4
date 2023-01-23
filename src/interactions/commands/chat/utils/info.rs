@@ -74,7 +74,7 @@ impl Info {
             )
             .await?;
 
-            let config = StarboardConfig::new(starboard, overrides)?;
+            let config = StarboardConfig::new(starboard, &channel_ids, overrides)?;
 
             let sb_msg = StarboardMessage::get_by_starboard(
                 &ctx.bot.pool,

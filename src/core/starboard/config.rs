@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use twilight_model::id::{
     marker::{ChannelMarker, GuildMarker},
     Id,
@@ -36,8 +38,23 @@ macro_rules! update_from_override {
 impl StarboardConfig {
     pub fn new(
         starboard: Starboard,
-        overrides: Vec<StarboardOverride>,
+        channel_ids: &[i64],
+        mut overrides: Vec<StarboardOverride>,
     ) -> serde_json::Result<Self> {
+        overrides.sort_by(|a, b| {
+            for cmp in channel_ids
+                .iter()
+                .map(|id| (a.channel_ids.contains(id), b.channel_ids.contains(id)))
+            {
+                match cmp.0.cmp(&cmp.1) {
+                    Ordering::Equal => continue,
+                    val => return val,
+                }
+            }
+
+            Ordering::Equal
+        });
+
         let mut settings = starboard.settings.clone();
         for ov in overrides.iter() {
             call_with_override_settings!(update_from_override, settings, ov.get_overrides()?)
@@ -70,7 +87,7 @@ impl StarboardConfig {
             let overrides =
                 StarboardOverride::list_by_starboard_and_channels(&bot.pool, sb.id, &channel_ids)
                     .await?;
-            configs.push(Self::new(sb, overrides)?);
+            configs.push(Self::new(sb, &channel_ids, overrides)?);
         }
 
         Ok(configs)
