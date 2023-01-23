@@ -29,7 +29,7 @@ impl ViewStarboard {
                 Starboard::get_by_name(&ctx.bot.pool, &name, guild_id.get_i64()).await?;
 
             if let Some(starboard) = starboard {
-                let config = StarboardConfig::new(starboard, vec![])?;
+                let config = StarboardConfig::new(starboard, &[], vec![])?;
                 let pretty = format_settings(&ctx.bot, guild_id, &config).await?;
 
                 let mut desc = String::new();

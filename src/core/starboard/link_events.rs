@@ -77,7 +77,7 @@ pub async fn handle_message_delete(
             StarboardOverride::list_by_starboard_and_channels(&bot.pool, sb.id, &channel_ids)
                 .await?;
 
-        let config = StarboardConfig::new(sb, overrides)?;
+        let config = StarboardConfig::new(sb, &channel_ids, overrides)?;
 
         match config.resolved.on_delete {
             0 => false,         // refresh
