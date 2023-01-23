@@ -34,6 +34,11 @@ pub async fn handle_message_delete(
     bot: Arc<StarboardBot>,
     message_id: Id<MessageMarker>,
 ) -> StarboardResult<()> {
+    if bot.cache.auto_deleted_posts.get(&message_id).is_some() {
+        bot.cache.auto_deleted_posts.remove(&message_id).await;
+        return Ok(());
+    }
+
     let message_id_i64 = message_id.get_i64();
     let msg = match DbMessage::get_original(&bot.pool, message_id_i64).await? {
         Some(msg) => msg,
