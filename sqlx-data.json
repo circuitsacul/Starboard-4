@@ -523,6 +523,11 @@
           "name": "exclusive_group_priority",
           "ordinal": 36,
           "type_info": "Int2"
+        },
+        {
+          "name": "on_delete",
+          "ordinal": 37,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -562,6 +567,7 @@
         false,
         false,
         true,
+        false,
         false
       ],
       "parameters": {
@@ -845,6 +851,11 @@
           "name": "exclusive_group_priority",
           "ordinal": 36,
           "type_info": "Int2"
+        },
+        {
+          "name": "on_delete",
+          "ordinal": 37,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -884,6 +895,7 @@
         false,
         false,
         true,
+        false,
         false
       ],
       "parameters": {
@@ -1589,6 +1601,11 @@
           "name": "exclusive_group_priority",
           "ordinal": 36,
           "type_info": "Int2"
+        },
+        {
+          "name": "on_delete",
+          "ordinal": 37,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -1628,6 +1645,7 @@
         false,
         false,
         true,
+        false,
         false
       ],
       "parameters": {
@@ -2788,6 +2806,11 @@
           "name": "exclusive_group_priority",
           "ordinal": 36,
           "type_info": "Int2"
+        },
+        {
+          "name": "on_delete",
+          "ordinal": 37,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -2827,6 +2850,7 @@
         false,
         false,
         true,
+        false,
         false
       ],
       "parameters": {
@@ -3108,6 +3132,11 @@
           "name": "exclusive_group_priority",
           "ordinal": 36,
           "type_info": "Int2"
+        },
+        {
+          "name": "on_delete",
+          "ordinal": 37,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -3147,6 +3176,7 @@
         false,
         false,
         true,
+        false,
         false
       ],
       "parameters": {
@@ -4365,6 +4395,11 @@
           "name": "exclusive_group_priority",
           "ordinal": 36,
           "type_info": "Int2"
+        },
+        {
+          "name": "on_delete",
+          "ordinal": 37,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -4404,6 +4439,7 @@
         false,
         false,
         true,
+        false,
         false
       ],
       "parameters": {
@@ -4902,6 +4938,11 @@
           "name": "exclusive_group_priority",
           "ordinal": 36,
           "type_info": "Int2"
+        },
+        {
+          "name": "on_delete",
+          "ordinal": 37,
+          "type_info": "Int2"
         }
       ],
       "nullable": [
@@ -4941,6 +4982,7 @@
         false,
         false,
         true,
+        false,
         false
       ],
       "parameters": {
