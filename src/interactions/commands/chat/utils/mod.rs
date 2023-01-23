@@ -1,6 +1,7 @@
 pub mod force;
 pub mod freeze;
 pub mod info;
+pub mod recount;
 pub mod refresh;
 pub mod trash;
 pub mod trashcan;
@@ -50,6 +51,8 @@ pub enum Utils {
 
     #[command(name = "refresh")]
     Refresh(refresh::Refresh),
+    #[command(name = "recount")]
+    Recount(recount::Recount),
 }
 
 impl Utils {
@@ -68,6 +71,7 @@ impl Utils {
             Self::TrashCan(cmd) => cmd.callback(ctx).await,
 
             Self::Refresh(cmd) => cmd.callback(ctx).await,
+            Self::Recount(cmd) => cmd.callback(ctx).await,
         }
     }
 }

@@ -12,6 +12,7 @@ use twilight_model::{
 
 use crate::client::bot::StarboardBot;
 
+#[derive(Clone)]
 pub struct SimpleEmoji {
     pub raw: String,
     pub as_id: Option<Id<EmojiMarker>>,
