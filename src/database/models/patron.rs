@@ -6,14 +6,14 @@ pub struct Patron {
 }
 
 impl Patron {
-    pub async fn create(pool: &sqlx::PgPool, patreon_id: &str) -> sqlx::Result<Self> {
+    pub async fn create(pool: &sqlx::PgPool, patreon_id: &str) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            r#"INSERT INTO patrons (patreon_id) VALUES ($1)
-            RETURNING *"#,
+            "INSERT INTO patrons (patreon_id) VALUES ($1)
+            ON CONFLICT DO NOTHING RETURNING *",
             patreon_id,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 

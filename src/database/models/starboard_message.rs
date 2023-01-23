@@ -13,20 +13,20 @@ impl StarboardMessage {
         starboard_message_id: i64,
         starboard_id: i32,
         last_known_point_count: i32,
-    ) -> sqlx::Result<Self> {
+    ) -> sqlx::Result<Option<Self>> {
         let point_count = last_known_point_count as i16;
         sqlx::query_as!(
             Self,
-            r#"INSERT INTO starboard_messages
+            "INSERT INTO starboard_messages
             (message_id, starboard_id, starboard_message_id, last_known_point_count)
             VALUES ($1, $2, $3, $4)
-            RETURNING *"#,
+            ON CONFLICT DO NOTHING RETURNING *",
             message_id,
             starboard_id,
             starboard_message_id,
             point_count,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 
@@ -47,8 +47,7 @@ impl StarboardMessage {
     pub async fn get(pool: &sqlx::PgPool, starboard_message_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            "SELECT * FROM starboard_messages WHERE
-            starboard_message_id=$1",
+            "SELECT * FROM starboard_messages WHERE starboard_message_id=$1",
             starboard_message_id,
         )
         .fetch_optional(pool)

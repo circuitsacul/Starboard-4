@@ -11,14 +11,19 @@ pub struct DbMember {
 }
 
 impl DbMember {
-    pub async fn create(pool: &sqlx::PgPool, user_id: i64, guild_id: i64) -> sqlx::Result<Self> {
+    pub async fn create(
+        pool: &sqlx::PgPool,
+        user_id: i64,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            "INSERT INTO members (user_id, guild_id) VALUES ($1, $2) RETURNING *",
+            "INSERT INTO members (user_id, guild_id) VALUES ($1, $2)
+            ON CONFLICT DO NOTHING RETURNING *",
             user_id,
             guild_id
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 

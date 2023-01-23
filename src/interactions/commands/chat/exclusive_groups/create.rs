@@ -6,7 +6,6 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none,
     utils::id_as_i64::GetI64,
 };
 
@@ -21,7 +20,7 @@ impl Create {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
 
-        map_dup_none!(DbGuild::create(&ctx.bot.pool, guild_id))?;
+        DbGuild::create(&ctx.bot.pool, guild_id).await?;
 
         let name = match validate_name(&self.name) {
             Err(why) => {
@@ -44,7 +43,7 @@ impl Create {
             return Ok(());
         }
 
-        let group = map_dup_none!(ExclusiveGroup::create(&ctx.bot.pool, &name, guild_id))?;
+        let group = ExclusiveGroup::create(&ctx.bot.pool, &name, guild_id).await?;
 
         if group.is_some() {
             ctx.respond_str(&format!("Created exclusive group '{name}'."), false)

@@ -9,22 +9,24 @@ pub struct DbUser {
 }
 
 impl DbUser {
-    pub async fn create(pool: &sqlx::PgPool, user_id: i64, is_bot: bool) -> sqlx::Result<Self> {
+    pub async fn create(
+        pool: &sqlx::PgPool,
+        user_id: i64,
+        is_bot: bool,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            r#"INSERT INTO users
-            (user_id, is_bot)
-            VALUES ($1, $2)
-            RETURNING *"#,
+            "INSERT INTO users (user_id, is_bot) VALUES ($1, $2)
+            ON CONFLICT DO NOTHING RETURNING *",
             user_id,
             is_bot,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 
     pub async fn get(pool: &sqlx::PgPool, user_id: i64) -> sqlx::Result<Option<Self>> {
-        sqlx::query_as!(Self, "SELECT * FROM users WHERE user_id=$1", user_id,)
+        sqlx::query_as!(Self, "SELECT * FROM users WHERE user_id=$1", user_id)
             .fetch_optional(pool)
             .await
     }

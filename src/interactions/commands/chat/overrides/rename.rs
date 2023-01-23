@@ -5,8 +5,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none,
-    utils::id_as_i64::GetI64,
+    utils::{id_as_i64::GetI64, pg_error::PgErrorTraits},
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -32,25 +31,29 @@ impl RenameOverride {
             }
         };
 
-        let ov = StarboardOverride::rename(&ctx.bot.pool, guild_id, &self.old_name, &self.name);
-        let ov = map_dup_none!(ov)?;
+        let ov =
+            StarboardOverride::rename(&ctx.bot.pool, guild_id, &self.old_name, &self.name).await;
 
         match ov {
-            None => {
-                ctx.respond_str(
-                    &format!("An override with the name '{name}' already exists."),
-                    true,
-                )
-                .await?;
+            Err(why) => {
+                if why.is_duplicate() {
+                    ctx.respond_str(
+                        &format!("An override with the name '{name}' already exists."),
+                        true,
+                    )
+                    .await?;
+                } else {
+                    return Err(why.into());
+                }
             }
-            Some(None) => {
+            Ok(None) => {
                 ctx.respond_str(
                     &format!("No override with the name '{}' exists.", self.old_name),
                     true,
                 )
                 .await?;
             }
-            Some(Some(_)) => {
+            Ok(Some(_)) => {
                 ctx.respond_str(
                     &format!("Renamed override '{}' to '{}'.", self.old_name, name),
                     false,

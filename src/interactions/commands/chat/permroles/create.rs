@@ -4,7 +4,7 @@ use twilight_model::guild::Role;
 
 use crate::{
     constants, database::PermRole, errors::StarboardResult, get_guild_id,
-    interactions::context::CommandCtx, map_dup_none, utils::id_as_i64::GetI64,
+    interactions::context::CommandCtx, utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -32,11 +32,7 @@ impl CreatePermRole {
             return Ok(());
         }
 
-        let pr = map_dup_none!(PermRole::create(
-            &ctx.bot.pool,
-            self.role.id.get_i64(),
-            guild_id_i64,
-        ))?;
+        let pr = PermRole::create(&ctx.bot.pool, self.role.id.get_i64(), guild_id_i64).await?;
 
         if pr.is_none() {
             ctx.respond_str("That is already a PermRole.", true).await?;

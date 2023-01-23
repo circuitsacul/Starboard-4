@@ -30,18 +30,16 @@ impl AutoStarChannel {
         name: &String,
         channel_id: i64,
         guild_id: i64,
-    ) -> sqlx::Result<Self> {
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            r#"INSERT INTO autostar_channels
-                (name, channel_id, guild_id)
-                VALUES ($1, $2, $3)
-                RETURNING *"#,
+            "INSERT INTO autostar_channels (name, channel_id, guild_id) VALUES ($1, $2, $3)
+            ON CONFLICT DO NOTHING RETURNING *",
             name,
             channel_id,
             guild_id
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 
@@ -52,9 +50,7 @@ impl AutoStarChannel {
     ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            "DELETE FROM autostar_channels
-            WHERE name=$1 AND guild_id=$2
-            RETURNING *",
+            "DELETE FROM autostar_channels WHERE name=$1 AND guild_id=$2 RETURNING *",
             name,
             guild_id,
         )
@@ -105,8 +101,7 @@ impl AutoStarChannel {
     pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
-            "SELECT * FROM autostar_channels
-            WHERE guild_id=$1",
+            "SELECT * FROM autostar_channels WHERE guild_id=$1",
             guild_id,
         )
         .fetch_all(pool)
@@ -140,8 +135,7 @@ impl AutoStarChannel {
     ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            "SELECT * FROM autostar_channels
-            WHERE guild_id=$1 AND name=$2",
+            "SELECT * FROM autostar_channels WHERE guild_id=$1 AND name=$2",
             guild_id,
             name,
         )

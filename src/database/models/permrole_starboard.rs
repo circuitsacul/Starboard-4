@@ -12,17 +12,15 @@ impl PermRoleStarboard {
         pool: &sqlx::PgPool,
         permrole_id: i64,
         starboard_id: i32,
-    ) -> sqlx::Result<Self> {
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            r#"INSERT INTO permrole_starboards
-            (permrole_id, starboard_id)
-            VALUES ($1, $2)
-            RETURNING *"#,
+            "INSERT INTO permrole_starboards (permrole_id, starboard_id) VALUES ($1, $2)
+            ON CONFLICT DO NOTHING RETURNING *",
             permrole_id,
             starboard_id,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 

@@ -5,8 +5,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none,
-    utils::id_as_i64::GetI64,
+    utils::{id_as_i64::GetI64, pg_error::PgErrorTraits},
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -32,26 +31,31 @@ impl RenameAutoStarChannel {
             Ok(name) => name,
         };
 
-        let ret = map_dup_none!(AutoStarChannel::rename(
+        let ret = AutoStarChannel::rename(
             &ctx.bot.pool,
             &self.current_name,
             guild_id.get_i64(),
-            &new_name
-        ))?;
+            &new_name,
+        )
+        .await;
 
         match ret {
-            None => {
-                ctx.respond_str(
-                    &format!("An autostar channel with the name '{new_name}' already exists."),
-                    true,
-                )
-                .await?
+            Err(why) => {
+                if why.is_duplicate() {
+                    ctx.respond_str(
+                        &format!("An autostar channel with the name '{new_name}' already exists."),
+                        true,
+                    )
+                    .await?
+                } else {
+                    return Err(why.into());
+                }
             }
-            Some(None) => {
+            Ok(None) => {
                 ctx.respond_str("No autostar channel with that name was found.", true)
                     .await?
             }
-            Some(Some(_)) => {
+            Ok(Some(_)) => {
                 ctx.respond_str(
                     &format!(
                         "Renamed the autostar channel from '{}' to '{}'.",

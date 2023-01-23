@@ -11,15 +11,16 @@ impl XPRole {
         role_id: i64,
         guild_id: i64,
         required: i16,
-    ) -> sqlx::Result<Self> {
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            "INSERT INTO xproles (role_id, guild_id, required) VALUES ($1, $2, $3) RETURNING *",
+            "INSERT INTO xproles (role_id, guild_id, required) VALUES ($1, $2, $3)
+            ON CONFLICT DO NOTHING RETURNING *",
             role_id,
             guild_id,
             required,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 

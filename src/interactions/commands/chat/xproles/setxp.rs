@@ -3,7 +3,7 @@ use twilight_model::guild::Role;
 
 use crate::{
     constants, core::premium::is_premium::is_guild_premium, database::XPRole,
-    errors::StarboardResult, get_guild_id, interactions::context::CommandCtx, map_dup_none,
+    errors::StarboardResult, get_guild_id, interactions::context::CommandCtx,
     utils::id_as_i64::GetI64,
 };
 
@@ -47,12 +47,8 @@ impl SetXP {
         }
 
         let role_id = self.role.id.get_i64();
-        let xprole = map_dup_none!(XPRole::create(
-            &ctx.bot.pool,
-            role_id,
-            guild_id,
-            self.required_xp as i16,
-        ))?;
+        let xprole =
+            XPRole::create(&ctx.bot.pool, role_id, guild_id, self.required_xp as i16).await?;
 
         if xprole.is_none() {
             XPRole::set_required(&ctx.bot.pool, role_id, self.required_xp as i16).await?;

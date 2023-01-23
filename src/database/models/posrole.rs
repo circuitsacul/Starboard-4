@@ -11,15 +11,16 @@ impl PosRole {
         role_id: i64,
         guild_id: i64,
         max_members: i32,
-    ) -> sqlx::Result<Self> {
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            "INSERT INTO posroles (role_id, guild_id, max_members) VALUES ($1, $2, $3) RETURNING *",
+            "INSERT INTO posroles (role_id, guild_id, max_members) VALUES ($1, $2, $3)
+            ON CONFLICT DO NOTHING RETURNING *",
             role_id,
             guild_id,
             max_members,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 

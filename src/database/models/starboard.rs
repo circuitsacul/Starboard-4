@@ -66,20 +66,22 @@ impl Starboard {
         name: &String,
         channel_id: i64,
         guild_id: i64,
-    ) -> sqlx::Result<Self> {
+    ) -> sqlx::Result<Option<Self>> {
         let starboard = sqlx::query!(
-            r#"INSERT INTO STARBOARDS
-            (name, channel_id, guild_id)
-            VALUES ($1, $2, $3)
-            RETURNING *"#,
+            "INSERT INTO STARBOARDS (name, channel_id, guild_id) VALUES ($1, $2, $3)
+            ON CONFLICT DO NOTHING RETURNING *",
             name,
             channel_id,
             guild_id,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await?;
 
-        Ok(starboard_from_record!(starboard))
+        if let Some(row) = starboard {
+            Ok(Some(starboard_from_record!(row)))
+        } else {
+            Ok(None)
+        }
     }
 
     pub async fn delete(
@@ -88,8 +90,7 @@ impl Starboard {
         guild_id: i64,
     ) -> sqlx::Result<Option<Self>> {
         sqlx::query!(
-            "DELETE FROM starboards WHERE name=$1 AND guild_id=$2
-            RETURNING *",
+            "DELETE FROM starboards WHERE name=$1 AND guild_id=$2 RETURNING *",
             name,
             guild_id,
         )
@@ -127,9 +128,9 @@ impl Starboard {
             webhook_id,
             starboard_id
         )
-        .fetch_optional(pool)
-        .await?;
-        Ok(())
+        .execute(pool)
+        .await
+        .map(|_| ())
     }
 
     pub async fn disable_webhooks(pool: &sqlx::PgPool, starboard_id: i32) -> sqlx::Result<()> {
@@ -137,9 +138,9 @@ impl Starboard {
             "UPDATE starboards SET use_webhook=false WHERE id=$1",
             starboard_id
         )
-        .fetch_optional(pool)
-        .await?;
-        Ok(())
+        .execute(pool)
+        .await
+        .map(|_| ())
     }
 
     pub async fn rename(

@@ -19,18 +19,16 @@ impl StarboardOverride {
         guild_id: i64,
         name: &String,
         starboard_id: i32,
-    ) -> sqlx::Result<Self> {
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            r#"INSERT INTO overrides
-            (guild_id, name, starboard_id)
-            VALUES ($1, $2, $3)
-            RETURNING *"#,
+            "INSERT INTO overrides (guild_id, name, starboard_id) VALUES ($1, $2, $3)
+            ON CONFLICT DO NOTHING RETURNING *",
             guild_id,
             name,
             starboard_id,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 
@@ -144,9 +142,7 @@ impl StarboardOverride {
     ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
-            r#"SELECT * FROM overrides
-            WHERE starboard_id=$1 AND
-            channel_ids && $2::bigint[]"#,
+            "SELECT * FROM overrides WHERE starboard_id=$1 AND channel_ids && $2::bigint[]",
             starboard_id,
             channel_ids,
         )

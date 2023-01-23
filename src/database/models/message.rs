@@ -23,19 +23,19 @@ impl DbMessage {
         channel_id: i64,
         author_id: i64,
         is_nsfw: bool,
-    ) -> sqlx::Result<Self> {
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            r#"INSERT INTO messages (message_id, guild_id, channel_id,
-                author_id, is_nsfw)
-            VALUES ($1, $2, $3, $4, $5) RETURNING *"#,
+            r#"INSERT INTO messages (message_id, guild_id, channel_id, author_id, is_nsfw)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT DO NOTHING RETURNING *"#,
             message_id,
             guild_id,
             channel_id,
             author_id,
             is_nsfw,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 

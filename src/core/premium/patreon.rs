@@ -5,7 +5,6 @@ use crate::{
     constants,
     database::{DbUser, Patron},
     errors::StarboardResult,
-    map_dup_none,
     utils::{into_id::IntoId, notify::notify},
 };
 
@@ -45,7 +44,7 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
     let patrons = get_patrons_from_patreon(&bot, token).await?;
 
     for patron in patrons {
-        let sql_patron = map_dup_none!(Patron::create(&bot.pool, &patron.patreon_id))?;
+        let sql_patron = Patron::create(&bot.pool, &patron.patreon_id).await?;
         let mut sql_patron = match sql_patron {
             Some(sql_patron) => sql_patron,
             None => Patron::get(&bot.pool, &patron.patreon_id).await?.unwrap(),
@@ -79,7 +78,7 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
             sql_patron.discord_id = patron.discord_id;
 
             if let Some(user_id) = patron.discord_id {
-                map_dup_none!(DbUser::create(&bot.pool, user_id, false))?;
+                DbUser::create(&bot.pool, user_id, false).await?;
             }
             Patron::set_discord_id(&bot.pool, &patron.patreon_id, patron.discord_id).await?;
         }

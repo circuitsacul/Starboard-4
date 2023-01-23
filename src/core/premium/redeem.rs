@@ -5,7 +5,6 @@ use crate::{
     constants,
     database::{DbGuild, DbUser},
     errors::StarboardResult,
-    map_dup_none,
 };
 
 #[derive(PartialEq, Eq)]
@@ -22,7 +21,7 @@ pub async fn redeem_premium(
     months: u64,
     assert_guild_status: Option<Option<DateTime<Utc>>>,
 ) -> StarboardResult<RedeemPremiumResult> {
-    map_dup_none!(DbGuild::create(&bot.pool, guild_id))?;
+    DbGuild::create(&bot.pool, guild_id).await?;
 
     let credits = months * constants::CREDITS_PER_MONTH;
 

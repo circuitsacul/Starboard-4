@@ -6,7 +6,6 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none,
     utils::id_as_i64::GetI64,
 };
 
@@ -55,8 +54,7 @@ impl CreateOverride {
             return Ok(());
         }
 
-        let ov = StarboardOverride::create(&ctx.bot.pool, guild_id, &name, starboard.id);
-        let ov = map_dup_none!(ov)?;
+        let ov = StarboardOverride::create(&ctx.bot.pool, guild_id, &name, starboard.id).await?;
 
         if ov.is_none() {
             ctx.respond_str(

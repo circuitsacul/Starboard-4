@@ -1,5 +1,3 @@
-use crate::map_dup_none;
-
 #[derive(Debug)]
 pub struct Vote {
     pub message_id: i64,
@@ -18,38 +16,35 @@ impl Vote {
         user_id: i64,
         target_author_id: i64,
         is_downvote: bool,
-    ) -> sqlx::Result<Option<Self>> {
-        let create = map_dup_none!(sqlx::query_as!(
-            Self,
-            r#"INSERT INTO VOTES
-            (message_id, starboard_id, user_id,
-                target_author_id, is_downvote)
+    ) -> sqlx::Result<Option<()>> {
+        let create = sqlx::query!(
+            "INSERT INTO VOTES (message_id, starboard_id, user_id, target_author_id, is_downvote)
             VALUES ($1, $2, $3, $4, $5)
-            RETURNING *"#,
+            ON CONFLICT DO NOTHING",
             message_id,
             starboard_id,
             user_id,
             target_author_id,
             is_downvote,
         )
-        .fetch_one(pool))?;
+        .fetch_optional(pool)
+        .await?;
 
-        if let Some(create) = create {
-            return Ok(Some(create));
+        if create.is_some() {
+            return Ok(Some(()));
         }
 
-        sqlx::query_as!(
-            Self,
-            r#"UPDATE votes SET is_downvote=$1 WHERE
-            message_id=$2 AND starboard_id=$3 AND
-            user_id=$4 RETURNING *"#,
+        sqlx::query!(
+            "UPDATE votes SET is_downvote=$1 WHERE message_id=$2 AND starboard_id=$3 AND user_id=$4",
             is_downvote,
             message_id,
             starboard_id,
             user_id,
         )
         .fetch_optional(pool)
-        .await
+        .await?;
+
+        Ok(Some(()))
     }
 
     pub async fn count(

@@ -7,8 +7,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::tribool::Tribool, context::CommandCtx},
-    map_dup_none,
-    utils::{id_as_i64::GetI64, pg_err_code::get_pg_err_code},
+    utils::id_as_i64::GetI64,
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -47,23 +46,7 @@ impl EditPermRoleStarboard {
             Some(sb) => sb,
         };
 
-        let pr_sb = map_dup_none!(PermRoleStarboard::create(
-            &ctx.bot.pool,
-            self.role.id.get_i64(),
-            sb.id
-        ));
-        let pr_sb = match pr_sb {
-            Ok(pr_sb) => pr_sb,
-            Err(why) => {
-                if get_pg_err_code(&why).as_deref() == Some("23503") {
-                    ctx.respond_str(&format!("{} is not a PermRole.", self.role.mention()), true)
-                        .await?;
-                    return Ok(());
-                } else {
-                    return Err(why.into());
-                }
-            }
-        };
+        let pr_sb = PermRoleStarboard::create(&ctx.bot.pool, self.role.id.get_i64(), sb.id).await?;
 
         let mut pr_sb = match pr_sb {
             Some(pr_sb) => pr_sb,

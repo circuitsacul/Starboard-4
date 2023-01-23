@@ -7,13 +7,13 @@ pub struct DbGuild {
 }
 
 impl DbGuild {
-    pub async fn create(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Self> {
+    pub async fn create(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            "INSERT INTO guilds (guild_id) VALUES ($1) RETURNING *",
+            "INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT DO NOTHING RETURNING *",
             guild_id
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 

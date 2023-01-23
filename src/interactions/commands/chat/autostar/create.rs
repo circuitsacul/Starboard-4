@@ -8,7 +8,6 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none,
     utils::id_as_i64::GetI64,
 };
 
@@ -33,8 +32,9 @@ pub struct CreateAutoStarChannel {
 impl CreateAutoStarChannel {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
-        map_dup_none!(DbGuild::create(&ctx.bot.pool, guild_id))?;
         let channel_id = self.channel.id.get_i64();
+
+        DbGuild::create(&ctx.bot.pool, guild_id).await?;
 
         let name = match validation::name::validate_name(&self.name) {
             Err(why) => {
@@ -63,12 +63,7 @@ impl CreateAutoStarChannel {
             return Ok(());
         }
 
-        let ret = map_dup_none!(AutoStarChannel::create(
-            &ctx.bot.pool,
-            &name,
-            channel_id,
-            guild_id,
-        ))?;
+        let ret = AutoStarChannel::create(&ctx.bot.pool, &name, channel_id, guild_id).await?;
 
         if ret.is_none() {
             ctx.respond_str(

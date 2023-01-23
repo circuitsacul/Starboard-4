@@ -8,7 +8,6 @@ use crate::{
     database::DbGuild,
     errors::StarboardResult,
     interactions::context::CommandCtx,
-    map_dup_none,
     utils::{id_as_i64::GetI64, views::confirm},
 };
 
@@ -29,7 +28,7 @@ impl Redeem {
         let guild_id_i64 = guild_id.get_i64();
         let user_id = ctx.interaction.author_id().unwrap().get_i64();
 
-        let guild = map_dup_none!(DbGuild::create(&ctx.bot.pool, guild_id_i64))?;
+        let guild = DbGuild::create(&ctx.bot.pool, guild_id_i64).await?;
         let guild = match guild {
             Some(guild) => guild,
             None => DbGuild::get(&ctx.bot.pool, guild_id_i64).await?.unwrap(),

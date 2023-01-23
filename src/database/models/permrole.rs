@@ -13,17 +13,19 @@ pub struct PermRole {
 }
 
 impl PermRole {
-    pub async fn create(pool: &sqlx::PgPool, role_id: i64, guild_id: i64) -> sqlx::Result<Self> {
+    pub async fn create(
+        pool: &sqlx::PgPool,
+        role_id: i64,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
-            r#"INSERT INTO permroles
-            (role_id, guild_id)
-            VALUES ($1, $2)
-            RETURNING *"#,
+            "INSERT INTO permroles (role_id, guild_id) VALUES ($1, $2)
+            ON CONFLICT DO NOTHING RETURNING *",
             role_id,
             guild_id,
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await
     }
 

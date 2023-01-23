@@ -5,8 +5,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none,
-    utils::id_as_i64::GetI64,
+    utils::{id_as_i64::GetI64, pg_error::PgErrorTraits},
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -32,17 +31,19 @@ impl Rename {
             Ok(name) => name,
         };
 
-        let ret = map_dup_none!(ExclusiveGroup::rename(
-            &ctx.bot.pool,
-            guild_id,
-            &self.original_name,
-            &new_name,
-        ))?;
+        let ret =
+            ExclusiveGroup::rename(&ctx.bot.pool, guild_id, &self.original_name, &new_name).await;
 
         let err = match ret {
-            None => format!("An exclusive group named '{new_name}' already exists."),
-            Some(None) => format!("Exclusive group '{}' does not exist.", self.original_name),
-            Some(Some(_)) => {
+            Err(why) => {
+                if why.is_duplicate() {
+                    format!("An exclusive group named '{new_name}' already exists.")
+                } else {
+                    return Err(why.into());
+                }
+            }
+            Ok(None) => format!("Exclusive group '{}' does not exist.", self.original_name),
+            Ok(Some(_)) => {
                 ctx.respond_str("Done.", true).await?;
                 return Ok(());
             }

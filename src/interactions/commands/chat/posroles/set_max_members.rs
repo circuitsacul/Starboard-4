@@ -3,7 +3,7 @@ use twilight_model::guild::Role;
 
 use crate::{
     constants, core::premium::is_premium::is_guild_premium, database::PosRole,
-    errors::StarboardResult, get_guild_id, interactions::context::CommandCtx, map_dup_none,
+    errors::StarboardResult, get_guild_id, interactions::context::CommandCtx,
     utils::id_as_i64::GetI64,
 };
 
@@ -50,12 +50,8 @@ impl SetMaxMembers {
         }
 
         let role_id = self.role.id.get_i64();
-        let posrole = map_dup_none!(PosRole::create(
-            &ctx.bot.pool,
-            role_id,
-            guild_id,
-            self.max_members as i32,
-        ))?;
+        let posrole =
+            PosRole::create(&ctx.bot.pool, role_id, guild_id, self.max_members as i32).await?;
 
         if posrole.is_none() {
             PosRole::set_max_members(&ctx.bot.pool, role_id, self.max_members as i32).await?;

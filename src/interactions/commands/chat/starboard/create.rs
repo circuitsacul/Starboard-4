@@ -8,7 +8,6 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none,
     utils::id_as_i64::GetI64,
 };
 
@@ -33,7 +32,7 @@ pub struct CreateStarboard {
 impl CreateStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
-        map_dup_none!(DbGuild::create(&ctx.bot.pool, guild_id))?;
+        DbGuild::create(&ctx.bot.pool, guild_id).await?;
         let channel_id = self.channel.id.get_i64();
 
         let count = Starboard::count_by_guild(&ctx.bot.pool, guild_id).await?;
@@ -63,12 +62,7 @@ impl CreateStarboard {
             Ok(name) => name,
         };
 
-        let ret = map_dup_none!(Starboard::create(
-            &ctx.bot.pool,
-            &name,
-            channel_id,
-            guild_id,
-        ))?;
+        let ret = Starboard::create(&ctx.bot.pool, &name, channel_id, guild_id).await?;
 
         if ret.is_none() {
             ctx.respond_str(

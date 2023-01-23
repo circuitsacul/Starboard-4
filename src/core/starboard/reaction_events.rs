@@ -7,7 +7,6 @@ use crate::{
     core::{emoji::SimpleEmoji, stats::refresh_xp},
     database::{DbMember, DbMessage, DbUser, Vote},
     errors::StarboardResult,
-    map_dup_none,
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
@@ -61,8 +60,8 @@ pub async fn handle_reaction_add(
                 (is_bot, orig_msg_obj.author_id.get_i64())
             };
 
-            map_dup_none!(DbUser::create(&bot.pool, author_id, author_is_bot))?;
-            map_dup_none!(DbMember::create(&bot.pool, author_id, guild_id.get_i64()))?;
+            DbUser::create(&bot.pool, author_id, author_is_bot).await?;
+            DbMember::create(&bot.pool, author_id, guild_id.get_i64()).await?;
 
             let is_nsfw = bot
                 .cache
@@ -71,14 +70,15 @@ pub async fn handle_reaction_add(
                 .unwrap();
 
             // message
-            let orig = map_dup_none!(DbMessage::create(
+            let orig = DbMessage::create(
                 &bot.pool,
                 event.message_id.get_i64(),
                 guild_id.get_i64(),
                 event.channel_id.get_i64(),
                 author_id,
                 is_nsfw,
-            ))?;
+            )
+            .await?;
 
             match orig {
                 Some(msg) => (msg, author_is_bot),
@@ -128,16 +128,8 @@ pub async fn handle_reaction_add(
         VoteStatus::Valid((upvote, downvote)) => {
             // create reactor data
             let reactor_user_id = reactor_member.user.id.get_i64();
-            map_dup_none!(DbUser::create(
-                &bot.pool,
-                reactor_user_id,
-                reactor_member.user.bot
-            ))?;
-            map_dup_none!(DbMember::create(
-                &bot.pool,
-                reactor_user_id,
-                guild_id.get_i64(),
-            ))?;
+            DbUser::create(&bot.pool, reactor_user_id, reactor_member.user.bot).await?;
+            DbMember::create(&bot.pool, reactor_user_id, guild_id.get_i64()).await?;
 
             // create the votes
             for config in &upvote {

@@ -6,7 +6,6 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    map_dup_none,
     utils::{id_as_i64::GetI64, into_id::IntoId, message_link::parse_message_link},
 };
 
@@ -99,11 +98,7 @@ impl Force {
                     Some(user) => user.is_bot,
                     None => false,
                 };
-                map_dup_none!(DbUser::create(
-                    &ctx.bot.pool,
-                    orig_obj.author_id.get_i64(),
-                    is_bot
-                ))?;
+                DbUser::create(&ctx.bot.pool, orig_obj.author_id.get_i64(), is_bot).await?;
 
                 let is_nsfw = ctx
                     .bot
@@ -121,6 +116,7 @@ impl Force {
                     is_nsfw,
                 )
                 .await?
+                .unwrap()
             }
         };
 

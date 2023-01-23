@@ -5,15 +5,20 @@ pub struct ExclusiveGroup {
 }
 
 impl ExclusiveGroup {
-    pub async fn create(pool: &sqlx::PgPool, name: &str, guild_id: i64) -> sqlx::Result<()> {
-        sqlx::query!(
-            "INSERT INTO exclusive_groups (name, guild_id) VALUES ($1, $2)",
+    pub async fn create(
+        pool: &sqlx::PgPool,
+        name: &str,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "INSERT INTO exclusive_groups (name, guild_id) VALUES ($1, $2)
+            ON CONFLICT DO NOTHING RETURNING *",
             name,
             guild_id
         )
-        .fetch_all(pool)
-        .await?;
-        Ok(())
+        .fetch_optional(pool)
+        .await
     }
 
     pub async fn delete(
