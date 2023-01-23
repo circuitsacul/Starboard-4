@@ -7,7 +7,7 @@ use crate::{
     },
     errors::StarboardResult,
     get_guild_id,
-    interactions::context::CommandCtx,
+    interactions::{commands::on_delete_enum::OnDelete, context::CommandCtx},
     utils::id_as_i64::GetI64,
 };
 
@@ -35,6 +35,9 @@ pub struct EditBehavior {
     /// If the original message is edted, whether to also update the content of the starboard message.
     #[command(rename = "link-edits")]
     link_edits: Option<bool>,
+    /// What to do if a moderator removes a post from the starboard manually.
+    #[command(rename = "on-delete")]
+    on_delete: Option<OnDelete>,
     /// If true, prevents /random and /moststarred from pulling from this starboard.
     private: Option<bool>,
     /// How much XP each upvote on this starboard counts for.
@@ -86,6 +89,9 @@ impl EditBehavior {
         }
         if let Some(val) = self.link_edits {
             starboard.settings.link_edits = val;
+        }
+        if let Some(val) = self.on_delete {
+            starboard.settings.on_delete = val.value() as i16;
         }
         if let Some(val) = self.private {
             starboard.settings.private = val;

@@ -104,6 +104,13 @@ pub async fn format_settings(
             setting_name, res.cooldown_count, res.cooldown_period
         )
     };
+    let on_delete = match res.on_delete {
+        0 => "Refresh",
+        1 => "Ignore",
+        2 => "Trash All",
+        3 => "Freeze All",
+        _ => "Invalid",
+    };
 
     let behavior = settings!(
         enabled, "enabled", res.enabled;
@@ -112,6 +119,7 @@ pub async fn format_settings(
         remove_invalid_reactions, "remove-invalid-reactions", res.remove_invalid_reactions;
         link_deletes, "link-deletes", res.link_deletes;
         link_edits, "link-edits", res.link_edits;
+        on_delete, "on-delete", on_delete;
         cooldown_enabled, "cooldown-enabled", res.cooldown_enabled;
     ) + &cooldown
         + &format!("xp-multiplier: {}\n", res.xp_multiplier)

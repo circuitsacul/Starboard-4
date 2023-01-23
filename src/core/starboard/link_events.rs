@@ -7,12 +7,12 @@ use twilight_model::{
 
 use crate::{
     client::bot::StarboardBot,
-    database::{DbMessage, StarboardMessage},
+    database::{DbMessage, Starboard, StarboardMessage, StarboardOverride},
     errors::StarboardResult,
-    utils::id_as_i64::GetI64,
+    utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
-use super::handle::RefreshMessage;
+use super::{config::StarboardConfig, handle::RefreshMessage};
 
 pub async fn handle_message_update(
     bot: Arc<StarboardBot>,
@@ -45,16 +45,66 @@ pub async fn handle_message_delete(
         None => return Ok(()),
     };
 
-    if message_id != msg.message_id {
+    let must_force = 'out: {
+        if message_id == msg.message_id {
+            break 'out false;
+        }
+
         // this means that a starboard message was deleted, so we want to remove that
         // from the database so that the affected starboard can resend it without
         // needing force=true
-        StarboardMessage::delete(&bot.pool, message_id_i64).await?;
-    }
+        let Some(sb_msg) = StarboardMessage::delete(&bot.pool, message_id_i64).await? else {
+            break 'out false;
+        };
 
-    let mut refresh = RefreshMessage::new(bot, message_id);
-    refresh.set_sql_message(msg);
-    refresh.refresh(false).await?;
+        // handle the `on-delete` setting for the corresponding starboard
+        let Some(sb) = Starboard::get(&bot.pool, sb_msg.starboard_id).await? else {
+            break 'out false;
+        };
+
+        let guild_id = msg.guild_id.into_id();
+        let channel_id = msg.channel_id.into_id();
+
+        let channel_ids = bot
+            .cache
+            .qualified_channel_ids(&bot, guild_id, channel_id)
+            .await?;
+        let channel_ids = channel_ids
+            .into_iter()
+            .map(|id| id.get_i64())
+            .collect::<Vec<_>>();
+        let overrides =
+            StarboardOverride::list_by_starboard_and_channels(&bot.pool, sb.id, &channel_ids)
+                .await?;
+
+        let config = StarboardConfig::new(sb, overrides)?;
+
+        match config.resolved.on_delete {
+            0 => false,         // refresh
+            1 => return Ok(()), // ignore
+            2 => {
+                DbMessage::set_trashed(
+                    &bot.pool,
+                    msg.message_id,
+                    true,
+                    Some("on-delete is set to Trash All, and this message was manually deleted."),
+                )
+                .await?;
+                true
+            }
+            3 => {
+                DbMessage::set_freeze(&bot.pool, msg.message_id, true).await?;
+                true
+            }
+            _ => unreachable!("Invalid on-delete value."),
+        }
+    };
+
+    let mut refresh = RefreshMessage::new(bot, msg.message_id.into_id());
+    if !must_force {
+        refresh.set_sql_message(msg);
+    }
+    refresh.refresh(must_force).await?;
 
     Ok(())
 }
