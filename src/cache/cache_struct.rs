@@ -52,6 +52,7 @@ pub struct Cache {
 
     // misc
     pub responses: stretto::AsyncCache<Id<MessageMarker>, Id<MessageMarker>>,
+    pub auto_deleted_posts: stretto::AsyncCache<Id<MessageMarker>, ()>,
 }
 
 impl Cache {
@@ -70,6 +71,13 @@ impl Cache {
         .set_ignore_internal_cost(true)
         .finalize(tokio::spawn)
         .unwrap();
+        let auto_deleted_posts = stretto::AsyncCacheBuilder::new(
+            (constants::MAX_STORED_AUTO_DELETES * 10) as usize,
+            constants::MAX_STORED_RESPONSES.into(),
+        )
+        .set_ignore_internal_cost(true)
+        .finalize(tokio::spawn)
+        .unwrap();
 
         Self {
             guilds: DashMap::new().into(),
@@ -79,6 +87,7 @@ impl Cache {
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_vote_emojis: DashMap::new().into(),
             responses,
+            auto_deleted_posts,
         }
     }
 

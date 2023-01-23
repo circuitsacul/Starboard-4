@@ -31,6 +31,8 @@ pub struct StarboardSettings {
     pub remove_invalid_reactions: bool,
     pub link_deletes: bool,
     pub link_edits: bool,
+    /// 0=repost, 1=ignore, 2=trash-all, 3=freeze-all
+    pub on_delete: i16,
     pub private: bool,
     pub xp_multiplier: f32,
     pub cooldown_enabled: bool,

@@ -47,6 +47,7 @@ pub struct OverrideValues {
     pub remove_invalid_reactions: Option<bool>,
     pub link_deletes: Option<bool>,
     pub link_edits: Option<bool>,
+    pub on_delete: Option<i16>,
     pub cooldown_enabled: Option<bool>,
     pub cooldown_count: Option<i16>,
     pub cooldown_period: Option<i16>,

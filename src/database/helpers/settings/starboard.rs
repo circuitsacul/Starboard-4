@@ -28,6 +28,7 @@ macro_rules! call_with_starboard_settings {
             remove_invalid_reactions,
             link_deletes,
             link_edits,
+            on_delete,
             xp_multiplier,
             cooldown_enabled,
             cooldown_count,

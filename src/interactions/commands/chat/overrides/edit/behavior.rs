@@ -4,7 +4,7 @@ use crate::{
     database::{validation::cooldown::parse_cooldown, ExclusiveGroup, StarboardOverride},
     errors::StarboardResult,
     get_guild_id,
-    interactions::context::CommandCtx,
+    interactions::{commands::on_delete_enum::OnDelete, context::CommandCtx},
     utils::id_as_i64::GetI64,
 };
 
@@ -32,6 +32,9 @@ pub struct EditBehavior {
     /// If the original message is edted, whether to also update the content of the starboard message.
     #[command(rename = "link-edits")]
     link_edits: Option<bool>,
+    /// What to do if a moderator removes a post from the starboard manually.
+    #[command(rename = "on-delete")]
+    on_delete: Option<OnDelete>,
     /// Whether to enable the per-user vote cooldown.
     #[command(rename = "cooldown-enabled")]
     cooldown_enabled: Option<bool>,
@@ -78,6 +81,9 @@ impl EditBehavior {
         }
         if let Some(val) = self.link_edits {
             settings.link_edits = Some(val);
+        }
+        if let Some(val) = self.on_delete {
+            settings.on_delete = Some(val.value() as i16);
         }
         if let Some(val) = self.cooldown_enabled {
             settings.cooldown_enabled = Some(val);
