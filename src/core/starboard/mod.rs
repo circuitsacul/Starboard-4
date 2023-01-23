@@ -4,5 +4,6 @@ pub mod link_events;
 pub mod message;
 pub mod msg_status;
 pub mod reaction_events;
+pub mod recount;
 pub mod vote_status;
 pub mod webhooks;
