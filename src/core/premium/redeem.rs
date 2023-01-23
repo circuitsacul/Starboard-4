@@ -3,7 +3,7 @@ use chrono::{DateTime, Days, Utc};
 use crate::{
     client::bot::StarboardBot,
     constants,
-    database::{Guild, User},
+    database::{DbGuild, DbUser},
     errors::StarboardResult,
     map_dup_none,
 };
@@ -22,15 +22,15 @@ pub async fn redeem_premium(
     months: u64,
     assert_guild_status: Option<Option<DateTime<Utc>>>,
 ) -> StarboardResult<RedeemPremiumResult> {
-    map_dup_none!(Guild::create(&bot.pool, guild_id))?;
+    map_dup_none!(DbGuild::create(&bot.pool, guild_id))?;
 
     let credits = months * constants::CREDITS_PER_MONTH;
 
     let mut tx = bot.pool.begin().await?;
 
     // get the guild
-    let guild: Guild = sqlx::query_as!(
-        Guild,
+    let guild: DbGuild = sqlx::query_as!(
+        DbGuild,
         "SELECT * FROM guilds WHERE guild_id=$1 FOR UPDATE",
         guild_id
     )
@@ -43,8 +43,8 @@ pub async fn redeem_premium(
     }
 
     // get the user
-    let user: Option<User> = sqlx::query_as!(
-        User,
+    let user: Option<DbUser> = sqlx::query_as!(
+        DbUser,
         "SELECT * FROM users WHERE user_id=$1 FOR UPDATE",
         user_id
     )

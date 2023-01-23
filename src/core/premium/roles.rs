@@ -5,7 +5,7 @@ use twilight_model::id::{marker::UserMarker, Id};
 use crate::{
     client::bot::StarboardBot,
     constants,
-    database::User,
+    database::DbUser,
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
@@ -17,7 +17,7 @@ pub async fn loop_update_supporter_roles(bot: Arc<StarboardBot>) {
         let clone = bot.clone();
         let ret = tokio::spawn(async move {
             let users = sqlx::query_as!(
-                User,
+                DbUser,
                 "SELECT * FROM users WHERE patreon_status!=0 OR donated_cents!=0"
             )
             .fetch_all(&clone.pool)
@@ -49,7 +49,7 @@ pub async fn update_supporter_roles(
     let supporter_role = bot.config.supporter_role.map(|r| r.into_id());
     let patron_role = bot.config.patron_role.map(|r| r.into_id());
     let guild_id = guild_id.into_id();
-    let Some(user) = User::get(&bot.pool, user_id.get_i64()).await? else {
+    let Some(user) = DbUser::get(&bot.pool, user_id.get_i64()).await? else {
         return Ok(());
     };
     let Some((has_supporter, has_patron)) = bot.cache.guilds.with(&guild_id, |_, guild| {

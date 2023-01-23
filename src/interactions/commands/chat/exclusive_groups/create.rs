@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     constants,
-    database::{validation::name::validate_name, ExclusiveGroup, Guild},
+    database::{validation::name::validate_name, DbGuild, ExclusiveGroup},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -21,7 +21,7 @@ impl Create {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
 
-        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id))?;
+        map_dup_none!(DbGuild::create(&ctx.bot.pool, guild_id))?;
 
         let name = match validate_name(&self.name) {
             Err(why) => {

@@ -9,7 +9,7 @@ use crate::{
         premium::is_premium::is_guild_premium,
         starboard::{config::StarboardConfig, webhooks::get_valid_webhook},
     },
-    database::{Message as DbMessage, Starboard},
+    database::{DbMessage, Starboard},
     errors::StarboardResult,
     utils::{get_status::get_status, id_as_i64::GetI64, into_id::IntoId},
 };

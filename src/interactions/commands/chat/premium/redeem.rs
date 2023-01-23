@@ -5,7 +5,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     constants,
     core::premium::redeem::{redeem_premium, RedeemPremiumResult},
-    database::Guild,
+    database::DbGuild,
     errors::StarboardResult,
     interactions::context::CommandCtx,
     map_dup_none,
@@ -29,10 +29,10 @@ impl Redeem {
         let guild_id_i64 = guild_id.get_i64();
         let user_id = ctx.interaction.author_id().unwrap().get_i64();
 
-        let guild = map_dup_none!(Guild::create(&ctx.bot.pool, guild_id_i64))?;
+        let guild = map_dup_none!(DbGuild::create(&ctx.bot.pool, guild_id_i64))?;
         let guild = match guild {
             Some(guild) => guild,
-            None => Guild::get(&ctx.bot.pool, guild_id_i64).await?.unwrap(),
+            None => DbGuild::get(&ctx.bot.pool, guild_id_i64).await?.unwrap(),
         };
 
         let end_pretty = if let Some(end) = guild.premium_end {

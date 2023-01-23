@@ -4,7 +4,7 @@ use twilight_util::builder::embed::EmbedFieldBuilder;
 
 use crate::{
     concat_format,
-    database::{Message, Starboard, StarboardMessage},
+    database::{DbMessage, Starboard, StarboardMessage},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -33,7 +33,7 @@ impl Info {
             return Ok(());
         };
 
-        let Some(sql_msg) = Message::get_original(&ctx.bot.pool, message_id).await? else {
+        let Some(sql_msg) = DbMessage::get_original(&ctx.bot.pool, message_id).await? else {
             ctx.respond_str(INVALID_MESSAGE_ERR, true).await?;
             return Ok(());
         };

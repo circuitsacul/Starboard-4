@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     core::starboard::handle::RefreshMessage,
-    database::Message,
+    database::DbMessage,
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -33,7 +33,7 @@ impl Trash {
             return Ok(());
         };
 
-        let Some(orig) = Message::get_original(&ctx.bot.pool, message_id).await? else {
+        let Some(orig) = DbMessage::get_original(&ctx.bot.pool, message_id).await? else {
             ctx.respond_str(INVALID_MESSAGE_ERR, true).await?;
             return Ok(());
         };
@@ -44,7 +44,8 @@ impl Trash {
             return Ok(());
         }
 
-        Message::set_trashed(&ctx.bot.pool, orig.message_id, true, self.reason.as_deref()).await?;
+        DbMessage::set_trashed(&ctx.bot.pool, orig.message_id, true, self.reason.as_deref())
+            .await?;
         ctx.respond_str("Message trashed.", true).await?;
         RefreshMessage::new(ctx.bot, orig.message_id.into_id())
             .refresh(true)
@@ -70,7 +71,7 @@ impl UnTrash {
             return Ok(());
         };
 
-        let Some(orig) = Message::get_original(&ctx.bot.pool, message_id).await? else {
+        let Some(orig) = DbMessage::get_original(&ctx.bot.pool, message_id).await? else {
             ctx.respond_str(INVALID_MESSAGE_ERR, true).await?;
             return Ok(());
         };
@@ -81,7 +82,7 @@ impl UnTrash {
             return Ok(());
         }
 
-        Message::set_trashed(&ctx.bot.pool, orig.message_id, false, None).await?;
+        DbMessage::set_trashed(&ctx.bot.pool, orig.message_id, false, None).await?;
         ctx.respond_str("Message untrashed.", true).await?;
         RefreshMessage::new(ctx.bot, orig.message_id.into_id())
             .refresh(true)

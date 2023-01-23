@@ -1,7 +1,7 @@
 use crate::database::StarboardMessage;
 
 #[derive(Debug)]
-pub struct Message {
+pub struct DbMessage {
     pub message_id: i64,
     pub guild_id: i64,
     pub channel_id: i64,
@@ -15,7 +15,7 @@ pub struct Message {
     pub frozen: bool,
 }
 
-impl Message {
+impl DbMessage {
     pub async fn create(
         pool: &sqlx::PgPool,
         message_id: i64,

@@ -13,7 +13,7 @@ use twilight_model::{
 
 use crate::{
     core::embedder::builder::BuiltStarboardEmbed,
-    database::{Message, Starboard, StarboardMessage},
+    database::{DbMessage, Starboard, StarboardMessage},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::{CommandCtx, ComponentCtx},
@@ -145,7 +145,7 @@ async fn scrolling_paginator(
         current_page += 1;
 
         // built message
-        let orig_msg = Message::get(&ctx.bot.pool, next_sb_message.message_id)
+        let orig_msg = DbMessage::get(&ctx.bot.pool, next_sb_message.message_id)
             .await?
             .unwrap();
         let config = get_config(&ctx.bot, starboard.clone(), orig_msg.channel_id).await?;

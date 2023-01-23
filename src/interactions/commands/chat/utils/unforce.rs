@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     core::starboard::handle::RefreshMessage,
-    database::{Message, Starboard},
+    database::{DbMessage, Starboard},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -29,7 +29,7 @@ impl UnForce {
             return Ok(());
         };
 
-        let Some(msg) = Message::get_original(&ctx.bot.pool, message_id).await? else {
+        let Some(msg) = DbMessage::get_original(&ctx.bot.pool, message_id).await? else {
             ctx.respond_str("That message isn't forced.", true).await?;
             return Ok(())
         };
@@ -54,10 +54,10 @@ impl UnForce {
                     .copied()
                     .collect();
 
-                Message::set_forced(&ctx.bot.pool, msg.message_id, &new_forced).await?;
+                DbMessage::set_forced(&ctx.bot.pool, msg.message_id, &new_forced).await?;
             }
             None => {
-                Message::set_forced(&ctx.bot.pool, msg.message_id, &[]).await?;
+                DbMessage::set_forced(&ctx.bot.pool, msg.message_id, &[]).await?;
             }
         }
 

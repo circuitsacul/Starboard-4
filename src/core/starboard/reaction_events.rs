@@ -5,7 +5,7 @@ use twilight_model::gateway::payload::incoming::{ReactionAdd, ReactionRemove};
 use crate::{
     client::bot::StarboardBot,
     core::{emoji::SimpleEmoji, stats::refresh_xp},
-    database::{Member, Message, User, Vote},
+    database::{DbMember, DbMessage, DbUser, Vote},
     errors::StarboardResult,
     map_dup_none,
     utils::{id_as_i64::GetI64, into_id::IntoId},
@@ -42,7 +42,7 @@ pub async fn handle_reaction_add(
         return Ok(());
     }
 
-    let orig_msg = Message::get_original(&bot.pool, event.message_id.get_i64()).await?;
+    let orig_msg = DbMessage::get_original(&bot.pool, event.message_id.get_i64()).await?;
     let (orig_msg, author_is_bot) = match orig_msg {
         None => {
             // author data
@@ -61,8 +61,8 @@ pub async fn handle_reaction_add(
                 (is_bot, orig_msg_obj.author_id.get_i64())
             };
 
-            map_dup_none!(User::create(&bot.pool, author_id, author_is_bot))?;
-            map_dup_none!(Member::create(&bot.pool, author_id, guild_id.get_i64()))?;
+            map_dup_none!(DbUser::create(&bot.pool, author_id, author_is_bot))?;
+            map_dup_none!(DbMember::create(&bot.pool, author_id, guild_id.get_i64()))?;
 
             let is_nsfw = bot
                 .cache
@@ -71,7 +71,7 @@ pub async fn handle_reaction_add(
                 .unwrap();
 
             // message
-            let orig = map_dup_none!(Message::create(
+            let orig = map_dup_none!(DbMessage::create(
                 &bot.pool,
                 event.message_id.get_i64(),
                 guild_id.get_i64(),
@@ -83,7 +83,7 @@ pub async fn handle_reaction_add(
             match orig {
                 Some(msg) => (msg, author_is_bot),
                 None => {
-                    let msg = Message::get(&bot.pool, event.message_id.get_i64())
+                    let msg = DbMessage::get(&bot.pool, event.message_id.get_i64())
                         .await?
                         .unwrap();
                     (msg, author_is_bot)
@@ -91,7 +91,7 @@ pub async fn handle_reaction_add(
             }
         }
         Some(msg) => {
-            let user = User::get(&bot.pool, msg.author_id).await?.unwrap();
+            let user = DbUser::get(&bot.pool, msg.author_id).await?.unwrap();
             (msg, user.is_bot)
         }
     };
@@ -128,12 +128,12 @@ pub async fn handle_reaction_add(
         VoteStatus::Valid((upvote, downvote)) => {
             // create reactor data
             let reactor_user_id = reactor_member.user.id.get_i64();
-            map_dup_none!(User::create(
+            map_dup_none!(DbUser::create(
                 &bot.pool,
                 reactor_user_id,
                 reactor_member.user.bot
             ))?;
-            map_dup_none!(Member::create(
+            map_dup_none!(DbMember::create(
                 &bot.pool,
                 reactor_user_id,
                 guild_id.get_i64(),
@@ -184,11 +184,11 @@ pub async fn handle_reaction_remove(
         Some(guild_id) => guild_id,
     };
 
-    let orig = match Message::get_original(&bot.pool, event.message_id.get_i64()).await? {
+    let orig = match DbMessage::get_original(&bot.pool, event.message_id.get_i64()).await? {
         None => return Ok(()),
         Some(orig) => orig,
     };
-    let author = User::get(&bot.pool, orig.author_id).await?.unwrap();
+    let author = DbUser::get(&bot.pool, orig.author_id).await?.unwrap();
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
     let configs = StarboardConfig::list_for_channel(&bot, guild_id, event.channel_id).await?;

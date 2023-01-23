@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     core::starboard::handle::RefreshMessage,
-    database::Message,
+    database::DbMessage,
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -28,7 +28,7 @@ impl Freeze {
             return Ok(());
         };
 
-        let Some(orig) = Message::get_original(&ctx.bot.pool, message_id).await? else {
+        let Some(orig) = DbMessage::get_original(&ctx.bot.pool, message_id).await? else {
             ctx.respond_str(INVALID_MESSAGE_ERR, true).await?;
             return Ok(());
         };
@@ -39,7 +39,7 @@ impl Freeze {
             return Ok(());
         }
 
-        Message::set_freeze(&ctx.bot.pool, orig.message_id, true)
+        DbMessage::set_freeze(&ctx.bot.pool, orig.message_id, true)
             .await?
             .unwrap();
         ctx.respond_str("Message frozen.", true).await?;
@@ -65,7 +65,7 @@ impl UnFreeze {
             return Ok(());
         };
 
-        let Some(orig) = Message::get_original(&ctx.bot.pool, message_id).await? else {
+        let Some(orig) = DbMessage::get_original(&ctx.bot.pool, message_id).await? else {
             ctx.respond_str(INVALID_MESSAGE_ERR, true).await?;
             return Ok(());
         };
@@ -76,7 +76,7 @@ impl UnFreeze {
             return Ok(());
         }
 
-        Message::set_freeze(&ctx.bot.pool, orig.message_id, false)
+        DbMessage::set_freeze(&ctx.bot.pool, orig.message_id, false)
             .await?
             .unwrap();
         ctx.respond_str("Message unfrozen.", true).await?;

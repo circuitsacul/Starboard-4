@@ -4,7 +4,7 @@ use twilight_model::application::interaction::application_command::InteractionCh
 use crate::{
     constants,
     core::premium::is_premium::is_guild_premium,
-    database::{validation, AutoStarChannel, Guild},
+    database::{validation, AutoStarChannel, DbGuild},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -33,7 +33,7 @@ pub struct CreateAutoStarChannel {
 impl CreateAutoStarChannel {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
-        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id))?;
+        map_dup_none!(DbGuild::create(&ctx.bot.pool, guild_id))?;
         let channel_id = self.channel.id.get_i64();
 
         let name = match validation::name::validate_name(&self.name) {

@@ -6,7 +6,7 @@ use twilight_util::builder::embed::EmbedFieldBuilder;
 
 use crate::{
     concat_format, constants,
-    database::{Guild, Member, User},
+    database::{DbGuild, DbMember, DbUser},
     errors::StarboardResult,
     interactions::context::CommandCtx,
     utils::{embed, id_as_i64::GetI64, into_id::IntoId},
@@ -20,7 +20,7 @@ impl Info {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let user_id = ctx.interaction.author_id().unwrap().get_i64();
 
-        let user = User::get(&ctx.bot.pool, user_id).await?;
+        let user = DbUser::get(&ctx.bot.pool, user_id).await?;
         let credits = match &user {
             Some(user) => user.credits,
             None => 0,
@@ -45,7 +45,7 @@ impl Info {
                 break 'out;
             }
 
-            let ar = Member::list_autoredeem_by_user(&ctx.bot.pool, user_id).await?;
+            let ar = DbMember::list_autoredeem_by_user(&ctx.bot.pool, user_id).await?;
             if ar.is_empty() {
                 break 'out;
             }
@@ -73,7 +73,7 @@ impl Info {
         }
 
         if let Some(guild_id) = ctx.interaction.guild_id {
-            let guild = Guild::get(&ctx.bot.pool, guild_id.get_i64()).await?;
+            let guild = DbGuild::get(&ctx.bot.pool, guild_id.get_i64()).await?;
 
             let value = match guild.and_then(|g| g.premium_end) {
                 None => Cow::Borrowed("This server does not have premium."),

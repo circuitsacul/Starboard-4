@@ -4,7 +4,7 @@ use twilight_model::application::interaction::application_command::InteractionCh
 use crate::{
     constants,
     core::premium::is_premium::is_guild_premium,
-    database::{validation, Guild, Starboard},
+    database::{validation, DbGuild, Starboard},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -33,7 +33,7 @@ pub struct CreateStarboard {
 impl CreateStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
-        map_dup_none!(Guild::create(&ctx.bot.pool, guild_id))?;
+        map_dup_none!(DbGuild::create(&ctx.bot.pool, guild_id))?;
         let channel_id = self.channel.id.get_i64();
 
         let count = Starboard::count_by_guild(&ctx.bot.pool, guild_id).await?;

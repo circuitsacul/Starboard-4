@@ -5,7 +5,7 @@ use twilight_model::id::{
 
 use crate::{
     client::bot::StarboardBot,
-    database::{Member, Starboard},
+    database::{DbMember, Starboard},
     errors::StarboardResult,
     utils::id_as_i64::GetI64,
 };
@@ -142,7 +142,7 @@ pub async fn refresh_xp(
         return Ok(());
     };
 
-    Member::set_xp(&bot.pool, user_id.get_i64(), guild_id.get_i64(), stats.xp).await?;
+    DbMember::set_xp(&bot.pool, user_id.get_i64(), guild_id.get_i64(), stats.xp).await?;
 
     if is_guild_premium(bot, guild_id.get_i64()).await? {
         refresh_xpr(bot, guild_id, user_id).await?;

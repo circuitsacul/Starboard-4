@@ -5,7 +5,7 @@ use twilight_model::id::{
 
 use crate::{
     client::bot::StarboardBot,
-    database::{Member, XPRole},
+    database::{DbMember, XPRole},
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
@@ -26,7 +26,7 @@ pub async fn refresh_xpr(
     };
 
     let xproles = XPRole::list_by_guild(&bot.pool, guild_id.get_i64()).await?;
-    let Some(member) = Member::get(&bot.pool, guild_id.get_i64(), user_id.get_i64()).await? else {
+    let Some(member) = DbMember::get(&bot.pool, guild_id.get_i64(), user_id.get_i64()).await? else {
         return Ok(());
     };
 

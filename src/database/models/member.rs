@@ -3,14 +3,14 @@ use futures::TryStreamExt;
 use crate::{cache::Cache, utils::into_id::IntoId};
 
 #[derive(Debug)]
-pub struct Member {
+pub struct DbMember {
     pub user_id: i64,
     pub guild_id: i64,
     pub xp: f32,
     pub autoredeem_enabled: bool,
 }
 
-impl Member {
+impl DbMember {
     pub async fn create(pool: &sqlx::PgPool, user_id: i64, guild_id: i64) -> sqlx::Result<Self> {
         sqlx::query_as!(
             Self,

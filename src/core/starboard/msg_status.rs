@@ -1,6 +1,5 @@
 use crate::{
-    client::bot::StarboardBot, database::Message as DbMessage, errors::StarboardResult,
-    utils::into_id::IntoId,
+    client::bot::StarboardBot, database::DbMessage, errors::StarboardResult, utils::into_id::IntoId,
 };
 
 use super::config::StarboardConfig;

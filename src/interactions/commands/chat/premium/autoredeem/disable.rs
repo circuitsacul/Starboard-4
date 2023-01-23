@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::Member, errors::StarboardResult, interactions::context::CommandCtx,
+    database::DbMember, errors::StarboardResult, interactions::context::CommandCtx,
     utils::id_as_i64::GetI64,
 };
 
@@ -41,7 +41,7 @@ impl Disable {
             guild_id
         };
 
-        Member::set_autoredeem_enabled(&ctx.bot.pool, user_id, guild_id, false).await?;
+        DbMember::set_autoredeem_enabled(&ctx.bot.pool, user_id, guild_id, false).await?;
 
         ctx.respond_str("Autoredeem disabled.", true).await?;
 

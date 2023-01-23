@@ -6,7 +6,7 @@ use twilight_model::{
 };
 
 use crate::{
-    client::bot::StarboardBot, database::Message as DbMessage, errors::StarboardResult,
+    client::bot::StarboardBot, database::DbMessage, errors::StarboardResult,
     utils::id_as_i64::GetI64,
 };
 

@@ -9,7 +9,7 @@ use crate::{
         embedder::Embedder,
         emoji::{EmojiCommon, SimpleEmoji},
     },
-    database::{Message as DbMessage, StarboardMessage, Vote},
+    database::{DbMessage, StarboardMessage, Vote},
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };

@@ -11,7 +11,7 @@ use crate::{
         embedder::{builder::BuiltStarboardEmbed, Embedder},
         starboard::config::StarboardConfig,
     },
-    database::{Message, Starboard, StarboardMessage, StarboardOverride},
+    database::{DbMessage, Starboard, StarboardMessage, StarboardOverride},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -77,7 +77,7 @@ pub async fn get_config(
 pub async fn get_embedder<'config, 'bot>(
     bot: &'bot StarboardBot,
     config: &'config StarboardConfig,
-    orig_sql_msg: Message,
+    orig_sql_msg: DbMessage,
     msg: StarboardMessage,
 ) -> StarboardResult<Option<Embedder<'config, 'bot>>> {
     let orig_msg = bot
@@ -203,7 +203,9 @@ impl RandomPost {
             return Ok(());
         };
 
-        let orig_msg = Message::get(&ctx.bot.pool, msg.message_id).await?.unwrap();
+        let orig_msg = DbMessage::get(&ctx.bot.pool, msg.message_id)
+            .await?
+            .unwrap();
         let config = get_config(&ctx.bot, sb, orig_msg.channel_id).await?;
         let embedder = get_embedder(&ctx.bot, &config, orig_msg, msg)
             .await?

@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub struct User {
+pub struct DbUser {
     pub user_id: i64,
     pub is_bot: bool,
     pub credits: i32,
@@ -8,7 +8,7 @@ pub struct User {
     pub patreon_status: i16,
 }
 
-impl User {
+impl DbUser {
     pub async fn create(pool: &sqlx::PgPool, user_id: i64, is_bot: bool) -> sqlx::Result<Self> {
         sqlx::query_as!(
             Self,

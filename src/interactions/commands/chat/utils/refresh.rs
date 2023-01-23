@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     core::starboard::handle::RefreshMessage,
-    database::Message,
+    database::DbMessage,
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -30,7 +30,7 @@ impl Refresh {
             return Ok(());
         };
 
-        let Some(orig) = Message::get_original(&ctx.bot.pool, message_id).await? else {
+        let Some(orig) = DbMessage::get_original(&ctx.bot.pool, message_id).await? else {
             ctx.respond_str(INVALID_MESSAGE_ERR, true).await?;
             return Ok(());
         };

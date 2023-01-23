@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::Message,
+    database::DbMessage,
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -16,7 +16,7 @@ impl TrashCan {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
 
-        let trashed = Message::list_trashed(&ctx.bot.pool, guild_id).await?;
+        let trashed = DbMessage::list_trashed(&ctx.bot.pool, guild_id).await?;
 
         if trashed.is_empty() {
             ctx.respond_str("There are no trashed messages.", true)

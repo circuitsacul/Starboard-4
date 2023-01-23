@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     core::starboard::handle::RefreshMessage,
-    database::{Message, Starboard, User},
+    database::{DbMessage, DbUser, Starboard},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -69,7 +69,7 @@ impl Force {
             return Ok(());
         }
 
-        let orig = Message::get_original(&ctx.bot.pool, message_id).await?;
+        let orig = DbMessage::get_original(&ctx.bot.pool, message_id).await?;
         let orig = match orig {
             Some(orig) => orig,
             None => {
@@ -99,7 +99,7 @@ impl Force {
                     Some(user) => user.is_bot,
                     None => false,
                 };
-                map_dup_none!(User::create(
+                map_dup_none!(DbUser::create(
                     &ctx.bot.pool,
                     orig_obj.author_id.get_i64(),
                     is_bot
@@ -112,7 +112,7 @@ impl Force {
                     .await?
                     .unwrap();
 
-                Message::create(
+                DbMessage::create(
                     &ctx.bot.pool,
                     message_id,
                     guild_id.get_i64(),
@@ -131,7 +131,7 @@ impl Force {
             }
         }
 
-        Message::set_forced(&ctx.bot.pool, orig.message_id, &forced).await?;
+        DbMessage::set_forced(&ctx.bot.pool, orig.message_id, &forced).await?;
         RefreshMessage::new(ctx.bot.clone(), orig.message_id.into_id())
             .refresh(true)
             .await?;

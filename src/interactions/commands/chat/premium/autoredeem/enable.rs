@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::Member, errors::StarboardResult, interactions::context::CommandCtx, map_dup_none,
+    database::DbMember, errors::StarboardResult, interactions::context::CommandCtx, map_dup_none,
     utils::id_as_i64::GetI64,
 };
 
@@ -21,9 +21,9 @@ impl Enable {
         let guild_id = guild_id.get_i64();
         let user_id = ctx.interaction.author_id().unwrap().get_i64();
 
-        map_dup_none!(Member::create(&ctx.bot.pool, user_id, guild_id))?;
+        map_dup_none!(DbMember::create(&ctx.bot.pool, user_id, guild_id))?;
 
-        Member::set_autoredeem_enabled(&ctx.bot.pool, user_id, guild_id, true).await?;
+        DbMember::set_autoredeem_enabled(&ctx.bot.pool, user_id, guild_id, true).await?;
 
         ctx.respond_str("Autoredeem enabled.", true).await?;
 

@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use crate::{
     client::bot::StarboardBot,
     constants,
-    database::{Patron, User},
+    database::{DbUser, Patron},
     errors::StarboardResult,
     map_dup_none,
     utils::{into_id::IntoId, notify::notify},
@@ -55,7 +55,7 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
         if sql_patron.discord_id != patron.discord_id {
             if let Some(old_user_id) = sql_patron.discord_id {
                 // moved or unlinked discord account
-                User::set_patreon_status(&bot.pool, old_user_id, 0).await?;
+                DbUser::set_patreon_status(&bot.pool, old_user_id, 0).await?;
 
                 let clone = bot.clone();
                 tokio::spawn(async move {
@@ -79,26 +79,26 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
             sql_patron.discord_id = patron.discord_id;
 
             if let Some(user_id) = patron.discord_id {
-                map_dup_none!(User::create(&bot.pool, user_id, false))?;
+                map_dup_none!(DbUser::create(&bot.pool, user_id, false))?;
             }
             Patron::set_discord_id(&bot.pool, &patron.patreon_id, patron.discord_id).await?;
         }
 
         // add credits the corresponding user, if needed
         let Some(user_id) = patron.discord_id else { continue; };
-        let user = User::get(&bot.pool, user_id).await?.unwrap();
+        let user = DbUser::get(&bot.pool, user_id).await?.unwrap();
 
         let cents_difference = patron.total_cents as i64 - sql_patron.last_patreon_total_cents;
         if cents_difference > 0 {
             let credits = (cents_difference as f64 / 100_f64).round() as i32;
-            User::add_credits(&bot.pool, user.user_id, credits).await?;
+            DbUser::add_credits(&bot.pool, user.user_id, credits).await?;
             Patron::set_total_cents(&bot.pool, &patron.patreon_id, patron.total_cents as i64)
                 .await?;
         }
 
         // update the patron status
         if user.patreon_status != patron.status {
-            User::set_patreon_status(&bot.pool, user.user_id, patron.status).await?;
+            DbUser::set_patreon_status(&bot.pool, user.user_id, patron.status).await?;
 
             let message = match (user.patreon_status, patron.status) {
                 (0 | 3, 1 | 2) => {

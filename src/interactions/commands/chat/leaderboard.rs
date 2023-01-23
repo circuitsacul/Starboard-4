@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::Member,
+    database::DbMember,
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -27,16 +27,17 @@ impl Leaderboard {
         let include_gone = self.include_gone == Some(true);
 
         let lb = if include_gone {
-            Member::list_by_xp(&ctx.bot.pool, guild_id, 99).await?
+            DbMember::list_by_xp(&ctx.bot.pool, guild_id, 99).await?
         } else {
-            Member::list_by_xp_exclude_deleted(&ctx.bot.pool, guild_id, 99, &ctx.bot.cache).await?
+            DbMember::list_by_xp_exclude_deleted(&ctx.bot.pool, guild_id, 99, &ctx.bot.cache)
+                .await?
         };
 
         let mut idx = 0;
         let pages = lb.chunks(9).map(|chunk| {
             chunk
                 .iter()
-                .map(|Member { user_id, xp, .. }| {
+                .map(|DbMember { user_id, xp, .. }| {
                     idx += 1;
                     format!("`#{idx}` <@{user_id}> - {xp} XP\n")
                 })

@@ -1,12 +1,12 @@
 use chrono::{DateTime, Utc};
 
 #[derive(Debug)]
-pub struct Guild {
+pub struct DbGuild {
     pub guild_id: i64,
     pub premium_end: Option<DateTime<Utc>>,
 }
 
-impl Guild {
+impl DbGuild {
     pub async fn create(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Self> {
         sqlx::query_as!(
             Self,

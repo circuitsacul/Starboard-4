@@ -8,7 +8,7 @@ use twilight_model::id::{
 use crate::{
     client::bot::StarboardBot,
     constants,
-    database::{Member, PosRole},
+    database::{DbMember, PosRole},
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
@@ -147,7 +147,7 @@ pub async fn update_posroles_for_guild(
     let posrole_ids: Vec<Id<RoleMarker>> = posroles.iter().map(|pr| pr.role_id.into_id()).collect();
 
     let lb_size = posroles.iter().map(|pr| pr.max_members).sum::<i32>() * 2;
-    let mut leaderboard = Member::list_by_xp_exclude_deleted(
+    let mut leaderboard = DbMember::list_by_xp_exclude_deleted(
         &bot.pool,
         guild_id.get_i64(),
         lb_size as i64,
