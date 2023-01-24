@@ -21,7 +21,7 @@ impl BotStats {
                 "Cache",
                 format!(
                     "Cached Users: {}\nCached Messages: {}",
-                    cached_users.separate_with_spaces(),
+                    cached_users.separate_with_commas(),
                     cached_messages.separate_with_commas(),
                 ),
             ))
