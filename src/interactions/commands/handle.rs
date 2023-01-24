@@ -22,6 +22,7 @@ pub async fn handle_command(ctx: CommandCtx) -> StarboardResult<()> {
         ctx,
         "ping" => chat::ping::Ping,
         "help" => chat::help::Help,
+        "botstats" => chat::botstats::BotStats,
         "leaderboard" => chat::leaderboard::Leaderboard,
         "stats" => chat::stats::Stats,
         "random" => chat::random::RandomPost,
