@@ -180,14 +180,14 @@ impl BuiltStarboardEmbed {
         // author
         {
             let maybe_user = match is_reply {
-                true => &handle.referenced_message_author,
-                false => &handle.orig_message_author,
+                true => handle.referenced_message.as_ref().map(|msg| msg.author_id),
+                false => Some(handle.orig_sql_message.author_id.into_id()),
             };
             let avatar: Option<String>;
             let name: String;
             (name, avatar) = match maybe_user {
                 None => ("Deleted User".to_string(), None),
-                Some(user) => {
+                Some(user_id) => 'out: {
                     let member = handle
                         .bot
                         .cache
@@ -197,6 +197,9 @@ impl BuiltStarboardEmbed {
                             orig.author_id,
                         )
                         .await?;
+                    let Some(user) = handle.bot.cache.fog_user(&handle.bot, user_id).await? else {
+                        break 'out ("Deleted User".to_string(), None)
+                    };
 
                     let (name, avatar) = match member {
                         Some(member) => (

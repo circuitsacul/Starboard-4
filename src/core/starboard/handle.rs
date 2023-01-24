@@ -233,39 +233,19 @@ impl RefreshStarboard {
 
         let orig_message = self.refresh.get_orig_message().await?;
         let sql_message = self.refresh.get_sql_message().await?;
-        let orig_message_author = self
-            .refresh
-            .bot
-            .cache
-            .fog_user(&self.refresh.bot, sql_message.author_id.into_id())
-            .await?;
-        let (ref_msg, ref_msg_author) = if let MessageResult::Ok(msg) = &orig_message {
+        let ref_msg = if let MessageResult::Ok(msg) = &orig_message {
             if let Some(id) = msg.referenced_message {
-                let ref_msg = self
-                    .refresh
+                self.refresh
                     .bot
                     .cache
                     .fog_message(&self.refresh.bot, sql_message.channel_id.into_id(), id)
                     .await?
-                    .into_option();
-
-                let ref_msg_author = match &ref_msg {
-                    None => None,
-                    Some(ref_msg) => Some(
-                        self.refresh
-                            .bot
-                            .cache
-                            .fog_user(&self.refresh.bot, ref_msg.author_id)
-                            .await?,
-                    ),
-                };
-
-                (ref_msg, ref_msg_author.flatten())
+                    .into_option()
             } else {
-                (None, None)
+                None
             }
         } else {
-            (None, None)
+            None
         };
 
         let sb_msg = self.get_starboard_message().await?;
@@ -274,9 +254,7 @@ impl RefreshStarboard {
             points,
             config: self.config.clone(),
             orig_message,
-            orig_message_author,
             referenced_message: ref_msg,
-            referenced_message_author: ref_msg_author,
             orig_sql_message: sql_message,
         };
 

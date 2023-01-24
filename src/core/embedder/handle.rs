@@ -3,10 +3,7 @@ use std::sync::Arc;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
-    cache::{
-        models::{message::CachedMessage, user::CachedUser},
-        MessageResult,
-    },
+    cache::{models::message::CachedMessage, MessageResult},
     client::bot::StarboardBot,
     core::{
         premium::is_premium::is_guild_premium,
@@ -24,10 +21,8 @@ pub struct Embedder {
     pub points: i32,
     pub config: Arc<StarboardConfig>,
     pub orig_message: MessageResult,
-    pub orig_message_author: Option<Arc<CachedUser>>,
-    pub referenced_message: Option<Arc<CachedMessage>>,
-    pub referenced_message_author: Option<Arc<CachedUser>>,
     pub orig_sql_message: Arc<DbMessage>,
+    pub referenced_message: Option<Arc<CachedMessage>>,
 }
 
 impl Embedder {

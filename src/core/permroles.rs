@@ -43,6 +43,10 @@ impl Permissions {
         // get permroles
         let permroles = PermRole::list_by_guild(&bot.pool, guild_id_i64).await?;
 
+        if permroles.is_empty() {
+            return Ok(perms);
+        }
+
         // filter out non-applicable permroles
         let member = bot.cache.fog_member(bot, guild_id, user_id).await?;
         let roles = member.as_ref().map(|m| &m.roles);

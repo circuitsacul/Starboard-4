@@ -272,7 +272,13 @@ impl Cache {
 
         let get = bot.http.guild_member(guild_id, user_id).await;
         let member = match get {
-            Ok(member) => Some(Arc::new(member.model().await?.into())),
+            Ok(member) => {
+                let member = member.model().await?;
+                self.users
+                    .insert(member.user.id, Some(Arc::new((&member.user).into())), 1)
+                    .await;
+                Some(Arc::new(member.into()))
+            }
             Err(why) => match get_status(&why) {
                 Some(404) | Some(403) => None,
                 _ => return Err(why.into()),
@@ -341,7 +347,13 @@ impl Cache {
                     return Err(why.into());
                 }
             }
-            Ok(msg) => Some(Arc::new(msg.model().await?.into())),
+            Ok(msg) => {
+                let msg = msg.model().await?;
+                self.users
+                    .insert(msg.author.id, Some(Arc::new((&msg.author).into())), 1)
+                    .await;
+                Some(Arc::new(msg.into()))
+            }
         };
 
         let ret = msg.clone();

@@ -91,10 +91,6 @@ pub async fn get_embedder(
     let Some(orig_msg) = orig_msg.into_option() else {
         return Ok(None);
     };
-    let orig_author = bot
-        .cache
-        .fog_user(&bot, orig_sql_msg.author_id.into_id())
-        .await?;
 
     let ref_msg = if let Some(ref_msg_id) = orig_msg.referenced_message {
         bot.cache
@@ -105,20 +101,12 @@ pub async fn get_embedder(
         None
     };
 
-    let ref_msg_author = if let Some(ref_msg) = &ref_msg {
-        bot.cache.fog_user(&bot, ref_msg.author_id).await?
-    } else {
-        None
-    };
-
     let embedder = Embedder {
         bot,
         points: msg.last_known_point_count as i32,
         config,
         orig_message: Some(orig_msg).into(),
-        orig_message_author: orig_author,
         referenced_message: ref_msg,
-        referenced_message_author: ref_msg_author,
         orig_sql_message: Arc::new(orig_sql_msg),
     };
 
