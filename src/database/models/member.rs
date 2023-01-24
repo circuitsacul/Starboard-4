@@ -63,7 +63,7 @@ impl DbMember {
     pub fn stream_by_xp(pool: &sqlx::PgPool, guild_id: i64) -> BoxStream<'_, sqlx::Result<Self>> {
         sqlx::query_as!(
             Self,
-            "SELECT * FROM members WHERE guild_id=$1 AND xp > 0 ORDER BY xp",
+            "SELECT * FROM members WHERE guild_id=$1 AND xp > 0 ORDER BY xp DESC",
             guild_id
         )
         .fetch(pool)
