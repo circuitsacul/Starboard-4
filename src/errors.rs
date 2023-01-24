@@ -66,7 +66,7 @@ pub enum StarboardError {
 impl StarboardError {
     pub fn http_status(&self) -> Option<u16> {
         match &self {
-            Self::TwilightHttp { source, .. } => get_status(&source),
+            Self::TwilightHttp { source, .. } => get_status(source),
             _ => None,
         }
     }
