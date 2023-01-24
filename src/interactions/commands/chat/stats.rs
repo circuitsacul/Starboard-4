@@ -14,7 +14,8 @@ use crate::{
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "stats",
-    desc = "Show stats for you or another user in this server"
+    desc = "Show stats for you or another user in this server",
+    dm_permission = false,
 )]
 pub struct Stats {
     /// The user to show stats for.

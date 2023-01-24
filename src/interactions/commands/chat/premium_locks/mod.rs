@@ -13,7 +13,8 @@ use crate::{
 #[command(
     name = "premium-locks",
     desc = "Manage premium locks.",
-    default_permissions = "manage_channels"
+    default_permissions = "manage_channels",
+    dm_permission = false,
 )]
 pub enum PremiumLocks {
     #[command(name = "refresh")]
