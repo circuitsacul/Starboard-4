@@ -3,6 +3,7 @@ use std::{
     sync::Arc,
 };
 
+use chrono::{DateTime, Utc};
 use futures::Future;
 use snafu::ErrorCompat;
 use sqlx::PgPool;
@@ -38,6 +39,7 @@ pub struct StarboardBot {
     pub config: Config,
     pub cooldowns: Cooldowns,
     pub locks: Locks,
+    pub start: DateTime<Utc>,
 }
 
 impl Debug for StarboardBot {
@@ -109,6 +111,7 @@ impl StarboardBot {
                 cooldowns: Cooldowns::new(),
                 locks: Locks::new(),
                 reqwest: reqwest::Client::new(),
+                start: Utc::now(),
             },
         ))
     }
