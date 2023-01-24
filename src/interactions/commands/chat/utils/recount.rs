@@ -9,10 +9,7 @@ use crate::{
 };
 
 #[derive(CommandModel, CreateCommand)]
-#[command(
-    name = "recount",
-    desc = "Recount all the reactions on a message."
-)]
+#[command(name = "recount", desc = "Recount all the reactions on a message.")]
 pub struct Recount {
     /// Link to the message to recount reactions on.
     message: String,
