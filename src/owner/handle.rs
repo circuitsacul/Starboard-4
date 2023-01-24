@@ -29,7 +29,7 @@ pub async fn handle_message(
     let message = match message {
         Some(msg) => msg,
         None => {
-            let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await? else {
+            let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await?.into_option() else {
                 return Ok(());
             };
             message_owner = msg;

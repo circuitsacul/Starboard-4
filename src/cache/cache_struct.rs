@@ -39,6 +39,42 @@ macro_rules! update_cache_events {
     };
 }
 
+#[derive(Clone)]
+pub enum MessageResult {
+    Ok(Arc<CachedMessage>),
+    Missing,
+    Forbidden,
+}
+
+impl MessageResult {
+    pub fn into_option(self) -> Option<Arc<CachedMessage>> {
+        match self {
+            Self::Ok(msg) => Some(msg),
+            _ => None,
+        }
+    }
+
+    pub fn as_option(&self) -> Option<&Arc<CachedMessage>> {
+        match &self {
+            Self::Ok(msg) => Some(msg),
+            _ => None,
+        }
+    }
+
+    pub fn is_missing(&self) -> bool {
+        matches!(self, Self::Missing)
+    }
+}
+
+impl From<Option<Arc<CachedMessage>>> for MessageResult {
+    fn from(value: Option<Arc<CachedMessage>>) -> Self {
+        match value {
+            None => Self::Missing,
+            Some(msg) => Self::Ok(msg),
+        }
+    }
+}
+
 pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
@@ -277,9 +313,9 @@ impl Cache {
         bot: &StarboardBot,
         channel_id: Id<ChannelMarker>,
         message_id: Id<MessageMarker>,
-    ) -> StarboardResult<Option<Arc<CachedMessage>>> {
+    ) -> StarboardResult<MessageResult> {
         if let Some(cached) = self.messages.get(&message_id) {
-            return Ok(cached.value().clone());
+            return Ok(cached.value().clone().into());
         }
 
         let msg = bot.http.message(channel_id, message_id).await;
@@ -289,7 +325,7 @@ impl Cache {
                 if status == Some(404) {
                     None
                 } else if status == Some(403) {
-                    return Ok(None);
+                    return Ok(MessageResult::Forbidden);
                 } else {
                     return Err(why.into());
                 }
@@ -300,7 +336,7 @@ impl Cache {
         let ret = msg.clone();
         self.messages.insert(message_id, msg, 1).await;
 
-        Ok(ret)
+        Ok(ret.into())
     }
 
     async fn fetch_channel_or_thread_parent(

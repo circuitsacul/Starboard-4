@@ -1,5 +1,7 @@
 use snafu::Backtrace;
 
+use crate::utils::get_status::get_status;
+
 pub type StarboardResult<T> = Result<T, StarboardError>;
 
 #[derive(Debug, snafu::Snafu)]
@@ -59,4 +61,13 @@ pub enum StarboardError {
         source: tokio::task::JoinError,
         backtrace: Backtrace,
     },
+}
+
+impl StarboardError {
+    pub fn http_status(&self) -> Option<u16> {
+        match &self {
+            Self::TwilightHttp { source, .. } => get_status(&source),
+            _ => None,
+        }
+    }
 }

@@ -3,7 +3,10 @@ use std::sync::Arc;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
-    cache::models::{message::CachedMessage, user::CachedUser},
+    cache::{
+        models::{message::CachedMessage, user::CachedUser},
+        MessageResult,
+    },
     client::bot::StarboardBot,
     core::{
         premium::is_premium::is_guild_premium,
@@ -20,7 +23,7 @@ pub struct Embedder<'config, 'bot> {
     pub bot: &'bot StarboardBot,
     pub points: i32,
     pub config: &'config StarboardConfig,
-    pub orig_message: Option<Arc<CachedMessage>>,
+    pub orig_message: MessageResult,
     pub orig_message_author: Option<Arc<CachedUser>>,
     pub referenced_message: Option<Arc<CachedMessage>>,
     pub referenced_message_author: Option<Arc<CachedUser>>,
@@ -58,7 +61,10 @@ impl Embedder<'_, '_> {
 
         let forum_post_name = if bot.cache.is_channel_forum(guild_id, sb_channel_id) {
             let name = &built.embeds[0].author.as_ref().unwrap().name;
-            let mut content = &*self.orig_message.as_ref().unwrap().content;
+            let mut content = match &self.orig_message {
+                MessageResult::Ok(msg) => &*msg.content,
+                _ => unreachable!("Tried to send a message when the original was unfetchable."),
+            };
             if content.is_empty() {
                 content = "Click to see attachments";
             }
@@ -162,8 +168,14 @@ impl Embedder<'_, '_> {
             sb_channel_id
         };
 
-        let Some(msg) = bot.cache.fog_message(bot, real_channel_id, message_id).await? else {
-            return Ok(true);
+        let ret = bot
+            .cache
+            .fog_message(bot, real_channel_id, message_id)
+            .await?;
+        let msg = match ret {
+            MessageResult::Ok(msg) => msg,
+            MessageResult::Forbidden => return Ok(false),
+            MessageResult::Missing => return Ok(true),
         };
 
         let (wh, is_thread) = if msg.author_id.get() != bot.config.bot_id {
@@ -236,7 +248,7 @@ impl Embedder<'_, '_> {
         &self,
         bot: &StarboardBot,
         message_id: Id<MessageMarker>,
-    ) -> StarboardResult<()> {
+    ) -> StarboardResult<bool> {
         let sb_channel_id = self.config.starboard.channel_id.into_id();
 
         let is_forum = bot
@@ -248,8 +260,14 @@ impl Embedder<'_, '_> {
             sb_channel_id
         };
 
-        let Some(msg) = bot.cache.fog_message(bot, real_channel_id, message_id).await? else {
-            return Ok(());
+        let ret = bot
+            .cache
+            .fog_message(bot, real_channel_id, message_id)
+            .await?;
+        let msg = match ret {
+            MessageResult::Ok(msg) => msg,
+            MessageResult::Forbidden => return Ok(false),
+            MessageResult::Missing => return Ok(true),
         };
 
         if let Some(wh_id) = self.config.starboard.webhook_id {
@@ -277,14 +295,14 @@ impl Embedder<'_, '_> {
 
                     let ret = ud.await;
                     if ret.is_ok() {
-                        return Ok(());
+                        return Ok(true);
                     }
                 }
             }
         }
 
-        let _ = bot.http.delete_message(real_channel_id, message_id).await;
+        let ret = bot.http.delete_message(real_channel_id, message_id).await;
 
-        Ok(())
+        Ok(ret.is_ok())
     }
 }

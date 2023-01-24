@@ -50,6 +50,7 @@ impl<'a> VoteStatus<'a> {
                 .cache
                 .fog_message(bot, vote.channel_id, vote.message_id)
                 .await?
+                .into_option()
                 .as_ref()
                 .as_ref()
                 .map(|msg| has_image(&msg.embeds, &msg.attachments)),

@@ -56,7 +56,7 @@ pub async fn handle(
     let message = match message {
         Some(msg) => msg,
         None => {
-            let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await? else {
+            let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await?.into_option() else {
                 return Ok(());
             };
             message_owner = msg;
@@ -136,7 +136,7 @@ async fn get_status(
         let updated_msg = bot.cache.fog_message(bot, channel_id, message_id).await?;
         let mut still_invalid = true;
 
-        let msg = match updated_msg {
+        let msg = match updated_msg.into_option() {
             None => return Ok(Status::InvalidStay),
             Some(msg) => msg,
         };

@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
-    cache::models::message::CachedMessage,
+    cache::MessageResult,
     client::bot::StarboardBot,
     constants,
     core::{
@@ -60,7 +60,7 @@ pub struct RefreshMessage {
     /// The id of the inputted message. May or may not be the original.
     message_id: Id<MessageMarker>,
     sql_message: Option<Arc<DbMessage>>,
-    orig_message: Option<Option<Arc<CachedMessage>>>,
+    orig_message: Option<MessageResult>,
     configs: Option<Arc<Vec<Arc<StarboardConfig>>>>,
 }
 
@@ -160,11 +160,11 @@ impl RefreshMessage {
         Ok(self.sql_message.as_ref().unwrap().clone())
     }
 
-    pub fn set_orig_message(&mut self, message: Option<Arc<CachedMessage>>) {
+    pub fn set_orig_message(&mut self, message: MessageResult) {
         self.orig_message.replace(message);
     }
 
-    async fn get_orig_message(&mut self) -> StarboardResult<Option<Arc<CachedMessage>>> {
+    async fn get_orig_message(&mut self) -> StarboardResult<MessageResult> {
         if self.orig_message.is_none() {
             let sql_message = self.get_sql_message().await?;
             let orig_message = self
@@ -239,14 +239,15 @@ impl RefreshStarboard {
             .cache
             .fog_user(&self.refresh.bot, sql_message.author_id.into_id())
             .await?;
-        let (ref_msg, ref_msg_author) = if let Some(msg) = &orig_message {
+        let (ref_msg, ref_msg_author) = if let MessageResult::Ok(msg) = &orig_message {
             if let Some(id) = msg.referenced_message {
                 let ref_msg = self
                     .refresh
                     .bot
                     .cache
                     .fog_message(&self.refresh.bot, sql_message.channel_id.into_id(), id)
-                    .await?;
+                    .await?
+                    .into_option();
 
                 let ref_msg_author = match &ref_msg {
                     None => None,
@@ -283,7 +284,7 @@ impl RefreshStarboard {
             &self.refresh.bot,
             &self.config,
             &orig,
-            embedder.orig_message.is_none(),
+            embedder.orig_message.is_missing(),
             points,
             violates_exclusive_group,
         )
@@ -312,8 +313,8 @@ impl RefreshStarboard {
                         .auto_deleted_posts
                         .insert_with_ttl(sb_message_id, (), 0, constants::AUTO_DELETES_TTL)
                         .await;
-                    embedder.delete(&self.refresh.bot, sb_message_id).await?;
-                    (false, true)
+                    let deleted = embedder.delete(&self.refresh.bot, sb_message_id).await?;
+                    (false, deleted)
                 }
                 MessageStatus::Send(full_update) | MessageStatus::Update(full_update) => {
                     if self
@@ -349,7 +350,18 @@ impl RefreshStarboard {
                 return Ok((false, false));
             }
 
-            let msg = embedder.send(&self.refresh.bot).await?;
+            let msg = embedder.send(&self.refresh.bot).await;
+            let msg = match msg {
+                Ok(msg) => msg,
+                Err(why) => {
+                    if why.http_status() == Some(403) {
+                        return Ok((false, false));
+                    } else {
+                        return Err(why);
+                    }
+                }
+            };
+
             StarboardMessage::create(
                 &self.refresh.bot.pool,
                 orig.message_id,

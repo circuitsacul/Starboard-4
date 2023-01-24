@@ -13,7 +13,7 @@ use twilight_util::{
 };
 
 use crate::{
-    cache::models::message::CachedMessage,
+    cache::{models::message::CachedMessage, MessageResult},
     constants,
     core::emoji::{EmojiCommon, SimpleEmoji},
     utils::{id_as_i64::GetI64, into_id::IntoId, message_link::fmt_message_link},
@@ -38,7 +38,7 @@ pub enum BuiltStarboardEmbed {
 
 impl BuiltStarboardEmbed {
     pub fn build(handle: &Embedder, force_partial: bool, watermark: bool) -> Self {
-        if let Some(orig) = &handle.orig_message {
+        if let MessageResult::Ok(orig) = &handle.orig_message {
             if !force_partial {
                 let parsed = ParsedMessage::parse(orig);
 
@@ -151,7 +151,7 @@ impl BuiltStarboardEmbed {
             let mid = match is_reply {
                 true => handle
                     .orig_message
-                    .as_ref()
+                    .as_option()
                     .unwrap()
                     .referenced_message
                     .unwrap()
