@@ -101,57 +101,64 @@ async fn recount_votes_reaction(
     author_is_bot: bool,
     emoji: SimpleEmoji,
 ) -> StarboardResult<()> {
-    let reactions = bot
-        .http
-        .reactions(refreshing.0, refreshing.1, &emoji.reactable())
-        .await?
-        .model()
-        .await?;
+    let mut last_user = None;
+    let reactable = emoji.reactable();
+    loop {
+        let mut reactions = bot.http.reactions(refreshing.0, refreshing.1, &reactable);
+        if let Some(last_user) = last_user {
+            reactions = reactions.after(last_user);
+        }
+        let reactions = reactions.await?.model().await?;
 
-    for user in reactions {
-        let vote = VoteContext {
-            emoji: &emoji,
-            reactor_id: user.id,
-            message_id: orig.message_id.into_id(),
-            message_author_id: orig.author_id.into_id(),
-            channel_id: orig.channel_id.into_id(),
-            message_author_is_bot: author_is_bot,
-            message_has_image: None,
-            message_is_frozen: orig.frozen,
-        };
-        let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
+        if reactions.is_empty() {
+            break;
+        }
+        last_user = Some(reactions.last().unwrap().id);
 
-        let VoteStatus::Valid((upvotes, downvotes)) = status else {
+        for user in reactions {
+            let vote = VoteContext {
+                emoji: &emoji,
+                reactor_id: user.id,
+                message_id: orig.message_id.into_id(),
+                message_author_id: orig.author_id.into_id(),
+                channel_id: orig.channel_id.into_id(),
+                message_author_is_bot: author_is_bot,
+                message_has_image: None,
+                message_is_frozen: orig.frozen,
+            };
+            let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
+
+            let VoteStatus::Valid((upvotes, downvotes)) = status else {
             continue;
         };
 
-        let user_id = user.id.get_i64();
-        DbUser::create(&bot.pool, user_id, user.bot).await?;
-        DbMember::create(&bot.pool, user_id, guild_id.get_i64()).await?;
+            let user_id = user.id.get_i64();
+            DbUser::create(&bot.pool, user_id, user.bot).await?;
+            DbMember::create(&bot.pool, user_id, guild_id.get_i64()).await?;
 
-        for config in &upvotes {
-            Vote::create(
-                &bot.pool,
-                orig.message_id,
-                config.starboard.id,
-                user_id,
-                orig.author_id,
-                false,
-            )
-            .await?;
-        }
-        for config in &downvotes {
-            Vote::create(
-                &bot.pool,
-                orig.message_id,
-                config.starboard.id,
-                user_id,
-                orig.author_id,
-                true,
-            )
-            .await?;
+            for config in &upvotes {
+                Vote::create(
+                    &bot.pool,
+                    orig.message_id,
+                    config.starboard.id,
+                    user_id,
+                    orig.author_id,
+                    false,
+                )
+                .await?;
+            }
+            for config in &downvotes {
+                Vote::create(
+                    &bot.pool,
+                    orig.message_id,
+                    config.starboard.id,
+                    user_id,
+                    orig.author_id,
+                    true,
+                )
+                .await?;
+            }
         }
     }
-
     Ok(())
 }
