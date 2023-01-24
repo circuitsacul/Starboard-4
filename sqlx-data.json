@@ -336,44 +336,6 @@
     },
     "query": "SELECT guild_id FROM members WHERE user_id=$1 AND autoredeem_enabled=true"
   },
-  "1e24eda0e04871700e162d57405508a3996206a517cdf193f9df026f417dd019": {
-    "describe": {
-      "columns": [
-        {
-          "name": "user_id",
-          "ordinal": 0,
-          "type_info": "Int8"
-        },
-        {
-          "name": "guild_id",
-          "ordinal": 1,
-          "type_info": "Int8"
-        },
-        {
-          "name": "xp",
-          "ordinal": 2,
-          "type_info": "Float4"
-        },
-        {
-          "name": "autoredeem_enabled",
-          "ordinal": 3,
-          "type_info": "Bool"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Int8"
-        ]
-      }
-    },
-    "query": "SELECT * FROM members WHERE guild_id=$1 AND xp > 0 ORDER BY xp"
-  },
   "1e3823ed8de2274b2c2a479c0a03934943a9559bfbd646bf44b43b0d2a02fb6c": {
     "describe": {
       "columns": [
@@ -2943,6 +2905,44 @@
       }
     },
     "query": "SELECT * FROM exclusive_groups WHERE id=$1"
+  },
+  "79317e75712021aa9792748d61a2f915f476a1a6f1d5874ad4d5834afe3d76fc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "xp",
+          "ordinal": 2,
+          "type_info": "Float4"
+        },
+        {
+          "name": "autoredeem_enabled",
+          "ordinal": 3,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM members WHERE guild_id=$1 AND xp > 0 ORDER BY xp DESC"
   },
   "7f85f1c1d15cf23bedd5e3f34dd841558ae5f57626383f36b5e9566ecbf3cd81": {
     "describe": {
