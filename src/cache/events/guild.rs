@@ -27,11 +27,6 @@ impl UpdateCache for GuildCreate {
                 .iter()
                 .map(|t| (t.id, t.parent_id.unwrap()))
                 .collect(),
-            members: self
-                .members
-                .iter()
-                .map(|m| (m.user.id, m.into()))
-                .collect::<HashMap<_, _>>(),
             role_positions: self
                 .roles
                 .iter()

@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use twilight_gateway::Event;
-use twilight_model::gateway::payload::outgoing::RequestGuildMembers;
 
 use crate::{
     cache::models::message::CachedMessage,
@@ -105,15 +104,6 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
             }
 
             core::starboard::link_events::handle_message_update(bot, event).await?;
-        }
-        Event::GuildCreate(event) => {
-            // Request members chunk
-            bot.cluster
-                .command(
-                    shard_id,
-                    &RequestGuildMembers::builder(event.id).query("", None),
-                )
-                .await?;
         }
         Event::ReactionAdd(event) => {
             core::starboard::reaction_events::handle_reaction_add(bot, event).await?;

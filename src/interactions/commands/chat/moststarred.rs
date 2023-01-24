@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use futures::{stream::BoxStream, TryStreamExt};
 use sqlx::{Postgres, QueryBuilder};
 use twilight_interactions::command::{CommandModel, CreateCommand};
@@ -149,12 +151,13 @@ async fn scrolling_paginator(
             .await?
             .unwrap();
         let config = get_config(&ctx.bot, starboard.clone(), orig_msg.channel_id).await?;
-        let embedder = get_embedder(&ctx.bot, &config, orig_msg, next_sb_message).await?;
+        let config = Arc::new(config);
+        let embedder = get_embedder(ctx.bot.clone(), config, orig_msg, next_sb_message).await?;
         let Some(embedder) = embedder else {
             continue;
         };
 
-        let built = embedder.build(false, false);
+        let built = embedder.build(false, false).await?;
         let BuiltStarboardEmbed::Full(built) = built else {
             unreachable!("didn't get full embed");
         };

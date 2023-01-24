@@ -270,9 +270,9 @@ impl RefreshStarboard {
 
         let sb_msg = self.get_starboard_message().await?;
         let embedder = Embedder {
-            bot: &self.refresh.bot,
+            bot: self.refresh.bot.clone(),
             points,
-            config: &self.config,
+            config: self.config.clone(),
             orig_message,
             orig_message_author,
             referenced_message: ref_msg,

@@ -16,6 +16,7 @@ use crate::{
     cache::{models::message::CachedMessage, MessageResult},
     constants,
     core::emoji::{EmojiCommon, SimpleEmoji},
+    errors::StarboardResult,
     utils::{id_as_i64::GetI64, into_id::IntoId, message_link::fmt_message_link},
 };
 
@@ -37,22 +38,28 @@ pub enum BuiltStarboardEmbed {
 }
 
 impl BuiltStarboardEmbed {
-    pub fn build(handle: &Embedder, force_partial: bool, watermark: bool) -> Self {
+    pub async fn build(
+        handle: &Embedder,
+        force_partial: bool,
+        watermark: bool,
+    ) -> StarboardResult<Self> {
         if let MessageResult::Ok(orig) = &handle.orig_message {
             if !force_partial {
                 let parsed = ParsedMessage::parse(orig);
 
-                return Self::Full(FullBuiltStarboardEmbed {
+                let built = Self::Full(FullBuiltStarboardEmbed {
                     top_content: Self::build_top_content(handle),
-                    embeds: Self::build_embeds(handle, orig, &parsed, watermark),
+                    embeds: Self::build_embeds(handle, orig, &parsed, watermark).await?,
                     upload_attachments: parsed.upload_attachments,
                 });
+                return Ok(built);
             }
         }
 
-        Self::Partial(PartialBuiltStarboardEmbed {
+        let built = Self::Partial(PartialBuiltStarboardEmbed {
             top_content: Self::build_top_content(handle),
-        })
+        });
+        Ok(built)
     }
 
     pub fn build_top_content(handle: &Embedder) -> String {
@@ -61,7 +68,7 @@ impl BuiltStarboardEmbed {
         if let Some(emoji) = handle.config.resolved.display_emoji.clone() {
             let emoji = SimpleEmoji::from_stored(emoji);
             top_content.push_str(
-                &emoji.into_readable(handle.bot, handle.config.starboard.guild_id.into_id()),
+                &emoji.into_readable(&handle.bot, handle.config.starboard.guild_id.into_id()),
             );
         }
         write!(
@@ -93,18 +100,18 @@ impl BuiltStarboardEmbed {
         top_content
     }
 
-    pub fn build_embeds(
+    pub async fn build_embeds(
         handle: &Embedder,
         orig: &CachedMessage,
         parsed: &ParsedMessage,
         watermark: bool,
-    ) -> Vec<Embed> {
+    ) -> StarboardResult<Vec<Embed>> {
         let mut embeds = Vec::new();
 
-        if let Some(e) = Self::build_replied_embed(handle) {
+        if let Some(e) = Self::build_replied_embed(handle).await? {
             embeds.push(e);
         }
-        if let Some(e) = Self::build_primary_embed(handle, orig, parsed, watermark, false) {
+        if let Some(e) = Self::build_primary_embed(handle, orig, parsed, watermark, false).await? {
             embeds.push(e);
         }
 
@@ -114,25 +121,25 @@ impl BuiltStarboardEmbed {
             }
         }
 
-        embeds
+        Ok(embeds)
     }
 
-    pub fn build_replied_embed(handle: &Embedder) -> Option<Embed> {
+    pub async fn build_replied_embed(handle: &Embedder) -> StarboardResult<Option<Embed>> {
         let ref_msg = match &handle.referenced_message {
-            None => return None,
+            None => return Ok(None),
             Some(msg) => msg,
         };
         let reply_parsed = ParsedMessage::parse(ref_msg);
-        Self::build_primary_embed(handle, ref_msg, &reply_parsed, false, true)
+        Self::build_primary_embed(handle, ref_msg, &reply_parsed, false, true).await
     }
 
-    pub fn build_primary_embed(
+    pub async fn build_primary_embed(
         handle: &Embedder,
         orig: &CachedMessage,
         parsed: &ParsedMessage,
         watermark: bool,
         is_reply: bool,
-    ) -> Option<Embed> {
+    ) -> StarboardResult<Option<Embed>> {
         let mut embed_is_empty = true;
         let mut zws_fields: Vec<String> = Vec::new();
         let color = if is_reply {
@@ -181,25 +188,26 @@ impl BuiltStarboardEmbed {
             (name, avatar) = match maybe_user {
                 None => ("Deleted User".to_string(), None),
                 Some(user) => {
-                    let member =
-                        handle.bot.cache.guilds.with(
-                            &handle.config.starboard.guild_id.into_id(),
-                            |_, guild| {
-                                let guild = match guild {
-                                    None => return None,
-                                    Some(guild) => guild,
-                                };
-
-                                guild.value().members.get(&orig.author_id).map(|m| {
-                                    (m.server_avatar_url.to_owned(), m.nickname.to_owned())
-                                })
-                            },
-                        );
+                    let member = handle
+                        .bot
+                        .cache
+                        .fog_member(
+                            &handle.bot,
+                            handle.config.starboard.guild_id.into_id(),
+                            orig.author_id,
+                        )
+                        .await?;
 
                     let (name, avatar) = match member {
-                        Some((avatar_url, nickname)) => (
-                            nickname.unwrap_or_else(|| user.name.to_owned()),
-                            avatar_url.or_else(|| user.avatar_url.to_owned()),
+                        Some(member) => (
+                            member
+                                .nickname
+                                .to_owned()
+                                .unwrap_or_else(|| user.name.to_owned()),
+                            member
+                                .server_avatar_url
+                                .to_owned()
+                                .or_else(|| user.avatar_url.to_owned()),
                         ),
                         None => (user.name.to_owned(), user.avatar_url.to_owned()),
                     };
@@ -283,6 +291,6 @@ impl BuiltStarboardEmbed {
         }
 
         // build
-        Some(embed.build())
+        Ok(Some(embed.build()))
     }
 }

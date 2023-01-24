@@ -52,21 +52,12 @@ pub async fn update_supporter_roles(
     let Some(user) = DbUser::get(&bot.pool, user_id.get_i64()).await? else {
         return Ok(());
     };
-    let Some((has_supporter, has_patron)) = bot.cache.guilds.with(&guild_id, |_, guild| {
-        let Some(guild) = guild else {
-            return None;
-        };
-        let Some(member) = guild.members.get(&user_id) else {
-            return None;
-        };
 
-        let has_supporter = supporter_role.map_or(false, |r| member.roles.contains(&r));
-        let has_patron = patron_role.map_or(false, |r| member.roles.contains(&r));
-
-        Some((has_supporter, has_patron))
-    }) else {
+    let Some(member) = bot.cache.fog_member(bot, guild_id, user_id).await? else {
         return Ok(());
     };
+    let has_supporter = supporter_role.map_or(false, |r| member.roles.contains(&r));
+    let has_patron = patron_role.map_or(false, |r| member.roles.contains(&r));
 
     let is_active_patron = user.patreon_status == 1;
     let is_supporter = user.patreon_status != 0 || user.donated_cents != 0 || is_active_patron;

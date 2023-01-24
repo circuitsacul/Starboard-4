@@ -15,15 +15,10 @@ pub async fn refresh_xpr(
     guild_id: Id<GuildMarker>,
     user_id: Id<UserMarker>,
 ) -> StarboardResult<()> {
-    let member_roles = bot.cache.guilds.with(&guild_id, |_, g| {
-        let Some(g) = g else {
-            return None;
-        };
-        g.members.get(&user_id).map(|m| m.roles.to_owned())
-    });
-    let Some(member_roles) = member_roles else {
+    let Some(member) = bot.cache.fog_member(bot, guild_id, user_id).await? else {
         return Ok(());
     };
+    let member_roles = &member.roles;
 
     let xproles = XPRole::list_by_guild(&bot.pool, guild_id.get_i64()).await?;
     let Some(member) = DbMember::get(&bot.pool, guild_id.get_i64(), user_id.get_i64()).await? else {

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{hash::Hash, sync::Arc};
 
 use dashmap::{DashMap, DashSet};
 use twilight_gateway::Event;
@@ -24,7 +24,7 @@ use crate::{
 };
 
 use super::{
-    models::{guild::CachedGuild, message::CachedMessage, user::CachedUser},
+    models::{guild::CachedGuild, member::CachedMember, message::CachedMessage, user::CachedUser},
     update::UpdateCache,
 };
 
@@ -75,12 +75,21 @@ impl From<Option<Arc<CachedMessage>>> for MessageResult {
     }
 }
 
+fn stretto_cache<K: Hash + Eq, V: Send + Sync + 'static>(size: u32) -> stretto::AsyncCache<K, V> {
+    stretto::AsyncCacheBuilder::new((size * 10) as usize, size.into())
+        .set_ignore_internal_cost(true)
+        .finalize(tokio::spawn)
+        .unwrap()
+}
+
 pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
-    pub users: AsyncDashMap<Id<UserMarker>, Option<Arc<CachedUser>>>,
     pub webhooks: AsyncDashMap<Id<WebhookMarker>, Arc<Webhook>>,
     pub messages: stretto::AsyncCache<Id<MessageMarker>, Option<Arc<CachedMessage>>>,
+    pub users: stretto::AsyncCache<Id<UserMarker>, Option<Arc<CachedUser>>>,
+    #[allow(clippy::type_complexity)]
+    pub members: stretto::AsyncCache<(Id<GuildMarker>, Id<UserMarker>), Option<Arc<CachedMember>>>,
 
     // database side
     pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
@@ -93,37 +102,18 @@ pub struct Cache {
 
 impl Cache {
     pub fn new(autostar_channel_ids: DashSet<Id<ChannelMarker>>) -> Self {
-        let messages = stretto::AsyncCacheBuilder::new(
-            (constants::MAX_MESSAGES * 10) as usize,
-            constants::MAX_MESSAGES.into(),
-        )
-        .set_ignore_internal_cost(true)
-        .finalize(tokio::spawn)
-        .unwrap();
-        let responses = stretto::AsyncCacheBuilder::new(
-            (constants::MAX_STORED_RESPONSES * 10) as usize,
-            constants::MAX_STORED_RESPONSES.into(),
-        )
-        .set_ignore_internal_cost(true)
-        .finalize(tokio::spawn)
-        .unwrap();
-        let auto_deleted_posts = stretto::AsyncCacheBuilder::new(
-            (constants::MAX_STORED_AUTO_DELETES * 10) as usize,
-            constants::MAX_STORED_RESPONSES.into(),
-        )
-        .set_ignore_internal_cost(true)
-        .finalize(tokio::spawn)
-        .unwrap();
-
         Self {
             guilds: DashMap::new().into(),
-            users: DashMap::new().into(),
             webhooks: DashMap::new().into(),
-            messages,
+            messages: stretto_cache(constants::MAX_MESSAGES),
+            users: stretto_cache(constants::MAX_USERS),
+            members: stretto_cache(constants::MAX_MEMBERS),
+
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_vote_emojis: DashMap::new().into(),
-            responses,
-            auto_deleted_posts,
+
+            responses: stretto_cache(constants::MAX_STORED_RESPONSES),
+            auto_deleted_posts: stretto_cache(constants::MAX_STORED_AUTO_DELETES),
         }
     }
 
@@ -148,8 +138,6 @@ impl Cache {
             Event::ThreadUpdate,
             Event::ThreadListSync,
             Event::GuildEmojisUpdate,
-            Event::MemberChunk,
-            Event::MemberAdd,
             Event::MemberRemove,
             Event::MemberUpdate,
         );
@@ -246,33 +234,56 @@ impl Cache {
         Ok(channel_ids)
     }
 
-    fn get_user(&self, user_id: Id<UserMarker>) -> Option<Arc<CachedUser>> {
-        self.users
-            .with(&user_id, |_, v| v.as_ref().and_then(|u| (*u).clone()))
-    }
-
     pub async fn fog_user(
         &self,
         bot: &StarboardBot,
         user_id: Id<UserMarker>,
     ) -> StarboardResult<Option<Arc<CachedUser>>> {
-        if !self.users.contains_key(&user_id) {
-            let user_get = bot.http.user(user_id).await;
-            let user = match user_get {
-                Ok(user) => Some(Arc::new(user.model().await?.into())),
-                Err(why) => {
-                    if get_status(&why) == Some(404) {
-                        None
-                    } else {
-                        return Err(why.into());
-                    }
-                }
-            };
-
-            self.users.insert(user_id, user);
+        if let Some(cached) = self.users.get(&user_id) {
+            return Ok(cached.value().clone());
         }
 
-        Ok(self.get_user(user_id))
+        let user_get = bot.http.user(user_id).await;
+        let user = match user_get {
+            Ok(user) => Some(Arc::new(user.model().await?.into())),
+            Err(why) => {
+                if get_status(&why) == Some(404) {
+                    None
+                } else {
+                    return Err(why.into());
+                }
+            }
+        };
+
+        self.users.insert(user_id, user.clone(), 1).await;
+
+        Ok(user)
+    }
+
+    pub async fn fog_member(
+        &self,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+        user_id: Id<UserMarker>,
+    ) -> StarboardResult<Option<Arc<CachedMember>>> {
+        if let Some(cached) = self.members.get(&(guild_id, user_id)) {
+            return Ok(cached.value().clone());
+        }
+
+        let get = bot.http.guild_member(guild_id, user_id).await;
+        let member = match get {
+            Ok(member) => Some(Arc::new(member.model().await?.into())),
+            Err(why) => match get_status(&why) {
+                Some(404) | Some(403) => None,
+                _ => return Err(why.into()),
+            },
+        };
+
+        self.members
+            .insert((guild_id, user_id), member.clone(), 1)
+            .await;
+
+        Ok(member)
     }
 
     pub async fn fog_webhook(

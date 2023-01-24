@@ -42,29 +42,24 @@ impl Permissions {
 
         // get permroles
         let permroles = PermRole::list_by_guild(&bot.pool, guild_id_i64).await?;
-        // filter out non-applicable permroles
-        let mut permroles = bot.cache.guilds.with(&guild_id, |_, guild| {
-            let roles = {
-                if let Some(guild) = guild {
-                    guild.members.get(&user_id).map(|m| &m.roles)
-                } else {
-                    None
-                }
-            };
 
-            if let Some(roles) = roles {
-                permroles
-                    .into_iter()
-                    .filter(|r| r.role_id == guild_id_i64 || roles.contains(&r.role_id.into_id()))
-                    .collect::<Vec<_>>()
-            } else {
-                let guild_id: i64 = guild_id_i64;
-                permroles
-                    .into_iter()
-                    .filter(|r| r.role_id == guild_id)
-                    .collect::<Vec<_>>()
-            }
-        });
+        // filter out non-applicable permroles
+        let member = bot.cache.fog_member(bot, guild_id, user_id).await?;
+        let roles = member.as_ref().map(|m| &m.roles);
+
+        let mut permroles = if let Some(roles) = roles {
+            permroles
+                .into_iter()
+                .filter(|r| r.role_id == guild_id_i64 || roles.contains(&r.role_id.into_id()))
+                .collect::<Vec<_>>()
+        } else {
+            let guild_id: i64 = guild_id_i64;
+            permroles
+                .into_iter()
+                .filter(|r| r.role_id == guild_id)
+                .collect::<Vec<_>>()
+        };
+
         // sort permroles by their order in the guild
         permroles.sort_permroles(bot);
 
