@@ -76,7 +76,11 @@ impl AttachmentHandle {
     }
 
     pub fn url_list_item(&self) -> String {
-        format!("[{}]({})", self.filename, self.url)
+        if self.filename.len() > 15 {
+            format!("[{}...]({})", &self.filename[..12], self.url)
+        } else {
+            format!("[{}]({})", self.filename, self.url)
+        }
     }
 
     pub fn embedable_image(&self) -> Option<ImageSource> {

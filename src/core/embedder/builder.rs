@@ -260,8 +260,21 @@ impl BuiltStarboardEmbed {
 
         // attachments list
         if (handle.config.resolved.attachments_list || is_reply) && !parsed.url_list.is_empty() {
+            let mut field = String::new();
+            let url_list = parsed.url_list.iter();
+
+            for next in url_list {
+                if field.len() + next.len() + 10 > 1_024 {
+                    field.push_str("...");
+                    break;
+                }
+
+                field.push_str(next);
+                field.push('\n');
+            }
+
+            zws_fields.push(field);
             embed_is_empty = false;
-            zws_fields.push(parsed.url_list.join("\n"));
         }
 
         // primary image
