@@ -36,6 +36,23 @@ pub async fn handle_reaction_add(
         return Ok(());
     }
 
+    bot.cache
+        .members
+        .insert(
+            (reactor_member.guild_id, reactor_member.user.id),
+            Some(Arc::new(reactor_member.into())),
+            1,
+        )
+        .await;
+    bot.cache
+        .users
+        .insert(
+            reactor_member.user.id,
+            Some(Arc::new((&reactor_member.user).into())),
+            1,
+        )
+        .await;
+
     let emoji = SimpleEmoji::from(event.emoji.clone());
 
     if !StarboardConfig::is_guild_vote_emoji(&bot, guild_id.get_i64(), &emoji.raw).await? {
