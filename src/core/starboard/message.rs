@@ -27,7 +27,7 @@ pub async fn get_or_create_original(
     // author data
     let (author_is_bot, author_id) = {
         let orig_msg_obj = bot.cache.fog_message(bot, channel_id, message_id).await?;
-        let orig_msg_obj = match orig_msg_obj {
+        let orig_msg_obj = match orig_msg_obj.into_option() {
             None => return Ok((None, None)),
             Some(obj) => obj,
         };

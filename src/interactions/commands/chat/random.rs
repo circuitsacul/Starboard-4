@@ -88,7 +88,7 @@ pub async fn get_embedder<'config, 'bot>(
             orig_sql_msg.message_id.into_id(),
         )
         .await?;
-    let Some(orig_msg) = orig_msg else {
+    let Some(orig_msg) = orig_msg.into_option() else {
         return Ok(None);
     };
     let orig_author = bot
@@ -100,6 +100,7 @@ pub async fn get_embedder<'config, 'bot>(
         bot.cache
             .fog_message(bot, orig_sql_msg.channel_id.into_id(), ref_msg_id)
             .await?
+            .into_option()
     } else {
         None
     };
@@ -114,7 +115,7 @@ pub async fn get_embedder<'config, 'bot>(
         bot,
         points: msg.last_known_point_count as i32,
         config,
-        orig_message: Some(orig_msg),
+        orig_message: Some(orig_msg).into(),
         orig_message_author: orig_author,
         referenced_message: ref_msg,
         referenced_message_author: ref_msg_author,
