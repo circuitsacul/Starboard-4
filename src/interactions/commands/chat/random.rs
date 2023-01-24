@@ -74,16 +74,16 @@ pub async fn get_config(
     Ok(StarboardConfig::new(sb, &[channel_id], overrides)?)
 }
 
-pub async fn get_embedder<'config, 'bot>(
-    bot: &'bot StarboardBot,
-    config: &'config StarboardConfig,
+pub async fn get_embedder(
+    bot: Arc<StarboardBot>,
+    config: Arc<StarboardConfig>,
     orig_sql_msg: DbMessage,
     msg: StarboardMessage,
-) -> StarboardResult<Option<Embedder<'config, 'bot>>> {
+) -> StarboardResult<Option<Embedder>> {
     let orig_msg = bot
         .cache
         .fog_message(
-            bot,
+            &bot,
             orig_sql_msg.channel_id.into_id(),
             orig_sql_msg.message_id.into_id(),
         )
@@ -93,12 +93,12 @@ pub async fn get_embedder<'config, 'bot>(
     };
     let orig_author = bot
         .cache
-        .fog_user(bot, orig_sql_msg.author_id.into_id())
+        .fog_user(&bot, orig_sql_msg.author_id.into_id())
         .await?;
 
     let ref_msg = if let Some(ref_msg_id) = orig_msg.referenced_message {
         bot.cache
-            .fog_message(bot, orig_sql_msg.channel_id.into_id(), ref_msg_id)
+            .fog_message(&bot, orig_sql_msg.channel_id.into_id(), ref_msg_id)
             .await?
             .into_option()
     } else {
@@ -106,7 +106,7 @@ pub async fn get_embedder<'config, 'bot>(
     };
 
     let ref_msg_author = if let Some(ref_msg) = &ref_msg {
-        bot.cache.fog_user(bot, ref_msg.author_id).await?
+        bot.cache.fog_user(&bot, ref_msg.author_id).await?
     } else {
         None
     };
@@ -208,11 +208,12 @@ impl RandomPost {
             .await?
             .unwrap();
         let config = get_config(&ctx.bot, sb, orig_msg.channel_id).await?;
-        let embedder = get_embedder(&ctx.bot, &config, orig_msg, msg)
+        let config = Arc::new(config);
+        let embedder = get_embedder(ctx.bot.clone(), config, orig_msg, msg)
             .await?
             .unwrap();
 
-        let built = embedder.build(false, false);
+        let built = embedder.build(false, false).await?;
         let built = match built {
             BuiltStarboardEmbed::Partial(_) => unreachable!("didn't get full embed"),
             BuiltStarboardEmbed::Full(built) => built,

@@ -19,10 +19,10 @@ use crate::{
 
 use super::{attachment_handle::VecAttachments, builder::BuiltStarboardEmbed};
 
-pub struct Embedder<'config, 'bot> {
-    pub bot: &'bot StarboardBot,
+pub struct Embedder {
+    pub bot: Arc<StarboardBot>,
     pub points: i32,
-    pub config: &'config StarboardConfig,
+    pub config: Arc<StarboardConfig>,
     pub orig_message: MessageResult,
     pub orig_message_author: Option<Arc<CachedUser>>,
     pub referenced_message: Option<Arc<CachedMessage>>,
@@ -30,9 +30,13 @@ pub struct Embedder<'config, 'bot> {
     pub orig_sql_message: Arc<DbMessage>,
 }
 
-impl Embedder<'_, '_> {
-    pub fn build(&self, force_partial: bool, watermark: bool) -> BuiltStarboardEmbed {
-        BuiltStarboardEmbed::build(self, force_partial, watermark)
+impl Embedder {
+    pub async fn build(
+        &self,
+        force_partial: bool,
+        watermark: bool,
+    ) -> StarboardResult<BuiltStarboardEmbed> {
+        BuiltStarboardEmbed::build(self, force_partial, watermark).await
     }
 
     pub async fn send(
@@ -44,7 +48,10 @@ impl Embedder<'_, '_> {
 
         let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
 
-        let built = match self.build(false, self.config.resolved.use_webhook && !is_prem) {
+        let built = match self
+            .build(false, self.config.resolved.use_webhook && !is_prem)
+            .await?
+        {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
         };
@@ -198,7 +205,7 @@ impl Embedder<'_, '_> {
 
         let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
 
-        match self.build(force_partial, wh.is_some() && !is_prem) {
+        match self.build(force_partial, wh.is_some() && !is_prem).await? {
             BuiltStarboardEmbed::Full(built) => {
                 if let Some(wh) = wh {
                     let mut ud = bot

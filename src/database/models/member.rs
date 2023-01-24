@@ -1,6 +1,4 @@
-use futures::TryStreamExt;
-
-use crate::{cache::Cache, utils::into_id::IntoId};
+use futures::stream::BoxStream;
 
 #[derive(Debug)]
 pub struct DbMember {
@@ -62,6 +60,15 @@ impl DbMember {
         Ok(())
     }
 
+    pub fn stream_by_xp(pool: &sqlx::PgPool, guild_id: i64) -> BoxStream<'_, sqlx::Result<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM members WHERE guild_id=$1 AND xp > 0 ORDER BY xp",
+            guild_id
+        )
+        .fetch(pool)
+    }
+
     pub async fn list_by_xp(
         pool: &sqlx::PgPool,
         guild_id: i64,
@@ -75,42 +82,6 @@ impl DbMember {
         )
         .fetch_all(pool)
         .await
-    }
-
-    pub async fn list_by_xp_exclude_deleted(
-        pool: &sqlx::PgPool,
-        guild_id: i64,
-        limit: i64,
-        cache: &Cache,
-    ) -> sqlx::Result<Vec<Self>> {
-        let mut cursor = sqlx::query_as!(
-            Self,
-            "SELECT * FROM members WHERE guild_id=$1 AND xp > 0 ORDER BY xp DESC LIMIT $2",
-            guild_id,
-            limit,
-        )
-        .fetch(pool);
-
-        let guild_id_id = guild_id.into_id();
-        let filter = |user_id: i64| {
-            cache.guilds.with(&guild_id_id, |_, guild| {
-                guild
-                    .as_ref()
-                    .map(|guild| guild.members.contains_key(&user_id.into_id()))
-                    .unwrap_or(false)
-            })
-        };
-
-        let mut ret = Vec::new();
-        while let Some(row) = cursor.try_next().await? {
-            if !filter(row.user_id) {
-                continue;
-            }
-
-            ret.push(row);
-        }
-
-        Ok(ret)
     }
 
     pub async fn list_autoredeem_by_user(

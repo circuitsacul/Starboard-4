@@ -1,3 +1,4 @@
+use futures::TryStreamExt;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
@@ -5,7 +6,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    utils::{embed, id_as_i64::GetI64, views::paginator},
+    utils::{embed, id_as_i64::GetI64, into_id::IntoId, views::paginator},
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -22,15 +23,35 @@ pub struct Leaderboard {
 
 impl Leaderboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx).get_i64();
+        let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
         let include_gone = self.include_gone == Some(true);
 
         let lb = if include_gone {
-            DbMember::list_by_xp(&ctx.bot.pool, guild_id, 99).await?
+            DbMember::list_by_xp(&ctx.bot.pool, guild_id_i64, 99).await?
         } else {
-            DbMember::list_by_xp_exclude_deleted(&ctx.bot.pool, guild_id, 99, &ctx.bot.cache)
-                .await?
+            let mut lb = Vec::new();
+            let mut stream = DbMember::stream_by_xp(&ctx.bot.pool, guild_id_i64);
+
+            while let Some(member) = stream.try_next().await? {
+                let obj = ctx
+                    .bot
+                    .cache
+                    .fog_member(&ctx.bot, guild_id, member.user_id.into_id())
+                    .await?;
+                if obj.is_none() {
+                    continue;
+                }
+
+                lb.push(member);
+
+                if lb.len() > 99 {
+                    break;
+                }
+            }
+
+            lb
         };
 
         let mut idx = 0;

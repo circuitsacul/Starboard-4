@@ -52,12 +52,8 @@ async fn process_expired_guild(bot: Arc<StarboardBot>, guild_id_i64: i64) -> Sta
     while let Some(member) = stream.try_next().await? {
         let user_id = member.user_id.into_id();
 
-        let in_guild = bot.cache.guilds.with(&guild_id, |_, guild| {
-            let Some(guild) = guild else { return false; };
-            guild.members.contains_key(&user_id)
-        });
-
-        if !in_guild {
+        let member_obj = bot.cache.fog_member(&bot, guild_id, user_id).await?;
+        if member_obj.is_none() {
             continue;
         }
 

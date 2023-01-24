@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use futures::TryStreamExt;
 use twilight_model::id::{
     marker::{GuildMarker, RoleMarker, UserMarker},
     Id,
@@ -79,27 +80,21 @@ async fn set_role(
     user_id: Id<UserMarker>,
     posrole_ids: &[Id<RoleMarker>],
     role_id: Option<Id<RoleMarker>>,
-) -> Option<(i32, i32, i32, i32)> {
+) -> StarboardResult<Option<(i32, i32, i32, i32)>> {
     let mut failed_adds = 0;
     let mut added_roles = 0;
     let mut failed_removals = 0;
     let mut removed_roles = 0;
 
-    let Some((to_remove, to_add)) = bot.cache.guilds.with(&guild_id, |_, g| {
-        let Some(g) = g else {
-            return None;
-        };
-        let Some(member) = g.members.get(&user_id) else {
-            return None;
-        };
-
-        let to_remove: Vec<_> = posrole_ids.iter().filter(|pr| member.roles.contains(*pr) && Some(**pr) != role_id).collect();
-        let to_add = role_id.filter(|&role_id| !member.roles.contains(&role_id));
-
-        Some((to_remove, to_add))
-    }) else {
-        return None;
+    let Some(member) = bot.cache.fog_member(bot, guild_id, user_id).await? else {
+        return Ok(None);
     };
+
+    let to_remove: Vec<_> = posrole_ids
+        .iter()
+        .filter(|pr| member.roles.contains(*pr) && Some(**pr) != role_id)
+        .collect();
+    let to_add = role_id.filter(|&role_id| !member.roles.contains(&role_id));
 
     if let Some(role_id) = to_add {
         let ret = bot
@@ -125,7 +120,12 @@ async fn set_role(
         }
     }
 
-    Some((added_roles, failed_adds, removed_roles, failed_removals))
+    Ok(Some((
+        added_roles,
+        failed_adds,
+        removed_roles,
+        failed_removals,
+    )))
 }
 
 pub async fn update_posroles_for_guild(
@@ -147,13 +147,25 @@ pub async fn update_posroles_for_guild(
     let posrole_ids: Vec<Id<RoleMarker>> = posroles.iter().map(|pr| pr.role_id.into_id()).collect();
 
     let lb_size = posroles.iter().map(|pr| pr.max_members).sum::<i32>() * 2;
-    let mut leaderboard = DbMember::list_by_xp_exclude_deleted(
-        &bot.pool,
-        guild_id.get_i64(),
-        lb_size as i64,
-        &bot.cache,
-    )
-    .await?;
+    let lb_size = lb_size as usize;
+    let mut leaderboard = Vec::new();
+    let mut stream = DbMember::stream_by_xp(&bot.pool, guild_id_i64);
+
+    while let Some(member) = stream.try_next().await? {
+        let obj = bot
+            .cache
+            .fog_member(&bot, guild_id, member.user_id.into_id())
+            .await?;
+        if obj.is_none() {
+            continue;
+        }
+
+        leaderboard.push(member);
+
+        if leaderboard.len() > lb_size {
+            break;
+        }
+    }
 
     for pr in posroles {
         let role_id: Id<RoleMarker> = pr.role_id.into_id();
@@ -165,7 +177,7 @@ pub async fn update_posroles_for_guild(
         for member in leaderboard.drain(..to_drain) {
             let user_id: Id<UserMarker> = member.user_id.into_id();
 
-            let ret = set_role(&bot, guild_id, user_id, &posrole_ids, Some(role_id)).await;
+            let ret = set_role(&bot, guild_id, user_id, &posrole_ids, Some(role_id)).await?;
             if let Some((aw, af, rw, rf)) = ret {
                 added_roles += aw;
                 failed_adds += af;
@@ -178,7 +190,7 @@ pub async fn update_posroles_for_guild(
     for member in leaderboard {
         let user_id: Id<UserMarker> = member.user_id.into_id();
 
-        let ret = set_role(&bot, guild_id, user_id, &posrole_ids, None).await;
+        let ret = set_role(&bot, guild_id, user_id, &posrole_ids, None).await?;
         if let Some((aw, af, rw, rf)) = ret {
             added_roles += aw;
             failed_adds += af;
