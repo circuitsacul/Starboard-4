@@ -68,15 +68,16 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
                     .await;
             }
 
-            if event.guild_id.is_none() {
-                return Ok(());
-            }
-
             let channel_id = event.channel_id;
             let message_id = event.id;
             let author_id = event.author.id;
+            let guild_id = event.guild_id;
             let msg: CachedMessage = event.0.into();
-            core::autostar::handle(&bot, channel_id, channel_id, message_id, Some(&msg)).await?;
+
+            if guild_id.is_some() {
+                core::autostar::handle(&bot, channel_id, channel_id, message_id, Some(&msg))
+                    .await?;
+            }
 
             crate::owner::handle::handle_message(
                 shard_id,

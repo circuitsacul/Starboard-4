@@ -54,6 +54,7 @@ impl StarboardBot {
             | Intents::GUILD_EMOJIS_AND_STICKERS
             | Intents::GUILD_MEMBERS
             | Intents::GUILD_MESSAGES
+            | Intents::DIRECT_MESSAGES
             | Intents::MESSAGE_CONTENT
             | Intents::GUILD_MESSAGE_REACTIONS;
 

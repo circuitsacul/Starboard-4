@@ -1,4 +1,5 @@
 pub mod autostar;
+pub mod botstats;
 pub mod exclusive_groups;
 pub mod help;
 pub mod leaderboard;
@@ -14,4 +15,3 @@ pub mod starboard;
 pub mod stats;
 pub mod utils;
 pub mod xproles;
-pub mod botstats;
