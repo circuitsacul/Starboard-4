@@ -65,16 +65,16 @@ impl EmojiCommon for SimpleEmoji {
         }
     }
 
-    fn from_stored(raw: String) -> Self {
+    fn from_stored(raw: Self::Stored) -> Self {
         let as_id = match Id::<EmojiMarker>::from_str(&raw) {
             Ok(value) => Some(value),
             Err(_) => None,
         };
 
-        Self { raw, as_id }
+        Self { raw: clean_emoji(&raw).to_string(), as_id }
     }
 
-    fn into_stored(self) -> String {
+    fn into_stored(self) -> Self::Stored {
         self.raw
     }
 
@@ -132,7 +132,7 @@ impl EmojiCommon for Vec<SimpleEmoji> {
         arr
     }
 
-    fn into_stored(self) -> Vec<String> {
+    fn into_stored(self) -> Self::Stored {
         let mut arr = Vec::new();
         for emoji in self {
             arr.push(emoji.into_stored());
