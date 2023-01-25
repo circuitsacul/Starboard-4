@@ -12,6 +12,10 @@ use twilight_model::{
 
 use crate::client::bot::StarboardBot;
 
+fn clean_emoji(unicode: &str) -> &str {
+    unicode.strip_suffix('\u{fe0f}').unwrap_or(unicode)
+}
+
 #[derive(Clone)]
 pub struct SimpleEmoji {
     pub raw: String,
@@ -81,9 +85,7 @@ impl EmojiCommon for SimpleEmoji {
     ) -> Option<Self> {
         // Get rid of the Variation-Selector-16 codepoint that is sometimes present in user
         // input. https://emojipedia.org/variation-selector-16/
-        let input = input
-            .strip_suffix('\u{fe0f}')
-            .map_or_else(|| input.to_string(), |s| s.to_string());
+        let input = clean_emoji(&input).to_string();
 
         if emojis::get(&input).is_some() {
             Some(Self {
@@ -158,7 +160,7 @@ impl From<ReactionType> for SimpleEmoji {
                 as_id: Some(id),
             },
             ReactionType::Unicode { name } => SimpleEmoji {
-                raw: name,
+                raw: clean_emoji(&name).to_string(),
                 as_id: None,
             },
         }
