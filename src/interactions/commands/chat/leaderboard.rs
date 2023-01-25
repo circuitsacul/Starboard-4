@@ -31,6 +31,8 @@ impl Leaderboard {
         let lb = if include_gone {
             DbMember::list_by_xp(&ctx.bot.pool, guild_id_i64, 99).await?
         } else {
+            ctx.defer(false).await?;
+
             let mut lb = Vec::new();
             let mut stream = DbMember::stream_by_xp(&ctx.bot.pool, guild_id_i64);
 
@@ -46,7 +48,7 @@ impl Leaderboard {
 
                 lb.push(member);
 
-                if lb.len() > 99 {
+                if lb.len() >= 99 {
                     break;
                 }
             }
