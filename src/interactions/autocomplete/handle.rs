@@ -59,53 +59,55 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
     let (qual_name, focused) = parse(&ctx);
     let options = match qual_name.as_str() {
         // misc
-        "random starboard" => starboard_name_autocomplete(&ctx).await?,
-        "moststarred starboard" => starboard_name_autocomplete(&ctx).await?,
-        "utils force starboard" => starboard_name_autocomplete(&ctx).await?,
-        "utils unforce starboard" => starboard_name_autocomplete(&ctx).await?,
+        "random starboard" => starboard_name_autocomplete(&ctx, focused).await?,
+        "moststarred starboard" => starboard_name_autocomplete(&ctx, focused).await?,
+        "utils force starboard" => starboard_name_autocomplete(&ctx, focused).await?,
+        "utils unforce starboard" => starboard_name_autocomplete(&ctx, focused).await?,
         // premium
         "premium autoredeem disable server" => autoredeem_autocomplete(&ctx, focused).await?,
-        "premium-locks move-autostar from" => autostar_name_autocomplete(&ctx).await?,
-        "premium-locks move-autostar to" => autostar_name_autocomplete(&ctx).await?,
-        "premium-locks move-starboard from" => starboard_name_autocomplete(&ctx).await?,
-        "premium-locks move-starboard to" => starboard_name_autocomplete(&ctx).await?,
+        "premium-locks move-autostar from" => autostar_name_autocomplete(&ctx, focused).await?,
+        "premium-locks move-autostar to" => autostar_name_autocomplete(&ctx, focused).await?,
+        "premium-locks move-starboard from" => starboard_name_autocomplete(&ctx, focused).await?,
+        "premium-locks move-starboard to" => starboard_name_autocomplete(&ctx, focused).await?,
         // autostar channels
-        "autostar delete name" => autostar_name_autocomplete(&ctx).await?,
-        "autostar view name" => autostar_name_autocomplete(&ctx).await?,
-        "autostar edit name" => autostar_name_autocomplete(&ctx).await?,
-        "autostar rename current-name" => autostar_name_autocomplete(&ctx).await?,
+        "autostar delete name" => autostar_name_autocomplete(&ctx, focused).await?,
+        "autostar view name" => autostar_name_autocomplete(&ctx, focused).await?,
+        "autostar edit name" => autostar_name_autocomplete(&ctx, focused).await?,
+        "autostar rename current-name" => autostar_name_autocomplete(&ctx, focused).await?,
         // starboards
-        "starboards delete name" => starboard_name_autocomplete(&ctx).await?,
-        "starboards view name" => starboard_name_autocomplete(&ctx).await?,
-        "starboards edit embed name" => starboard_name_autocomplete(&ctx).await?,
-        "starboards edit style name" => starboard_name_autocomplete(&ctx).await?,
-        "starboards edit requirements name" => starboard_name_autocomplete(&ctx).await?,
-        "starboards edit behavior name" => starboard_name_autocomplete(&ctx).await?,
+        "starboards delete name" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards view name" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards edit embed name" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards edit style name" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards edit requirements name" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards edit behavior name" => starboard_name_autocomplete(&ctx, focused).await?,
         "starboards edit behavior exclusive-group" => {
-            exclusive_group_name_autocomplete(&ctx).await?
+            exclusive_group_name_autocomplete(&ctx, focused).await?
         }
-        "starboards rename current-name" => starboard_name_autocomplete(&ctx).await?,
+        "starboards rename current-name" => starboard_name_autocomplete(&ctx, focused).await?,
         // overrides
-        "overrides create starboard" => starboard_name_autocomplete(&ctx).await?,
-        "overrides delete name" => override_name_autocomplete(&ctx).await?,
-        "overrides rename current-name" => override_name_autocomplete(&ctx).await?,
-        "overrides channels set override" => override_name_autocomplete(&ctx).await?,
-        "overrides channels remove override" => override_name_autocomplete(&ctx).await?,
-        "overrides channels add override" => override_name_autocomplete(&ctx).await?,
-        "overrides edit requirements name" => override_name_autocomplete(&ctx).await?,
-        "overrides edit behavior name" => override_name_autocomplete(&ctx).await?,
+        "overrides create starboard" => starboard_name_autocomplete(&ctx, focused).await?,
+        "overrides delete name" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides rename current-name" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides channels set override" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides channels remove override" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides channels add override" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides edit requirements name" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides edit behavior name" => override_name_autocomplete(&ctx, focused).await?,
         "overrides edit behavior exclusive-group" => {
-            exclusive_group_name_autocomplete(&ctx).await?
+            exclusive_group_name_autocomplete(&ctx, focused).await?
         }
-        "overrides edit style name" => override_name_autocomplete(&ctx).await?,
-        "overrides edit embed-style name" => override_name_autocomplete(&ctx).await?,
-        "overrides edit reset name" => override_name_autocomplete(&ctx).await?,
-        "overrides view name" => override_name_autocomplete(&ctx).await?,
+        "overrides edit style name" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides edit embed-style name" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides edit reset name" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides view name" => override_name_autocomplete(&ctx, focused).await?,
         // exclusive groups
-        "exclusive-groups delete name" => exclusive_group_name_autocomplete(&ctx).await?,
-        "exclusive-groups rename original-name" => exclusive_group_name_autocomplete(&ctx).await?,
+        "exclusive-groups delete name" => exclusive_group_name_autocomplete(&ctx, focused).await?,
+        "exclusive-groups rename original-name" => {
+            exclusive_group_name_autocomplete(&ctx, focused).await?
+        }
         // permroles
-        "permroles edit-starboard starboard" => starboard_name_autocomplete(&ctx).await?,
+        "permroles edit-starboard starboard" => starboard_name_autocomplete(&ctx, focused).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
     };
 

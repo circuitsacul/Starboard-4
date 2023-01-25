@@ -1,4 +1,4 @@
-use twilight_model::application::command::{CommandOptionChoice, CommandOptionChoiceData};
+use twilight_model::application::command::CommandOptionChoice;
 
 use crate::{
     database::DbMember,
@@ -6,6 +6,8 @@ use crate::{
     interactions::context::CommandCtx,
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
+
+use super::best_matches::best_matches_as_choices;
 
 pub async fn autoredeem_autocomplete(
     ctx: &CommandCtx,
@@ -15,31 +17,25 @@ pub async fn autoredeem_autocomplete(
 
     let guild_ids = DbMember::list_autoredeem_by_user(&ctx.bot.pool, user_id).await?;
 
-    let mut arr = Vec::new();
-    for guild_id in guild_ids {
-        let name = ctx.bot.cache.guilds.with(&guild_id.into_id(), |_, guild| {
-            if let Some(guild) = &guild {
-                if !focused.is_empty()
-                    && !guild
-                        .name
-                        .to_lowercase()
-                        .starts_with(&focused.to_lowercase())
-                {
-                    None
-                } else {
-                    Some(guild.name.clone())
-                }
-            } else {
-                Some(format!("Deleted Guild {guild_id}"))
-            }
-        });
-        let Some(name) = name else { continue; };
-        arr.push(CommandOptionChoice::String(CommandOptionChoiceData {
-            name: name.clone(),
-            name_localizations: None,
-            value: guild_id.to_string(),
-        }));
-    }
+    let get_guild_name = |id| {
+        ctx.bot
+            .cache
+            .guilds
+            .with(&id, |_, g| g.as_ref().map(|g| format!("{} {id}", g.name)))
+            .unwrap_or_else(|| format!("Unkown Server {id}"))
+    };
+    let guild_names = guild_ids
+        .iter()
+        .map(|id| get_guild_name(id.into_id()))
+        .collect::<Vec<_>>();
+    let guild_names_ref = guild_names
+        .iter()
+        .map(|name| name.as_str())
+        .collect::<Vec<_>>();
 
-    Ok(arr)
+    Ok(best_matches_as_choices(
+        focused,
+        &guild_names_ref,
+        Some(|n: &str| n.split(' ').last().unwrap().to_string()),
+    ))
 }
