@@ -98,7 +98,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
             exclusive_group_name_autocomplete(&ctx, focused).await?
         }
         "overrides edit style name" => override_name_autocomplete(&ctx, focused).await?,
-        "overrides edit embed-style name" => override_name_autocomplete(&ctx, focused).await?,
+        "overrides edit embed name" => override_name_autocomplete(&ctx, focused).await?,
         "overrides edit reset name" => override_name_autocomplete(&ctx, focused).await?,
         "overrides view name" => override_name_autocomplete(&ctx, focused).await?,
         // exclusive groups
