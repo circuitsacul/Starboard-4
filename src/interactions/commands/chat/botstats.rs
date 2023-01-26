@@ -32,9 +32,9 @@ impl BotStats {
         // other stats
         let guilds = ctx.bot.cache.guilds.len().separate_with_commas();
 
-        let cached_users = ctx.bot.cache.users.len().separate_with_commas();
-        let cached_members = ctx.bot.cache.members.len().separate_with_commas();
-        let cached_messages = ctx.bot.cache.messages.len().separate_with_commas();
+        let cached_users = ctx.bot.cache.users.entry_count().separate_with_commas();
+        let cached_members = ctx.bot.cache.members.entry_count().separate_with_commas();
+        let cached_messages = ctx.bot.cache.messages.entry_count().separate_with_commas();
 
         #[allow(clippy::uninlined_format_args)]
         let emb = embed::build()

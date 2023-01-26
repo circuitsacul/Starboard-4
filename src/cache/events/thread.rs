@@ -30,7 +30,7 @@ impl UpdateCache for ThreadDelete {
             guild.active_thread_parents.remove(&self.id);
             guild
         });
-        cache.messages.remove(&self.id.get().into_id()).await;
+        cache.messages.invalidate(&self.id.get().into_id()).await;
     }
 }
 

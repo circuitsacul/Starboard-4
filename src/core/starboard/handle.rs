@@ -5,7 +5,6 @@ use twilight_model::id::{marker::MessageMarker, Id};
 use crate::{
     cache::MessageResult,
     client::bot::StarboardBot,
-    constants,
     core::{
         embedder::Embedder,
         emoji::{EmojiCommon, SimpleEmoji},
@@ -296,7 +295,7 @@ impl RefreshStarboard {
                         .bot
                         .cache
                         .auto_deleted_posts
-                        .insert_with_ttl(sb_message_id, (), 0, constants::AUTO_DELETES_TTL)
+                        .insert(sb_message_id, ())
                         .await;
                     let deleted = embedder.delete(&self.refresh.bot, sb_message_id).await?;
                     (false, deleted)
