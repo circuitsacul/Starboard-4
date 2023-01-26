@@ -10,7 +10,7 @@ macro_rules! call_with_override_settings {
             extra_embeds,
             use_webhook,
             color,
-            jump_to_message,
+            go_to_message,
             attachments_list,
             replied_to,
             required,

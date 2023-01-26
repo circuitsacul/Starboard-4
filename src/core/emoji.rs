@@ -71,7 +71,10 @@ impl EmojiCommon for SimpleEmoji {
             Err(_) => None,
         };
 
-        Self { raw: clean_emoji(&raw).to_string(), as_id }
+        Self {
+            raw: clean_emoji(&raw).to_string(),
+            as_id,
+        }
     }
 
     fn into_stored(self) -> Self::Stored {

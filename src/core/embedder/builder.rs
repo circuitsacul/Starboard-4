@@ -1,7 +1,11 @@
 use std::fmt::Write;
 
 use twilight_model::{
-    channel::message::embed::Embed,
+    channel::message::{
+        component::{ActionRow, Button, ButtonStyle},
+        embed::Embed,
+        Component,
+    },
     id::{marker::MessageMarker, Id},
     util::Timestamp,
 };
@@ -26,6 +30,7 @@ pub struct FullBuiltStarboardEmbed {
     pub top_content: String,
     pub embeds: Vec<Embed>,
     pub upload_attachments: Vec<AttachmentHandle>,
+    pub components: Vec<Component>,
 }
 
 pub struct PartialBuiltStarboardEmbed {
@@ -51,6 +56,7 @@ impl BuiltStarboardEmbed {
                     top_content: Self::build_top_content(handle),
                     embeds: Self::build_embeds(handle, orig, &parsed, watermark).await?,
                     upload_attachments: parsed.upload_attachments,
+                    components: Self::build_components(handle),
                 });
                 return Ok(built);
             }
@@ -60,6 +66,29 @@ impl BuiltStarboardEmbed {
             top_content: Self::build_top_content(handle),
         });
         Ok(built)
+    }
+
+    pub fn build_components(handle: &Embedder) -> Vec<Component> {
+        if handle.config.resolved.go_to_message != 2 {
+            return vec![];
+        }
+
+        let button = Button {
+            custom_id: None,
+            disabled: false,
+            emoji: None,
+            label: Some("Go to Message".to_string()),
+            style: ButtonStyle::Link,
+            url: Some(fmt_message_link(
+                handle.config.starboard.guild_id,
+                handle.orig_sql_message.channel_id,
+                handle.orig_sql_message.message_id,
+            )),
+        };
+
+        vec![Component::ActionRow(ActionRow {
+            components: vec![Component::Button(button)],
+        })]
     }
 
     pub fn build_top_content(handle: &Embedder) -> String {
@@ -253,7 +282,7 @@ impl BuiltStarboardEmbed {
         }
 
         // jump link
-        if handle.config.resolved.jump_to_message && !is_reply {
+        if handle.config.resolved.go_to_message == 1 && !is_reply {
             embed_is_empty = false;
             zws_fields.push(format!("[Go to Message]({link})"));
         }

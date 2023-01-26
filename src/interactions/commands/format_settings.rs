@@ -111,6 +111,12 @@ pub async fn format_settings(
         3 => "Freeze All",
         _ => "Invalid",
     };
+    let go_to_message = match res.go_to_message {
+        0 => "None",
+        1 => "Link",
+        2 => "Button",
+        _ => "Invalid",
+    };
 
     let behavior = settings!(
         enabled, "enabled", res.enabled;
@@ -135,13 +141,13 @@ pub async fn format_settings(
             ping_author, "ping-author", res.ping_author;
             use_server_profile, "use-server-profile", res.use_server_profile;
             extra_embeds, "extra-embeds", res.extra_embeds;
+            go_to_message, "go-to-message", go_to_message;
             use_webhook, "use-webhook", res.use_webhook;
         ),
         embed: settings!(
             color, "color", &format!(
                 "#{:X}", res.color.unwrap_or(constants::BOT_COLOR as i32)
             );
-            jump_to_message, "jump-to-message", res.jump_to_message;
             attachments_list, "attachments-list", res.attachments_list;
             replied_to, "replied-to", res.replied_to;
         ),
