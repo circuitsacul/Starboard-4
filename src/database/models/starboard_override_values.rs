@@ -39,6 +39,10 @@ pub struct OverrideValues {
     pub require_image: Option<bool>,
     pub older_than: Option<i64>,
     pub newer_than: Option<i64>,
+    #[serde(deserialize_with = "null_to_some_none", default)]
+    pub matches: Option<Option<String>>,
+    #[serde(deserialize_with = "null_to_some_none", default)]
+    pub not_matches: Option<Option<String>>,
 
     // Behavior
     pub enabled: Option<bool>,

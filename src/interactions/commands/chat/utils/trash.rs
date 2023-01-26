@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    core::starboard::handle::RefreshMessage,
+    core::{premium::is_premium::is_guild_premium, starboard::handle::RefreshMessage},
     database::DbMessage,
     errors::StarboardResult,
     get_guild_id,
@@ -26,7 +26,7 @@ pub struct Trash {
 
 impl Trash {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx);
+        let guild_id = get_guild_id!(ctx).get_i64();
 
         let Some((_channel_id, message_id)) = parse_message_link(&self.message) else {
             ctx.respond_str("Invalid message link.", true).await?;
@@ -38,7 +38,7 @@ impl Trash {
             return Ok(());
         };
 
-        if orig.guild_id != guild_id.get_i64() {
+        if orig.guild_id != guild_id {
             ctx.respond_str("That message belongs to a different server.", true)
                 .await?;
             return Ok(());
@@ -47,7 +47,9 @@ impl Trash {
         DbMessage::set_trashed(&ctx.bot.pool, orig.message_id, true, self.reason.as_deref())
             .await?;
         ctx.respond_str("Message trashed.", true).await?;
-        RefreshMessage::new(ctx.bot, orig.message_id.into_id())
+
+        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        RefreshMessage::new(ctx.bot, orig.message_id.into_id(), is_premium)
             .refresh(true)
             .await?;
 
@@ -64,7 +66,7 @@ pub struct UnTrash {
 
 impl UnTrash {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx);
+        let guild_id = get_guild_id!(ctx).get_i64();
 
         let Some((_channel_id, message_id)) = parse_message_link(&self.message) else {
             ctx.respond_str("Invalid message link.", true).await?;
@@ -76,7 +78,7 @@ impl UnTrash {
             return Ok(());
         };
 
-        if orig.guild_id != guild_id.get_i64() {
+        if orig.guild_id != guild_id {
             ctx.respond_str("That message belongs to a different server.", true)
                 .await?;
             return Ok(());
@@ -84,7 +86,8 @@ impl UnTrash {
 
         DbMessage::set_trashed(&ctx.bot.pool, orig.message_id, false, None).await?;
         ctx.respond_str("Message untrashed.", true).await?;
-        RefreshMessage::new(ctx.bot, orig.message_id.into_id())
+        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        RefreshMessage::new(ctx.bot, orig.message_id.into_id(), is_premium)
             .refresh(true)
             .await?;
 

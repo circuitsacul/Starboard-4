@@ -1,12 +1,12 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    core::starboard::handle::RefreshMessage,
+    core::{premium::is_premium::is_guild_premium, starboard::handle::RefreshMessage},
     database::DbMessage,
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    utils::{into_id::IntoId, message_link::parse_message_link},
+    utils::{id_as_i64::GetI64, into_id::IntoId, message_link::parse_message_link},
 };
 
 use super::INVALID_MESSAGE_ERR;
@@ -23,6 +23,8 @@ pub struct Freeze {
 
 impl Freeze {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
+        let guild_id = get_guild_id!(ctx).get_i64();
+
         let Some((_channel_id, message_id)) = parse_message_link(&self.message) else {
             ctx.respond_str("Invalid message link.", true).await?;
             return Ok(());
@@ -44,7 +46,8 @@ impl Freeze {
             .unwrap();
         ctx.respond_str("Message frozen.", true).await?;
 
-        let mut refresh = RefreshMessage::new(ctx.bot, orig.message_id.into_id());
+        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        let mut refresh = RefreshMessage::new(ctx.bot, orig.message_id.into_id(), is_premium);
         refresh.refresh(true).await?;
 
         Ok(())
@@ -60,6 +63,8 @@ pub struct UnFreeze {
 
 impl UnFreeze {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
+        let guild_id = get_guild_id!(ctx).get_i64();
+
         let Some((_channel_id, message_id)) = parse_message_link(&self.message) else {
             ctx.respond_str("Invalid message link.", true).await?;
             return Ok(());
@@ -81,7 +86,8 @@ impl UnFreeze {
             .unwrap();
         ctx.respond_str("Message unfrozen.", true).await?;
 
-        let mut refresh = RefreshMessage::new(ctx.bot, orig.message_id.into_id());
+        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        let mut refresh = RefreshMessage::new(ctx.bot, orig.message_id.into_id(), is_premium);
         refresh.refresh(true).await?;
 
         Ok(())

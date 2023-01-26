@@ -52,6 +52,11 @@ pub struct EditRequirements {
     /// How new a post must be in order for it to be voted on (e.g. "1 hour"). Use 0 to disable.
     #[command(rename = "newer-than")]
     newer_than: Option<String>,
+    /// (Premium) Content that messages must match to be starred (supports regex). Use ".*" to disable.
+    matches: Option<String>,
+    #[command(rename = "not-matches")]
+    /// (Premium) content that messages must not match to be starred (supports regex). Use ".*" to disable.
+    not_matches: Option<String>,
 }
 
 impl EditRequirements {
@@ -152,6 +157,25 @@ impl EditRequirements {
         ) {
             ctx.respond_str(&why, true).await?;
             return Ok(());
+        }
+
+        if let Some(val) = self.matches {
+            match validation::regex::validate_regex(val, is_prem) {
+                Err(why) => {
+                    ctx.respond_str(&why, true).await?;
+                    return Ok(());
+                }
+                Ok(val) => starboard.settings.matches = val,
+            }
+        }
+        if let Some(val) = self.not_matches {
+            match validation::regex::validate_regex(val, is_prem) {
+                Err(why) => {
+                    ctx.respond_str(&why, true).await?;
+                    return Ok(());
+                }
+                Ok(val) => starboard.settings.not_matches = val,
+            }
         }
 
         starboard.update_settings(&ctx.bot.pool).await?;

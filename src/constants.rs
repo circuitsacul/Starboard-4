@@ -45,6 +45,7 @@ pub const VOTE_RECOUNT: (u64, Duration) = (5, Duration::from_secs(30));
 // Common Validation
 pub const MAX_NAME_LENGTH: u32 = 32;
 pub const MIN_NAME_LENGTH: u32 = 3;
+pub const MAX_REGEX_LENGTH: u32 = 100;
 
 // AutoStar Validation
 pub const MAX_MAX_CHARS: i16 = 5_000;

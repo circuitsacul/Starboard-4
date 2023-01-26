@@ -62,16 +62,22 @@ pub struct RefreshMessage {
     sql_message: Option<Arc<DbMessage>>,
     orig_message: Option<MessageResult>,
     configs: Option<Arc<Vec<Arc<StarboardConfig>>>>,
+    is_premium: bool,
 }
 
 impl RefreshMessage {
-    pub fn new(bot: Arc<StarboardBot>, message_id: Id<MessageMarker>) -> RefreshMessage {
+    pub fn new(
+        bot: Arc<StarboardBot>,
+        message_id: Id<MessageMarker>,
+        is_premium: bool,
+    ) -> RefreshMessage {
         RefreshMessage {
             bot,
             message_id,
             configs: None,
             sql_message: None,
             orig_message: None,
+            is_premium,
         }
     }
 
@@ -262,9 +268,10 @@ impl RefreshStarboard {
             &self.refresh.bot,
             &self.config,
             &orig,
-            embedder.orig_message.is_missing(),
+            &embedder.orig_message,
             points,
             violates_exclusive_group,
+            self.refresh.is_premium,
         )
         .await?;
 
