@@ -15,6 +15,9 @@ pub fn validate_regex(input: String, is_premium: bool) -> Result<Option<String>,
     if input == ".*" {
         Ok(None)
     } else {
-        Ok(Some(input))
+        match regex::Regex::new(&input) {
+            Ok(_) => Ok(Some(input)),
+            Err(why) => Err(format!("```\n{why}\n```")),
+        }
     }
 }
