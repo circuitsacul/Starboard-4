@@ -143,6 +143,33 @@ impl Cache {
         );
     }
 
+    // insert wrappers
+    pub async fn insert_user(&self, key: Id<UserMarker>, val: Option<Arc<CachedUser>>) -> bool {
+        self.users
+            .insert_with_ttl(key, val, 1, constants::USERS_TTL)
+            .await
+    }
+
+    pub async fn insert_member(
+        &self,
+        key: (Id<GuildMarker>, Id<UserMarker>),
+        val: Option<Arc<CachedMember>>,
+    ) -> bool {
+        self.members
+            .insert_with_ttl(key, val, 1, constants::MEMBERS_TTL)
+            .await
+    }
+
+    pub async fn insert_message(
+        &self,
+        key: Id<MessageMarker>,
+        val: Option<Arc<CachedMessage>>,
+    ) -> bool {
+        self.messages
+            .insert_with_ttl(key, val, 1, constants::MESSAGES_TTL)
+            .await
+    }
+
     // helper methods
     pub fn guild_emoji_exists(&self, guild_id: Id<GuildMarker>, emoji_id: Id<EmojiMarker>) -> bool {
         self.guilds.with(&guild_id, |_, guild| {
@@ -255,7 +282,7 @@ impl Cache {
             }
         };
 
-        self.users.insert(user_id, user.clone(), 1).await;
+        self.insert_user(user_id, user.clone()).await;
 
         Ok(user)
     }
@@ -274,8 +301,7 @@ impl Cache {
         let member = match get {
             Ok(member) => {
                 let member = member.model().await?;
-                self.users
-                    .insert(member.user.id, Some(Arc::new((&member.user).into())), 1)
+                self.insert_user(member.user.id, Some(Arc::new((&member.user).into())))
                     .await;
                 Some(Arc::new(member.into()))
             }
@@ -285,8 +311,7 @@ impl Cache {
             },
         };
 
-        self.members
-            .insert((guild_id, user_id), member.clone(), 1)
+        self.insert_member((guild_id, user_id), member.clone())
             .await;
 
         Ok(member)
@@ -349,17 +374,15 @@ impl Cache {
             }
             Ok(msg) => {
                 let msg = msg.model().await?;
-                self.users
-                    .insert(msg.author.id, Some(Arc::new((&msg.author).into())), 1)
+                self.insert_user(msg.author.id, Some(Arc::new((&msg.author).into())))
                     .await;
                 Some(Arc::new(msg.into()))
             }
         };
 
-        let ret = msg.clone();
-        self.messages.insert(message_id, msg, 1).await;
+        self.insert_message(message_id, msg.clone()).await;
 
-        Ok(ret.into())
+        Ok(msg.into())
     }
 
     async fn fetch_channel_or_thread_parent(

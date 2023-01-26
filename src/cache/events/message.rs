@@ -16,17 +16,14 @@ impl UpdateCache for MessageCreate {
         }
 
         let message = CachedMessage::from(&self.0);
-        cache
-            .messages
-            .insert(self.id, Some(Arc::new(message)), 1)
-            .await;
+        cache.insert_message(self.id, Some(Arc::new(message))).await;
     }
 }
 
 #[async_trait]
 impl UpdateCache for MessageDelete {
     async fn update_cache(&self, cache: &Cache) {
-        cache.messages.insert(self.id, None, 1).await;
+        cache.messages.insert_if_present(self.id, None, 1).await;
     }
 }
 
@@ -34,7 +31,7 @@ impl UpdateCache for MessageDelete {
 impl UpdateCache for MessageDeleteBulk {
     async fn update_cache(&self, cache: &Cache) {
         for id in &self.ids {
-            cache.messages.insert(*id, None, 1).await;
+            cache.messages.insert_if_present(*id, None, 1).await;
         }
     }
 }
@@ -84,7 +81,7 @@ impl UpdateCache for MessageUpdate {
 
         cache
             .messages
-            .insert(self.id, Some(Arc::new(message)), 1)
+            .insert_if_present(self.id, Some(Arc::new(message)), 1)
             .await;
     }
 }

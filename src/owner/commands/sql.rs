@@ -136,8 +136,6 @@ pub async fn run_sql(
         .await?;
 
     bot.cache.responses.insert(message_id, msg.id, 1).await;
-    bot.cache.responses.wait().await.unwrap();
-    bot.cache.responses.get(&message_id).unwrap();
 
     Ok(())
 }
