@@ -46,6 +46,7 @@ impl BuiltStarboardEmbed {
     pub async fn build(
         handle: &Embedder,
         force_partial: bool,
+        files_uploaded: bool,
         watermark: bool,
     ) -> StarboardResult<Self> {
         if let MessageResult::Ok(orig) = &handle.orig_message {
@@ -54,7 +55,8 @@ impl BuiltStarboardEmbed {
 
                 let built = Self::Full(FullBuiltStarboardEmbed {
                     top_content: Self::build_top_content(handle),
-                    embeds: Self::build_embeds(handle, orig, &parsed, watermark).await?,
+                    embeds: Self::build_embeds(handle, orig, &parsed, files_uploaded, watermark)
+                        .await?,
                     upload_attachments: parsed.upload_attachments,
                     components: Self::build_components(handle),
                 });
@@ -133,6 +135,7 @@ impl BuiltStarboardEmbed {
         handle: &Embedder,
         orig: &CachedMessage,
         parsed: &ParsedMessage,
+        files_uploaded: bool,
         watermark: bool,
     ) -> StarboardResult<Vec<Embed>> {
         let mut embeds = Vec::new();
@@ -140,7 +143,10 @@ impl BuiltStarboardEmbed {
         if let Some(e) = Self::build_replied_embed(handle).await? {
             embeds.push(e);
         }
-        if let Some(e) = Self::build_primary_embed(handle, orig, parsed, watermark, false).await? {
+        if let Some(e) =
+            Self::build_primary_embed(handle, orig, parsed, files_uploaded, watermark, false)
+                .await?
+        {
             embeds.push(e);
         }
 
@@ -159,13 +165,14 @@ impl BuiltStarboardEmbed {
             Some(msg) => msg,
         };
         let reply_parsed = ParsedMessage::parse(ref_msg);
-        Self::build_primary_embed(handle, ref_msg, &reply_parsed, false, true).await
+        Self::build_primary_embed(handle, ref_msg, &reply_parsed, false, false, true).await
     }
 
     pub async fn build_primary_embed(
         handle: &Embedder,
         orig: &CachedMessage,
         parsed: &ParsedMessage,
+        files_uploaded: bool,
         watermark: bool,
         is_reply: bool,
     ) -> StarboardResult<Option<Embed>> {
@@ -288,11 +295,18 @@ impl BuiltStarboardEmbed {
         }
 
         // attachments list
-        if (handle.config.resolved.attachments_list || is_reply) && !parsed.url_list.is_empty() {
-            let mut field = String::new();
-            let url_list = parsed.url_list.iter();
+        let mut urls = Vec::<&str>::new();
+        if !files_uploaded || is_reply {
+            urls.extend(parsed.urls.uploaded.iter().map(|url| url.as_str()));
+        }
+        if !handle.config.resolved.extra_embeds || is_reply {
+            urls.extend(parsed.urls.embedded.iter().map(|url| url.as_str()));
+        }
 
-            for next in url_list {
+        if (handle.config.resolved.attachments_list || is_reply) && !urls.is_empty() {
+            let mut field = String::new();
+
+            for next in urls {
                 if field.len() + next.len() + 10 > 1_024 {
                     field.push_str("...");
                     break;
