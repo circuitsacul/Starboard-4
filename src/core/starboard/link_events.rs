@@ -37,7 +37,7 @@ pub async fn handle_message_delete(
     message_id: Id<MessageMarker>,
 ) -> StarboardResult<()> {
     if bot.cache.auto_deleted_posts.get(&message_id).is_some() {
-        bot.cache.auto_deleted_posts.remove(&message_id).await;
+        bot.cache.auto_deleted_posts.invalidate(&message_id).await;
         return Ok(());
     }
 

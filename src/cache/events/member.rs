@@ -8,25 +8,28 @@ use crate::cache::{cache_struct::Cache, update::UpdateCache};
 #[async_trait]
 impl UpdateCache for MemberRemove {
     async fn update_cache(&self, cache: &Cache) {
-        cache.members.remove(&(self.guild_id, self.user.id)).await;
+        cache
+            .members
+            .invalidate(&(self.guild_id, self.user.id))
+            .await;
     }
 }
 
 #[async_trait]
 impl UpdateCache for MemberUpdate {
     async fn update_cache(&self, cache: &Cache) {
-        cache
-            .members
-            .insert_if_present(
-                (self.guild_id, self.user.id),
-                Some(Arc::new(self.into())),
-                1,
-            )
-            .await;
+        if cache.members.contains_key(&(self.guild_id, self.user.id)) {
+            cache
+                .members
+                .insert((self.guild_id, self.user.id), Some(Arc::new(self.into())))
+                .await;
+        }
 
-        cache
-            .users
-            .insert_if_present(self.user.id, Some(Arc::new((&self.user).into())), 1)
-            .await;
+        if cache.users.contains_key(&self.user.id) {
+            cache
+                .users
+                .insert(self.user.id, Some(Arc::new((&self.user).into())))
+                .await;
+        }
     }
 }

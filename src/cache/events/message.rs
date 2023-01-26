@@ -16,14 +16,19 @@ impl UpdateCache for MessageCreate {
         }
 
         let message = CachedMessage::from(&self.0);
-        cache.insert_message(self.id, Some(Arc::new(message))).await;
+        cache
+            .messages
+            .insert(self.id, Some(Arc::new(message)))
+            .await;
     }
 }
 
 #[async_trait]
 impl UpdateCache for MessageDelete {
     async fn update_cache(&self, cache: &Cache) {
-        cache.messages.insert_if_present(self.id, None, 1).await;
+        if cache.messages.contains_key(&self.id) {
+            cache.messages.insert(self.id, None).await;
+        }
     }
 }
 
@@ -31,7 +36,9 @@ impl UpdateCache for MessageDelete {
 impl UpdateCache for MessageDeleteBulk {
     async fn update_cache(&self, cache: &Cache) {
         for id in &self.ids {
-            cache.messages.insert_if_present(*id, None, 1).await;
+            if cache.messages.contains_key(id) {
+                cache.messages.insert(*id, None).await;
+            }
         }
     }
 }
@@ -39,17 +46,12 @@ impl UpdateCache for MessageDeleteBulk {
 #[async_trait]
 impl UpdateCache for MessageUpdate {
     async fn update_cache(&self, cache: &Cache) {
-        let cached = {
-            let cached = cache.messages.get(&self.id);
-
-            match cached {
-                None => return,
-                Some(msg) => msg.value().clone(),
-            }
+        let Some(cached) = cache.messages.get(&self.id) else {
+            return;
         };
 
         let Some(cached) = cached else {
-            cache.messages.remove(&self.id).await;
+            cache.messages.invalidate(&self.id).await;
             return;
         };
 
@@ -81,7 +83,7 @@ impl UpdateCache for MessageUpdate {
 
         cache
             .messages
-            .insert_if_present(self.id, Some(Arc::new(message)), 1)
+            .insert(self.id, Some(Arc::new(message)))
             .await;
     }
 }

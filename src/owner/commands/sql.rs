@@ -26,7 +26,7 @@ pub async fn run_sql(
         bot.http.create_typing_trigger(channel_id).await?;
         None
     } else {
-        bot.cache.responses.get(&message_id).map(|id| id.read())
+        bot.cache.responses.get(&message_id)
     };
 
     let mut rollback = false;
@@ -135,7 +135,7 @@ pub async fn run_sql(
         .model()
         .await?;
 
-    bot.cache.responses.insert(message_id, msg.id, 1).await;
+    bot.cache.responses.insert(message_id, msg.id).await;
 
     Ok(())
 }

@@ -1,6 +1,7 @@
-use std::{hash::Hash, sync::Arc};
+use std::{hash::Hash, sync::Arc, time::Duration};
 
 use dashmap::{DashMap, DashSet};
+use moka::future::Cache as MokaCache;
 use twilight_gateway::Event;
 use twilight_model::{
     channel::{Channel, ChannelType, Webhook},
@@ -15,7 +16,7 @@ use twilight_model::{
 use crate::{
     cache::models::channel::CachedChannel,
     client::bot::StarboardBot,
-    constants,
+    constants::{self, MEMBERS_TTL},
     errors::StarboardResult,
     utils::{
         async_dash::{AsyncDashMap, AsyncDashSet},
@@ -75,29 +76,33 @@ impl From<Option<Arc<CachedMessage>>> for MessageResult {
     }
 }
 
-fn stretto_cache<K: Hash + Eq, V: Send + Sync + 'static>(size: u32) -> stretto::AsyncCache<K, V> {
-    stretto::AsyncCacheBuilder::new((size * 10) as usize, size.into())
-        .set_ignore_internal_cost(true)
-        .finalize(tokio::spawn)
-        .unwrap()
+fn moka_cache<K, V>(capacity: u64, idle: Duration) -> MokaCache<K, V>
+where
+    K: Eq + Hash + Send + Sync + 'static,
+    V: Clone + Send + Sync + 'static,
+{
+    MokaCache::builder()
+        .max_capacity(capacity)
+        .time_to_idle(idle)
+        .build()
 }
 
 pub struct Cache {
     // discord side
     pub guilds: AsyncDashMap<Id<GuildMarker>, CachedGuild>,
     pub webhooks: AsyncDashMap<Id<WebhookMarker>, Arc<Webhook>>,
-    pub messages: stretto::AsyncCache<Id<MessageMarker>, Option<Arc<CachedMessage>>>,
-    pub users: stretto::AsyncCache<Id<UserMarker>, Option<Arc<CachedUser>>>,
+    pub messages: MokaCache<Id<MessageMarker>, Option<Arc<CachedMessage>>>,
+    pub users: MokaCache<Id<UserMarker>, Option<Arc<CachedUser>>>,
     #[allow(clippy::type_complexity)]
-    pub members: stretto::AsyncCache<(Id<GuildMarker>, Id<UserMarker>), Option<Arc<CachedMember>>>,
+    pub members: MokaCache<(Id<GuildMarker>, Id<UserMarker>), Option<Arc<CachedMember>>>,
 
     // database side
     pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
     pub guild_vote_emojis: AsyncDashMap<i64, Vec<String>>,
 
     // misc
-    pub responses: stretto::AsyncCache<Id<MessageMarker>, Id<MessageMarker>>,
-    pub auto_deleted_posts: stretto::AsyncCache<Id<MessageMarker>, ()>,
+    pub responses: MokaCache<Id<MessageMarker>, Id<MessageMarker>>,
+    pub auto_deleted_posts: MokaCache<Id<MessageMarker>, ()>,
 }
 
 impl Cache {
@@ -105,15 +110,21 @@ impl Cache {
         Self {
             guilds: DashMap::new().into(),
             webhooks: DashMap::new().into(),
-            messages: stretto_cache(constants::MAX_MESSAGES),
-            users: stretto_cache(constants::MAX_USERS),
-            members: stretto_cache(constants::MAX_MEMBERS),
+            messages: moka_cache(constants::MAX_MESSAGES, constants::MESSAGES_TTL),
+            users: moka_cache(constants::MAX_USERS, constants::USERS_TTL),
+            members: moka_cache(constants::MAX_MEMBERS, MEMBERS_TTL),
 
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_vote_emojis: DashMap::new().into(),
 
-            responses: stretto_cache(constants::MAX_STORED_RESPONSES),
-            auto_deleted_posts: stretto_cache(constants::MAX_STORED_AUTO_DELETES),
+            responses: moka_cache(
+                constants::MAX_STORED_RESPONSES,
+                constants::STORED_RESPONSES_TTL,
+            ),
+            auto_deleted_posts: moka_cache(
+                constants::MAX_STORED_AUTO_DELETES,
+                constants::AUTO_DELETES_TTL,
+            ),
         }
     }
 
@@ -141,33 +152,6 @@ impl Cache {
             Event::MemberRemove,
             Event::MemberUpdate,
         );
-    }
-
-    // insert wrappers
-    pub async fn insert_user(&self, key: Id<UserMarker>, val: Option<Arc<CachedUser>>) -> bool {
-        self.users
-            .insert_with_ttl(key, val, 1, constants::USERS_TTL)
-            .await
-    }
-
-    pub async fn insert_member(
-        &self,
-        key: (Id<GuildMarker>, Id<UserMarker>),
-        val: Option<Arc<CachedMember>>,
-    ) -> bool {
-        self.members
-            .insert_with_ttl(key, val, 1, constants::MEMBERS_TTL)
-            .await
-    }
-
-    pub async fn insert_message(
-        &self,
-        key: Id<MessageMarker>,
-        val: Option<Arc<CachedMessage>>,
-    ) -> bool {
-        self.messages
-            .insert_with_ttl(key, val, 1, constants::MESSAGES_TTL)
-            .await
     }
 
     // helper methods
@@ -267,7 +251,7 @@ impl Cache {
         user_id: Id<UserMarker>,
     ) -> StarboardResult<Option<Arc<CachedUser>>> {
         if let Some(cached) = self.users.get(&user_id) {
-            return Ok(cached.value().clone());
+            return Ok(cached);
         }
 
         let user_get = bot.http.user(user_id).await;
@@ -282,7 +266,7 @@ impl Cache {
             }
         };
 
-        self.insert_user(user_id, user.clone()).await;
+        self.users.insert(user_id, user.clone()).await;
 
         Ok(user)
     }
@@ -294,14 +278,15 @@ impl Cache {
         user_id: Id<UserMarker>,
     ) -> StarboardResult<Option<Arc<CachedMember>>> {
         if let Some(cached) = self.members.get(&(guild_id, user_id)) {
-            return Ok(cached.value().clone());
+            return Ok(cached);
         }
 
         let get = bot.http.guild_member(guild_id, user_id).await;
         let member = match get {
             Ok(member) => {
                 let member = member.model().await?;
-                self.insert_user(member.user.id, Some(Arc::new((&member.user).into())))
+                self.users
+                    .insert(member.user.id, Some(Arc::new((&member.user).into())))
                     .await;
                 Some(Arc::new(member.into()))
             }
@@ -311,7 +296,8 @@ impl Cache {
             },
         };
 
-        self.insert_member((guild_id, user_id), member.clone())
+        self.members
+            .insert((guild_id, user_id), member.clone())
             .await;
 
         Ok(member)
@@ -357,7 +343,7 @@ impl Cache {
         message_id: Id<MessageMarker>,
     ) -> StarboardResult<MessageResult> {
         if let Some(cached) = self.messages.get(&message_id) {
-            return Ok(cached.value().clone().into());
+            return Ok(cached.into());
         }
 
         let msg = bot.http.message(channel_id, message_id).await;
@@ -374,13 +360,14 @@ impl Cache {
             }
             Ok(msg) => {
                 let msg = msg.model().await?;
-                self.insert_user(msg.author.id, Some(Arc::new((&msg.author).into())))
+                self.users
+                    .insert(msg.author.id, Some(Arc::new((&msg.author).into())))
                     .await;
                 Some(Arc::new(msg.into()))
             }
         };
 
-        self.insert_message(message_id, msg.clone()).await;
+        self.messages.insert(message_id, msg.clone()).await;
 
         Ok(msg.into())
     }
