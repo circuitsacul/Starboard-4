@@ -71,7 +71,10 @@ impl Redeem {
         .await?;
 
         let resp = match ret {
-            RedeemPremiumResult::Ok => "Done.",
+            RedeemPremiumResult::Ok => concat!(
+                "Done.\n\nTip: Use `/premium autoredeem enable` to enable autoredeem for this ",
+                "server, so you don't have to repeatedly redeem credits."
+            ),
             RedeemPremiumResult::StateMismatch => concat!(
                 "This server's premium status changed while you were running the command. ",
                 "Please try again."
