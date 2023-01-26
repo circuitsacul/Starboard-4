@@ -22,6 +22,8 @@ macro_rules! call_with_starboard_settings {
             require_image,
             older_than,
             newer_than,
+            matches,
+            not_matches,
             enabled,
             autoreact_upvote,
             autoreact_downvote,

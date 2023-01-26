@@ -1,5 +1,6 @@
 use crate::{
-    client::bot::StarboardBot, database::DbMessage, errors::StarboardResult, utils::into_id::IntoId,
+    cache::MessageResult, client::bot::StarboardBot, database::DbMessage, errors::StarboardResult,
+    utils::into_id::IntoId,
 };
 
 use super::config::StarboardConfig;
@@ -15,14 +16,17 @@ pub enum MessageStatus {
 
 pub async fn get_message_status(
     bot: &StarboardBot,
-    starboard_config: &StarboardConfig,
+    config: &StarboardConfig,
     message: &DbMessage,
-    deleted: bool,
+    message_obj: &MessageResult,
     points: i32,
     violates_exclusive_group: bool,
+    is_premium: bool,
 ) -> StarboardResult<MessageStatus> {
-    let guild_id = starboard_config.starboard.guild_id.into_id();
-    let sb_channel_id = starboard_config.starboard.channel_id.into_id();
+    let deleted = matches!(message_obj, MessageResult::Missing);
+
+    let guild_id = config.starboard.guild_id.into_id();
+    let sb_channel_id = config.starboard.channel_id.into_id();
     let sb_is_nsfw = bot
         .cache
         .fog_channel_nsfw(bot, guild_id, sb_channel_id)
@@ -30,25 +34,68 @@ pub async fn get_message_status(
 
     let sb_is_nsfw = match sb_is_nsfw {
         Some(val) => val,
-        None => return Ok(MessageStatus::Update(starboard_config.resolved.link_edits)),
+        None => return Ok(MessageStatus::Update(config.resolved.link_edits)),
     };
 
-    if (deleted && starboard_config.resolved.link_deletes)
+    if (deleted && config.resolved.link_deletes)
         || (message.is_nsfw && !sb_is_nsfw)
         || message.trashed
     {
-        Ok(MessageStatus::Remove)
-    } else if message.forced_to.contains(&starboard_config.starboard.id) {
-        Ok(MessageStatus::Send(starboard_config.resolved.link_edits))
-    } else if violates_exclusive_group {
-        Ok(MessageStatus::Remove)
-    } else if message.frozen {
-        Ok(MessageStatus::Update(false))
-    } else if points >= starboard_config.resolved.required as _ {
-        Ok(MessageStatus::Send(starboard_config.resolved.link_edits))
-    } else if points <= starboard_config.resolved.required_remove as _ {
-        Ok(MessageStatus::Remove)
-    } else {
-        Ok(MessageStatus::Update(starboard_config.resolved.link_edits))
+        return Ok(MessageStatus::Remove);
     }
+
+    if message.forced_to.contains(&config.starboard.id) {
+        return Ok(MessageStatus::Send(config.resolved.link_edits));
+    }
+    if violates_exclusive_group {
+        return Ok(MessageStatus::Remove);
+    }
+
+    if message.frozen {
+        return Ok(MessageStatus::Update(false));
+    }
+
+    if points <= config.resolved.required_remove as _ {
+        return Ok(MessageStatus::Remove);
+    }
+
+    if validate_regex(config, message_obj, is_premium) {
+        #[allow(clippy:collapsible_if)]
+        if points >= config.resolved.required as _ {
+            return Ok(MessageStatus::Send(config.resolved.link_edits));
+        }
+    }
+
+    Ok(MessageStatus::Update(config.resolved.link_edits))
+}
+
+fn validate_regex(config: &StarboardConfig, message_obj: &MessageResult, is_premium: bool) -> bool {
+    if !is_premium {
+        return true;
+    }
+
+    if config.resolved.matches.is_none() && config.resolved.not_matches.is_none() {
+        return true;
+    }
+
+    let MessageResult::Ok(message_obj) = message_obj else {
+        return false;
+    };
+
+    if let Some(re) = &config.resolved.matches {
+        if let Ok(re) = regex::Regex::new(re) {
+            if !re.is_match(&message_obj.content) {
+                return false;
+            }
+        }
+    }
+    if let Some(re) = &config.resolved.not_matches {
+        if let Ok(re) = regex::Regex::new(re) {
+            if re.is_match(&message_obj.content) {
+                return false;
+            }
+        }
+    }
+
+    true
 }

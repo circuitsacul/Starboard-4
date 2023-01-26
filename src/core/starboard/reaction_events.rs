@@ -4,7 +4,7 @@ use twilight_model::gateway::payload::incoming::{ReactionAdd, ReactionRemove};
 
 use crate::{
     client::bot::StarboardBot,
-    core::{emoji::SimpleEmoji, stats::refresh_xp},
+    core::{emoji::SimpleEmoji, premium::is_premium::is_guild_premium, stats::refresh_xp},
     database::{DbMember, DbMessage, DbUser, Vote},
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, into_id::IntoId},
@@ -132,7 +132,8 @@ pub async fn handle_reaction_add(
                 .await?;
             }
 
-            let mut refresh = RefreshMessage::new(bot.clone(), event.message_id);
+            let is_premium = is_guild_premium(&bot, guild_id.get_i64()).await?;
+            let mut refresh = RefreshMessage::new(bot.clone(), event.message_id, is_premium);
             refresh.set_configs(configs.into_iter().map(Arc::new).collect());
             refresh.set_sql_message(orig_msg);
             refresh.refresh(false).await?;
@@ -182,7 +183,8 @@ pub async fn handle_reaction_remove(
                 Vote::delete(&bot.pool, orig.message_id, config.starboard.id, user_id).await?;
             }
 
-            let mut refresh = RefreshMessage::new(bot.clone(), event.message_id);
+            let is_premim = is_guild_premium(&bot, guild_id.get_i64()).await?;
+            let mut refresh = RefreshMessage::new(bot.clone(), event.message_id, is_premim);
             refresh.set_sql_message(orig);
             refresh.set_configs(configs.into_iter().map(Arc::new).collect());
             refresh.refresh(false).await?;

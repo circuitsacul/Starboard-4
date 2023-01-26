@@ -68,6 +68,7 @@ impl ViewStarboard {
                             .inline()
                             .build(),
                     )
+                    .field(EmbedFieldBuilder::new("Regex Matching", pretty.regex).build())
                     .build();
 
                 ctx.respond(ctx.build_resp().embeds([embed]).build())

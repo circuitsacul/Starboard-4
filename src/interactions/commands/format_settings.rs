@@ -135,6 +135,26 @@ pub async fn format_settings(
             exclusive_group_priority, "exclusive-group-priority", res.exclusive_group_priority;
         );
 
+    let must_match = if let Some(re) = &res.matches {
+        format!("```rs\n{re}\n```")
+    } else {
+        "Nothing set.".to_string()
+    };
+    let must_not_match = if let Some(re) = &res.not_matches {
+        format!("```rs\n{re}\n```")
+    } else {
+        "Nothing set.".to_string()
+    };
+
+    let resync = if ov_values.is_some() {
+        concat!(
+            "\n\nRe-sync these settings with the parent starboard by using `matches` and ",
+            "`not-matches` in the reset command.",
+        )
+    } else {
+        ""
+    };
+
     let settings = FormattedStarboardSettings {
         style: settings!(
             display_emoji, "display-emoji", display_emoji;
@@ -163,6 +183,15 @@ pub async fn format_settings(
             newer_than, "newer-than", newer_than;
         ),
         behavior,
+        regex: format!(
+            concat!(
+            "These settings are premium-only. You can input a simple phrase to match on, or you ",
+            "can use regex for more advanced filtering. See [rustexp](https://rustexp.lpil.uk) ",
+            "for more info on regex.{}\n\nMessages **must** match:\n{}\n",
+            "Messages **must not** match:\n{}",
+        ),
+            resync, must_match, must_not_match
+        ),
     };
 
     Ok(settings)
@@ -174,4 +203,5 @@ pub struct FormattedStarboardSettings {
     pub embed: String,
     pub requirements: String,
     pub behavior: String,
+    pub regex: String,
 }

@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    core::starboard::handle::RefreshMessage,
+    core::{premium::is_premium::is_guild_premium, starboard::handle::RefreshMessage},
     database::{DbMessage, Starboard},
     errors::StarboardResult,
     get_guild_id,
@@ -62,7 +62,8 @@ impl UnForce {
         }
 
         ctx.respond_str("Message unforced.", true).await?;
-        RefreshMessage::new(ctx.bot, msg.message_id.into_id())
+        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        RefreshMessage::new(ctx.bot, msg.message_id.into_id(), is_premium)
             .refresh(true)
             .await?;
 

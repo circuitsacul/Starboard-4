@@ -23,6 +23,8 @@ pub struct StarboardSettings {
     pub require_image: bool,
     pub older_than: i64,
     pub newer_than: i64,
+    pub matches: Option<String>,
+    pub not_matches: Option<String>,
 
     // Behavior
     pub enabled: bool,
