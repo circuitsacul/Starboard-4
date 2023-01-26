@@ -400,134 +400,144 @@
           "type_info": "Int4"
         },
         {
-          "name": "jump_to_message",
+          "name": "attachments_list",
           "ordinal": 12,
           "type_info": "Bool"
         },
         {
-          "name": "attachments_list",
+          "name": "replied_to",
           "ordinal": 13,
           "type_info": "Bool"
         },
         {
-          "name": "replied_to",
-          "ordinal": 14,
-          "type_info": "Bool"
-        },
-        {
           "name": "required",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Int2"
         },
         {
           "name": "required_remove",
-          "ordinal": 16,
+          "ordinal": 15,
           "type_info": "Int2"
         },
         {
           "name": "upvote_emojis",
-          "ordinal": 17,
+          "ordinal": 16,
           "type_info": "TextArray"
         },
         {
           "name": "downvote_emojis",
-          "ordinal": 18,
+          "ordinal": 17,
           "type_info": "TextArray"
         },
         {
           "name": "self_vote",
-          "ordinal": 19,
+          "ordinal": 18,
           "type_info": "Bool"
         },
         {
           "name": "allow_bots",
-          "ordinal": 20,
+          "ordinal": 19,
           "type_info": "Bool"
         },
         {
           "name": "require_image",
-          "ordinal": 21,
+          "ordinal": 20,
           "type_info": "Bool"
         },
         {
           "name": "older_than",
-          "ordinal": 22,
+          "ordinal": 21,
           "type_info": "Int8"
         },
         {
           "name": "newer_than",
-          "ordinal": 23,
+          "ordinal": 22,
           "type_info": "Int8"
         },
         {
           "name": "enabled",
-          "ordinal": 24,
+          "ordinal": 23,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_upvote",
-          "ordinal": 25,
+          "ordinal": 24,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_downvote",
-          "ordinal": 26,
+          "ordinal": 25,
           "type_info": "Bool"
         },
         {
           "name": "remove_invalid_reactions",
-          "ordinal": 27,
+          "ordinal": 26,
           "type_info": "Bool"
         },
         {
           "name": "link_deletes",
-          "ordinal": 28,
+          "ordinal": 27,
           "type_info": "Bool"
         },
         {
           "name": "link_edits",
-          "ordinal": 29,
+          "ordinal": 28,
           "type_info": "Bool"
         },
         {
           "name": "private",
-          "ordinal": 30,
+          "ordinal": 29,
           "type_info": "Bool"
         },
         {
           "name": "xp_multiplier",
-          "ordinal": 31,
+          "ordinal": 30,
           "type_info": "Float4"
         },
         {
           "name": "cooldown_enabled",
-          "ordinal": 32,
+          "ordinal": 31,
           "type_info": "Bool"
         },
         {
           "name": "cooldown_count",
-          "ordinal": 33,
+          "ordinal": 32,
           "type_info": "Int2"
         },
         {
           "name": "cooldown_period",
-          "ordinal": 34,
+          "ordinal": 33,
           "type_info": "Int2"
         },
         {
           "name": "exclusive_group",
-          "ordinal": 35,
+          "ordinal": 34,
           "type_info": "Int4"
         },
         {
           "name": "exclusive_group_priority",
-          "ordinal": 36,
+          "ordinal": 35,
           "type_info": "Int2"
         },
         {
           "name": "on_delete",
+          "ordinal": 36,
+          "type_info": "Int2"
+        },
+        {
+          "name": "go_to_message",
           "ordinal": 37,
           "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 38,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 39,
+          "type_info": "Text"
         }
       ],
       "nullable": [
@@ -565,10 +575,12 @@
         false,
         false,
         false,
-        false,
         true,
         false,
-        false
+        false,
+        false,
+        true,
+        true
       ],
       "parameters": {
         "Left": [
@@ -728,134 +740,144 @@
           "type_info": "Int4"
         },
         {
-          "name": "jump_to_message",
+          "name": "attachments_list",
           "ordinal": 12,
           "type_info": "Bool"
         },
         {
-          "name": "attachments_list",
+          "name": "replied_to",
           "ordinal": 13,
           "type_info": "Bool"
         },
         {
-          "name": "replied_to",
-          "ordinal": 14,
-          "type_info": "Bool"
-        },
-        {
           "name": "required",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Int2"
         },
         {
           "name": "required_remove",
-          "ordinal": 16,
+          "ordinal": 15,
           "type_info": "Int2"
         },
         {
           "name": "upvote_emojis",
-          "ordinal": 17,
+          "ordinal": 16,
           "type_info": "TextArray"
         },
         {
           "name": "downvote_emojis",
-          "ordinal": 18,
+          "ordinal": 17,
           "type_info": "TextArray"
         },
         {
           "name": "self_vote",
-          "ordinal": 19,
+          "ordinal": 18,
           "type_info": "Bool"
         },
         {
           "name": "allow_bots",
-          "ordinal": 20,
+          "ordinal": 19,
           "type_info": "Bool"
         },
         {
           "name": "require_image",
-          "ordinal": 21,
+          "ordinal": 20,
           "type_info": "Bool"
         },
         {
           "name": "older_than",
-          "ordinal": 22,
+          "ordinal": 21,
           "type_info": "Int8"
         },
         {
           "name": "newer_than",
-          "ordinal": 23,
+          "ordinal": 22,
           "type_info": "Int8"
         },
         {
           "name": "enabled",
-          "ordinal": 24,
+          "ordinal": 23,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_upvote",
-          "ordinal": 25,
+          "ordinal": 24,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_downvote",
-          "ordinal": 26,
+          "ordinal": 25,
           "type_info": "Bool"
         },
         {
           "name": "remove_invalid_reactions",
-          "ordinal": 27,
+          "ordinal": 26,
           "type_info": "Bool"
         },
         {
           "name": "link_deletes",
-          "ordinal": 28,
+          "ordinal": 27,
           "type_info": "Bool"
         },
         {
           "name": "link_edits",
-          "ordinal": 29,
+          "ordinal": 28,
           "type_info": "Bool"
         },
         {
           "name": "private",
-          "ordinal": 30,
+          "ordinal": 29,
           "type_info": "Bool"
         },
         {
           "name": "xp_multiplier",
-          "ordinal": 31,
+          "ordinal": 30,
           "type_info": "Float4"
         },
         {
           "name": "cooldown_enabled",
-          "ordinal": 32,
+          "ordinal": 31,
           "type_info": "Bool"
         },
         {
           "name": "cooldown_count",
-          "ordinal": 33,
+          "ordinal": 32,
           "type_info": "Int2"
         },
         {
           "name": "cooldown_period",
-          "ordinal": 34,
+          "ordinal": 33,
           "type_info": "Int2"
         },
         {
           "name": "exclusive_group",
-          "ordinal": 35,
+          "ordinal": 34,
           "type_info": "Int4"
         },
         {
           "name": "exclusive_group_priority",
-          "ordinal": 36,
+          "ordinal": 35,
           "type_info": "Int2"
         },
         {
           "name": "on_delete",
+          "ordinal": 36,
+          "type_info": "Int2"
+        },
+        {
+          "name": "go_to_message",
           "ordinal": 37,
           "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 38,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 39,
+          "type_info": "Text"
         }
       ],
       "nullable": [
@@ -893,10 +915,12 @@
         false,
         false,
         false,
-        false,
         true,
         false,
-        false
+        false,
+        false,
+        true,
+        true
       ],
       "parameters": {
         "Left": [
@@ -1478,134 +1502,144 @@
           "type_info": "Int4"
         },
         {
-          "name": "jump_to_message",
+          "name": "attachments_list",
           "ordinal": 12,
           "type_info": "Bool"
         },
         {
-          "name": "attachments_list",
+          "name": "replied_to",
           "ordinal": 13,
           "type_info": "Bool"
         },
         {
-          "name": "replied_to",
-          "ordinal": 14,
-          "type_info": "Bool"
-        },
-        {
           "name": "required",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Int2"
         },
         {
           "name": "required_remove",
-          "ordinal": 16,
+          "ordinal": 15,
           "type_info": "Int2"
         },
         {
           "name": "upvote_emojis",
-          "ordinal": 17,
+          "ordinal": 16,
           "type_info": "TextArray"
         },
         {
           "name": "downvote_emojis",
-          "ordinal": 18,
+          "ordinal": 17,
           "type_info": "TextArray"
         },
         {
           "name": "self_vote",
-          "ordinal": 19,
+          "ordinal": 18,
           "type_info": "Bool"
         },
         {
           "name": "allow_bots",
-          "ordinal": 20,
+          "ordinal": 19,
           "type_info": "Bool"
         },
         {
           "name": "require_image",
-          "ordinal": 21,
+          "ordinal": 20,
           "type_info": "Bool"
         },
         {
           "name": "older_than",
-          "ordinal": 22,
+          "ordinal": 21,
           "type_info": "Int8"
         },
         {
           "name": "newer_than",
-          "ordinal": 23,
+          "ordinal": 22,
           "type_info": "Int8"
         },
         {
           "name": "enabled",
-          "ordinal": 24,
+          "ordinal": 23,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_upvote",
-          "ordinal": 25,
+          "ordinal": 24,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_downvote",
-          "ordinal": 26,
+          "ordinal": 25,
           "type_info": "Bool"
         },
         {
           "name": "remove_invalid_reactions",
-          "ordinal": 27,
+          "ordinal": 26,
           "type_info": "Bool"
         },
         {
           "name": "link_deletes",
-          "ordinal": 28,
+          "ordinal": 27,
           "type_info": "Bool"
         },
         {
           "name": "link_edits",
-          "ordinal": 29,
+          "ordinal": 28,
           "type_info": "Bool"
         },
         {
           "name": "private",
-          "ordinal": 30,
+          "ordinal": 29,
           "type_info": "Bool"
         },
         {
           "name": "xp_multiplier",
-          "ordinal": 31,
+          "ordinal": 30,
           "type_info": "Float4"
         },
         {
           "name": "cooldown_enabled",
-          "ordinal": 32,
+          "ordinal": 31,
           "type_info": "Bool"
         },
         {
           "name": "cooldown_count",
-          "ordinal": 33,
+          "ordinal": 32,
           "type_info": "Int2"
         },
         {
           "name": "cooldown_period",
-          "ordinal": 34,
+          "ordinal": 33,
           "type_info": "Int2"
         },
         {
           "name": "exclusive_group",
-          "ordinal": 35,
+          "ordinal": 34,
           "type_info": "Int4"
         },
         {
           "name": "exclusive_group_priority",
-          "ordinal": 36,
+          "ordinal": 35,
           "type_info": "Int2"
         },
         {
           "name": "on_delete",
+          "ordinal": 36,
+          "type_info": "Int2"
+        },
+        {
+          "name": "go_to_message",
           "ordinal": 37,
           "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 38,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 39,
+          "type_info": "Text"
         }
       ],
       "nullable": [
@@ -1643,10 +1677,12 @@
         false,
         false,
         false,
-        false,
         true,
         false,
-        false
+        false,
+        false,
+        true,
+        true
       ],
       "parameters": {
         "Left": [
@@ -2683,134 +2719,144 @@
           "type_info": "Int4"
         },
         {
-          "name": "jump_to_message",
+          "name": "attachments_list",
           "ordinal": 12,
           "type_info": "Bool"
         },
         {
-          "name": "attachments_list",
+          "name": "replied_to",
           "ordinal": 13,
           "type_info": "Bool"
         },
         {
-          "name": "replied_to",
-          "ordinal": 14,
-          "type_info": "Bool"
-        },
-        {
           "name": "required",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Int2"
         },
         {
           "name": "required_remove",
-          "ordinal": 16,
+          "ordinal": 15,
           "type_info": "Int2"
         },
         {
           "name": "upvote_emojis",
-          "ordinal": 17,
+          "ordinal": 16,
           "type_info": "TextArray"
         },
         {
           "name": "downvote_emojis",
-          "ordinal": 18,
+          "ordinal": 17,
           "type_info": "TextArray"
         },
         {
           "name": "self_vote",
-          "ordinal": 19,
+          "ordinal": 18,
           "type_info": "Bool"
         },
         {
           "name": "allow_bots",
-          "ordinal": 20,
+          "ordinal": 19,
           "type_info": "Bool"
         },
         {
           "name": "require_image",
-          "ordinal": 21,
+          "ordinal": 20,
           "type_info": "Bool"
         },
         {
           "name": "older_than",
-          "ordinal": 22,
+          "ordinal": 21,
           "type_info": "Int8"
         },
         {
           "name": "newer_than",
-          "ordinal": 23,
+          "ordinal": 22,
           "type_info": "Int8"
         },
         {
           "name": "enabled",
-          "ordinal": 24,
+          "ordinal": 23,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_upvote",
-          "ordinal": 25,
+          "ordinal": 24,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_downvote",
-          "ordinal": 26,
+          "ordinal": 25,
           "type_info": "Bool"
         },
         {
           "name": "remove_invalid_reactions",
-          "ordinal": 27,
+          "ordinal": 26,
           "type_info": "Bool"
         },
         {
           "name": "link_deletes",
-          "ordinal": 28,
+          "ordinal": 27,
           "type_info": "Bool"
         },
         {
           "name": "link_edits",
-          "ordinal": 29,
+          "ordinal": 28,
           "type_info": "Bool"
         },
         {
           "name": "private",
-          "ordinal": 30,
+          "ordinal": 29,
           "type_info": "Bool"
         },
         {
           "name": "xp_multiplier",
-          "ordinal": 31,
+          "ordinal": 30,
           "type_info": "Float4"
         },
         {
           "name": "cooldown_enabled",
-          "ordinal": 32,
+          "ordinal": 31,
           "type_info": "Bool"
         },
         {
           "name": "cooldown_count",
-          "ordinal": 33,
+          "ordinal": 32,
           "type_info": "Int2"
         },
         {
           "name": "cooldown_period",
-          "ordinal": 34,
+          "ordinal": 33,
           "type_info": "Int2"
         },
         {
           "name": "exclusive_group",
-          "ordinal": 35,
+          "ordinal": 34,
           "type_info": "Int4"
         },
         {
           "name": "exclusive_group_priority",
-          "ordinal": 36,
+          "ordinal": 35,
           "type_info": "Int2"
         },
         {
           "name": "on_delete",
+          "ordinal": 36,
+          "type_info": "Int2"
+        },
+        {
+          "name": "go_to_message",
           "ordinal": 37,
           "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 38,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 39,
+          "type_info": "Text"
         }
       ],
       "nullable": [
@@ -2848,10 +2894,12 @@
         false,
         false,
         false,
-        false,
         true,
         false,
-        false
+        false,
+        false,
+        true,
+        true
       ],
       "parameters": {
         "Left": [
@@ -3047,134 +3095,144 @@
           "type_info": "Int4"
         },
         {
-          "name": "jump_to_message",
+          "name": "attachments_list",
           "ordinal": 12,
           "type_info": "Bool"
         },
         {
-          "name": "attachments_list",
+          "name": "replied_to",
           "ordinal": 13,
           "type_info": "Bool"
         },
         {
-          "name": "replied_to",
-          "ordinal": 14,
-          "type_info": "Bool"
-        },
-        {
           "name": "required",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Int2"
         },
         {
           "name": "required_remove",
-          "ordinal": 16,
+          "ordinal": 15,
           "type_info": "Int2"
         },
         {
           "name": "upvote_emojis",
-          "ordinal": 17,
+          "ordinal": 16,
           "type_info": "TextArray"
         },
         {
           "name": "downvote_emojis",
-          "ordinal": 18,
+          "ordinal": 17,
           "type_info": "TextArray"
         },
         {
           "name": "self_vote",
-          "ordinal": 19,
+          "ordinal": 18,
           "type_info": "Bool"
         },
         {
           "name": "allow_bots",
-          "ordinal": 20,
+          "ordinal": 19,
           "type_info": "Bool"
         },
         {
           "name": "require_image",
-          "ordinal": 21,
+          "ordinal": 20,
           "type_info": "Bool"
         },
         {
           "name": "older_than",
-          "ordinal": 22,
+          "ordinal": 21,
           "type_info": "Int8"
         },
         {
           "name": "newer_than",
-          "ordinal": 23,
+          "ordinal": 22,
           "type_info": "Int8"
         },
         {
           "name": "enabled",
-          "ordinal": 24,
+          "ordinal": 23,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_upvote",
-          "ordinal": 25,
+          "ordinal": 24,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_downvote",
-          "ordinal": 26,
+          "ordinal": 25,
           "type_info": "Bool"
         },
         {
           "name": "remove_invalid_reactions",
-          "ordinal": 27,
+          "ordinal": 26,
           "type_info": "Bool"
         },
         {
           "name": "link_deletes",
-          "ordinal": 28,
+          "ordinal": 27,
           "type_info": "Bool"
         },
         {
           "name": "link_edits",
-          "ordinal": 29,
+          "ordinal": 28,
           "type_info": "Bool"
         },
         {
           "name": "private",
-          "ordinal": 30,
+          "ordinal": 29,
           "type_info": "Bool"
         },
         {
           "name": "xp_multiplier",
-          "ordinal": 31,
+          "ordinal": 30,
           "type_info": "Float4"
         },
         {
           "name": "cooldown_enabled",
-          "ordinal": 32,
+          "ordinal": 31,
           "type_info": "Bool"
         },
         {
           "name": "cooldown_count",
-          "ordinal": 33,
+          "ordinal": 32,
           "type_info": "Int2"
         },
         {
           "name": "cooldown_period",
-          "ordinal": 34,
+          "ordinal": 33,
           "type_info": "Int2"
         },
         {
           "name": "exclusive_group",
-          "ordinal": 35,
+          "ordinal": 34,
           "type_info": "Int4"
         },
         {
           "name": "exclusive_group_priority",
-          "ordinal": 36,
+          "ordinal": 35,
           "type_info": "Int2"
         },
         {
           "name": "on_delete",
+          "ordinal": 36,
+          "type_info": "Int2"
+        },
+        {
+          "name": "go_to_message",
           "ordinal": 37,
           "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 38,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 39,
+          "type_info": "Text"
         }
       ],
       "nullable": [
@@ -3212,10 +3270,12 @@
         false,
         false,
         false,
-        false,
         true,
         false,
-        false
+        false,
+        false,
+        true,
+        true
       ],
       "parameters": {
         "Left": [
@@ -4310,134 +4370,144 @@
           "type_info": "Int4"
         },
         {
-          "name": "jump_to_message",
+          "name": "attachments_list",
           "ordinal": 12,
           "type_info": "Bool"
         },
         {
-          "name": "attachments_list",
+          "name": "replied_to",
           "ordinal": 13,
           "type_info": "Bool"
         },
         {
-          "name": "replied_to",
-          "ordinal": 14,
-          "type_info": "Bool"
-        },
-        {
           "name": "required",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Int2"
         },
         {
           "name": "required_remove",
-          "ordinal": 16,
+          "ordinal": 15,
           "type_info": "Int2"
         },
         {
           "name": "upvote_emojis",
-          "ordinal": 17,
+          "ordinal": 16,
           "type_info": "TextArray"
         },
         {
           "name": "downvote_emojis",
-          "ordinal": 18,
+          "ordinal": 17,
           "type_info": "TextArray"
         },
         {
           "name": "self_vote",
-          "ordinal": 19,
+          "ordinal": 18,
           "type_info": "Bool"
         },
         {
           "name": "allow_bots",
-          "ordinal": 20,
+          "ordinal": 19,
           "type_info": "Bool"
         },
         {
           "name": "require_image",
-          "ordinal": 21,
+          "ordinal": 20,
           "type_info": "Bool"
         },
         {
           "name": "older_than",
-          "ordinal": 22,
+          "ordinal": 21,
           "type_info": "Int8"
         },
         {
           "name": "newer_than",
-          "ordinal": 23,
+          "ordinal": 22,
           "type_info": "Int8"
         },
         {
           "name": "enabled",
-          "ordinal": 24,
+          "ordinal": 23,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_upvote",
-          "ordinal": 25,
+          "ordinal": 24,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_downvote",
-          "ordinal": 26,
+          "ordinal": 25,
           "type_info": "Bool"
         },
         {
           "name": "remove_invalid_reactions",
-          "ordinal": 27,
+          "ordinal": 26,
           "type_info": "Bool"
         },
         {
           "name": "link_deletes",
-          "ordinal": 28,
+          "ordinal": 27,
           "type_info": "Bool"
         },
         {
           "name": "link_edits",
-          "ordinal": 29,
+          "ordinal": 28,
           "type_info": "Bool"
         },
         {
           "name": "private",
-          "ordinal": 30,
+          "ordinal": 29,
           "type_info": "Bool"
         },
         {
           "name": "xp_multiplier",
-          "ordinal": 31,
+          "ordinal": 30,
           "type_info": "Float4"
         },
         {
           "name": "cooldown_enabled",
-          "ordinal": 32,
+          "ordinal": 31,
           "type_info": "Bool"
         },
         {
           "name": "cooldown_count",
-          "ordinal": 33,
+          "ordinal": 32,
           "type_info": "Int2"
         },
         {
           "name": "cooldown_period",
-          "ordinal": 34,
+          "ordinal": 33,
           "type_info": "Int2"
         },
         {
           "name": "exclusive_group",
-          "ordinal": 35,
+          "ordinal": 34,
           "type_info": "Int4"
         },
         {
           "name": "exclusive_group_priority",
-          "ordinal": 36,
+          "ordinal": 35,
           "type_info": "Int2"
         },
         {
           "name": "on_delete",
+          "ordinal": 36,
+          "type_info": "Int2"
+        },
+        {
+          "name": "go_to_message",
           "ordinal": 37,
           "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 38,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 39,
+          "type_info": "Text"
         }
       ],
       "nullable": [
@@ -4475,10 +4545,12 @@
         false,
         false,
         false,
-        false,
         true,
         false,
-        false
+        false,
+        false,
+        true,
+        true
       ],
       "parameters": {
         "Left": [
@@ -4853,134 +4925,144 @@
           "type_info": "Int4"
         },
         {
-          "name": "jump_to_message",
+          "name": "attachments_list",
           "ordinal": 12,
           "type_info": "Bool"
         },
         {
-          "name": "attachments_list",
+          "name": "replied_to",
           "ordinal": 13,
           "type_info": "Bool"
         },
         {
-          "name": "replied_to",
-          "ordinal": 14,
-          "type_info": "Bool"
-        },
-        {
           "name": "required",
-          "ordinal": 15,
+          "ordinal": 14,
           "type_info": "Int2"
         },
         {
           "name": "required_remove",
-          "ordinal": 16,
+          "ordinal": 15,
           "type_info": "Int2"
         },
         {
           "name": "upvote_emojis",
-          "ordinal": 17,
+          "ordinal": 16,
           "type_info": "TextArray"
         },
         {
           "name": "downvote_emojis",
-          "ordinal": 18,
+          "ordinal": 17,
           "type_info": "TextArray"
         },
         {
           "name": "self_vote",
-          "ordinal": 19,
+          "ordinal": 18,
           "type_info": "Bool"
         },
         {
           "name": "allow_bots",
-          "ordinal": 20,
+          "ordinal": 19,
           "type_info": "Bool"
         },
         {
           "name": "require_image",
-          "ordinal": 21,
+          "ordinal": 20,
           "type_info": "Bool"
         },
         {
           "name": "older_than",
-          "ordinal": 22,
+          "ordinal": 21,
           "type_info": "Int8"
         },
         {
           "name": "newer_than",
-          "ordinal": 23,
+          "ordinal": 22,
           "type_info": "Int8"
         },
         {
           "name": "enabled",
-          "ordinal": 24,
+          "ordinal": 23,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_upvote",
-          "ordinal": 25,
+          "ordinal": 24,
           "type_info": "Bool"
         },
         {
           "name": "autoreact_downvote",
-          "ordinal": 26,
+          "ordinal": 25,
           "type_info": "Bool"
         },
         {
           "name": "remove_invalid_reactions",
-          "ordinal": 27,
+          "ordinal": 26,
           "type_info": "Bool"
         },
         {
           "name": "link_deletes",
-          "ordinal": 28,
+          "ordinal": 27,
           "type_info": "Bool"
         },
         {
           "name": "link_edits",
-          "ordinal": 29,
+          "ordinal": 28,
           "type_info": "Bool"
         },
         {
           "name": "private",
-          "ordinal": 30,
+          "ordinal": 29,
           "type_info": "Bool"
         },
         {
           "name": "xp_multiplier",
-          "ordinal": 31,
+          "ordinal": 30,
           "type_info": "Float4"
         },
         {
           "name": "cooldown_enabled",
-          "ordinal": 32,
+          "ordinal": 31,
           "type_info": "Bool"
         },
         {
           "name": "cooldown_count",
-          "ordinal": 33,
+          "ordinal": 32,
           "type_info": "Int2"
         },
         {
           "name": "cooldown_period",
-          "ordinal": 34,
+          "ordinal": 33,
           "type_info": "Int2"
         },
         {
           "name": "exclusive_group",
-          "ordinal": 35,
+          "ordinal": 34,
           "type_info": "Int4"
         },
         {
           "name": "exclusive_group_priority",
-          "ordinal": 36,
+          "ordinal": 35,
           "type_info": "Int2"
         },
         {
           "name": "on_delete",
+          "ordinal": 36,
+          "type_info": "Int2"
+        },
+        {
+          "name": "go_to_message",
           "ordinal": 37,
           "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 38,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 39,
+          "type_info": "Text"
         }
       ],
       "nullable": [
@@ -5018,10 +5100,12 @@
         false,
         false,
         false,
-        false,
         true,
         false,
-        false
+        false,
+        false,
+        true,
+        true
       ],
       "parameters": {
         "Left": [
