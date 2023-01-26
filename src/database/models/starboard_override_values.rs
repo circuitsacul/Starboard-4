@@ -25,7 +25,7 @@ pub struct OverrideValues {
     // Embed Style
     #[serde(deserialize_with = "null_to_some_none", default)]
     pub color: Option<Option<i32>>,
-    pub jump_to_message: Option<bool>,
+    pub go_to_message: Option<i16>,
     pub attachments_list: Option<bool>,
     pub replied_to: Option<bool>,
 

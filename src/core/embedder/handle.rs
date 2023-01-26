@@ -94,7 +94,8 @@ impl Embedder {
                         .http
                         .execute_webhook(wh.id, wh.token.as_ref().unwrap())
                         .content(&built.top_content)?
-                        .embeds(&built.embeds)?;
+                        .embeds(&built.embeds)?
+                        .components(&built.components)?;
 
                     if let Some(attachments) = &attachments {
                         ret = ret.attachments(attachments)?;
@@ -132,7 +133,8 @@ impl Embedder {
                 .create_forum_thread(sb_channel_id, &name)
                 .message()
                 .content(&built.top_content)?
-                .embeds(&built.embeds)?;
+                .embeds(&built.embeds)?
+                .components(&built.components)?;
 
             if let Some(attachments) = &attachments {
                 ret = ret.attachments(attachments)?;
@@ -144,7 +146,8 @@ impl Embedder {
                 .http
                 .create_message(self.config.starboard.channel_id.into_id())
                 .content(&built.top_content)?
-                .embeds(&built.embeds)?;
+                .embeds(&built.embeds)?
+                .components(&built.components)?;
 
             if let Some(attachments) = &attachments {
                 ret = ret.attachments(attachments)?;
@@ -207,7 +210,8 @@ impl Embedder {
                         .http
                         .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
                         .content(Some(&built.top_content))?
-                        .embeds(Some(&built.embeds))?;
+                        .embeds(Some(&built.embeds))?
+                        .components(Some(&built.components))?;
 
                     if is_thread || is_forum {
                         ud = ud.thread_id(real_channel_id);
@@ -219,6 +223,7 @@ impl Embedder {
                         .update_message(real_channel_id, message_id)
                         .content(Some(&built.top_content))?
                         .embeds(Some(&built.embeds))?
+                        .components(Some(&built.components))?
                         .await?;
                 }
             }

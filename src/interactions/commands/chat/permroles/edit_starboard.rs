@@ -6,7 +6,7 @@ use crate::{
     database::{PermRoleStarboard, Starboard},
     errors::StarboardResult,
     get_guild_id,
-    interactions::{commands::tribool::Tribool, context::CommandCtx},
+    interactions::{commands::choices::tribool::Tribool, context::CommandCtx},
     utils::id_as_i64::GetI64,
 };
 

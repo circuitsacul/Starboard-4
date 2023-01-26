@@ -9,7 +9,7 @@ pub struct StarboardSettings {
 
     // Embed Style
     pub color: Option<i32>,
-    pub jump_to_message: bool,
+    pub go_to_message: i16,
     pub attachments_list: bool,
     pub replied_to: bool,
 

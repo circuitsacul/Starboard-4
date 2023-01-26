@@ -20,9 +20,6 @@ pub struct EditEmbedStyle {
 
     /// The color of the embeds. Use 'none' for default.
     color: Option<String>,
-    /// Whether to include the "Go to Message" link.
-    #[command(rename = "jump-to-message")]
-    jump_to_message: Option<bool>,
     /// Whether to include a list of attachments.
     #[command(rename = "attachments-list")]
     attachments_list: Option<bool>,
@@ -58,9 +55,6 @@ impl EditEmbedStyle {
                     }
                 }
             }
-        }
-        if let Some(val) = self.jump_to_message {
-            settings.jump_to_message = Some(val);
         }
         if let Some(val) = self.attachments_list {
             settings.attachments_list = Some(val);

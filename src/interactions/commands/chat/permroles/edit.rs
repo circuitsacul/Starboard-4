@@ -5,7 +5,7 @@ use twilight_model::guild::Role;
 use crate::{
     database::PermRole,
     errors::StarboardResult,
-    interactions::{commands::tribool::Tribool, context::CommandCtx},
+    interactions::{commands::choices::tribool::Tribool, context::CommandCtx},
     utils::id_as_i64::GetI64,
 };
 

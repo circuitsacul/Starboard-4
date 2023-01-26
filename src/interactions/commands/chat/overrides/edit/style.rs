@@ -5,7 +5,7 @@ use crate::{
     database::StarboardOverride,
     errors::StarboardResult,
     get_guild_id,
-    interactions::context::CommandCtx,
+    interactions::{commands::choices::go_to_message::GoToMessage, context::CommandCtx},
     utils::id_as_i64::GetI64,
 };
 
@@ -28,6 +28,9 @@ pub struct EditGeneralStyle {
     /// Whether to include extra embeds that were on the original message.
     #[command(rename = "extra-embeds")]
     extra_embeds: Option<bool>,
+    /// Where to put the "Go to Message" link.
+    #[command(rename = "go-to-message")]
+    go_to_message: Option<GoToMessage>,
     /// Whether to use a webhook for starboard messages.
     #[command(rename = "use-webhook")]
     use_webhook: Option<bool>,
@@ -71,6 +74,9 @@ impl EditGeneralStyle {
         }
         if let Some(val) = self.extra_embeds {
             settings.extra_embeds = Some(val);
+        }
+        if let Some(val) = self.go_to_message {
+            settings.go_to_message = Some(val.value() as i16);
         }
         if let Some(val) = self.use_webhook {
             settings.use_webhook = Some(val);

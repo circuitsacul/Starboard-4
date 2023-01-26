@@ -7,7 +7,7 @@ use crate::{
     },
     errors::StarboardResult,
     get_guild_id,
-    interactions::{commands::on_delete_enum::OnDelete, context::CommandCtx},
+    interactions::{commands::choices::on_delete::OnDelete, context::CommandCtx},
     utils::id_as_i64::GetI64,
 };
 
