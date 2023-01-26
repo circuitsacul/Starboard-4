@@ -157,7 +157,7 @@ async fn scrolling_paginator(
             continue;
         };
 
-        let built = embedder.build(false, false).await?;
+        let built = embedder.build(false, false, false).await?;
         let BuiltStarboardEmbed::Full(built) = built else {
             unreachable!("didn't get full embed");
         };

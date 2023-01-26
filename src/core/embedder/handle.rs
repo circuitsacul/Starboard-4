@@ -29,9 +29,10 @@ impl Embedder {
     pub async fn build(
         &self,
         force_partial: bool,
+        files_uploaded: bool,
         watermark: bool,
     ) -> StarboardResult<BuiltStarboardEmbed> {
-        BuiltStarboardEmbed::build(self, force_partial, watermark).await
+        BuiltStarboardEmbed::build(self, force_partial, files_uploaded, watermark).await
     }
 
     pub async fn send(
@@ -44,7 +45,7 @@ impl Embedder {
         let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
 
         let built = match self
-            .build(false, self.config.resolved.use_webhook && !is_prem)
+            .build(false, is_prem, self.config.resolved.use_webhook && !is_prem)
             .await?
         {
             BuiltStarboardEmbed::Full(built) => built,
@@ -203,7 +204,10 @@ impl Embedder {
 
         let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
 
-        match self.build(force_partial, wh.is_some() && !is_prem).await? {
+        match self
+            .build(force_partial, is_prem, wh.is_some() && !is_prem)
+            .await?
+        {
             BuiltStarboardEmbed::Full(built) => {
                 if let Some(wh) = wh {
                     let mut ud = bot

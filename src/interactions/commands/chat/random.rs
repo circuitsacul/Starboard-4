@@ -201,7 +201,7 @@ impl RandomPost {
             .await?
             .unwrap();
 
-        let built = embedder.build(false, false).await?;
+        let built = embedder.build(false, false, false).await?;
         let built = match built {
             BuiltStarboardEmbed::Partial(_) => unreachable!("didn't get full embed"),
             BuiltStarboardEmbed::Full(built) => built,

@@ -15,14 +15,19 @@ use super::{
 
 pub type StickerNames = String;
 pub type PrimaryImage = ImageSource;
-pub type UrlList = Vec<String>;
 pub type Embeds = Vec<Embed>;
 pub type UploadAttachments = Vec<AttachmentHandle>;
+
+#[derive(Default)]
+pub struct AttachmentUrls {
+    pub embedded: Vec<String>,
+    pub uploaded: Vec<String>,
+}
 
 pub struct ParsedMessage {
     pub sticker_names_str: Option<String>,
     // attachments
-    pub url_list: Vec<String>,
+    pub urls: AttachmentUrls,
     pub primary_image: Option<ImageSource>,
     pub embeds: Vec<Embed>,
     pub upload_attachments: Vec<AttachmentHandle>,
@@ -36,7 +41,7 @@ impl ParsedMessage {
         Self {
             sticker_names_str,
             primary_image,
-            url_list,
+            urls: url_list,
             embeds,
             upload_attachments,
         }
@@ -47,29 +52,31 @@ impl ParsedMessage {
     ) -> (
         Option<StickerNames>,
         Option<PrimaryImage>,
-        UrlList,
+        AttachmentUrls,
         Embeds,
         UploadAttachments,
     ) {
         let mut primary_image = None;
         let mut embeds = Vec::new();
         let mut upload_attachments = Vec::new();
-        let mut url_list = Vec::new();
+        let mut urls = AttachmentUrls::default();
 
         for attachment in &orig.attachments {
             let handle = AttachmentHandle::from_attachment(attachment);
-            url_list.push(handle.url_list_item());
 
             if primary_image.is_none() {
                 if let Some(image) = handle.embedable_image() {
+                    urls.embedded.push(handle.url_list_item());
                     primary_image.replace(image);
                     continue;
                 }
             } else if let Some(embed) = handle.as_embed() {
+                urls.embedded.push(handle.url_list_item());
                 embeds.push(embed);
                 continue;
             }
 
+            urls.uploaded.push(handle.url_list_item());
             upload_attachments.push(handle);
         }
 
@@ -173,7 +180,7 @@ impl ParsedMessage {
         (
             sticker_names_str,
             primary_image,
-            url_list,
+            urls,
             embeds,
             upload_attachments,
         )
