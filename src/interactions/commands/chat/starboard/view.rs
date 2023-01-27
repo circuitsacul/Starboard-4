@@ -1,15 +1,24 @@
 use std::fmt::Write;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
-use twilight_util::builder::embed::{EmbedFieldBuilder, EmbedFooterBuilder};
+use twilight_model::{
+    channel::message::Embed,
+    id::{marker::GuildMarker, Id},
+};
+use twilight_util::builder::embed::EmbedFieldBuilder;
 
 use crate::{
+    client::bot::StarboardBot,
     core::starboard::config::StarboardConfig,
     database::Starboard,
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::format_settings::format_settings, context::CommandCtx},
-    utils::{embed, id_as_i64::GetI64},
+    utils::{
+        embed,
+        id_as_i64::GetI64,
+        views::select_paginator::{SelectPaginatorBuilder, SelectPaginatorPageBuilder},
+    },
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -23,93 +32,89 @@ pub struct ViewStarboard {
 impl ViewStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
+        let bot = ctx.bot.clone();
 
-        if let Some(name) = self.name {
-            let starboard =
-                Starboard::get_by_name(&ctx.bot.pool, &name, guild_id.get_i64()).await?;
-
-            if let Some(starboard) = starboard {
-                let config = StarboardConfig::new(starboard, &[], vec![])?;
-                let pretty = format_settings(&ctx.bot, guild_id, &config).await?;
-
-                let mut desc = String::new();
-                if config.starboard.premium_locked {
-                    desc.push_str(concat!(
-                        "This starboard is locked because it exceeds the non-premium limit.\n\n"
-                    ));
-                }
-                write!(
-                    desc,
-                    "This starboard is in <#{}>.",
-                    config.starboard.channel_id
-                )
-                .unwrap();
-
-                let embed = embed::build()
-                    .title(format!("Starboard '{}'", &config.starboard.name))
-                    .description(desc)
-                    .field(
-                        EmbedFieldBuilder::new("Requirements", pretty.requirements)
-                            .inline()
-                            .build(),
-                    )
-                    .field(
-                        EmbedFieldBuilder::new("Behaviour", pretty.behavior)
-                            .inline()
-                            .build(),
-                    )
-                    .field(
-                        EmbedFieldBuilder::new("Style", pretty.style)
-                            .inline()
-                            .build(),
-                    )
-                    .field(
-                        EmbedFieldBuilder::new("Embed Style", pretty.embed)
-                            .inline()
-                            .build(),
-                    )
-                    .field(EmbedFieldBuilder::new("Regex Matching", pretty.regex).build())
-                    .build();
-
-                ctx.respond(ctx.build_resp().embeds([embed]).build())
-                    .await?;
-            } else {
-                ctx.respond_str("No starboard with that name was found.", true)
-                    .await?;
-            }
-        } else {
-            let starboards = Starboard::list_by_guild(&ctx.bot.pool, guild_id.get_i64()).await?;
-            if starboards.is_empty() {
-                ctx.respond_str("This server has no starboards.", true)
-                    .await?;
-            } else {
-                let mut final_result = String::new();
-
-                for sb in starboards {
-                    write!(final_result, "'{}' in <#{}>", sb.name, sb.channel_id).unwrap();
-                    if sb.premium_locked {
-                        write!(final_result, " (premium-locked)").unwrap();
-                    }
-                    writeln!(final_result).unwrap();
-                }
-
-                let embed = embed::build()
-                    .title("Starboards")
-                    .description(final_result)
-                    .footer(
-                        EmbedFooterBuilder::new(concat!(
-                            "Run '/starboards view' with a specific starboard ",
-                            "name to show all its settings"
-                        ))
-                        .build(),
-                    )
-                    .build();
-
-                ctx.respond(ctx.build_resp().embeds([embed]).build())
-                    .await?;
-            }
+        let starboards = Starboard::list_by_guild(&ctx.bot.pool, guild_id.get_i64()).await?;
+        if starboards.is_empty() {
+            ctx.respond_str("This server has no starboards.", true)
+                .await?;
+            return Ok(());
         }
+
+        let mut paginator = SelectPaginatorBuilder::new(ctx);
+
+        let mut current = None;
+        for (idx, sb) in starboards.into_iter().enumerate() {
+            if self.name.as_ref() == Some(&sb.name) {
+                current = Some(idx);
+            }
+
+            let mut label = format!("Starboard '{}'", sb.name);
+            if sb.premium_locked {
+                label.push_str(" (premium-locked)");
+            }
+
+            let page = SelectPaginatorPageBuilder::new(label.clone())
+                .add_embed(starboard_embed(&bot, guild_id, sb).await?);
+            paginator = paginator.add_page(page);
+        }
+
+        if let Some(current) = current {
+            paginator = paginator.current(current);
+        }
+
+        paginator.build().run().await?;
 
         Ok(())
     }
+}
+
+async fn starboard_embed(
+    bot: &StarboardBot,
+    guild_id: Id<GuildMarker>,
+    starboard: Starboard,
+) -> StarboardResult<Embed> {
+    let config = StarboardConfig::new(starboard, &[], vec![])?;
+    let pretty = format_settings(bot, guild_id, &config).await?;
+
+    let mut desc = String::new();
+    if config.starboard.premium_locked {
+        desc.push_str(concat!(
+            "This starboard is locked because it exceeds the non-premium limit.\n\n"
+        ));
+    }
+    write!(
+        desc,
+        "This starboard is in <#{}>.",
+        config.starboard.channel_id
+    )
+    .unwrap();
+
+    let embed = embed::build()
+        .title(format!("Starboard '{}'", &config.starboard.name))
+        .description(desc)
+        .field(
+            EmbedFieldBuilder::new("Requirements", pretty.requirements)
+                .inline()
+                .build(),
+        )
+        .field(
+            EmbedFieldBuilder::new("Behaviour", pretty.behavior)
+                .inline()
+                .build(),
+        )
+        .field(
+            EmbedFieldBuilder::new("Style", pretty.style)
+                .inline()
+                .build(),
+        )
+        .field(
+            EmbedFieldBuilder::new("Embed Style", pretty.embed)
+                .inline()
+                .build(),
+        )
+        .field(EmbedFieldBuilder::new("Regex Matching", pretty.regex).build())
+        .build();
+
+    Ok(embed)
 }

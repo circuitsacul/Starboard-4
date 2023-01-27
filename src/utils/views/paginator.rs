@@ -14,7 +14,7 @@ use crate::{
     interactions::context::{CommandCtx, ComponentCtx},
 };
 
-use super::wait_for::wait_for_button;
+use super::wait_for::wait_for_component;
 
 pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Component> {
     let buttons = vec![
@@ -115,7 +115,7 @@ pub async fn simple(
         }
 
         // wait for interactions
-        btn_ctx = wait_for_button(
+        btn_ctx = wait_for_component(
             ctx.bot.clone(),
             &[
                 "paginator::to_start",

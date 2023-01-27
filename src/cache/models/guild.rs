@@ -5,7 +5,7 @@ use twilight_model::id::{
     Id,
 };
 
-use super::channel::CachedChannel;
+use super::{channel::CachedChannel, role::CachedRole};
 
 pub struct CachedGuild {
     pub name: String,
@@ -13,6 +13,6 @@ pub struct CachedGuild {
     pub emojis: HashMap<Id<EmojiMarker>, bool>,
     /// all textable channels except for threads
     pub channels: HashMap<Id<ChannelMarker>, CachedChannel>,
-    pub role_positions: HashMap<Id<RoleMarker>, i64>,
+    pub roles: HashMap<Id<RoleMarker>, CachedRole>,
     pub active_thread_parents: HashMap<Id<ChannelMarker>, Id<ChannelMarker>>,
 }

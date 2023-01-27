@@ -93,7 +93,7 @@ impl SortVecPermRole for Vec<PermRole> {
                 Some(guild) => guild,
             };
 
-            self.sort_by_key(|pr| guild.role_positions.get(&pr.role_id.into_id()));
+            self.sort_by_key(|pr| guild.roles.get(&pr.role_id.into_id()).map(|r| r.position));
         })
     }
 }

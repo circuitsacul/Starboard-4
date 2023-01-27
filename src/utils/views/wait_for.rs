@@ -10,7 +10,7 @@ use twilight_model::{
 
 use crate::{client::bot::StarboardBot, interactions::context::ComponentCtx};
 
-pub async fn wait_for_button(
+pub async fn wait_for_component(
     bot: Arc<StarboardBot>,
     button_ids: &'static [&'static str],
     message_id: Id<MessageMarker>,
