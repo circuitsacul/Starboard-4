@@ -37,7 +37,8 @@ pub const MAX_STORED_AUTO_DELETES: u64 = 1_000;
 
 // Cooldowns
 pub const AUTOSTAR_COOLDOWN: (u64, Duration) = (5, Duration::from_secs(20));
-pub const MESSAGE_EDIT: (u64, Duration) = (2, Duration::from_secs(10));
+pub const PREM_AUTOSTAR_COOLDOWN: (u64, Duration) = (100, Duration::from_secs(10));
+pub const MESSAGE_EDIT: (u64, Duration) = (4, Duration::from_secs(10));
 pub const XP_REFRESH: (u64, Duration) = (1, Duration::from_secs(60 * 10));
 pub const VOTE_RECOUNT: (u64, Duration) = (5, Duration::from_secs(30));
 

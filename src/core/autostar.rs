@@ -1,7 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use twilight_model::id::{
-    marker::{ChannelMarker, MessageMarker},
+    marker::{ChannelMarker, GuildMarker, MessageMarker},
     Id,
 };
 
@@ -14,10 +14,11 @@ use crate::{
     utils::{id_as_i64::GetI64, notify},
 };
 
-use super::has_image::has_image;
+use super::{has_image::has_image, premium::is_premium::is_guild_premium};
 
 pub async fn handle(
     bot: &StarboardBot,
+    guild_id: Id<GuildMarker>,
     autostar_channel_id: Id<ChannelMarker>,
     channel_id: Id<ChannelMarker>,
     message_id: Id<MessageMarker>,
@@ -33,12 +34,16 @@ pub async fn handle(
     }
 
     // Check cooldown
-    if bot
-        .cooldowns
-        .autostar_send
-        .trigger(&autostar_channel_id)
-        .is_some()
-    {
+    if is_guild_premium(bot, guild_id.get_i64()).await? {
+        if bot
+            .cooldowns
+            .prem_autostar_send
+            .trigger(&guild_id)
+            .is_some()
+        {
+            return Ok(());
+        }
+    } else if bot.cooldowns.autostar_send.trigger(&guild_id).is_some() {
         return Ok(());
     }
 
