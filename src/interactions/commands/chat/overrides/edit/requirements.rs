@@ -27,10 +27,10 @@ pub struct EditRequirements {
     name: String,
 
     /// The number of upvotes a message needs.
-    #[command(min_value=-1, max_value=500)]
+    #[command(min_value=-1, max_value=10_000)]
     required: Option<i64>,
     /// If a message is already on the starboard, how few points the message can have before it is removed.
-    #[command(rename="required-remove", min_value=-500, max_value=490)]
+    #[command(rename="required-remove", min_value=-10_000, max_value=9_999)]
     required_remove: Option<i64>,
     /// The emojis that can be used to upvote a post. Use 'none' to remove all.
     #[command(rename = "upvote-emojis")]
