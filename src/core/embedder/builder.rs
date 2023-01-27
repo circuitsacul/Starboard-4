@@ -176,7 +176,6 @@ impl BuiltStarboardEmbed {
         watermark: bool,
         is_reply: bool,
     ) -> StarboardResult<Option<Embed>> {
-        let mut embed_is_empty = true;
         let mut zws_fields: Vec<String> = Vec::new();
         let color = if is_reply {
             constants::EMBED_DARK_BG
@@ -282,7 +281,6 @@ impl BuiltStarboardEmbed {
         let mut has_description;
         if !description.is_empty() {
             embed = embed.description(description);
-            embed_is_empty = false;
             has_description = true;
         } else {
             has_description = false;
@@ -290,7 +288,6 @@ impl BuiltStarboardEmbed {
 
         // jump link
         if handle.config.resolved.go_to_message == 1 && !is_reply {
-            embed_is_empty = false;
             zws_fields.push(format!("[Go to Message]({link})"));
         }
 
@@ -317,12 +314,10 @@ impl BuiltStarboardEmbed {
             }
 
             zws_fields.push(field);
-            embed_is_empty = false;
         }
 
         // primary image
         if let Some(image) = &parsed.primary_image {
-            embed_is_empty = false;
             embed = embed.image(image.clone());
         }
 
@@ -342,11 +337,6 @@ impl BuiltStarboardEmbed {
         // watermark footer
         if watermark {
             embed = embed.footer(EmbedFooterBuilder::new("Powered by https://starboard.best"));
-        }
-
-        // placeholder content, if needed
-        if embed_is_empty {
-            embed = embed.description("*file only*");
         }
 
         // build
