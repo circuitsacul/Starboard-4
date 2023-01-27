@@ -17,7 +17,7 @@ use crate::{
     interactions::context::{CommandCtx, ComponentCtx},
 };
 
-use super::wait_for::wait_for_button;
+use super::wait_for::wait_for_component;
 
 pub fn components(danger: bool) -> Vec<Component> {
     let buttons = vec![
@@ -55,7 +55,7 @@ pub async fn wait_for_result(
     message_id: Id<MessageMarker>,
     user_id: Id<UserMarker>,
 ) -> Option<(ComponentCtx, bool)> {
-    let btn_ctx = wait_for_button(
+    let btn_ctx = wait_for_component(
         bot,
         &["confirm::yes", "confirm::no"],
         message_id,

@@ -14,7 +14,7 @@ pub fn get_deleted_roles(
     let to_delete = bot.cache.guilds.with(&guild_id, |_, guild| {
         let guild = guild.as_ref().unwrap();
         role_ids
-            .filter(|r| !guild.role_positions.contains_key(r))
+            .filter(|r| !guild.roles.contains_key(r))
             .collect::<Vec<_>>()
     });
 

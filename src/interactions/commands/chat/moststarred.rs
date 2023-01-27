@@ -19,7 +19,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::{CommandCtx, ComponentCtx},
-    utils::{id_as_i64::GetI64, views::wait_for::wait_for_button},
+    utils::{id_as_i64::GetI64, views::wait_for::wait_for_component},
 };
 
 use super::random::{get_config, get_embedder, get_post_query};
@@ -178,7 +178,7 @@ async fn scrolling_paginator(
         }
 
         // wait for component interaction
-        btn_ctx = wait_for_button(
+        btn_ctx = wait_for_component(
             ctx.bot.clone(),
             &["moststarred_scroller::next"],
             message_id.unwrap(),

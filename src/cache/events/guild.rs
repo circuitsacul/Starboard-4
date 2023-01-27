@@ -27,10 +27,10 @@ impl UpdateCache for GuildCreate {
                 .iter()
                 .map(|t| (t.id, t.parent_id.unwrap()))
                 .collect(),
-            role_positions: self
+            roles: self
                 .roles
                 .iter()
-                .map(|r| (r.id, r.position))
+                .map(|r| (r.id, r.into()))
                 .collect::<HashMap<_, _>>(),
         };
         cache.guilds.insert(self.id, guild);

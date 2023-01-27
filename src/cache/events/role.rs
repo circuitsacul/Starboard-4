@@ -7,9 +7,7 @@ use crate::cache::{cache_struct::Cache, update::UpdateCache};
 impl UpdateCache for RoleCreate {
     async fn update_cache(&self, cache: &Cache) {
         cache.guilds.alter(&self.guild_id, |_, mut guild| {
-            guild
-                .role_positions
-                .insert(self.role.id, self.role.position);
+            guild.roles.insert(self.role.id, (&self.role).into());
             guild
         })
     }
@@ -19,7 +17,7 @@ impl UpdateCache for RoleCreate {
 impl UpdateCache for RoleDelete {
     async fn update_cache(&self, cache: &Cache) {
         cache.guilds.alter(&self.guild_id, |_, mut guild| {
-            guild.role_positions.remove(&self.role_id);
+            guild.roles.remove(&self.role_id);
             guild
         })
     }
@@ -29,9 +27,7 @@ impl UpdateCache for RoleDelete {
 impl UpdateCache for RoleUpdate {
     async fn update_cache(&self, cache: &Cache) {
         cache.guilds.alter(&self.guild_id, |_, mut guild| {
-            guild
-                .role_positions
-                .insert(self.role.id, self.role.position);
+            guild.roles.insert(self.role.id, (&self.role).into());
             guild
         })
     }

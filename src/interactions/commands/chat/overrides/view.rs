@@ -1,15 +1,22 @@
-use std::fmt::Write;
-
 use twilight_interactions::command::{CommandModel, CreateCommand};
-use twilight_util::builder::embed::{EmbedFieldBuilder, EmbedFooterBuilder};
+use twilight_model::{
+    channel::message::Embed,
+    id::{marker::GuildMarker, Id},
+};
+use twilight_util::builder::embed::EmbedFieldBuilder;
 
 use crate::{
+    client::bot::StarboardBot,
     core::starboard::config::StarboardConfig,
     database::{Starboard, StarboardOverride},
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::format_settings::format_settings, context::CommandCtx},
-    utils::{embed, id_as_i64::GetI64},
+    utils::{
+        embed,
+        id_as_i64::GetI64,
+        views::select_paginator::{SelectPaginatorBuilder, SelectPaginatorPageBuilder},
+    },
 };
 
 #[derive(CreateCommand, CommandModel)]
@@ -24,101 +31,89 @@ impl ViewOverride {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
+        let bot = ctx.bot.clone();
 
-        if let Some(name) = self.name {
-            let ov = StarboardOverride::get(&ctx.bot.pool, guild_id_i64, &name).await?;
-            let ov = match ov {
-                None => {
-                    ctx.respond_str("No override with that name was found.", true)
-                        .await?;
-                    return Ok(());
-                }
-                Some(ov) => ov,
-            };
-            let sb = Starboard::get(&ctx.bot.pool, ov.starboard_id)
-                .await?
-                .unwrap();
-
-            let channels: Vec<_> = ov.channel_ids.iter().map(|id| format!("<#{id}>")).collect();
-            let channels = channels.join(", ");
-            let config = StarboardConfig::new(sb, &[], vec![ov])?;
-            let pretty = format_settings(&ctx.bot, guild_id, &config).await?;
-
-            let embed = embed::build()
-                .title(format!("Override '{}'", &name))
-                .description(format!(
-                    concat!(
-                        "This override belongs to the starboard '{}'.\n\n",
-                        "This override applies to the following channels: {}",
-                    ),
-                    &config.starboard.name, channels,
-                ))
-                .field(
-                    EmbedFieldBuilder::new("Requirements", pretty.requirements)
-                        .inline()
-                        .build(),
-                )
-                .field(
-                    EmbedFieldBuilder::new("Behaviour", pretty.behavior)
-                        .inline()
-                        .build(),
-                )
-                .field(
-                    EmbedFieldBuilder::new("Style", pretty.style)
-                        .inline()
-                        .build(),
-                )
-                .field(
-                    EmbedFieldBuilder::new("Embed Style", pretty.embed)
-                        .inline()
-                        .build(),
-                )
-                .field(EmbedFieldBuilder::new("Regex Matching", pretty.regex).build())
-                .build();
-
-            ctx.respond(ctx.build_resp().embeds([embed]).build())
+        let overrides = StarboardOverride::list_by_guild(&ctx.bot.pool, guild_id_i64).await?;
+        if overrides.is_empty() {
+            ctx.respond_str("This server has no overrides.", true)
                 .await?;
-        } else {
-            let overrides = StarboardOverride::list_by_guild(&ctx.bot.pool, guild_id_i64).await?;
-            if overrides.is_empty() {
-                ctx.respond_str("This server has no overrides.", true)
-                    .await?;
-            } else {
-                let mut final_result = String::new();
-
-                for ov in overrides {
-                    let sb = Starboard::get(&ctx.bot.pool, ov.starboard_id)
-                        .await?
-                        .unwrap();
-
-                    writeln!(
-                        final_result,
-                        "'{}': {} overwritten settings for starboard '{}' in {} channel(s)",
-                        ov.name,
-                        ov.overrides.as_object().unwrap().len(),
-                        sb.name,
-                        ov.channel_ids.len()
-                    )
-                    .unwrap();
-                }
-
-                let embed = embed::build()
-                    .title("Overrides")
-                    .description(final_result)
-                    .footer(
-                        EmbedFooterBuilder::new(concat!(
-                            "Run '/overrides view' with a specific override's ",
-                            "name to show all its settings"
-                        ))
-                        .build(),
-                    )
-                    .build();
-
-                ctx.respond(ctx.build_resp().embeds([embed]).build())
-                    .await?;
-            }
+            return Ok(());
         }
+
+        let mut paginator = SelectPaginatorBuilder::new(ctx);
+        let mut current = 0;
+
+        for (idx, ov) in overrides.into_iter().enumerate() {
+            if self.name.as_ref() == Some(&ov.name) {
+                current = idx;
+            }
+
+            let sb = Starboard::get(&bot.pool, ov.starboard_id).await?.unwrap();
+
+            let label = ov.name.clone();
+            let description = format!(
+                "{} overwritten settings for starboard '{}' in {} channel(s)",
+                ov.overrides.as_object().unwrap().len(),
+                sb.name,
+                ov.channel_ids.len(),
+            );
+
+            let page = SelectPaginatorPageBuilder::new(label)
+                .description(description)
+                .add_embed(override_embed(&bot, guild_id, ov).await?);
+            paginator = paginator.add_page(page);
+        }
+
+        paginator.current(current).build().run().await?;
 
         Ok(())
     }
+}
+
+async fn override_embed(
+    bot: &StarboardBot,
+    guild_id: Id<GuildMarker>,
+    ov: StarboardOverride,
+) -> StarboardResult<Embed> {
+    let name = ov.name.clone();
+    let sb = Starboard::get(&bot.pool, ov.starboard_id).await?.unwrap();
+
+    let channels: Vec<_> = ov.channel_ids.iter().map(|id| format!("<#{id}>")).collect();
+    let channels = channels.join(", ");
+    let config = StarboardConfig::new(sb, &[], vec![ov])?;
+    let pretty = format_settings(bot, guild_id, &config).await?;
+
+    let embed = embed::build()
+        .title(format!("Override '{name}'"))
+        .description(format!(
+            concat!(
+                "This override belongs to the starboard '{}'.\n\n",
+                "This override applies to the following channels: {}",
+            ),
+            &config.starboard.name, channels,
+        ))
+        .field(
+            EmbedFieldBuilder::new("Requirements", pretty.requirements)
+                .inline()
+                .build(),
+        )
+        .field(
+            EmbedFieldBuilder::new("Behaviour", pretty.behavior)
+                .inline()
+                .build(),
+        )
+        .field(
+            EmbedFieldBuilder::new("Style", pretty.style)
+                .inline()
+                .build(),
+        )
+        .field(
+            EmbedFieldBuilder::new("Embed Style", pretty.embed)
+                .inline()
+                .build(),
+        )
+        .field(EmbedFieldBuilder::new("Regex Matching", pretty.regex).build())
+        .build();
+
+    Ok(embed)
 }
