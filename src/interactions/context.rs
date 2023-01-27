@@ -6,7 +6,10 @@ use twilight_model::{
         application_command::CommandData, message_component::MessageComponentInteractionData,
         Interaction,
     },
-    channel::{message::MessageFlags, Message},
+    channel::{
+        message::{AllowedMentions, MessageFlags},
+        Message,
+    },
     http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType},
 };
 use twilight_util::builder::InteractionResponseDataBuilder;
@@ -39,7 +42,7 @@ impl<T> Ctx<T> {
     }
 
     pub fn build_resp(&self) -> InteractionResponseDataBuilder {
-        InteractionResponseDataBuilder::new()
+        InteractionResponseDataBuilder::new().allowed_mentions(AllowedMentions::default())
     }
 
     pub async fn raw_respond(
