@@ -1,4 +1,4 @@
-use std::{hash::Hash, sync::Arc, time::Duration};
+use std::{hash::Hash, sync::Arc};
 
 use dashmap::{DashMap, DashSet};
 use moka::future::Cache as MokaCache;
@@ -16,7 +16,7 @@ use twilight_model::{
 use crate::{
     cache::models::channel::CachedChannel,
     client::bot::StarboardBot,
-    constants::{self, MEMBERS_TTL},
+    constants,
     errors::StarboardResult,
     utils::{
         async_dash::{AsyncDashMap, AsyncDashSet},
@@ -76,15 +76,12 @@ impl From<Option<Arc<CachedMessage>>> for MessageResult {
     }
 }
 
-fn moka_cache<K, V>(capacity: u64, idle: Duration) -> MokaCache<K, V>
+fn moka_cache<K, V>(capacity: u64) -> MokaCache<K, V>
 where
     K: Eq + Hash + Send + Sync + 'static,
     V: Clone + Send + Sync + 'static,
 {
-    MokaCache::builder()
-        .max_capacity(capacity)
-        .time_to_idle(idle)
-        .build()
+    MokaCache::builder().max_capacity(capacity).build()
 }
 
 pub struct Cache {
@@ -110,21 +107,15 @@ impl Cache {
         Self {
             guilds: DashMap::new().into(),
             webhooks: DashMap::new().into(),
-            messages: moka_cache(constants::MAX_MESSAGES, constants::MESSAGES_TTL),
-            users: moka_cache(constants::MAX_USERS, constants::USERS_TTL),
-            members: moka_cache(constants::MAX_MEMBERS, MEMBERS_TTL),
+            messages: moka_cache(constants::MAX_MESSAGES),
+            users: moka_cache(constants::MAX_USERS),
+            members: moka_cache(constants::MAX_MEMBERS),
 
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_vote_emojis: DashMap::new().into(),
 
-            responses: moka_cache(
-                constants::MAX_STORED_RESPONSES,
-                constants::STORED_RESPONSES_TTL,
-            ),
-            auto_deleted_posts: moka_cache(
-                constants::MAX_STORED_AUTO_DELETES,
-                constants::AUTO_DELETES_TTL,
-            ),
+            responses: moka_cache(constants::MAX_STORED_RESPONSES),
+            auto_deleted_posts: moka_cache(constants::MAX_STORED_AUTO_DELETES),
         }
     }
 
