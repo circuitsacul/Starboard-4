@@ -41,7 +41,7 @@ pub struct EditBehavior {
     /// If true, prevents /random and /moststarred from pulling from this starboard.
     private: Option<bool>,
     /// How much XP each upvote on this starboard counts for.
-    #[command(rename = "xp-multiplier", min_value = 10, max_value = 10)]
+    #[command(rename = "xp-multiplier", min_value = -10, max_value = 10)]
     xp_multiplier: Option<f64>,
     /// Whether to enable the per-user vote cooldown.
     #[command(rename = "cooldown-enabled")]
