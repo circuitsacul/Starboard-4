@@ -49,8 +49,15 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
             };
 
             if bot.cache.is_channel_forum(guild_id, parent_id) {
-                core::autostar::handle(&bot, parent_id, event.id, event.id.get().into_id(), None)
-                    .await?;
+                core::autostar::handle(
+                    &bot,
+                    guild_id,
+                    parent_id,
+                    event.id,
+                    event.id.get().into_id(),
+                    None,
+                )
+                .await?;
             }
         }
         Event::MessageCreate(event) => {
@@ -73,9 +80,16 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
             let guild_id = event.guild_id;
             let msg: CachedMessage = event.0.into();
 
-            if guild_id.is_some() {
-                core::autostar::handle(&bot, channel_id, channel_id, message_id, Some(&msg))
-                    .await?;
+            if let Some(guild_id) = guild_id {
+                core::autostar::handle(
+                    &bot,
+                    guild_id,
+                    channel_id,
+                    channel_id,
+                    message_id,
+                    Some(&msg),
+                )
+                .await?;
             }
 
             crate::owner::handle::handle_message(

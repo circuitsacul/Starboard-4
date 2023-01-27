@@ -14,7 +14,8 @@ use super::bot::StarboardBot;
 pub struct Cooldowns {
     cycle_period: Duration,
     // restricts per-channel
-    pub autostar_send: FixedMapping<Id<ChannelMarker>>,
+    pub autostar_send: FixedMapping<Id<GuildMarker>>,
+    pub prem_autostar_send: FixedMapping<Id<GuildMarker>>,
     pub starboard_custom_cooldown: DynamicMapping<(Id<UserMarker>, i32)>,
     pub message_edit: FixedMapping<Id<ChannelMarker>>,
     pub xp_refresh: FixedMapping<(Id<UserMarker>, Id<GuildMarker>)>,
@@ -29,6 +30,10 @@ impl Cooldowns {
             constants::AUTOSTAR_COOLDOWN.0,
             constants::AUTOSTAR_COOLDOWN.1,
         );
+        let prem_autostar_send = FixedMapping::new(
+            constants::PREM_AUTOSTAR_COOLDOWN.0,
+            constants::PREM_AUTOSTAR_COOLDOWN.1,
+        );
         let starboard_custom_cooldown = DynamicMapping::new(cycle_period);
         let message_edit = FixedMapping::new(constants::MESSAGE_EDIT.0, constants::MESSAGE_EDIT.1);
         let xp_refresh = FixedMapping::new(constants::XP_REFRESH.0, constants::XP_REFRESH.1);
@@ -37,6 +42,7 @@ impl Cooldowns {
         Self {
             cycle_period,
             autostar_send,
+            prem_autostar_send,
             starboard_custom_cooldown,
             message_edit,
             xp_refresh,
