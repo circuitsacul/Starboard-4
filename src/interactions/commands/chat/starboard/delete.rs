@@ -1,6 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
+    core::premium::{is_premium::is_guild_premium, locks::refresh_premium_locks},
     database::Starboard,
     errors::StarboardResult,
     get_guild_id,
@@ -36,6 +37,12 @@ impl DeleteStarboard {
         };
 
         let ret = Starboard::delete(&ctx.bot.pool, &self.name, guild_id_i64).await?;
+        refresh_premium_locks(
+            &ctx.bot,
+            guild_id.get_i64(),
+            is_guild_premium(&ctx.bot, guild_id.get_i64(), true).await?,
+        )
+        .await?;
         if ret.is_none() {
             btn_ctx
                 .edit_str("No starboard with that name was found.", true)

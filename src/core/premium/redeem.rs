@@ -7,6 +7,8 @@ use crate::{
     errors::StarboardResult,
 };
 
+use super::{is_premium::is_guild_premium, locks::refresh_premium_locks};
+
 #[derive(PartialEq, Eq)]
 pub enum RedeemPremiumResult {
     Ok,
@@ -82,6 +84,7 @@ pub async fn redeem_premium(
     tx.commit().await?;
 
     bot.cache.guild_premium.remove(&guild_id);
+    refresh_premium_locks(bot, guild_id, is_guild_premium(bot, guild_id, true).await?).await?;
 
     Ok(RedeemPremiumResult::Ok)
 }
