@@ -49,7 +49,7 @@ impl ViewStarboard {
                 current = Some(idx);
             }
 
-            let mut label = format!("Starboard '{}'", sb.name);
+            let mut label = sb.name.clone();
             if sb.premium_locked {
                 label.push_str(" (premium-locked)");
             }
