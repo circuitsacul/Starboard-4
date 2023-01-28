@@ -36,7 +36,7 @@ impl CreateStarboard {
         let channel_id = self.channel.id.get_i64();
 
         let count = Starboard::count_by_guild(&ctx.bot.pool, guild_id).await?;
-        let limit = if is_guild_premium(&ctx.bot, guild_id).await? {
+        let limit = if is_guild_premium(&ctx.bot, guild_id, true).await? {
             constants::MAX_PREM_STARBOARDS
         } else {
             constants::MAX_STARBOARDS

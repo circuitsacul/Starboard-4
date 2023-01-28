@@ -45,7 +45,7 @@ impl CreateAutoStarChannel {
         };
 
         let count = AutoStarChannel::count_by_guild(&ctx.bot.pool, guild_id).await?;
-        let limit = if is_guild_premium(&ctx.bot, guild_id).await? {
+        let limit = if is_guild_premium(&ctx.bot, guild_id, true).await? {
             constants::MAX_PREM_AUTOSTAR
         } else {
             constants::MAX_AUTOSTAR

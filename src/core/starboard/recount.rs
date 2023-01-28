@@ -88,7 +88,7 @@ pub async fn recount_votes(
         }
     }
 
-    let is_premium = is_guild_premium(&bot, guild_id_i64).await?;
+    let is_premium = is_guild_premium(&bot, guild_id_i64, true).await?;
     let mut refresh = RefreshMessage::new(bot.clone(), message_id, is_premium);
     refresh.set_sql_message(orig);
     refresh.refresh(false).await?;

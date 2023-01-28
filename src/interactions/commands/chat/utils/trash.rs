@@ -48,7 +48,7 @@ impl Trash {
             .await?;
         ctx.respond_str("Message trashed.", true).await?;
 
-        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        let is_premium = is_guild_premium(&ctx.bot, guild_id, true).await?;
         RefreshMessage::new(ctx.bot, orig.message_id.into_id(), is_premium)
             .refresh(true)
             .await?;
@@ -86,7 +86,7 @@ impl UnTrash {
 
         DbMessage::set_trashed(&ctx.bot.pool, orig.message_id, false, None).await?;
         ctx.respond_str("Message untrashed.", true).await?;
-        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        let is_premium = is_guild_premium(&ctx.bot, guild_id, true).await?;
         RefreshMessage::new(ctx.bot, orig.message_id.into_id(), is_premium)
             .refresh(true)
             .await?;

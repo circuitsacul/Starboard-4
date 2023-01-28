@@ -69,7 +69,7 @@ async fn process_expired_guild(bot: Arc<StarboardBot>, guild_id_i64: i64) -> Sta
     refresh_premium_locks(
         &bot,
         guild_id_i64,
-        is_guild_premium(&bot, guild_id_i64).await?,
+        is_guild_premium(&bot, guild_id_i64, false).await?,
     )
     .await?;
 

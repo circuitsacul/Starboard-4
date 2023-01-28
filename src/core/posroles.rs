@@ -41,7 +41,7 @@ pub async fn loop_update_posroles(bot: Arc<StarboardBot>) {
 
         let mut tasks = Vec::new();
         for guild in guilds {
-            let is_prem = match is_guild_premium(&bot, guild.guild_id).await {
+            let is_prem = match is_guild_premium(&bot, guild.guild_id, true).await {
                 Ok(is_prem) => is_prem,
                 Err(why) => {
                     bot.handle_error(&why).await;
