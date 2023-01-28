@@ -9,7 +9,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    utils::{embed, id_as_i64::GetI64},
+    utils::{embed, id_as_i64::GetI64, views::paginator},
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -32,23 +32,39 @@ impl View {
             return Ok(());
         }
 
-        let mut desc = String::new();
-        for xpr in posroles {
-            writeln!(
-                desc,
-                "<@&{}> - `{}` members",
-                xpr.role_id,
-                xpr.max_members.separate_with_commas()
-            )
-            .unwrap();
+        let mut embeds = Vec::new();
+
+        for chunk in posroles.chunks(10) {
+            let mut desc = String::new();
+            for xpr in chunk {
+                writeln!(
+                    desc,
+                    "<@&{}> - `{}` members",
+                    xpr.role_id,
+                    xpr.max_members.separate_with_commas()
+                )
+                .unwrap();
+            }
+
+            let emb = embed::build()
+                .title("Position-based Award Roles")
+                .description(desc)
+                .build();
+
+            embeds.push(emb);
         }
 
-        let emb = embed::build()
-            .title("Position-based Award Roles")
-            .description(desc)
-            .build();
-
-        ctx.respond(ctx.build_resp().embeds([emb]).build()).await?;
+        let author_id = ctx.interaction.author_id().unwrap();
+        paginator::simple(
+            &mut ctx,
+            embeds
+                .into_iter()
+                .map(|emb| (None, Some(vec![emb])))
+                .collect(),
+            author_id,
+            false,
+        )
+        .await?;
 
         Ok(())
     }
