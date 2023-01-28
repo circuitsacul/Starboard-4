@@ -62,7 +62,7 @@ impl UnForce {
         }
 
         ctx.respond_str("Message unforced.", true).await?;
-        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        let is_premium = is_guild_premium(&ctx.bot, guild_id, true).await?;
         RefreshMessage::new(ctx.bot, msg.message_id.into_id(), is_premium)
             .refresh(true)
             .await?;

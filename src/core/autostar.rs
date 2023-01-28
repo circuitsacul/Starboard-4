@@ -34,7 +34,7 @@ pub async fn handle(
     }
 
     // Check cooldown
-    if is_guild_premium(bot, guild_id.get_i64()).await? {
+    if is_guild_premium(bot, guild_id.get_i64(), true).await? {
         if bot
             .cooldowns
             .prem_autostar_send

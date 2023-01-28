@@ -130,7 +130,7 @@ pub async fn handle_reaction_add(
                 .await?;
             }
 
-            let is_premium = is_guild_premium(&bot, guild_id.get_i64()).await?;
+            let is_premium = is_guild_premium(&bot, guild_id.get_i64(), true).await?;
             let mut refresh = RefreshMessage::new(bot.clone(), event.message_id, is_premium);
             refresh.set_configs(configs.into_iter().map(Arc::new).collect());
             refresh.set_sql_message(orig_msg);
@@ -181,7 +181,7 @@ pub async fn handle_reaction_remove(
                 Vote::delete(&bot.pool, orig.message_id, config.starboard.id, user_id).await?;
             }
 
-            let is_premim = is_guild_premium(&bot, guild_id.get_i64()).await?;
+            let is_premim = is_guild_premium(&bot, guild_id.get_i64(), true).await?;
             let mut refresh = RefreshMessage::new(bot.clone(), event.message_id, is_premim);
             refresh.set_sql_message(orig);
             refresh.set_configs(configs.into_iter().map(Arc::new).collect());

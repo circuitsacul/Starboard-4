@@ -261,6 +261,7 @@ impl RefreshStarboard {
             orig_message,
             referenced_message: ref_msg,
             orig_sql_message: sql_message,
+            is_premium: self.refresh.is_premium,
         };
 
         let action = get_message_status(

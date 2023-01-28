@@ -82,7 +82,7 @@ impl EditRequirements {
         };
         let mut settings = ov.get_overrides()?;
 
-        let is_prem = is_guild_premium(&ctx.bot, guild_id_i64).await?;
+        let is_prem = is_guild_premium(&ctx.bot, guild_id_i64, true).await?;
 
         if let Some(val) = self.required {
             let val = val as i16;

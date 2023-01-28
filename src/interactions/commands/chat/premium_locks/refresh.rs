@@ -22,7 +22,7 @@ impl Refresh {
         refresh_premium_locks(
             &ctx.bot,
             guild_id,
-            is_guild_premium(&ctx.bot, guild_id).await?,
+            is_guild_premium(&ctx.bot, guild_id, true).await?,
         )
         .await?;
 

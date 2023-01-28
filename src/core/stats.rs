@@ -144,7 +144,7 @@ pub async fn refresh_xp(
 
     DbMember::set_xp(&bot.pool, user_id.get_i64(), guild_id.get_i64(), stats.xp).await?;
 
-    if is_guild_premium(bot, guild_id.get_i64()).await? {
+    if is_guild_premium(bot, guild_id.get_i64(), true).await? {
         refresh_xpr(bot, guild_id, user_id).await?;
     }
 

@@ -24,7 +24,7 @@ impl SetMaxMembers {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
 
-        if !is_guild_premium(&ctx.bot, guild_id).await? {
+        if !is_guild_premium(&ctx.bot, guild_id, true).await? {
             ctx.respond_str("Only premium servers can use this command.", true)
                 .await?;
             return Ok(());

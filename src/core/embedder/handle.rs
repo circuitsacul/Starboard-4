@@ -23,6 +23,7 @@ pub struct Embedder {
     pub orig_message: MessageResult,
     pub orig_sql_message: Arc<DbMessage>,
     pub referenced_message: Option<Arc<CachedMessage>>,
+    pub is_premium: bool,
 }
 
 impl Embedder {
@@ -42,17 +43,19 @@ impl Embedder {
         let guild_id = self.config.starboard.guild_id.into_id();
         let sb_channel_id = self.config.starboard.channel_id.into_id();
 
-        let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
-
         let built = match self
-            .build(false, is_prem, self.config.resolved.use_webhook && !is_prem)
+            .build(
+                false,
+                self.is_premium,
+                self.config.resolved.use_webhook && !self.is_premium,
+            )
             .await?
         {
             BuiltStarboardEmbed::Full(built) => built,
             BuiltStarboardEmbed::Partial(_) => panic!("Tried to send an unbuildable message."),
         };
 
-        let attachments = if is_prem {
+        let attachments = if self.is_premium {
             let (attachments, errors) = built.upload_attachments.as_attachments(bot).await;
             for e in errors {
                 bot.handle_error(&e).await;
@@ -202,7 +205,7 @@ impl Embedder {
             (None, false)
         };
 
-        let is_prem = is_guild_premium(bot, self.config.starboard.guild_id).await?;
+        let is_prem = is_guild_premium(bot, self.config.starboard.guild_id, true).await?;
 
         match self
             .build(force_partial, is_prem, wh.is_some() && !is_prem)

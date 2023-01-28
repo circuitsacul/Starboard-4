@@ -46,7 +46,7 @@ impl Freeze {
             .unwrap();
         ctx.respond_str("Message frozen.", true).await?;
 
-        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        let is_premium = is_guild_premium(&ctx.bot, guild_id, true).await?;
         let mut refresh = RefreshMessage::new(ctx.bot, orig.message_id.into_id(), is_premium);
         refresh.refresh(true).await?;
 
@@ -86,7 +86,7 @@ impl UnFreeze {
             .unwrap();
         ctx.respond_str("Message unfrozen.", true).await?;
 
-        let is_premium = is_guild_premium(&ctx.bot, guild_id).await?;
+        let is_premium = is_guild_premium(&ctx.bot, guild_id, true).await?;
         let mut refresh = RefreshMessage::new(ctx.bot, orig.message_id.into_id(), is_premium);
         refresh.refresh(true).await?;
 

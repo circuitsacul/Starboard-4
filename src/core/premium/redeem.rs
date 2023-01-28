@@ -81,5 +81,7 @@ pub async fn redeem_premium(
     // commit the transaction and return
     tx.commit().await?;
 
+    bot.cache.guild_premium.remove(&guild_id);
+
     Ok(RedeemPremiumResult::Ok)
 }

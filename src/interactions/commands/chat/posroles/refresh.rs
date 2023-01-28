@@ -17,7 +17,7 @@ impl Refresh {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
-        if !is_guild_premium(&ctx.bot, guild_id.get_i64()).await? {
+        if !is_guild_premium(&ctx.bot, guild_id.get_i64(), true).await? {
             ctx.respond_str("Only premium servers can use this command.", true)
                 .await?;
             return Ok(());
