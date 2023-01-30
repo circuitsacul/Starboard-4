@@ -1,4 +1,4 @@
-use std::{hash::Hash, sync::Arc};
+use std::{hash::Hash, sync::Arc, time::Duration};
 
 use dashmap::{DashMap, DashSet};
 use moka::future::Cache as MokaCache;
@@ -76,12 +76,15 @@ impl From<Option<Arc<CachedMessage>>> for MessageResult {
     }
 }
 
-fn moka_cache<K, V>(capacity: u64) -> MokaCache<K, V>
+fn moka_cache<K, V>(capacity: u64, tti: Duration) -> MokaCache<K, V>
 where
     K: Eq + Hash + Send + Sync + 'static,
     V: Clone + Send + Sync + 'static,
 {
-    MokaCache::builder().max_capacity(capacity).build()
+    MokaCache::builder()
+        .max_capacity(capacity)
+        .time_to_idle(tti)
+        .build()
 }
 
 pub struct Cache {
@@ -108,16 +111,22 @@ impl Cache {
         Self {
             guilds: DashMap::new().into(),
             webhooks: DashMap::new().into(),
-            messages: moka_cache(constants::MAX_MESSAGES),
-            users: moka_cache(constants::MAX_USERS),
-            members: moka_cache(constants::MAX_MEMBERS),
+            messages: moka_cache(constants::MAX_MESSAGES, constants::MESSAGES_TTI),
+            users: moka_cache(constants::MAX_USERS, constants::USERS_TTI),
+            members: moka_cache(constants::MAX_MEMBERS, constants::MEMBERS_TTI),
 
             autostar_channel_ids: autostar_channel_ids.into(),
             guild_vote_emojis: DashMap::new().into(),
             guild_premium: DashMap::new().into(),
 
-            responses: moka_cache(constants::MAX_STORED_RESPONSES),
-            auto_deleted_posts: moka_cache(constants::MAX_STORED_AUTO_DELETES),
+            responses: moka_cache(
+                constants::MAX_STORED_RESPONSES,
+                constants::STORED_RESPONSES_TTI,
+            ),
+            auto_deleted_posts: moka_cache(
+                constants::MAX_STORED_AUTO_DELETES,
+                constants::STORED_AUTO_DELETES_TTI,
+            ),
         }
     }
 
