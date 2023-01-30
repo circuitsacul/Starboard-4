@@ -29,11 +29,16 @@ pub const UPDATE_SUPPORTER_ROLES_DELAY: Duration = Duration::from_secs(60);
 
 // Cache size
 pub const MAX_MESSAGES: u64 = 50_000;
+pub const MESSAGES_TTI: Duration = Duration::from_secs(60 * 60);
 pub const MAX_USERS: u64 = 50_000;
+pub const USERS_TTI: Duration = Duration::from_secs(60 * 60);
 pub const MAX_MEMBERS: u64 = 50_000;
+pub const MEMBERS_TTI: Duration = Duration::from_secs(60 * 60);
 
-pub const MAX_STORED_RESPONSES: u64 = 10;
+pub const MAX_STORED_RESPONSES: u64 = 100;
+pub const STORED_RESPONSES_TTI: Duration = Duration::from_secs(60 * 5);
 pub const MAX_STORED_AUTO_DELETES: u64 = 1_000;
+pub const STORED_AUTO_DELETES_TTI: Duration = Duration::from_secs(60);
 
 // Cooldowns
 pub const AUTOSTAR_COOLDOWN: (u64, Duration) = (5, Duration::from_secs(20));
