@@ -1,9 +1,9 @@
-use twilight_model::user::User;
+use twilight_model::{user::User, util::ImageHash};
 
 pub struct CachedUser {
     pub is_bot: bool,
     pub name: String,
-    pub avatar_url: Option<String>,
+    pub avatar_hash: Option<ImageHash>,
 }
 
 impl From<&User> for CachedUser {
@@ -11,9 +11,7 @@ impl From<&User> for CachedUser {
         Self {
             is_bot: user.bot,
             name: user.name.clone(),
-            avatar_url: user
-                .avatar
-                .map(|av| format!("https://cdn.discordapp.com/avatars/{}/{}.png", user.id, av)),
+            avatar_hash: user.avatar,
         }
     }
 }
@@ -23,9 +21,7 @@ impl From<User> for CachedUser {
         Self {
             is_bot: user.bot,
             name: user.name,
-            avatar_url: user
-                .avatar
-                .map(|av| format!("https://cdn.discordapp.com/avatars/{}/{}.png", user.id, av)),
+            avatar_hash: user.avatar,
         }
     }
 }
