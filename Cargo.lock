@@ -2648,9 +2648,9 @@ dependencies = [
 
 [[package]]
 name = "twilight-http"
-version = "0.14.2"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71fc42b2899deb14bb4a06515ea5122c664692ab0e7e97f5ba5471fe9756f0da"
+checksum = "63f82ba80da45fc3ce63b3777858a3b2f3cae28d9e63aeb046ef1e8d9cff445e"
 dependencies = [
  "brotli",
  "hyper",
@@ -2710,9 +2710,9 @@ dependencies = [
 
 [[package]]
 name = "twilight-model"
-version = "0.14.3"
+version = "0.14.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e086aa8c5bec5c65c948ab1d9866cab46383d290b398625c27d6d60638827ea"
+checksum = "950ddd885a828304b8dfbeaba7d613daeadec467807f82ed4df34b782a79c5b2"
 dependencies = [
  "bitflags",
  "serde",
