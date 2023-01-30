@@ -6,8 +6,11 @@ use twilight_model::{
         embed::Embed,
         Component,
     },
-    id::{marker::MessageMarker, Id},
-    util::Timestamp,
+    id::{
+        marker::{MessageMarker, UserMarker},
+        Id,
+    },
+    util::{ImageHash, Timestamp},
 };
 use twilight_util::{
     builder::embed::{
@@ -218,7 +221,7 @@ impl BuiltStarboardEmbed {
                 true => handle.referenced_message.as_ref().map(|msg| msg.author_id),
                 false => Some(handle.orig_sql_message.author_id.into_id()),
             };
-            let avatar: Option<String>;
+            let avatar: Option<(ImageHash, Id<UserMarker>)>;
             let name: String;
             (name, avatar) = match maybe_user {
                 None => ("Deleted User".to_string(), None),
@@ -242,14 +245,11 @@ impl BuiltStarboardEmbed {
                                 .nickname
                                 .to_owned()
                                 .unwrap_or_else(|| user.name.to_owned()),
-                            member
-                                .server_avatar_url
-                                .to_owned()
-                                .or_else(|| user.avatar_url.to_owned()),
+                            member.server_avatar_hash.or(user.avatar_hash),
                         ),
-                        None => (user.name.to_owned(), user.avatar_url.to_owned()),
+                        None => (user.name.to_owned(), user.avatar_hash),
                     };
-                    (name, avatar)
+                    (name, avatar.map(|av| (av, user_id)))
                 }
             };
             let name = if is_reply {
@@ -259,8 +259,9 @@ impl BuiltStarboardEmbed {
             };
 
             let mut author = EmbedAuthorBuilder::new(name).url(&link);
-            if let Some(avatar) = avatar {
-                author = author.icon_url(ImageSource::url(avatar).unwrap());
+            if let Some((avatar, user_id)) = avatar {
+                let url = format!("https://cdn.discordapp.com/avatars/{user_id}/{avatar}.png");
+                author = author.icon_url(ImageSource::url(url).unwrap());
             }
 
             embed = embed.author(author.build())
