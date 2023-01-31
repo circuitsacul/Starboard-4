@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use cached::Cached;
 use twilight_model::{
     gateway::payload::incoming::MessageUpdate,
     id::{marker::MessageMarker, Id},
@@ -36,8 +37,14 @@ pub async fn handle_message_delete(
     bot: Arc<StarboardBot>,
     message_id: Id<MessageMarker>,
 ) -> StarboardResult<()> {
-    if bot.cache.auto_deleted_posts.get(&message_id).is_some() {
-        bot.cache.auto_deleted_posts.invalidate(&message_id).await;
+    if bot
+        .cache
+        .auto_deleted_posts
+        .write()
+        .await
+        .cache_remove(&message_id)
+        .is_some()
+    {
         return Ok(());
     }
 
