@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
+use cached::Cached;
 use twilight_model::id::{marker::MessageMarker, Id};
 
 use crate::{
@@ -296,8 +297,9 @@ impl RefreshStarboard {
                         .bot
                         .cache
                         .auto_deleted_posts
-                        .insert(sb_message_id, ())
-                        .await;
+                        .write()
+                        .await
+                        .cache_set(sb_message_id, ());
                     let deleted = embedder.delete(&self.refresh.bot, sb_message_id).await?;
                     (false, deleted)
                 }

@@ -2,6 +2,7 @@ use std::{hash::Hash, sync::Arc, time::Duration};
 
 use dashmap::{DashMap, DashSet};
 use moka::future::Cache as MokaCache;
+use tokio::sync::RwLock;
 use twilight_gateway::Event;
 use twilight_model::{
     channel::{Channel, ChannelType, Webhook},
@@ -103,7 +104,7 @@ pub struct Cache {
 
     // misc
     pub responses: MokaCache<Id<MessageMarker>, Id<MessageMarker>>,
-    pub auto_deleted_posts: MokaCache<Id<MessageMarker>, ()>,
+    pub auto_deleted_posts: RwLock<cached::SizedCache<Id<MessageMarker>, ()>>,
 }
 
 impl Cache {
@@ -123,10 +124,9 @@ impl Cache {
                 constants::MAX_STORED_RESPONSES,
                 constants::STORED_RESPONSES_TTI,
             ),
-            auto_deleted_posts: moka_cache(
+            auto_deleted_posts: RwLock::new(cached::SizedCache::with_size(
                 constants::MAX_STORED_AUTO_DELETES,
-                constants::STORED_AUTO_DELETES_TTI,
-            ),
+            )),
         }
     }
 
