@@ -28,7 +28,8 @@ pub struct Info {
 
 impl Info {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx).get_i64();
+        let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
         let Some((_channel_id, message_id)) = parse_message_link(&self.message) else {
             ctx.respond_str("Invalid message link.", true).await?;
@@ -55,13 +56,13 @@ impl Info {
             "\nfrozen: {:?}" <- sql_msg.frozen;
         ));
 
-        for starboard in Starboard::list_by_guild(&ctx.bot.pool, guild_id).await? {
+        for starboard in Starboard::list_by_guild(&ctx.bot.pool, guild_id_i64).await? {
             let points = Vote::count(&ctx.bot.pool, sql_msg.message_id, starboard.id).await?;
 
             let channel_ids = ctx
                 .bot
                 .cache
-                .qualified_channel_ids(&ctx.bot, guild_id.into_id(), sql_msg.channel_id.into_id())
+                .qualified_channel_ids(&ctx.bot, guild_id, sql_msg.channel_id.into_id())
                 .await?;
             let channel_ids = channel_ids
                 .into_iter()
@@ -82,13 +83,20 @@ impl Info {
                 config.starboard.id,
             )
             .await?;
+
             let link = sb_msg
                 .map(|m| {
-                    fmt_message_link(
-                        guild_id,
-                        config.starboard.channel_id,
-                        m.starboard_message_id,
-                    )
+                    let channel_id = if ctx
+                        .bot
+                        .cache
+                        .is_channel_forum(guild_id, config.starboard.channel_id.into_id())
+                    {
+                        m.starboard_message_id
+                    } else {
+                        config.starboard.channel_id
+                    };
+
+                    fmt_message_link(guild_id, channel_id, m.starboard_message_id)
                 })
                 .map(|link| format!("[jump]({link})"))
                 .unwrap_or_else(|| "Not on starboard.".to_string());
