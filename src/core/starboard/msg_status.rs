@@ -55,14 +55,18 @@ pub async fn get_message_status(
         return Ok(MessageStatus::Update(false));
     }
 
-    if points <= config.resolved.required_remove as _ {
-        return Ok(MessageStatus::Remove);
+    if let Some(required_remove) = config.resolved.required_remove {
+        if points <= required_remove as i32 {
+            return Ok(MessageStatus::Remove);
+        }
     }
 
-    if validate_regex(config, message_obj, is_premium) {
-        #[allow(clippy:collapsible_if)]
-        if points >= config.resolved.required as _ {
-            return Ok(MessageStatus::Send(config.resolved.link_edits));
+    if let Some(required) = config.resolved.required {
+        if validate_regex(config, message_obj, is_premium) {
+            #[allow(clippy:collapsible_if)]
+            if points >= required as i32 {
+                return Ok(MessageStatus::Send(config.resolved.link_edits));
+            }
         }
     }
 

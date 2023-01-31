@@ -155,6 +155,15 @@ pub async fn format_settings(
         ""
     };
 
+    let required = match res.required {
+        Some(req) => req.to_string(),
+        None => "unset".to_string(),
+    };
+    let required_remove = match res.required_remove {
+        Some(req) => req.to_string(),
+        None => "unset".to_string(),
+    };
+
     let settings = FormattedStarboardSettings {
         style: settings!(
             display_emoji, "display-emoji", display_emoji;
@@ -172,8 +181,8 @@ pub async fn format_settings(
             replied_to, "replied-to", res.replied_to;
         ),
         requirements: settings!(
-            required, "required", res.required;
-            required_remove, "required-remove", res.required_remove;
+            required, "required", required;
+            required_remove, "required-remove", required_remove;
             upvote_emojis, "upvote-emojis", upvote_emojis;
             downvote_emojis, "downvote-emojis", downvote_emojis;
             self_vote, "self-vote", res.self_vote;

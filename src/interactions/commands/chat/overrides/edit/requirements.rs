@@ -7,7 +7,11 @@ use crate::{
         starboard::config::StarboardConfig,
     },
     database::{
-        validation::{self, time_delta::parse_time_delta},
+        validation::{
+            self,
+            starboard_settings::{validate_required, validate_required_remove},
+            time_delta::parse_time_delta,
+        },
         Starboard, StarboardOverride,
     },
     errors::StarboardResult,
@@ -26,12 +30,11 @@ pub struct EditRequirements {
     #[command(autocomplete = true)]
     name: String,
 
-    /// The number of upvotes a message needs.
-    #[command(min_value=-1, max_value=10_000)]
-    required: Option<i64>,
-    /// If a message is already on the starboard, how few points the message can have before it is removed.
-    #[command(rename="required-remove", min_value=-10_000, max_value=9_999)]
-    required_remove: Option<i64>,
+    /// The number of upvotes a message needs. Use "none" to unset.
+    required: Option<String>,
+    /// How few points the message can have before a starboarded post is removed. Use "none" to unset.
+    #[command(rename = "required-remove")]
+    required_remove: Option<String>,
     /// The emojis that can be used to upvote a post. Use 'none' to remove all.
     #[command(rename = "upvote-emojis")]
     upvote_emojis: Option<String>,
@@ -85,23 +88,23 @@ impl EditRequirements {
         let is_prem = is_guild_premium(&ctx.bot, guild_id_i64, true).await?;
 
         if let Some(val) = self.required {
-            let val = val as i16;
-            if let Err(why) =
-                validation::starboard_settings::validate_required(val, resolved.required_remove)
-            {
-                ctx.respond_str(&why, true).await?;
-                return Ok(());
-            }
+            let val = match validate_required(val, resolved.required_remove) {
+                Ok(val) => val,
+                Err(why) => {
+                    ctx.respond_str(&why, true).await?;
+                    return Ok(());
+                }
+            };
             settings.required = Some(val);
         }
         if let Some(val) = self.required_remove {
-            let val = val as i16;
-            if let Err(why) =
-                validation::starboard_settings::validate_required_remove(val, resolved.required)
-            {
-                ctx.respond_str(&why, true).await?;
-                return Ok(());
-            }
+            let val = match validate_required_remove(val, resolved.required) {
+                Ok(val) => val,
+                Err(why) => {
+                    ctx.respond_str(&why, true).await?;
+                    return Ok(());
+                }
+            };
             settings.required_remove = Some(val);
         }
 

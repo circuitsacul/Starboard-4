@@ -6,10 +6,30 @@ use std::{collections::HashSet, time::Duration};
 
 use crate::constants;
 
-pub fn validate_required(val: i16, required_remove: i16) -> Result<(), String> {
-    if val <= required_remove {
-        Err("`required` must be greater than `required-remove`.".to_string())
-    } else if val < constants::MIN_REQUIRED {
+pub fn none_or_number(val: String) -> Result<Option<i16>, String> {
+    if val == "none" {
+        return Ok(None);
+    }
+
+    let ret = val.parse::<i16>();
+    match ret {
+        Ok(val) => Ok(Some(val)),
+        Err(_) => Err(format!("I couldn't interpret {val} as a number.")),
+    }
+}
+
+pub fn validate_required(val: String, required_remove: Option<i16>) -> Result<Option<i16>, String> {
+    let Some(val) = none_or_number(val)? else {
+        return Ok(None);
+    };
+
+    if let Some(required_remove) = required_remove {
+        if val <= required_remove {
+            return Err("`required` must be greater than `required-remove`.".to_string());
+        }
+    }
+
+    if val < constants::MIN_REQUIRED {
         Err(format!(
             "`required` cannot be less than {}.",
             constants::MIN_REQUIRED
@@ -20,14 +40,22 @@ pub fn validate_required(val: i16, required_remove: i16) -> Result<(), String> {
             constants::MAX_REQUIRED
         ))
     } else {
-        Ok(())
+        Ok(Some(val))
     }
 }
 
-pub fn validate_required_remove(val: i16, required: i16) -> Result<(), String> {
-    if val >= required {
-        Err("`required-remove` must be less than `required`.".to_string())
-    } else if val < constants::MIN_REQUIRED_REMOVE {
+pub fn validate_required_remove(val: String, required: Option<i16>) -> Result<Option<i16>, String> {
+    let Some(val) = none_or_number(val)? else {
+        return Ok(None);
+    };
+
+    if let Some(required) = required {
+        if val >= required {
+            return Err("`required-remove` must be less than `required`.".to_string());
+        }
+    }
+
+    if val < constants::MIN_REQUIRED_REMOVE {
         Err(format!(
             "`required-remove` cannot be less than {}.",
             constants::MIN_REQUIRED_REMOVE
@@ -38,7 +66,7 @@ pub fn validate_required_remove(val: i16, required: i16) -> Result<(), String> {
             constants::MAX_REQUIRED_REMOVE
         ))
     } else {
-        Ok(())
+        Ok(Some(val))
     }
 }
 
