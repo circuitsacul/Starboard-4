@@ -14,7 +14,7 @@ use twilight_model::{
 };
 
 use crate::{
-    core::embedder::builder::BuiltStarboardEmbed,
+    core::embedder::{builder::BuiltStarboardEmbed, Embedder},
     database::{DbMessage, Starboard, StarboardMessage},
     errors::StarboardResult,
     get_guild_id,
@@ -99,8 +99,16 @@ impl Moststarred {
     }
 }
 
-fn components(current_page: usize, done: bool) -> Vec<Component> {
+fn components(current_page: usize, last_page: Option<usize>, done: bool) -> Vec<Component> {
     let buttons = vec![
+        Component::Button(Button {
+            custom_id: Some("moststarred_scroller::back".to_string()),
+            disabled: done || current_page == 1,
+            emoji: None,
+            label: Some("Back".to_string()),
+            style: ButtonStyle::Secondary,
+            url: None,
+        }),
         Component::Button(Button {
             custom_id: Some("moststarred_scroller::page_number".to_string()),
             disabled: true,
@@ -111,7 +119,7 @@ fn components(current_page: usize, done: bool) -> Vec<Component> {
         }),
         Component::Button(Button {
             custom_id: Some("moststarred_scroller::next".to_string()),
-            disabled: done,
+            disabled: done || Some(current_page) == last_page,
             emoji: None,
             label: Some("Next".to_string()),
             style: ButtonStyle::Secondary,
@@ -137,25 +145,34 @@ async fn scrolling_paginator(
 
     let mut btn_ctx: Option<ComponentCtx> = None;
     let mut message_id: Option<Id<MessageMarker>> = None;
-    let mut current_page: usize = 0;
+    let mut current_page: usize = 1;
+    let mut last_page: Option<usize> = None;
+
+    let mut cache: Vec<Embedder> = Vec::new();
 
     loop {
-        let Some(next_sb_message) = messages.try_next().await? else {
-            break;
-        };
+        if current_page > cache.len() {
+            if let Some(next_sb_message) = messages.try_next().await? {
+                let orig_msg = DbMessage::get(&ctx.bot.pool, next_sb_message.message_id)
+                    .await?
+                    .unwrap();
+                let config = get_config(&ctx.bot, starboard.clone(), orig_msg.channel_id).await?;
+                let config = Arc::new(config);
+                let embedder =
+                    get_embedder(ctx.bot.clone(), config, orig_msg, next_sb_message).await?;
 
-        current_page += 1;
+                let Some(embedder) = embedder else {
+                    continue;
+                };
+                cache.push(embedder);
+            } else {
+                current_page -= 1;
+                last_page = Some(current_page);
+            };
+        }
 
         // built message
-        let orig_msg = DbMessage::get(&ctx.bot.pool, next_sb_message.message_id)
-            .await?
-            .unwrap();
-        let config = get_config(&ctx.bot, starboard.clone(), orig_msg.channel_id).await?;
-        let config = Arc::new(config);
-        let embedder = get_embedder(ctx.bot.clone(), config, orig_msg, next_sb_message).await?;
-        let Some(embedder) = embedder else {
-            continue;
-        };
+        let embedder = &cache[current_page - 1];
 
         let built = embedder.build(false, false, false).await?;
         let BuiltStarboardEmbed::Full(built) = built else {
@@ -165,7 +182,7 @@ async fn scrolling_paginator(
         // respond
         let data = ctx
             .build_resp()
-            .components(components(current_page, false))
+            .components(components(current_page, last_page, false))
             .embeds(built.embeds)
             .content(built.top_content)
             .build();
@@ -180,14 +197,20 @@ async fn scrolling_paginator(
         // wait for component interaction
         btn_ctx = wait_for_component(
             ctx.bot.clone(),
-            &["moststarred_scroller::next"],
+            &["moststarred_scroller::next", "moststarred_scroller::back"],
             message_id.unwrap(),
             user_id,
             60 * 5,
         )
         .await;
 
-        if btn_ctx.is_none() {
+        if let Some(btn_ctx) = &btn_ctx {
+            match &*btn_ctx.data.custom_id {
+                "moststarred_scroller::next" => current_page += 1,
+                "moststarred_scroller::back" => current_page -= 1,
+                _ => unreachable!(),
+            }
+        } else {
             break;
         }
     }
@@ -197,14 +220,14 @@ async fn scrolling_paginator(
             .edit(
                 btn_ctx
                     .build_resp()
-                    .components(components(current_page, true))
+                    .components(components(current_page, last_page, true))
                     .build(),
             )
             .await?;
     } else if message_id.is_some() {
         let i = ctx.bot.interaction_client().await;
         i.update_response(&ctx.interaction.token)
-            .components(Some(&components(current_page, true)))?
+            .components(Some(&components(current_page, last_page, true)))?
             .await?;
     } else {
         ctx.respond_str("Nothing to show.", true).await?;
