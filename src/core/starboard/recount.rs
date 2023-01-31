@@ -120,6 +120,10 @@ async fn recount_votes_reaction(
         last_user = Some(reactions.last().unwrap().id);
 
         for user in reactions {
+            if user.bot {
+                continue;
+            }
+
             let vote = VoteContext {
                 emoji: &emoji,
                 reactor_id: user.id,
