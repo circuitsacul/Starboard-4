@@ -18,8 +18,7 @@ pub fn parse_message_link(link: &str) -> Option<(i64, i64)> {
     }
 
     lazy_static! {
-        static ref RE: Regex =
-            Regex::new(r#"^https://\w*.?discord.com/channels/(\d+)/(\d+)/(\d+)"#).unwrap();
+        static ref RE: Regex = Regex::new(r#"/channels/(\d+)/(\d+)/(\d+)"#).unwrap();
     }
 
     let ret = RE.captures(link)?;
