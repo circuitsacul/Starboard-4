@@ -16,8 +16,8 @@ pub struct StarboardSettings {
     pub replied_to: bool,
 
     // Requirements
-    pub required: i16,
-    pub required_remove: i16,
+    pub required: Option<i16>,
+    pub required_remove: Option<i16>,
     pub upvote_emojis: Vec<String>,
     pub downvote_emojis: Vec<String>,
     pub self_vote: bool,

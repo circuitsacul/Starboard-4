@@ -105,7 +105,10 @@ impl Info {
                     config.starboard.name,
                     concat_format!(
                         "{}\n" <- link;
-                        "points: {}/{}\n" <- points, config.resolved.required;
+                        "points: {}/{}\n" <- points,
+                            config.resolved.required
+                                .map(|v| v.to_string())
+                                .unwrap_or_else(|| "unset".to_string());
                         "forced: {}" <- sql_msg.forced_to.contains(&config.starboard.id);
                     ),
                 )

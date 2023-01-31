@@ -30,8 +30,10 @@ pub struct OverrideValues {
     pub replied_to: Option<bool>,
 
     // Requirements
-    pub required: Option<i16>,
-    pub required_remove: Option<i16>,
+    #[serde(deserialize_with = "null_to_some_none", default)]
+    pub required: Option<Option<i16>>,
+    #[serde(deserialize_with = "null_to_some_none", default)]
+    pub required_remove: Option<Option<i16>>,
     pub upvote_emojis: Option<Vec<String>>,
     pub downvote_emojis: Option<Vec<String>>,
     pub self_vote: Option<bool>,
