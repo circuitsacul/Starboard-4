@@ -313,7 +313,7 @@ impl BuiltStarboardEmbed {
         if !files_uploaded || is_reply {
             urls.extend(parsed.urls.uploaded.iter().map(|url| url.as_str()));
         }
-        if !handle.config.resolved.extra_embeds || is_reply {
+        if !handle.config.resolved.extra_embeds || is_reply && parsed.urls.embedded.len() > 1 {
             urls.extend(parsed.urls.embedded.iter().map(|url| url.as_str()));
         }
 
