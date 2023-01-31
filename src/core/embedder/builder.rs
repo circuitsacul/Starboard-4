@@ -155,7 +155,23 @@ impl BuiltStarboardEmbed {
 
         if handle.config.resolved.extra_embeds {
             for e in &parsed.embeds {
+                if embeds.len() >= 9 {
+                    embeds.push(
+                        EmbedBuilder::new()
+                            .description(concat!(
+                                "This message has too many embeds. ",
+                                "Go to the original message to see all content."
+                            ))
+                            .color(constants::EMBED_DARK_BG)
+                            .build(),
+                    );
+                    break;
+                }
+
                 embeds.push(e.clone());
+                if embeds.len() >= 10 {
+                    break;
+                }
             }
         }
 
