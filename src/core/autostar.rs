@@ -70,6 +70,7 @@ pub async fn handle(
     };
 
     // Handle the autostar channels
+    let mut to_react = Vec::new();
     for a in asc {
         let status = get_status(bot, &a, message_id, channel_id, message).await?;
 
@@ -88,20 +89,22 @@ pub async fn handle(
                 let to_send = {
                     format!(
                         "Your message in <#{channel_id}> was deleted for the following reason(s):\n"
-                    ) + &reasons.join("\n - ")
+                    ) + &reasons.join("\n")
                 };
                 notify::notify(bot, message.author_id, &to_send).await?;
             }
 
-            continue;
+            return Ok(());
         }
 
-        for emoji in Vec::<SimpleEmoji>::from_stored(a.emojis) {
-            let _ = bot
-                .http
-                .create_reaction(channel_id, message_id, &emoji.reactable())
-                .await;
-        }
+        to_react.extend(Vec::<SimpleEmoji>::from_stored(a.emojis));
+    }
+
+    for emoji in to_react {
+        let _ = bot
+            .http
+            .create_reaction(channel_id, message_id, &emoji.reactable())
+            .await;
     }
 
     Ok(())
