@@ -166,6 +166,11 @@ async fn scrolling_paginator(
                 };
                 cache.push(embedder);
             } else {
+                if current_page == 1 {
+                    ctx.respond_str("Nothing to show.", true).await?;
+                    return Ok(());
+                }
+
                 current_page -= 1;
                 last_page = Some(current_page);
             };
