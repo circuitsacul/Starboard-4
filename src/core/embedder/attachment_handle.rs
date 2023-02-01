@@ -59,9 +59,20 @@ impl AttachmentHandle {
     }
 
     pub fn from_attachment(attachment: &ReceivedAttachment) -> Self {
+        let content_type = match attachment.content_type.clone() {
+            Some(ct) => Some(ct),
+            None => {
+                let suffix = attachment.filename.split('.').last();
+                suffix.and_then(|suffix| match suffix {
+                    "png" | "jpg" | "jpeg" | "gif" | "gifv" => Some(format!("image/{suffix}")),
+                    _ => None,
+                })
+            }
+        };
+
         Self {
             filename: attachment.filename.clone(),
-            content_type: attachment.content_type.clone(),
+            content_type,
             url: attachment.url.clone(),
         }
     }
