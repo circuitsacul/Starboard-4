@@ -76,8 +76,8 @@ impl AttachmentHandle {
     }
 
     pub fn url_list_item(&self) -> String {
-        if self.filename.len() > 15 {
-            format!("[{}...]({})", &self.filename[..32], self.url)
+        if self.filename.len() > 32 {
+            format!("[{}...]({})", &self.filename[..29], self.url)
         } else {
             format!("[{}]({})", self.filename, self.url)
         }
