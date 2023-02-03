@@ -78,7 +78,7 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
             let message_id = event.id;
             let author_id = event.author.id;
             let guild_id = event.guild_id;
-            let msg: CachedMessage = event.0.into();
+            let msg: Arc<CachedMessage> = Arc::new(event.0.into());
 
             if let Some(guild_id) = guild_id {
                 core::autostar::handle(
@@ -87,7 +87,7 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
                     channel_id,
                     channel_id,
                     message_id,
-                    Some(&msg),
+                    Some(msg.clone()),
                 )
                 .await?;
             }

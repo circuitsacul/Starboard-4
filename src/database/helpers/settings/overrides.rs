@@ -24,6 +24,7 @@ macro_rules! call_with_override_settings {
             newer_than,
             matches,
             not_matches,
+            filters,
             enabled,
             autoreact_upvote,
             autoreact_downvote,

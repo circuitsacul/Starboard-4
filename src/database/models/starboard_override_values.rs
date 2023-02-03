@@ -45,6 +45,7 @@ pub struct OverrideValues {
     pub matches: Option<Option<String>>,
     #[serde(deserialize_with = "null_to_some_none", default)]
     pub not_matches: Option<Option<String>>,
+    pub filters: Option<Vec<i32>>,
 
     // Behavior
     pub enabled: Option<bool>,

@@ -1,5 +1,6 @@
 pub mod autostar_channel;
 pub mod exclusive_group;
+pub mod filter;
 pub mod guild;
 pub mod member;
 pub mod message;

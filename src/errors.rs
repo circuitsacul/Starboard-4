@@ -61,6 +61,11 @@ pub enum StarboardError {
         source: tokio::task::JoinError,
         backtrace: Backtrace,
     },
+    #[snafu(context(false))]
+    RegexError {
+        source: regex::Error,
+        backtrace: Backtrace,
+    },
 }
 
 impl StarboardError {

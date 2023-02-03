@@ -6,7 +6,7 @@ use twilight_model::id::{
 };
 
 use crate::{
-    cache::models::message::CachedMessage,
+    cache::{models::message::CachedMessage, MessageResult},
     client::bot::StarboardBot,
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::AutoStarChannel,
@@ -14,7 +14,9 @@ use crate::{
     utils::{id_as_i64::GetI64, notify},
 };
 
-use super::{has_image::has_image, premium::is_premium::is_guild_premium};
+use super::{
+    filters::FilterEvaluater, has_image::has_image, premium::is_premium::is_guild_premium,
+};
 
 pub async fn handle(
     bot: &StarboardBot,
@@ -22,7 +24,7 @@ pub async fn handle(
     autostar_channel_id: Id<ChannelMarker>,
     channel_id: Id<ChannelMarker>,
     message_id: Id<MessageMarker>,
-    message: Option<&CachedMessage>,
+    message: Option<Arc<CachedMessage>>,
 ) -> StarboardResult<()> {
     // Check the cache...
     if !bot
@@ -57,22 +59,20 @@ pub async fn handle(
         return Ok(());
     }
 
-    let message_owner: Arc<CachedMessage>;
     let message = match message {
         Some(msg) => msg,
         None => {
             let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await?.into_option() else {
                 return Ok(());
             };
-            message_owner = msg;
-            &message_owner
+            msg
         }
     };
 
     // Handle the autostar channels
     let mut to_react = Vec::new();
     for a in asc {
-        let status = get_status(bot, &a, message_id, channel_id, message).await?;
+        let status = get_status(bot, &a, guild_id, channel_id, message_id, message.clone()).await?;
 
         if matches!(status, Status::InvalidStay) {
             continue;
@@ -119,9 +119,10 @@ enum Status {
 async fn get_status(
     bot: &StarboardBot,
     asc: &AutoStarChannel,
-    message_id: Id<MessageMarker>,
+    guild_id: Id<GuildMarker>,
     channel_id: Id<ChannelMarker>,
-    event: &CachedMessage,
+    message_id: Id<MessageMarker>,
+    event: Arc<CachedMessage>,
 ) -> StarboardResult<Status> {
     let mut invalid = Vec::new();
 
@@ -155,6 +156,20 @@ async fn get_status(
         if still_invalid {
             invalid.push(" - Your message must include an image.".to_string());
         }
+    }
+
+    let mut filters = FilterEvaluater::new(
+        bot,
+        guild_id,
+        event.author_id,
+        None,
+        Some(channel_id),
+        Some(message_id),
+        &asc.filters,
+    );
+    filters.set_message(MessageResult::Ok(event));
+    if !filters.status().await? {
+        invalid.push(" - Your message does not meet the filter requirements.".to_string());
     }
 
     if invalid.is_empty() {
