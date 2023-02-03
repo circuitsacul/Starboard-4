@@ -1,19 +1,19 @@
-pub struct Filter {
+pub struct FilterGroup {
     pub id: i32,
     pub guild_id: i64,
     pub name: String,
 }
 
-impl Filter {
+impl FilterGroup {
     pub async fn get_many(pool: &sqlx::PgPool, id: &[i32]) -> sqlx::Result<Self> {
-        sqlx::query_as!(Self, "SELECT * FROM filters WHERE id=any($1)", id)
+        sqlx::query_as!(Self, "SELECT * FROM filter_groups WHERE id=any($1)", id)
             .fetch_one(pool)
             .await
     }
 }
 
-pub struct FilterCheck {
-    pub filter_id: i32,
+pub struct Filter {
+    pub filter_group_id: i32,
     pub position: i16,
 
     pub instant_pass: bool,
@@ -47,12 +47,12 @@ pub struct FilterCheck {
     pub newer_than: Option<i64>,
 }
 
-impl FilterCheck {
-    pub async fn list_by_filter(pool: &sqlx::PgPool, filter_id: i32) -> sqlx::Result<Vec<Self>> {
+impl Filter {
+    pub async fn list_by_filter(pool: &sqlx::PgPool, filter_group_id: i32) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
-            "SELECT * FROM filter_checks WHERE filter_id=$1 ORDER BY position DESC",
-            filter_id
+            "SELECT * FROM filters WHERE filter_group_id=$1 ORDER BY position DESC",
+            filter_group_id
         )
         .fetch_all(pool)
         .await

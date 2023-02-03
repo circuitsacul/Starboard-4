@@ -8,7 +8,7 @@ use twilight_model::id::{
 use crate::{
     cache::{models::member::CachedMember, MessageResult},
     client::bot::StarboardBot,
-    database::{models::filter::FilterCheck, DbUser},
+    database::{models::filter::Filter, DbUser},
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, snowflake_age::SnowflakeAge},
 };
@@ -35,7 +35,7 @@ fn has_any_role(user_roles: &[i64], required: &[i64]) -> bool {
 
 pub struct FilterEvaluater<'a> {
     bot: &'a StarboardBot,
-    filter_ids: &'a [i32],
+    filter_group_ids: &'a [i32],
 
     // contextual info
     guild_id: Id<GuildMarker>,
@@ -49,7 +49,7 @@ pub struct FilterEvaluater<'a> {
     user_is_bot: Option<Option<bool>>,
     voter: Option<Option<Arc<CachedMember>>>,
     message: Option<MessageResult>,
-    filters: Option<Arc<Vec<Vec<FilterCheck>>>>,
+    filters: Option<Arc<Vec<Vec<Filter>>>>,
 }
 
 impl<'a> FilterEvaluater<'a> {
@@ -64,7 +64,7 @@ impl<'a> FilterEvaluater<'a> {
     ) -> Self {
         Self {
             bot,
-            filter_ids,
+            filter_group_ids: filter_ids,
             guild_id,
             user_id,
             voter_id,
@@ -78,7 +78,7 @@ impl<'a> FilterEvaluater<'a> {
         }
     }
 
-    async fn evaluate_check(&mut self, check: &FilterCheck) -> StarboardResult<bool> {
+    async fn evaluate_check(&mut self, check: &Filter) -> StarboardResult<bool> {
         // user context
         if let Some(req) = check.user_is_bot {
             let Some(is_bot) = self.get_user_is_bot().await? else {
@@ -393,18 +393,18 @@ impl<'a> FilterEvaluater<'a> {
         Ok(value)
     }
 
-    pub fn set_filters(&mut self, filters: Arc<Vec<Vec<FilterCheck>>>) {
+    pub fn set_filters(&mut self, filters: Arc<Vec<Vec<Filter>>>) {
         self.filters.replace(filters);
     }
 
-    async fn get_filters(&mut self) -> StarboardResult<Arc<Vec<Vec<FilterCheck>>>> {
+    async fn get_filters(&mut self) -> StarboardResult<Arc<Vec<Vec<Filter>>>> {
         if let Some(value) = self.filters.clone() {
             return Ok(value);
         }
 
         let mut filters = Vec::new();
-        for filter_id in self.filter_ids {
-            let checks = FilterCheck::list_by_filter(&self.bot.pool, *filter_id).await?;
+        for filter_id in self.filter_group_ids {
+            let checks = Filter::list_by_filter(&self.bot.pool, *filter_id).await?;
             filters.push(checks);
         }
 

@@ -1,4 +1,4 @@
-CREATE TABLE filters (
+CREATE TABLE filter_groups (
     id SERIAL PRIMARY KEY,
     guild_id BIGINT NOT NULL,
     name TEXT NOT NULL,
@@ -9,9 +9,9 @@ CREATE TABLE filters (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE filter_checks (
+CREATE TABLE filters (
     position SMALLINT NOT NULL,
-    filter_id INT NOT NULL,
+    filter_group_id INT NOT NULL,
 
     instant_pass BOOLEAN NOT NULL DEFAULT false,
     instant_fail BOOLEAN NOT NULL DEFAULT true,
@@ -43,10 +43,10 @@ CREATE TABLE filter_checks (
     older_than BIGINT,
     newer_than BIGINT,
 
-    FOREIGN KEY (filter_id) REFERENCES filters (id)
+    FOREIGN KEY (filter_group_id) REFERENCES filter_groups (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    PRIMARY KEY (filter_id, position)
+    PRIMARY KEY (filter_group_id, position)
 );
 
 ALTER TABLE starboards ADD COLUMN filters INT[] NOT NULL DEFAULT '{}';
