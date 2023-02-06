@@ -15,7 +15,7 @@ twilight-interactions = "0.14.4"
 twilight-mention = "0.14.0"
 twilight-standby = "0.14.1"
 
-async-trait = "0.1.63"
+async-trait = "0.1.64"
 tokio = { version = "1.25.0", features = ["full"] }
 futures = "0.3.21"
 dotenv = "0.15.0"
