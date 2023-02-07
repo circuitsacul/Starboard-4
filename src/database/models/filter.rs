@@ -5,10 +5,36 @@ pub struct FilterGroup {
 }
 
 impl FilterGroup {
+    pub async fn create(
+        pool: &sqlx::PgPool,
+        guild_id: i64,
+        name: &str,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "INSERT INTO filter_groups (guild_id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING
+            RETURNING *",
+            guild_id,
+            name
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
     pub async fn get_many(pool: &sqlx::PgPool, id: &[i32]) -> sqlx::Result<Self> {
         sqlx::query_as!(Self, "SELECT * FROM filter_groups WHERE id=any($1)", id)
             .fetch_one(pool)
             .await
+    }
+
+    pub async fn list_by_guild(pool: &sqlx::PgPool, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM filter_groups WHERE guild_id=$1",
+            guild_id
+        )
+        .fetch_all(pool)
+        .await
     }
 }
 
@@ -48,7 +74,26 @@ pub struct Filter {
 }
 
 impl Filter {
-    pub async fn list_by_filter(pool: &sqlx::PgPool, filter_group_id: i32) -> sqlx::Result<Vec<Self>> {
+    pub async fn create(
+        pool: &sqlx::PgPool,
+        filter_group_id: i32,
+        position: i16,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "INSERT INTO filters (filter_group_id, position) VALUES ($1, $2)
+            ON CONFLICT DO NOTHING RETURNING *",
+            filter_group_id,
+            position,
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
+    pub async fn list_by_filter(
+        pool: &sqlx::PgPool,
+        filter_group_id: i32,
+    ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM filters WHERE filter_group_id=$1 ORDER BY position DESC",

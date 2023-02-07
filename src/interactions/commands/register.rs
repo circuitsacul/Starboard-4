@@ -30,6 +30,7 @@ pub async fn post_commands(bot: Arc<StarboardBot>) {
         chat::overrides::Overrides,
         chat::exclusive_groups::ExclusiveGroups,
         chat::permroles::PermRoles,
+        chat::filters::Filters,
         chat::xproles::XPRoles,
         chat::posroles::PosRoles,
         chat::utils::Utils,
