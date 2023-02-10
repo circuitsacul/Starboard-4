@@ -226,6 +226,171 @@
     },
     "query": "SELECT * FROM overrides WHERE guild_id=$1 AND name=$2"
   },
+  "0dc8aed0db6fa6532389387fe514017d823ae1e8fe554a78c46ef6ca81b9c42c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "position",
+          "ordinal": 0,
+          "type_info": "Int2"
+        },
+        {
+          "name": "filter_group_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "instant_pass",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "instant_fail",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "user_has_all_of",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "user_missing_all_of",
+          "ordinal": 5,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "user_has_some_of",
+          "ordinal": 6,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "user_missing_some_of",
+          "ordinal": 7,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "user_is_bot",
+          "ordinal": 8,
+          "type_info": "Bool"
+        },
+        {
+          "name": "not_in_channel",
+          "ordinal": 9,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "in_channel",
+          "ordinal": 10,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "not_in_channel_or_sub_channels",
+          "ordinal": 11,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "in_channel_or_sub_channels",
+          "ordinal": 12,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "min_length",
+          "ordinal": 13,
+          "type_info": "Int4"
+        },
+        {
+          "name": "max_length",
+          "ordinal": 14,
+          "type_info": "Int4"
+        },
+        {
+          "name": "min_attachments",
+          "ordinal": 15,
+          "type_info": "Int2"
+        },
+        {
+          "name": "max_attachments",
+          "ordinal": 16,
+          "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 17,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 18,
+          "type_info": "Text"
+        },
+        {
+          "name": "voter_has_all_of",
+          "ordinal": 19,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "voter_missing_all_of",
+          "ordinal": 20,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "voter_has_some_of",
+          "ordinal": 21,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "voter_missing_some_of",
+          "ordinal": 22,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "older_than",
+          "ordinal": 23,
+          "type_info": "Int8"
+        },
+        {
+          "name": "newer_than",
+          "ordinal": 24,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int2"
+        ]
+      }
+    },
+    "query": "INSERT INTO filters (filter_group_id, position) VALUES ($1, $2)\n            ON CONFLICT DO NOTHING RETURNING *"
+  },
   "0f8091a3bbaf9d14d2fec8eb5467d2b350b6175d35596e5576b4afb078f8bc7b": {
     "describe": {
       "columns": [
@@ -1878,6 +2043,21 @@
     },
     "query": "INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT DO NOTHING RETURNING *"
   },
+  "485a7ca91b200b0ce5663858b09572909c9aaf822efb4247508969002a3ecd1a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int2",
+          "Int2",
+          "Int2",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE filters SET position = position + $1\n            WHERE position >= $2 AND ($3::SMALLINT IS NULL OR position <= $3)\n            AND filter_group_id=$4"
+  },
   "4d59d25e423e791b1e483bdd9724e27ec3df3cb369ff29c12c1d4b77a97395d0": {
     "describe": {
       "columns": [],
@@ -2178,6 +2358,171 @@
       }
     },
     "query": "UPDATE members SET xp=$1 WHERE user_id=$2 AND guild_id=$3 RETURNING *"
+  },
+  "600db8bfc5ba4636af94186709448486da52345a076069e09161f12bd19f45c6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "position",
+          "ordinal": 0,
+          "type_info": "Int2"
+        },
+        {
+          "name": "filter_group_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "instant_pass",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "instant_fail",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "user_has_all_of",
+          "ordinal": 4,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "user_missing_all_of",
+          "ordinal": 5,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "user_has_some_of",
+          "ordinal": 6,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "user_missing_some_of",
+          "ordinal": 7,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "user_is_bot",
+          "ordinal": 8,
+          "type_info": "Bool"
+        },
+        {
+          "name": "not_in_channel",
+          "ordinal": 9,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "in_channel",
+          "ordinal": 10,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "not_in_channel_or_sub_channels",
+          "ordinal": 11,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "in_channel_or_sub_channels",
+          "ordinal": 12,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "min_length",
+          "ordinal": 13,
+          "type_info": "Int4"
+        },
+        {
+          "name": "max_length",
+          "ordinal": 14,
+          "type_info": "Int4"
+        },
+        {
+          "name": "min_attachments",
+          "ordinal": 15,
+          "type_info": "Int2"
+        },
+        {
+          "name": "max_attachments",
+          "ordinal": 16,
+          "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 17,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 18,
+          "type_info": "Text"
+        },
+        {
+          "name": "voter_has_all_of",
+          "ordinal": 19,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "voter_missing_all_of",
+          "ordinal": 20,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "voter_has_some_of",
+          "ordinal": 21,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "voter_missing_some_of",
+          "ordinal": 22,
+          "type_info": "Int8Array"
+        },
+        {
+          "name": "older_than",
+          "ordinal": 23,
+          "type_info": "Int8"
+        },
+        {
+          "name": "newer_than",
+          "ordinal": 24,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int2"
+        ]
+      }
+    },
+    "query": "DELETE FROM filters WHERE filter_group_id=$1 AND position=$2 RETURNING *"
   },
   "60e1c4b63284b53ef3119b8a51b4f307c33a66443f2258523817d1e773a91542": {
     "describe": {
@@ -2599,38 +2944,6 @@
     },
     "query": "INSERT INTO VOTES (message_id, starboard_id, user_id, target_author_id, is_downvote)\n            VALUES ($1, $2, $3, $4, $5)\n            ON CONFLICT DO NOTHING"
   },
-  "6e836e995ff8e37b3ec81972f7cfba81ce4a25117f8c44cbec23a5a6148d5cfc": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "guild_id",
-          "ordinal": 1,
-          "type_info": "Int8"
-        },
-        {
-          "name": "name",
-          "ordinal": 2,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Int4Array"
-        ]
-      }
-    },
-    "query": "SELECT * FROM filter_groups WHERE id=any($1)"
-  },
   "70e4dde509221ec5efbae5241702d3d7876fed9a216872704d2449ccaeeb458c": {
     "describe": {
       "columns": [
@@ -2682,6 +2995,39 @@
       }
     },
     "query": "SELECT count(*) as count FROM autostar_channels WHERE guild_id=$1 AND \n        premium_locked=false"
+  },
+  "740a7d0eee48ea3b857a1e8423a5dbf41e8243406a0ffc1dc6c761f23542dbd1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "DELETE FROM filter_groups WHERE guild_id=$1 AND name=$2 RETURNING *"
   },
   "7584c85655f379fc8a95a4b0fe7e3d060711300ba1ec6e28d01bd7536ba4c53b": {
     "describe": {
@@ -3564,6 +3910,38 @@
     },
     "query": "DELETE FROM overrides WHERE guild_id=$1 AND name=$2 RETURNING *"
   },
+  "88948b14ed5445778faa588733fd859c766ab480a35af4c7bdb349333f9b0042": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM filter_groups WHERE guild_id=$1"
+  },
   "8922d567b5bf4617bde6089db2954a7bd25227fe7b2c10ff877f4975258794e0": {
     "describe": {
       "columns": [
@@ -3826,6 +4204,39 @@
     },
     "query": "UPDATE starboards SET premium_locked=false WHERE guild_id=$1"
   },
+  "9bf8fb5ae48f43eed0c1832543a430f0184bb541760aa13a0822e2a52759f006": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM filter_groups WHERE guild_id=$1 AND name=$2"
+  },
   "9d4eb12dd28fd734427d327dcfef36db627cc97700fa3213217ac6f577e75206": {
     "describe": {
       "columns": [
@@ -4001,6 +4412,26 @@
       }
     },
     "query": "DELETE FROM autostar_channels WHERE name=$1 AND guild_id=$2 RETURNING *"
+  },
+  "ab424ee9bf691950fd2d03b1a94712be1e5821488bbb08233c7b16d75a6120dd": {
+    "describe": {
+      "columns": [
+        {
+          "name": "position",
+          "ordinal": 0,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT MAX(position) as position FROM filters WHERE filter_group_id=$1"
   },
   "ae21651e28e5e8de6d8d5889653c3a0609a56f4db7879652447c01c019cab317": {
     "describe": {
@@ -5624,6 +6055,39 @@
     },
     "query": "INSERT INTO patrons (patreon_id) VALUES ($1)\n            ON CONFLICT DO NOTHING RETURNING *"
   },
+  "f3a58ebe4eb947b3292a0cb6f1a180a8f5ad2478fe6970938f78352cdd0acd3b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO filter_groups (guild_id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING\n            RETURNING *"
+  },
   "f593aa1cbdba23466e32e06ffbd59144e044dfad3f355cdb385b6941d28580ea": {
     "describe": {
       "columns": [
@@ -5823,6 +6287,39 @@
       }
     },
     "query": "SELECT * FROM permroles WHERE role_id=$1"
+  },
+  "fa193143e7d636c964fa2209524c619de27345bcbe9d377e2d6a1d37288300ed": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE filter_groups SET name=$1 WHERE id=$2 RETURNING *"
   },
   "fde9f975f9c5f5450e32c3eb957bb25da0e317bfd610180abbaad41dbcad4657": {
     "describe": {
