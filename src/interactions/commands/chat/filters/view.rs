@@ -71,11 +71,10 @@ async fn group_embed(pool: &sqlx::PgPool, group: &FilterGroup) -> StarboardResul
         ret.push(emb);
     }
 
-    for _filter in filters {
-        dbg!("todo");
+    for filter in filters {
         let emb = EmbedBuilder::new()
             .color(constants::EMBED_DARK_BG)
-            .description("Filter description.")
+            .description(format!("Filter description. {}", filter.position))
             .build();
         ret.push(emb);
     }

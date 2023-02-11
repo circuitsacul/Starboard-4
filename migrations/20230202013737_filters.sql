@@ -10,6 +10,8 @@ CREATE TABLE filter_groups (
 );
 
 CREATE TABLE filters (
+    id SERIAL PRIMARY KEY,
+
     position SMALLINT NOT NULL,
     filter_group_id INT NOT NULL,
 
@@ -45,8 +47,7 @@ CREATE TABLE filters (
 
     FOREIGN KEY (filter_group_id) REFERENCES filter_groups (id)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    PRIMARY KEY (filter_group_id, position)
+        ON UPDATE CASCADE
 );
 
 ALTER TABLE starboards ADD COLUMN filters INT[] NOT NULL DEFAULT '{}';

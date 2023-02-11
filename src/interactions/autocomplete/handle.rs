@@ -110,6 +110,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
         // filter groups
         "filters create-filter group" => filter_group_name_autocomplete(&ctx, focused).await?,
         "filters delete-filter group" => filter_group_name_autocomplete(&ctx, focused).await?,
+        "filters move-filter group" => filter_group_name_autocomplete(&ctx, focused).await?,
         "filters rename-group current-name" => {
             filter_group_name_autocomplete(&ctx, focused).await?
         }

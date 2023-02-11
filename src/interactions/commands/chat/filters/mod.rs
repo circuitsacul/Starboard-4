@@ -2,6 +2,7 @@ mod create_filter;
 mod create_group;
 mod delete_filter;
 mod delete_group;
+mod move_filter;
 mod rename_group;
 mod view;
 
@@ -31,6 +32,8 @@ pub enum Filters {
     CreateFilter(create_filter::CreateFilter),
     #[command(name = "delete-filter")]
     DeleteFilter(delete_filter::DeleteFilter),
+    #[command(name = "move-filter")]
+    MoveFilter(move_filter::MoveFilter),
 
     #[command(name = "view")]
     View(view::View),
@@ -45,6 +48,7 @@ impl Filters {
 
             Self::CreateFilter(cmd) => cmd.callback(ctx).await,
             Self::DeleteFilter(cmd) => cmd.callback(ctx).await,
+            Self::MoveFilter(cmd) => cmd.callback(ctx).await,
 
             Self::View(cmd) => cmd.callback(ctx).await,
         }

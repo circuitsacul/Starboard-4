@@ -74,6 +74,8 @@ impl FilterGroup {
 }
 
 pub struct Filter {
+    pub id: i32,
+
     pub filter_group_id: i32,
     pub position: i16,
 
@@ -150,13 +152,31 @@ impl Filter {
         .map(|r| r.position.unwrap_or(0))
     }
 
-    pub async fn shift(
+    pub async fn get_by_position(
         pool: &sqlx::PgPool,
+        filter_group_id: i32,
+        position: i16,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query_as!(
+            Self,
+            "SELECT * FROM filters WHERE filter_group_id=$1 AND position=$2",
+            filter_group_id,
+            position
+        )
+        .fetch_optional(pool)
+        .await
+    }
+
+    pub async fn shift<'c, E>(
+        executor: E,
         filter_group_id: i32,
         start: i16,
         end: Option<i16>,
         distance: i16,
-    ) -> sqlx::Result<()> {
+    ) -> sqlx::Result<()>
+    where
+        E: sqlx::PgExecutor<'c>,
+    {
         sqlx::query!(
             "UPDATE filters SET position = position + $1
             WHERE position >= $2 AND ($3::SMALLINT IS NULL OR position <= $3)
@@ -166,9 +186,64 @@ impl Filter {
             end,
             filter_group_id,
         )
-        .execute(pool)
-        .await
-        .map(|_| ())
+        .execute(executor)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn set_position(
+        pool: &sqlx::PgPool,
+        filter_group_id: i32,
+        current: i16,
+        new: i16,
+    ) -> sqlx::Result<Option<()>> {
+        if current == new {
+            return Ok(Some(()));
+        }
+
+        let mut tx = pool.begin().await?;
+
+        // select for update, locking these rows
+        sqlx::query!(
+            "SELECT FROM filters WHERE filter_group_id=$1 FOR UPDATE",
+            filter_group_id
+        )
+        .execute(&mut tx)
+        .await?;
+
+        // fetch the item that we're moving
+        let to_move = Self::get_by_position(pool, filter_group_id, current).await?;
+        let Some(to_move) = to_move else {
+            return Ok(None);
+        };
+
+        // shift other items out of the way if needed
+        let (start, end, dir) = if current > new {
+            (new, current, 1)
+        } else {
+            (current, new, -1)
+        };
+        Filter::shift(&mut tx, filter_group_id, start, Some(end), dir).await?;
+
+        // update the position
+        let ret = sqlx::query!(
+            "UPDATE filters SET position=$1 WHERE id=$2 AND filter_group_id=$3",
+            new,
+            to_move.id,
+            filter_group_id
+        )
+        .execute(&mut tx)
+        .await?;
+
+        // commit & return
+        tx.commit().await?;
+
+        if ret.rows_affected() == 0 {
+            Ok(None)
+        } else {
+            Ok(Some(()))
+        }
     }
 
     pub async fn list_by_filter(
@@ -177,7 +252,7 @@ impl Filter {
     ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
-            "SELECT * FROM filters WHERE filter_group_id=$1 ORDER BY position DESC",
+            "SELECT * FROM filters WHERE filter_group_id=$1 ORDER BY position ASC",
             filter_group_id
         )
         .fetch_all(pool)
