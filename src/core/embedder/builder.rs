@@ -6,11 +6,8 @@ use twilight_model::{
         embed::Embed,
         Component,
     },
-    id::{
-        marker::{MessageMarker, UserMarker},
-        Id,
-    },
-    util::{ImageHash, Timestamp},
+    id::{marker::MessageMarker, Id},
+    util::Timestamp,
 };
 use twilight_util::{
     builder::embed::{
@@ -24,7 +21,9 @@ use crate::{
     constants,
     core::emoji::{EmojiCommon, SimpleEmoji},
     errors::StarboardResult,
-    utils::{id_as_i64::GetI64, into_id::IntoId, message_link::fmt_message_link},
+    utils::{
+        avatar::ImageHashAvatar, id_as_i64::GetI64, into_id::IntoId, message_link::fmt_message_link,
+    },
 };
 
 use super::{parser::ParsedMessage, AttachmentHandle, Embedder};
@@ -195,6 +194,8 @@ impl BuiltStarboardEmbed {
         watermark: bool,
         is_reply: bool,
     ) -> StarboardResult<Option<Embed>> {
+        let guild_id = handle.config.starboard.guild_id.into_id();
+
         let mut zws_fields: Vec<String> = Vec::new();
         let color = if is_reply {
             constants::EMBED_DARK_BG
@@ -237,7 +238,7 @@ impl BuiltStarboardEmbed {
                 true => handle.referenced_message.as_ref().map(|msg| msg.author_id),
                 false => Some(handle.orig_sql_message.author_id.into_id()),
             };
-            let avatar: Option<(ImageHash, Id<UserMarker>)>;
+            let avatar: Option<String>;
             let name: String;
             (name, avatar) = match maybe_user {
                 None => ("Deleted User".to_string(), None),
@@ -261,11 +262,17 @@ impl BuiltStarboardEmbed {
                                 .nickname
                                 .to_owned()
                                 .unwrap_or_else(|| user.name.to_owned()),
-                            member.server_avatar_hash.or(user.avatar_hash),
+                            member
+                                .server_avatar_hash
+                                .map(|av| av.guild_avatar(user_id, guild_id))
+                                .or(user.avatar_hash.map(|av| av.global_avatar(user_id))),
                         ),
-                        None => (user.name.to_owned(), user.avatar_hash),
+                        None => (
+                            user.name.to_owned(),
+                            user.avatar_hash.map(|av| av.global_avatar(user_id)),
+                        ),
                     };
-                    (name, avatar.map(|av| (av, user_id)))
+                    (name, avatar)
                 }
             };
             let name = if is_reply {
@@ -275,9 +282,8 @@ impl BuiltStarboardEmbed {
             };
 
             let mut author = EmbedAuthorBuilder::new(name).url(&link);
-            if let Some((avatar, user_id)) = avatar {
-                let url = format!("https://cdn.discordapp.com/avatars/{user_id}/{avatar}.png");
-                author = author.icon_url(ImageSource::url(url).unwrap());
+            if let Some(avatar) = avatar {
+                author = author.icon_url(ImageSource::url(avatar).unwrap());
             }
 
             embed = embed.author(author.build())
