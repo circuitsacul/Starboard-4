@@ -1,4 +1,5 @@
 pub mod async_dash;
+pub mod avatar;
 pub mod dashset_lock;
 pub mod div_ceil;
 pub mod dm;
