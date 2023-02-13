@@ -100,10 +100,34 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
             DbUser::set_patreon_status(&bot.pool, user.user_id, patron.status).await?;
 
             let message = match (user.patreon_status, patron.status) {
-                (0 | 3, 1 | 2) => {
-                    "Thanks for becoming a patron! Redeem your credits using `/premium redeem`."
+                (0 | 3, 1) => {
+                    concat!(
+                        "Thanks for becoming a patron! Redeem your credits using ",
+                        "`/premium redeem`.",
+                        "\n\nPayments take time to process, so you may not receive credits ",
+                        "immediatly.",
+                        "\n\nIf you need any help, feel free to join the support server ",
+                        "(see `/help`).",
+                    )
                 }
-                (_, 2) => "Just letting you know that Patreon declined your last payment.",
+                (0 | 3, 2) => {
+                    concat!(
+                        "Thanks for becoming a patron! You can redeem credits using ",
+                        "`/premium redeem`.",
+                        "\n\nIt looks like Patreon has declined your payment, so you won't ",
+                        "receive any credits until this is resolved.",
+                        "\n\nIf you need any help, feel free to join the support server ",
+                        "(see `/help`).",
+                    )
+                }
+                (_, 2) => {
+                    concat!(
+                        "Just letting you know that Patreon declined your last payment. ",
+                        "You won't receive move credits until this is resolved.",
+                        "\n\nIf you need any help, feel free to join the support server ",
+                        "(see `/help`).",
+                    )
+                }
                 _ => continue,
             };
 
