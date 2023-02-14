@@ -20,6 +20,7 @@ pub struct CreateStarboard {
     #[command(channel_types = r#"
             guild_text
             guild_voice
+            guild_stage_voice
             guild_announcement
             announcement_thread
             public_thread
