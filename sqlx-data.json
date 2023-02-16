@@ -4235,6 +4235,33 @@
     },
     "query": "UPDATE exclusive_groups SET name=$1 WHERE guild_id=$2 AND name=$3 RETURNING *"
   },
+  "8d9def99ad06f8c157169facf89f34e6c101a73bac5a014b4e373335d1aa7475": {
+    "describe": {
+      "columns": [
+        {
+          "name": "filter_group_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM starboard_filter_groups WHERE filter_group_id=$1 AND starboard_id=$2\n            RETURNING *"
+  },
   "8e1d277d941255a7c289675b488a87f25a4732d590e93935b41f8465e71b98ce": {
     "describe": {
       "columns": [
@@ -5471,6 +5498,33 @@
       }
     },
     "query": "INSERT INTO overrides (guild_id, name, starboard_id) VALUES ($1, $2, $3)\n            ON CONFLICT DO NOTHING RETURNING *"
+  },
+  "cfd16182d09d0db8af8fd26550db560425ea451ffcf4f60d56c6dc9c5333557d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "filter_group_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO starboard_filter_groups (filter_group_id, starboard_id) VALUES ($1, $2)\n            ON CONFLICT DO NOTHING RETURNING *"
   },
   "d2dd5c48fa02b14f38ff569070f4c430279774fea649afbf2c40ae66b15c581b": {
     "describe": {

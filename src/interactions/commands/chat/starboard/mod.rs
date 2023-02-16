@@ -30,6 +30,8 @@ pub enum Starboard {
     Rename(rename::RenameStarboard),
     #[command(name = "edit")]
     Edit(edit::EditStarboard),
+    #[command(name = "filters")]
+    Filters(filters::Filters),
 }
 
 impl Starboard {
@@ -40,6 +42,7 @@ impl Starboard {
             Self::View(cmd) => cmd.callback(ctx).await,
             Self::Rename(cmd) => cmd.callback(ctx).await,
             Self::Edit(cmd) => cmd.callback(ctx).await,
+            Self::Filters(cmd) => cmd.callback(ctx).await,
         }
     }
 }

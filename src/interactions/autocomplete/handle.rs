@@ -98,6 +98,14 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
             exclusive_group_name_autocomplete(&ctx, focused).await?
         }
         "starboards rename current-name" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards filters add starboard" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards filters add filter-group" => {
+            filter_group_name_autocomplete(&ctx, focused).await?
+        }
+        "starboards filters remove starboard" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards filters remove filter-group" => {
+            filter_group_name_autocomplete(&ctx, focused).await?
+        }
         // overrides
         "overrides create starboard" => starboard_name_autocomplete(&ctx, focused).await?,
         "overrides delete name" => override_name_autocomplete(&ctx, focused).await?,
