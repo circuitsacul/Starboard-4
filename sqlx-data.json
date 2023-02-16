@@ -52,11 +52,6 @@
           "name": "delete_invalid",
           "ordinal": 9,
           "type_info": "Bool"
-        },
-        {
-          "name": "filters",
-          "ordinal": 10,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -68,7 +63,6 @@
         false,
         false,
         true,
-        false,
         false,
         false
       ],
@@ -417,6 +411,33 @@
     },
     "query": "UPDATE autostar_channels SET premium_locked=false WHERE guild_id=$1\n        RETURNING channel_id"
   },
+  "0ffc05838685c5cdefbc6c795bba90b0258e037813f8ff476c3ce47153e3616b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "filter_group_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "autostar_channel_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM autostar_channel_filter_groups WHERE filter_group_id=$1 AND\n            autostar_channel_id=$2 RETURNING *"
+  },
   "118d39bf0d11f6414f1e34de25620d3b09c261e29eeac345d7ad7520c454307a": {
     "describe": {
       "columns": [
@@ -469,11 +490,6 @@
           "name": "delete_invalid",
           "ordinal": 9,
           "type_info": "Bool"
-        },
-        {
-          "name": "filters",
-          "ordinal": 10,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -485,7 +501,6 @@
         false,
         false,
         true,
-        false,
         false,
         false
       ],
@@ -891,11 +906,6 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
-        },
-        {
-          "name": "filters",
-          "ordinal": 40,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -938,8 +948,7 @@
         false,
         false,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
@@ -1237,11 +1246,6 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
-        },
-        {
-          "name": "filters",
-          "ordinal": 40,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -1284,8 +1288,7 @@
         false,
         false,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
@@ -1360,6 +1363,33 @@
       }
     },
     "query": "UPDATE starboard_messages SET last_known_point_count=$1 WHERE starboard_message_id=$2\n            RETURNING *"
+  },
+  "2700fb5c143af16f3d71e3885bb5e4320cdd533546b741765721d4fec9a24df7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "filter_group_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "autostar_channel_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO autostar_channel_filter_groups (filter_group_id, autostar_channel_id)\n            VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING *"
   },
   "297582967c8cfa473eb7f7cd66784e3f47df7896a9234b12f24b02fc500e6ad7": {
     "describe": {
@@ -1667,11 +1697,6 @@
           "name": "delete_invalid",
           "ordinal": 9,
           "type_info": "Bool"
-        },
-        {
-          "name": "filters",
-          "ordinal": 10,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -1683,7 +1708,6 @@
         false,
         false,
         true,
-        false,
         false,
         false
       ],
@@ -2011,11 +2035,6 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
-        },
-        {
-          "name": "filters",
-          "ordinal": 40,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -2058,8 +2077,7 @@
         false,
         false,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
@@ -2465,11 +2483,6 @@
           "name": "delete_invalid",
           "ordinal": 9,
           "type_info": "Bool"
-        },
-        {
-          "name": "filters",
-          "ordinal": 10,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -2481,7 +2494,6 @@
         false,
         false,
         true,
-        false,
         false,
         false
       ],
@@ -2758,11 +2770,6 @@
           "name": "delete_invalid",
           "ordinal": 9,
           "type_info": "Bool"
-        },
-        {
-          "name": "filters",
-          "ordinal": 10,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -2774,7 +2781,6 @@
         false,
         false,
         true,
-        false,
         false,
         false
       ],
@@ -3465,11 +3471,6 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
-        },
-        {
-          "name": "filters",
-          "ordinal": 40,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -3512,8 +3513,7 @@
         false,
         false,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
@@ -3847,11 +3847,6 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
-        },
-        {
-          "name": "filters",
-          "ordinal": 40,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -3894,8 +3889,7 @@
         false,
         false,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
@@ -4360,11 +4354,6 @@
           "name": "delete_invalid",
           "ordinal": 9,
           "type_info": "Bool"
-        },
-        {
-          "name": "filters",
-          "ordinal": 10,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -4376,7 +4365,6 @@
         false,
         false,
         true,
-        false,
         false,
         false
       ],
@@ -4432,6 +4420,32 @@
       }
     },
     "query": "SELECT * FROM filter_groups WHERE guild_id=$1 AND name=$2"
+  },
+  "9cca71919e3810a510e3cfe7478c7c2e766176ef936e4e3cef33394fe4b58b02": {
+    "describe": {
+      "columns": [
+        {
+          "name": "filter_group_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "starboard_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM starboard_filter_groups WHERE starboard_id=$1"
   },
   "9d4eb12dd28fd734427d327dcfef36db627cc97700fa3213217ac6f577e75206": {
     "describe": {
@@ -4580,11 +4594,6 @@
           "name": "delete_invalid",
           "ordinal": 9,
           "type_info": "Bool"
-        },
-        {
-          "name": "filters",
-          "ordinal": 10,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -4596,7 +4605,6 @@
         false,
         false,
         true,
-        false,
         false,
         false
       ],
@@ -5251,11 +5259,6 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
-        },
-        {
-          "name": "filters",
-          "ordinal": 40,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -5298,8 +5301,7 @@
         false,
         false,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
@@ -5812,11 +5814,6 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
-        },
-        {
-          "name": "filters",
-          "ordinal": 40,
-          "type_info": "Int4Array"
         }
       ],
       "nullable": [
@@ -5859,8 +5856,7 @@
         false,
         false,
         true,
-        true,
-        false
+        true
       ],
       "parameters": {
         "Left": [
@@ -6066,6 +6062,32 @@
       }
     },
     "query": "SELECT id FROM autostar_channels WHERE guild_id=$1 LIMIT $2"
+  },
+  "f2ea16cef7b1f1585f75d4335b4bef7ba8f7d5291118b85d2dcc771e99d3f8f2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "filter_group_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "autostar_channel_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM autostar_channel_filter_groups WHERE autostar_channel_id=$1"
   },
   "f3535921e3aa69bc413af92411b058f35171dd758dfb3f64ad61a094702c4bb9": {
     "describe": {
