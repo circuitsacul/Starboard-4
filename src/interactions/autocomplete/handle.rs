@@ -116,6 +116,7 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
         }
         "filters delete-group name" => filter_group_name_autocomplete(&ctx, focused).await?,
         "filters view group" => filter_group_name_autocomplete(&ctx, focused).await?,
+        "filters edit group" => filter_group_name_autocomplete(&ctx, focused).await?,
         // permroles
         "permroles edit-starboard starboard" => starboard_name_autocomplete(&ctx, focused).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),
