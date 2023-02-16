@@ -12,6 +12,7 @@ use crate::{
     core::{
         emoji::SimpleEmoji, filters::FilterEvaluater, has_image::has_image, permroles::Permissions,
     },
+    database::models::starboard_filter_group::StarboardFilterGroup,
     errors::StarboardResult,
     utils::{into_id::IntoId, snowflake_age::SnowflakeAge},
 };
@@ -149,6 +150,8 @@ impl<'a> VoteStatus<'a> {
             }
 
             // check filters
+            let filter_groups =
+                StarboardFilterGroup::list_by_starboard(&bot.pool, config.starboard.id).await?;
             let mut evaluater = FilterEvaluater::new(
                 bot,
                 config.starboard.guild_id.into_id(),
@@ -156,7 +159,7 @@ impl<'a> VoteStatus<'a> {
                 Some(vote.reactor_id),
                 Some(vote.channel_id),
                 Some(vote.message_id),
-                &config.resolved.filters,
+                filter_groups.iter().map(|g| g.filter_group_id).collect(),
             );
             evaluater.set_user_is_bot(Some(vote.message_author_is_bot));
             let status = evaluater.status().await?;

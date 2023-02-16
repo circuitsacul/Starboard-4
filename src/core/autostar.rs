@@ -9,7 +9,9 @@ use crate::{
     cache::{models::message::CachedMessage, MessageResult},
     client::bot::StarboardBot,
     core::emoji::{EmojiCommon, SimpleEmoji},
-    database::AutoStarChannel,
+    database::{
+        models::autostar_channel_filter_group::AutostarChannelFilterGroup, AutoStarChannel,
+    },
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, notify},
 };
@@ -158,6 +160,8 @@ async fn get_status(
         }
     }
 
+    let filter_groups =
+        AutostarChannelFilterGroup::list_by_autostar_channel(&bot.pool, asc.id).await?;
     let mut filters = FilterEvaluater::new(
         bot,
         guild_id,
@@ -165,7 +169,7 @@ async fn get_status(
         None,
         Some(channel_id),
         Some(message_id),
-        &asc.filters,
+        filter_groups.iter().map(|g| g.filter_group_id).collect(),
     );
     filters.set_message(MessageResult::Ok(event));
     if !filters.status().await? {

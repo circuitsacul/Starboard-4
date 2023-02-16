@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::models::filter::FilterGroup,
+    database::models::filter_group::FilterGroup,
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

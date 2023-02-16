@@ -4,7 +4,7 @@ use twilight_util::builder::embed::EmbedBuilder;
 
 use crate::{
     constants,
-    database::models::filter::{Filter, FilterGroup},
+    database::models::{filter::Filter, filter_group::FilterGroup},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

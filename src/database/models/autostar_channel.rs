@@ -21,7 +21,6 @@ pub struct AutoStarChannel {
     pub min_chars: i16,
     pub max_chars: Option<i16>,
     pub require_image: bool,
-    pub filters: Vec<i32>,
     pub delete_invalid: bool,
 }
 

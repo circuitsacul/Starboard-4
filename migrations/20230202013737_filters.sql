@@ -50,5 +50,30 @@ CREATE TABLE filters (
         ON UPDATE CASCADE
 );
 
-ALTER TABLE starboards ADD COLUMN filters INT[] NOT NULL DEFAULT '{}';
-ALTER TABLE autostar_channels ADD COLUMN filters INT[] NOT NULL DEFAULT '{}';
+CREATE TABLE starboard_filter_groups (
+    filter_group_id INT NOT NULL,
+    starboard_id INT NOT NULL,
+
+    PRIMARY KEY (filter_group_id, starboard_id),
+
+    FOREIGN KEY (filter_group_id) REFERENCES filter_groups (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (starboard_id) REFERENCES starboards (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE autostar_channel_filter_groups (
+    filter_group_id INT NOT NULL,
+    autostar_channel_id INT NOT NULL,
+
+    PRIMARY KEY (filter_group_id, autostar_channel_id),
+
+    FOREIGN KEY (filter_group_id) REFERENCES filter_groups (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (autostar_channel_id) REFERENCES autostar_channels (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);

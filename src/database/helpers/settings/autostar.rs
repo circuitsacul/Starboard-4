@@ -8,8 +8,7 @@ macro_rules! call_with_autostar_settings {
             min_chars,
             max_chars,
             require_image,
-            delete_invalid,
-            filters
+            delete_invalid
         )
     };
 }

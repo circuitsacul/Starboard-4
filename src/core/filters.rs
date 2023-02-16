@@ -35,7 +35,7 @@ fn has_any_role(user_roles: &[i64], required: &[i64]) -> bool {
 
 pub struct FilterEvaluater<'a> {
     bot: &'a StarboardBot,
-    filter_group_ids: &'a [i32],
+    filter_group_ids: Vec<i32>,
 
     // contextual info
     guild_id: Id<GuildMarker>,
@@ -60,7 +60,7 @@ impl<'a> FilterEvaluater<'a> {
         voter_id: Option<Id<UserMarker>>,
         channel_id: Option<Id<ChannelMarker>>,
         message_id: Option<Id<MessageMarker>>,
-        filter_ids: &'a [i32],
+        filter_ids: Vec<i32>,
     ) -> Self {
         Self {
             bot,
@@ -403,7 +403,7 @@ impl<'a> FilterEvaluater<'a> {
         }
 
         let mut filters = Vec::new();
-        for filter_id in self.filter_group_ids {
+        for filter_id in &self.filter_group_ids {
             let checks = Filter::list_by_filter(&self.bot.pool, *filter_id).await?;
             filters.push(checks);
         }

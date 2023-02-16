@@ -27,7 +27,6 @@ pub struct StarboardSettings {
     pub newer_than: i64,
     pub matches: Option<String>,
     pub not_matches: Option<String>,
-    pub filters: Vec<i32>,
 
     // Behavior
     pub enabled: bool,

@@ -1,7 +1,7 @@
 use twilight_model::application::command::CommandOptionChoice;
 
 use crate::{
-    database::models::filter::FilterGroup, errors::StarboardResult,
+    database::models::filter_group::FilterGroup, errors::StarboardResult,
     interactions::context::CommandCtx, utils::id_as_i64::GetI64,
 };
 
