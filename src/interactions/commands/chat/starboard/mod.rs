@@ -1,6 +1,7 @@
 pub mod create;
 pub mod delete;
 pub mod edit;
+pub mod filters;
 pub mod rename;
 pub mod view;
 

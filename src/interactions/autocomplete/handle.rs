@@ -75,6 +75,18 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
         "autostar view name" => autostar_name_autocomplete(&ctx, focused).await?,
         "autostar edit name" => autostar_name_autocomplete(&ctx, focused).await?,
         "autostar rename current-name" => autostar_name_autocomplete(&ctx, focused).await?,
+        "autostar filters add autostar-channel" => {
+            autostar_name_autocomplete(&ctx, focused).await?
+        }
+        "autostar filters add filter-group" => {
+            filter_group_name_autocomplete(&ctx, focused).await?
+        }
+        "autostar filters remove autostar-channel" => {
+            autostar_name_autocomplete(&ctx, focused).await?
+        }
+        "autostar filters remove filter-group" => {
+            filter_group_name_autocomplete(&ctx, focused).await?
+        }
         // starboards
         "starboards delete name" => starboard_name_autocomplete(&ctx, focused).await?,
         "starboards view name" => starboard_name_autocomplete(&ctx, focused).await?,
