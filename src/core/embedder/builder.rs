@@ -178,6 +178,10 @@ impl BuiltStarboardEmbed {
     }
 
     pub async fn build_replied_embed(handle: &Embedder) -> StarboardResult<Option<Embed>> {
+        if !handle.config.resolved.replied_to {
+            return Ok(None);
+        }
+
         let ref_msg = match &handle.referenced_message {
             None => return Ok(None),
             Some(msg) => msg,
