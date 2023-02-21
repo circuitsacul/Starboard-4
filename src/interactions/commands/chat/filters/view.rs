@@ -1,6 +1,8 @@
+use std::time::Duration;
+use thousands::Separable;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::channel::message::Embed;
-use twilight_util::builder::embed::EmbedBuilder;
+use twilight_util::builder::embed::{EmbedBuilder, EmbedFieldBuilder};
 
 use crate::{
     constants,
@@ -72,12 +74,225 @@ async fn group_embed(pool: &sqlx::PgPool, group: &FilterGroup) -> StarboardResul
     }
 
     for filter in filters {
-        let emb = EmbedBuilder::new()
-            .color(constants::EMBED_DARK_BG)
-            .description(format!("Filter description. {}", filter.position))
-            .build();
-        ret.push(emb);
+        ret.push(filter_embed(filter));
     }
 
     Ok(ret)
+}
+
+fn format_roles(role_ids: &[i64]) -> String {
+    if role_ids.is_empty() {
+        "None set. This condition always passes.".to_string()
+    } else {
+        role_ids
+            .iter()
+            .map(|r| format!("<@&{r}>"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+}
+
+fn format_channels(channel_ids: &[i64]) -> String {
+    if channel_ids.is_empty() {
+        "None set. This condition always passes.".to_string()
+    } else {
+        channel_ids
+            .iter()
+            .map(|c| format!("<#{c}>"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+}
+
+fn filter_embed(filter: Filter) -> Embed {
+    let mut default_context = Vec::new();
+    let mut message_context = Vec::new();
+    let mut vote_context = Vec::new();
+
+    // default context
+    if let Some(val) = filter.user_has_all_of {
+        let desc = format!("User must have all of these roles:\n{}", format_roles(&val));
+        default_context.push(desc);
+    }
+    if let Some(val) = filter.user_has_some_of {
+        let desc = format!(
+            "User must have at least one of these roles:\n{}",
+            format_roles(&val),
+        );
+        default_context.push(desc);
+    }
+    if let Some(val) = filter.user_missing_all_of {
+        let desc = format!(
+            "User must be missing all of these roles:\n{}",
+            format_roles(&val),
+        );
+        default_context.push(desc);
+    }
+    if let Some(val) = filter.user_missing_some_of {
+        let desc = format!(
+            "User must be missing at least one of these roles:\n{}",
+            format_roles(&val),
+        );
+        default_context.push(desc);
+    }
+    if let Some(val) = filter.user_is_bot {
+        let desc = if val {
+            "User must be a bot."
+        } else {
+            "User must not be a bot."
+        };
+        default_context.push(desc.to_string());
+    }
+
+    // message context
+    if let Some(val) = filter.in_channel {
+        let desc = format!(
+            "Message must be in one of these channels:\n{}",
+            format_channels(&val)
+        );
+        message_context.push(desc);
+    }
+    if let Some(val) = filter.not_in_channel {
+        let desc = format!(
+            "Message must not be in any of these channels:\n{}",
+            format_channels(&val)
+        );
+        message_context.push(desc);
+    }
+    if let Some(val) = filter.in_channel_or_sub_channels {
+        let desc = format!(
+            "Message must be in one of these channels or one of their sub-channels:\n{}",
+            format_channels(&val)
+        );
+        message_context.push(desc);
+    }
+    if let Some(val) = filter.not_in_channel_or_sub_channels {
+        let desc = format!(
+            "Message must not be in any of these channels or any of their sub-channels:\n{}",
+            format_channels(&val)
+        );
+        message_context.push(desc);
+    }
+    if let Some(val) = filter.min_attachments {
+        let desc = format!("Message must have at least {val} attachments.");
+        message_context.push(desc);
+    }
+    if let Some(val) = filter.max_attachments {
+        let desc = format!("Message cannot have more than {val} attachments.");
+        message_context.push(desc);
+    }
+    if let Some(val) = filter.min_length {
+        let desc = format!(
+            "Message must be at least {} characters long.",
+            val.separate_with_commas()
+        );
+        message_context.push(desc);
+    }
+    if let Some(val) = filter.max_length {
+        let desc = format!(
+            "Message cannot be longer than {} characters.",
+            val.separate_with_commas()
+        );
+        message_context.push(desc);
+    }
+    if let Some(val) = filter.matches {
+        let desc = format!("Message must match the following regex:\n```re\n{val}\n```");
+        message_context.push(desc);
+    }
+    if let Some(val) = filter.not_matches {
+        let desc = format!("Message must not match the following regex:\n```re\n{val}\n```");
+        message_context.push(desc);
+    }
+
+    // voter context
+    if let Some(val) = filter.voter_has_all_of {
+        let desc = format!(
+            "Voter must have all of these roles:\n{}",
+            format_roles(&val)
+        );
+        vote_context.push(desc);
+    }
+    if let Some(val) = filter.voter_has_some_of {
+        let desc = format!(
+            "Voter must have at least one of these roles:\n{}",
+            format_roles(&val),
+        );
+        vote_context.push(desc);
+    }
+    if let Some(val) = filter.voter_missing_all_of {
+        let desc = format!(
+            "Voter must be missing all of these roles:\n{}",
+            format_roles(&val),
+        );
+        vote_context.push(desc);
+    }
+    if let Some(val) = filter.voter_missing_some_of {
+        let desc = format!(
+            "Voter must be missing at least one of these roles:\n{}",
+            format_roles(&val),
+        );
+        vote_context.push(desc);
+    }
+    if let Some(val) = filter.older_than {
+        let desc = format!(
+            "Message must be older than {}.",
+            humantime::format_duration(Duration::from_secs(val as u64)),
+        );
+        vote_context.push(desc);
+    }
+    if let Some(val) = filter.newer_than {
+        let desc = format!(
+            "Message must be newer than {}.",
+            humantime::format_duration(Duration::from_secs(val as u64)),
+        );
+        vote_context.push(desc);
+    }
+
+    let mut desc = String::new();
+    desc.push_str("If all the conditions in this filter pass, ");
+    if filter.instant_pass {
+        desc.push_str("this entire filter group passses, since instant-pass is enabled.");
+    } else {
+        desc.push_str("nothing happens, since instant-pass is disabled.");
+    }
+    desc.push_str("\n\nIf any of the conditions in this filter fail, ");
+    if filter.instant_fail {
+        desc.push_str("this entire filter group fails, since instant-fail is enabled.");
+    } else {
+        desc.push_str("nothing happens, since instant-fail is disabled.");
+    }
+
+    let mut emb = EmbedBuilder::new().color(constants::EMBED_DARK_BG);
+
+    let mut has_conditions = false;
+
+    if !default_context.is_empty() {
+        has_conditions = true;
+        emb = emb.field(EmbedFieldBuilder::new(
+            "Default Context",
+            default_context.join("\n\n"),
+        ));
+    }
+    if !message_context.is_empty() {
+        has_conditions = true;
+        emb = emb.field(EmbedFieldBuilder::new(
+            "Message Context",
+            message_context.join("\n\n"),
+        ));
+    }
+    if !vote_context.is_empty() {
+        has_conditions = true;
+        emb = emb.field(EmbedFieldBuilder::new(
+            "Vote Context",
+            vote_context.join("\n\n"),
+        ));
+    }
+
+    if !has_conditions {
+        desc.push_str("\n\nThis filter has no conditions, so it always passes.");
+    }
+
+    emb = emb.description(desc);
+
+    emb.build()
 }
