@@ -249,18 +249,10 @@ fn filter_embed(filter: Filter) -> Embed {
     }
 
     let mut desc = String::new();
-    desc.push_str("If all the conditions in this filter pass, ");
-    if filter.instant_pass {
-        desc.push_str("this entire filter group passses, since instant-pass is enabled.");
-    } else {
-        desc.push_str("nothing happens, since instant-pass is disabled.");
-    }
-    desc.push_str("\n\nIf any of the conditions in this filter fail, ");
-    if filter.instant_fail {
-        desc.push_str("this entire filter group fails, since instant-fail is enabled.");
-    } else {
-        desc.push_str("nothing happens, since instant-fail is disabled.");
-    }
+    desc.push_str(&format!(
+        "instant-pass: {}\ninstant-fail: {}",
+        filter.instant_pass, filter.instant_fail
+    ));
 
     let mut emb = EmbedBuilder::new().color(constants::EMBED_DARK_BG);
 
