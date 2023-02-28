@@ -14,6 +14,7 @@ use crate::{
     interactions::{commands::permissions::manage_roles_channels, context::CommandCtx},
 };
 
+#[allow(clippy::large_enum_variant)] // Edit(edit::Edit) being the culprit
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "filters",
