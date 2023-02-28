@@ -1,3 +1,10 @@
+use sqlx::FromRow;
+
+use crate::database::helpers::{
+    query::build_update::build_update, settings::filters::call_with_filters_settings,
+};
+
+#[derive(FromRow)]
 pub struct Filter {
     pub id: i32,
 
@@ -65,6 +72,25 @@ impl Filter {
         )
         .fetch_optional(pool)
         .await
+    }
+
+    pub async fn update_settings(self, pool: &sqlx::PgPool) -> sqlx::Result<Option<Self>> {
+        let mut builder = sqlx::QueryBuilder::<sqlx::Postgres>::new("UPDATE filters SET ");
+
+        call_with_filters_settings!(build_update, self, builder);
+
+        builder
+            .push("WHERE id=")
+            .push_bind(self.id)
+            .push("RETURNING *");
+
+        let ret = builder.build().fetch_optional(pool).await?;
+
+        if let Some(row) = ret {
+            Ok(Some(Filter::from_row(&row)?))
+        } else {
+            Ok(None)
+        }
     }
 
     pub async fn get_last_position(pool: &sqlx::PgPool, filter_group_id: i32) -> sqlx::Result<i16> {

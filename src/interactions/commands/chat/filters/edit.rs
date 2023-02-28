@@ -124,13 +124,23 @@ impl Edit {
             return Ok(());
         };
 
-        let Some(filter) = Filter::get_by_position(&ctx.bot.pool, group.id, self.position as i16).await? else {
+        let Some(mut filter) = Filter::get_by_position(&ctx.bot.pool, group.id, self.position as i16).await? else {
             ctx.respond_str(&format!("No filter for group '{}' at {} exists.", self.group, self.position), true).await?;
             return Ok(());
         };
 
         ctx.respond_str(&format!("{}{}", group.name, filter.position), true)
             .await?;
+
+        // general info
+        if let Some(val) = self.instant_pass {
+            filter.instant_pass = val;
+        }
+        if let Some(val) = self.instant_fail {
+            filter.instant_fail = val;
+        }
+
+        filter.update_settings(&ctx.bot.pool).await?;
 
         Ok(())
     }
