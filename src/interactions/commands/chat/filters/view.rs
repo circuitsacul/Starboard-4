@@ -284,7 +284,9 @@ fn filter_embed(filter: Filter) -> Embed {
         desc.push_str("\n\nThis filter has no conditions, so it always passes.");
     }
 
-    emb = emb.description(desc);
+    emb = emb
+        .description(desc)
+        .title(format!("Filter {}", filter.position));
 
     emb.build()
 }
