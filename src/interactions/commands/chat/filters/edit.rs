@@ -1,7 +1,13 @@
 use twilight_interactions::command::{CommandModel, CommandOption, CreateCommand, CreateOption};
 
 use crate::{
-    database::models::{filter::Filter, filter_group::FilterGroup},
+    database::{
+        models::{filter::Filter, filter_group::FilterGroup},
+        validation::{
+            mentions::{parse_role_ids, textable_channel_ids},
+            time_delta::parse_time_delta,
+        },
+    },
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -76,18 +82,18 @@ pub struct Edit {
     /// Require that the message was not sent in one of these channels or their sub-channels.
     #[command(rename = "not-in-channel-or-sub-channels")]
     not_in_channel_or_sub_channels: Option<String>,
-    /// Require that the message has at least this many attachments.
+    /// Require that the message has at least this many attachments. Use 0 to disable.
     #[command(rename = "min-attachments")]
-    min_attachments: Option<String>,
-    /// Require that the message have at most this many attachments.
+    min_attachments: Option<i64>,
+    /// Require that the message have at most this many attachments. Use -1 to disable.
     #[command(rename = "max-attachments")]
-    max_attachments: Option<String>,
-    /// Require that the message be at least this many characters long.
+    max_attachments: Option<i64>,
+    /// Require that the message be at least this many characters long. Use 0 to disable.
     #[command(rename = "min-length")]
-    min_lengths: Option<i64>,
-    /// Require that the message be at most this many characters long.
+    min_length: Option<i64>,
+    /// Require that the message be at most this many characters long. Use -1 to disable.
     #[command(rename = "max-length")]
-    max_lengths: Option<i64>,
+    max_length: Option<i64>,
     /// (Premium) Require that the message match this regex. Use `.*` to disable.
     matches: Option<String>,
     /// (Premium) Require that the message not match this regex. Use `.*` to disable.
@@ -107,19 +113,20 @@ pub struct Edit {
     /// Require that the voter is missing at least one of these roles.
     #[command(rename = "voter-missing-some-of")]
     voter_missing_some_of: Option<String>,
-    /// Require that the message being voted on is over a certain age.
+    /// Require that the message being voted on is over a certain age. Use "disable" to disable.
     #[command(rename = "older-than")]
     older_than: Option<String>,
-    /// Require that the message being voted on is under a certain age.
+    /// Require that the message being voted on is under a certain age. Use "disable" to disable.
     #[command(rename = "newer-than")]
     newer_than: Option<String>,
 }
 
 impl Edit {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx).get_i64();
+        let guild_id = get_guild_id!(ctx);
+        let guild_id_i64 = guild_id.get_i64();
 
-        let Some(group) = FilterGroup::get_by_name(&ctx.bot.pool, guild_id, &self.group).await? else {
+        let Some(group) = FilterGroup::get_by_name(&ctx.bot.pool, guild_id_i64, &self.group).await? else {
             ctx.respond_str(&format!("No filter group named '{}' exists.", self.group), true).await?;
             return Ok(());
         };
@@ -129,9 +136,6 @@ impl Edit {
             return Ok(());
         };
 
-        ctx.respond_str(&format!("{}{}", group.name, filter.position), true)
-            .await?;
-
         // general info
         if let Some(val) = self.instant_pass {
             filter.instant_pass = val;
@@ -140,7 +144,191 @@ impl Edit {
             filter.instant_fail = val;
         }
 
+        // default context
+        if let Some(val) = self.user_has_all_of {
+            let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if roles.is_empty() {
+                filter.user_has_all_of = None;
+            } else {
+                filter.user_has_all_of = Some(roles.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.user_has_some_of {
+            let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if roles.is_empty() {
+                filter.user_has_some_of = None;
+            } else {
+                filter.user_has_some_of = Some(roles.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.user_missing_all_of {
+            let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if roles.is_empty() {
+                filter.user_missing_all_of = None;
+            } else {
+                filter.user_missing_all_of = Some(roles.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.user_missing_some_of {
+            let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if roles.is_empty() {
+                filter.user_missing_some_of = None;
+            } else {
+                filter.user_missing_some_of = Some(roles.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.user_is_bot {
+            filter.user_is_bot = val.into();
+        }
+
+        // message context
+        if let Some(val) = self.in_channel {
+            let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
+            if channels.is_empty() {
+                filter.in_channel = None;
+            } else {
+                filter.in_channel = Some(channels.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.not_in_channel {
+            let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
+            if channels.is_empty() {
+                filter.not_in_channel = None;
+            } else {
+                filter.not_in_channel = Some(channels.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.in_channel_or_sub_channels {
+            let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
+            if channels.is_empty() {
+                filter.in_channel_or_sub_channels = None;
+            } else {
+                filter.in_channel_or_sub_channels = Some(channels.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.not_in_channel_or_sub_channels {
+            let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
+            if channels.is_empty() {
+                filter.not_in_channel_or_sub_channels = None;
+            } else {
+                filter.not_in_channel_or_sub_channels = Some(channels.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.min_attachments {
+            if val == 0 {
+                filter.min_attachments = None;
+            } else {
+                filter.min_attachments = Some(val.try_into().unwrap());
+            }
+        }
+        if let Some(val) = self.max_attachments {
+            if val == -1 {
+                filter.min_attachments = None;
+            } else {
+                filter.min_attachments = Some(val.try_into().unwrap());
+            }
+        }
+        if let Some(val) = self.min_length {
+            if val == 0 {
+                filter.min_length = None;
+            } else {
+                filter.min_length = Some(val.try_into().unwrap());
+            }
+        }
+        if let Some(val) = self.max_length {
+            if val == -1 {
+                filter.max_length = None;
+            } else {
+                filter.max_length = Some(val.try_into().unwrap());
+            }
+        }
+        if let Some(val) = self.matches {
+            if val == ".*" {
+                filter.matches = None;
+            } else {
+                filter.matches = Some(val);
+            }
+        }
+        if let Some(val) = self.not_matches {
+            if val == ".*" {
+                filter.not_matches = None;
+            } else {
+                filter.not_matches = Some(val);
+            }
+        }
+
+        // vote context
+        if let Some(val) = self.voter_has_all_of {
+            let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if roles.is_empty() {
+                filter.voter_has_all_of = None;
+            } else {
+                filter.voter_has_all_of = Some(roles.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.voter_has_some_of {
+            let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if roles.is_empty() {
+                filter.voter_has_some_of = None;
+            } else {
+                filter.voter_has_some_of = Some(roles.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.voter_missing_all_of {
+            let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if roles.is_empty() {
+                filter.voter_missing_all_of = None;
+            } else {
+                filter.voter_missing_all_of = Some(roles.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.voter_missing_some_of {
+            let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if roles.is_empty() {
+                filter.voter_missing_some_of = None;
+            } else {
+                filter.voter_missing_some_of = Some(roles.into_iter().collect());
+            }
+        }
+        if let Some(val) = self.older_than {
+            if val == "disable" {
+                filter.older_than = None;
+            } else {
+                let delta = match parse_time_delta(&val) {
+                    Ok(val) => val,
+                    Err(why) => {
+                        ctx.respond_str(&why, true).await?;
+                        return Ok(());
+                    }
+                };
+                filter.older_than = Some(delta);
+            }
+        }
+        if let Some(val) = self.newer_than {
+            if val == "disable" {
+                filter.newer_than = None;
+            } else {
+                let delta = match parse_time_delta(&val) {
+                    Ok(val) => val,
+                    Err(why) => {
+                        ctx.respond_str(&why, true).await?;
+                        return Ok(());
+                    }
+                };
+                filter.newer_than = Some(delta);
+            }
+        }
+
         filter.update_settings(&ctx.bot.pool).await?;
+
+        ctx.respond_str(
+            &format!(
+                "Updated settings for filter at {} for group '{}'.",
+                self.position, group.name
+            ),
+            false,
+        )
+        .await?;
 
         Ok(())
     }
