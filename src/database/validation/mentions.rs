@@ -1,13 +1,13 @@
 //! Parsing and validation for different types of mentions.
 
-use std::{collections::HashSet, iter::Map, str::FromStr};
+use std::{collections::HashSet, str::FromStr};
 
 use lazy_static::lazy_static;
 use twilight_model::id::{marker::GuildMarker, Id};
 
 use crate::{client::bot::StarboardBot, errors::StarboardResult, utils::id_as_i64::GetI64};
 
-fn parse_numbers<IdT>(inp: &str) -> Map<regex::Matches<'static, '_>, fn(regex::Match) -> IdT>
+fn parse_numbers<IdT>(inp: &str) -> impl Iterator<Item = IdT> + '_
 where
     IdT: FromStr,
     <IdT as FromStr>::Err: std::fmt::Debug,
