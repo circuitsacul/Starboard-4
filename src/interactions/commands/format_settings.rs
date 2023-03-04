@@ -15,9 +15,24 @@ use crate::{
         emoji::{EmojiCommon, SimpleEmoji},
         starboard::config::StarboardConfig,
     },
-    database::ExclusiveGroup,
+    database::{
+        models::{filter_group::FilterGroup, starboard_filter_group::StarboardFilterGroup},
+        ExclusiveGroup,
+    },
     errors::StarboardResult,
 };
+
+async fn filters_field(bot: &StarboardBot, starboard_id: i32) -> StarboardResult<String> {
+    let filter_groups = StarboardFilterGroup::list_by_starboard(&bot.pool, starboard_id).await?;
+    let filter_group_ids = filter_groups.into_iter().map(|g| g.filter_group_id);
+    let mut filter_groups = Vec::new();
+    for group_id in filter_group_ids {
+        let filter_group = FilterGroup::get(&bot.pool, group_id).await?;
+        filter_groups.push(filter_group.name);
+    }
+
+    Ok(filter_groups.join(", "))
+}
 
 pub async fn format_settings(
     bot: &StarboardBot,
@@ -201,6 +216,7 @@ pub async fn format_settings(
         ),
             resync, must_match, must_not_match
         ),
+        filters: filters_field(bot, config.starboard.id).await?,
     };
 
     Ok(settings)
@@ -213,4 +229,5 @@ pub struct FormattedStarboardSettings {
     pub requirements: String,
     pub behavior: String,
     pub regex: String,
+    pub filters: String,
 }

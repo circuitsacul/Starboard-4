@@ -47,6 +47,12 @@ impl FilterGroup {
         .await
     }
 
+    pub async fn get(pool: &sqlx::PgPool, id: i32) -> sqlx::Result<Self> {
+        sqlx::query_as!(Self, "SELECT * FROM filter_groups WHERE id=$1", id)
+            .fetch_one(pool)
+            .await
+    }
+
     pub async fn get_by_name(
         pool: &sqlx::PgPool,
         guild_id: i64,
