@@ -176,7 +176,7 @@ impl<'a> FilterEvaluater<'a> {
             let MessageResult::Ok(message) = self.get_message().await? else {
                 return Ok(false);
             };
-            if !message.content.len() >= req as usize {
+            if message.content.len() < req as usize {
                 return Ok(false);
             }
         }
@@ -185,7 +185,7 @@ impl<'a> FilterEvaluater<'a> {
             let MessageResult::Ok(message) = self.get_message().await? else {
                 return Ok(false);
             };
-            if !message.content.len() <= req as usize {
+            if message.content.len() > req as usize {
                 return Ok(false);
             }
         }
@@ -195,7 +195,7 @@ impl<'a> FilterEvaluater<'a> {
                 return Ok(false);
             };
             let count = message.attachments.len() + message.embeds.len();
-            if !count >= req as usize {
+            if count < req as usize {
                 return Ok(false);
             }
         }
@@ -205,7 +205,7 @@ impl<'a> FilterEvaluater<'a> {
                 return Ok(false);
             };
             let count = message.attachments.len() + message.embeds.len();
-            if !count <= req as usize {
+            if count > req as usize {
                 return Ok(false);
             }
         }
