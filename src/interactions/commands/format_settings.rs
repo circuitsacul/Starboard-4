@@ -31,7 +31,20 @@ async fn filters_field(bot: &StarboardBot, starboard_id: i32) -> StarboardResult
         filter_groups.push(filter_group.name);
     }
 
-    Ok(filter_groups.join(", "))
+    let mut filter_groups = filter_groups.join(", ");
+    if filter_groups.is_empty() {
+        filter_groups = "No filters set.".to_string();
+    }
+
+    Ok(format!(
+        concat!(
+            "These are the filters that must pass for a message to be starred:\n\n",
+            "{}\n\n",
+            "You can view filters using `/filters view`, and you can change which ",
+            "ones apply using `/starboards filters [add|remove]`."
+        ),
+        filter_groups,
+    ))
 }
 
 pub async fn format_settings(

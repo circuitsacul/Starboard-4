@@ -88,7 +88,20 @@ async fn filters_str(bot: &StarboardBot, asc_id: i32) -> StarboardResult<String>
         let filter_group = FilterGroup::get(&bot.pool, id).await?;
         filters.push(filter_group.name);
     }
-    Ok(filters.join(", "))
+
+    let mut filters = filters.join(", ");
+    if filters.is_empty() {
+        filters = "No filters set.".to_string();
+    }
+    Ok(format!(
+        concat!(
+            "These are the filters that must pass for a message to be valid:\n\n",
+            "{}\n\n",
+            "You can view these filters with `/filters view`, and you can change ",
+            "which ones apply with `/autostar filters [add|remove]'."
+        ),
+        filters,
+    ))
 }
 
 async fn autostar_embed(
