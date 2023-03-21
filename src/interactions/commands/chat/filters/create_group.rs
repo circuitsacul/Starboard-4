@@ -1,6 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
+    constants,
     database::{models::filter_group::FilterGroup, DbGuild},
     errors::StarboardResult,
     get_guild_id,
@@ -18,6 +19,21 @@ pub struct CreateGroup {
 impl CreateGroup {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
+
+        let count = FilterGroup::list_by_guild(&ctx.bot.pool, guild_id)
+            .await?
+            .len();
+        if count >= constants::MAX_FILTER_GROUPS {
+            ctx.respond_str(
+                &format!(
+                    "You can only have up to {} filter groups.",
+                    constants::MAX_FILTER_GROUPS
+                ),
+                true,
+            )
+            .await?;
+            return Ok(());
+        }
 
         DbGuild::create(&ctx.bot.pool, guild_id).await?;
         let group = FilterGroup::create(&ctx.bot.pool, guild_id, &self.name).await?;

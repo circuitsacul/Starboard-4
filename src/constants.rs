@@ -50,10 +50,14 @@ pub const VOTE_RECOUNT: (u64, Duration) = (5, Duration::from_secs(30));
 pub const MAX_NAME_LENGTH: u32 = 32;
 pub const MIN_NAME_LENGTH: u32 = 3;
 pub const MAX_REGEX_LENGTH: u32 = 1_000;
+// also used for starboards // todo: still true?
+pub const MAX_NEWER_THAN: i64 = YEAR_SECONDS * 50;
+// also used for starboards // todo: still true?
+pub const MAX_OLDER_THAN: i64 = YEAR_SECONDS * 50;
 
 // AutoStar Validation
-pub const MAX_MAX_CHARS: i16 = 5_000;
-pub const MAX_MIN_CHARS: i16 = 5_000;
+pub const MAX_MAX_CHARS: i16 = 5_000; // todo: merge or remove
+pub const MAX_MIN_CHARS: i16 = 5_000; // todo: merge or remove
 
 pub const MAX_ASC_EMOJIS: usize = 3;
 pub const MAX_PREM_ASC_EMOJIS: usize = 20;
@@ -72,8 +76,6 @@ pub const MAX_COOLDOWN_CAPACITY: i16 = 3600;
 //          to change the cycle period used by the cooldown
 //          struct.
 pub const MAX_COOLDOWN_PERIOD: i16 = 3600;
-pub const MAX_NEWER_THAN: i64 = YEAR_SECONDS * 50;
-pub const MAX_OLDER_THAN: i64 = YEAR_SECONDS * 50;
 
 pub const MAX_VOTE_EMOJIS: usize = 3;
 pub const MAX_PREM_VOTE_EMOJIS: usize = 20;
@@ -83,6 +85,15 @@ pub const MAX_PREM_STARBOARDS: i64 = 20;
 // Override Validation
 pub const MAX_CHANNELS_PER_OVERRIDE: usize = 100;
 pub const MAX_OVERRIDES_PER_STARBOARD: i64 = 10;
+
+// Filter Validation
+pub const MAX_FILTER_GROUPS: usize = 50;
+pub const MAX_FILTERS_PER_GROUP: usize = 9;
+
+pub const MAX_FILTER_ROLES: usize = 25;
+pub const MAX_FILTER_CHANNELS: usize = 25;
+pub const MAX_ATTACHMENTS: i64 = 10;
+pub const MAX_LENGTH: i64 = 5_000;
 
 // Exclusive Group Validation
 pub const MAX_EXCLUSIVE_GROUPS: i64 = 10;

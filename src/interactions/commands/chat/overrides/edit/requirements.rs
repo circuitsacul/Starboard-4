@@ -10,7 +10,7 @@ use crate::{
         validation::{
             self,
             starboard_settings::{validate_required, validate_required_remove},
-            time_delta::parse_time_delta,
+            time_delta::{parse_time_delta, validate_relative_duration},
         },
         Starboard, StarboardOverride,
     },
@@ -167,9 +167,9 @@ impl EditRequirements {
             settings.newer_than = Some(delta);
         }
 
-        if let Err(why) = validation::starboard_settings::validate_relative_duration(
-            settings.newer_than.unwrap_or(resolved.newer_than),
-            settings.older_than.unwrap_or(resolved.older_than),
+        if let Err(why) = validate_relative_duration(
+            Some(settings.newer_than.unwrap_or(resolved.newer_than)),
+            Some(settings.older_than.unwrap_or(resolved.older_than)),
         ) {
             ctx.respond_str(&why, true).await?;
             return Ok(());

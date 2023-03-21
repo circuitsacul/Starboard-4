@@ -13,6 +13,8 @@ use crate::{
     utils::{id_as_i64::GetI64, snowflake_age::SnowflakeAge},
 };
 
+use super::premium::is_premium::is_guild_premium;
+
 fn has_all_roles(user_roles: &[i64], required: &[i64]) -> bool {
     for role in required {
         if !user_roles.contains(role) {
@@ -78,7 +80,7 @@ impl<'a> FilterEvaluater<'a> {
         }
     }
 
-    async fn evaluate_check(&mut self, check: &Filter) -> StarboardResult<bool> {
+    async fn evaluate_check(&mut self, check: &Filter, premium: bool) -> StarboardResult<bool> {
         // user context
         if let Some(req) = check.user_is_bot {
             let Some(is_bot) = self.get_user_is_bot().await? else {
@@ -210,25 +212,27 @@ impl<'a> FilterEvaluater<'a> {
             }
         }
 
-        if let Some(req) = &check.matches {
-            let MessageResult::Ok(message) = self.get_message().await? else {
+        if premium {
+            if let Some(req) = &check.matches {
+                let MessageResult::Ok(message) = self.get_message().await? else {
                 return Ok(false);
             };
 
-            let re = regex::Regex::new(req)?;
-            if !re.is_match(&message.content) {
-                return Ok(false);
+                let re = regex::Regex::new(req)?;
+                if !re.is_match(&message.content) {
+                    return Ok(false);
+                }
             }
-        }
 
-        if let Some(req) = &check.not_matches {
-            let MessageResult::Ok(message) = self.get_message().await? else {
+            if let Some(req) = &check.not_matches {
+                let MessageResult::Ok(message) = self.get_message().await? else {
                 return Ok(false);
             };
 
-            let re = regex::Regex::new(req)?;
-            if re.is_match(&message.content) {
-                return Ok(false);
+                let re = regex::Regex::new(req)?;
+                if re.is_match(&message.content) {
+                    return Ok(false);
+                }
             }
         }
 
@@ -278,10 +282,11 @@ impl<'a> FilterEvaluater<'a> {
 
     pub async fn status(&mut self) -> StarboardResult<bool> {
         let filters = self.get_filters().await?;
+        let premium = is_guild_premium(self.bot, self.guild_id.get_i64(), true).await?;
         let filters_iter: &[_] = &filters;
         for filter in filters_iter {
             for check in filter {
-                let status = self.evaluate_check(check).await?;
+                let status = self.evaluate_check(check, premium).await?;
                 if !status && check.instant_fail {
                     return Ok(false);
                 }

@@ -1,6 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
+    constants,
     database::models::{filter::Filter, filter_group::FilterGroup},
     errors::StarboardResult,
     get_guild_id,
@@ -27,6 +28,19 @@ impl CreateFilter {
             ctx.respond_str(&format!("Filter group '{}' does not exist.", self.group), true).await?;
             return Ok(());
         };
+
+        let count = Filter::list_by_filter(&ctx.bot.pool, group.id).await?.len();
+        if count >= constants::MAX_FILTERS_PER_GROUP {
+            ctx.respond_str(
+                &format!(
+                    "You can only have up to {} filters per group.",
+                    constants::MAX_FILTERS_PER_GROUP
+                ),
+                true,
+            )
+            .await?;
+            return Ok(());
+        }
 
         if let Some(insert_pos) = self.position {
             Filter::shift(&ctx.bot.pool, group.id, insert_pos as i16, None, 1).await?;

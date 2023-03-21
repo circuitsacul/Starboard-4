@@ -1,11 +1,13 @@
 use twilight_interactions::command::{CommandModel, CommandOption, CreateCommand, CreateOption};
 
 use crate::{
+    constants,
+    core::premium::is_premium::is_guild_premium,
     database::{
         models::{filter::Filter, filter_group::FilterGroup},
         validation::{
             mentions::{parse_role_ids, textable_channel_ids},
-            time_delta::parse_time_delta,
+            time_delta::{parse_time_delta, validate_relative_duration},
         },
     },
     errors::StarboardResult,
@@ -13,6 +15,28 @@ use crate::{
     interactions::context::CommandCtx,
     utils::id_as_i64::GetI64,
 };
+
+fn validate_roles(length: usize) -> Result<(), String> {
+    if length > constants::MAX_FILTER_ROLES {
+        Err(format!(
+            "You can only have up to {} roles in a list.",
+            constants::MAX_FILTER_ROLES
+        ))
+    } else {
+        Ok(())
+    }
+}
+
+fn validate_channels(length: usize) -> Result<(), String> {
+    if length > constants::MAX_FILTER_CHANNELS {
+        Err(format!(
+            "You can only have up to {} channels in a list.",
+            constants::MAX_FILTER_CHANNELS
+        ))
+    } else {
+        Ok(())
+    }
+}
 
 #[derive(CreateOption, CommandOption)]
 pub enum UserBotRequirement {
@@ -136,6 +160,8 @@ impl Edit {
             return Ok(());
         };
 
+        let premium = is_guild_premium(&ctx.bot, guild_id_i64, true).await?;
+
         // general info
         if let Some(val) = self.instant_pass {
             filter.instant_pass = val;
@@ -147,6 +173,10 @@ impl Edit {
         // default context
         if let Some(val) = self.user_has_all_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if let Err(why) = validate_roles(roles.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if roles.is_empty() {
                 filter.user_has_all_of = None;
             } else {
@@ -155,6 +185,10 @@ impl Edit {
         }
         if let Some(val) = self.user_has_some_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if let Err(why) = validate_roles(roles.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if roles.is_empty() {
                 filter.user_has_some_of = None;
             } else {
@@ -163,6 +197,10 @@ impl Edit {
         }
         if let Some(val) = self.user_missing_all_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if let Err(why) = validate_roles(roles.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if roles.is_empty() {
                 filter.user_missing_all_of = None;
             } else {
@@ -171,6 +209,10 @@ impl Edit {
         }
         if let Some(val) = self.user_missing_some_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if let Err(why) = validate_roles(roles.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if roles.is_empty() {
                 filter.user_missing_some_of = None;
             } else {
@@ -184,6 +226,10 @@ impl Edit {
         // message context
         if let Some(val) = self.in_channel {
             let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
+            if let Err(why) = validate_channels(channels.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if channels.is_empty() {
                 filter.in_channel = None;
             } else {
@@ -192,6 +238,10 @@ impl Edit {
         }
         if let Some(val) = self.not_in_channel {
             let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
+            if let Err(why) = validate_channels(channels.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if channels.is_empty() {
                 filter.not_in_channel = None;
             } else {
@@ -200,6 +250,10 @@ impl Edit {
         }
         if let Some(val) = self.in_channel_or_sub_channels {
             let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
+            if let Err(why) = validate_channels(channels.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if channels.is_empty() {
                 filter.in_channel_or_sub_channels = None;
             } else {
@@ -208,6 +262,10 @@ impl Edit {
         }
         if let Some(val) = self.not_in_channel_or_sub_channels {
             let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
+            if let Err(why) = validate_channels(channels.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if channels.is_empty() {
                 filter.not_in_channel_or_sub_channels = None;
             } else {
@@ -215,6 +273,22 @@ impl Edit {
             }
         }
         if let Some(val) = self.min_attachments {
+            if val > constants::MAX_ATTACHMENTS {
+                ctx.respond_str(
+                    &format!(
+                        "You can only have up to {} attachments.",
+                        constants::MAX_ATTACHMENTS
+                    ),
+                    true,
+                )
+                .await?;
+                return Ok(());
+            } else if val < 0 {
+                ctx.respond_str("`min-attachments` must be at least 0.", true)
+                    .await?;
+                return Ok(());
+            }
+
             if val == 0 {
                 filter.min_attachments = None;
             } else {
@@ -222,6 +296,22 @@ impl Edit {
             }
         }
         if let Some(val) = self.max_attachments {
+            if val > constants::MAX_ATTACHMENTS {
+                ctx.respond_str(
+                    &format!(
+                        "You can only have up to {} attachments.",
+                        constants::MAX_ATTACHMENTS
+                    ),
+                    true,
+                )
+                .await?;
+                return Ok(());
+            } else if val < -1 {
+                ctx.respond_str("`max-attachments` must be at least -1.", true)
+                    .await?;
+                return Ok(());
+            }
+
             if val == -1 {
                 filter.min_attachments = None;
             } else {
@@ -229,6 +319,22 @@ impl Edit {
             }
         }
         if let Some(val) = self.min_length {
+            if val > constants::MAX_LENGTH {
+                ctx.respond_str(
+                    &format!(
+                        "`min-length` cannot be longer than {}.",
+                        constants::MAX_LENGTH
+                    ),
+                    true,
+                )
+                .await?;
+                return Ok(());
+            } else if val < 0 {
+                ctx.respond_str("`min-length` must be at least 0.", true)
+                    .await?;
+                return Ok(());
+            }
+
             if val == 0 {
                 filter.min_length = None;
             } else {
@@ -236,6 +342,22 @@ impl Edit {
             }
         }
         if let Some(val) = self.max_length {
+            if val > constants::MAX_LENGTH {
+                ctx.respond_str(
+                    &format!(
+                        "`max-length` cannot be longer than {}.",
+                        constants::MAX_LENGTH
+                    ),
+                    true,
+                )
+                .await?;
+                return Ok(());
+            } else if val < -1 {
+                ctx.respond_str("`max-length` must be at least -1.", true)
+                    .await?;
+                return Ok(());
+            }
+
             if val == -1 {
                 filter.max_length = None;
             } else {
@@ -243,16 +365,58 @@ impl Edit {
             }
         }
         if let Some(val) = self.matches {
+            if val.len() > constants::MAX_REGEX_LENGTH as usize {
+                ctx.respond_str(
+                    &format!(
+                        "`matches` cannot be longer than {}.",
+                        constants::MAX_REGEX_LENGTH
+                    ),
+                    true,
+                )
+                .await?;
+                return Ok(());
+            }
+
             if val == ".*" {
                 filter.matches = None;
             } else {
+                if !premium {
+                    ctx.respond_str(
+                        "Only premium servers can use the `matches` condition.",
+                        true,
+                    )
+                    .await?;
+                    return Ok(());
+                }
+
                 filter.matches = Some(val);
             }
         }
         if let Some(val) = self.not_matches {
+            if val.len() > constants::MAX_REGEX_LENGTH as usize {
+                ctx.respond_str(
+                    &format!(
+                        "`not-matches` cannot be longer than {}.",
+                        constants::MAX_REGEX_LENGTH
+                    ),
+                    true,
+                )
+                .await?;
+                return Ok(());
+            }
+
             if val == ".*" {
                 filter.not_matches = None;
             } else {
+                if !premium {
+                    ctx.respond_str(
+                        "Only premium servers can use the `not-matches` condition.",
+                        true,
+                    )
+                    .await?;
+                    return Ok(());
+                }
+
                 filter.not_matches = Some(val);
             }
         }
@@ -260,6 +424,10 @@ impl Edit {
         // vote context
         if let Some(val) = self.voter_has_all_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if let Err(why) = validate_roles(roles.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if roles.is_empty() {
                 filter.voter_has_all_of = None;
             } else {
@@ -268,6 +436,10 @@ impl Edit {
         }
         if let Some(val) = self.voter_has_some_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if let Err(why) = validate_roles(roles.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if roles.is_empty() {
                 filter.voter_has_some_of = None;
             } else {
@@ -276,6 +448,10 @@ impl Edit {
         }
         if let Some(val) = self.voter_missing_all_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if let Err(why) = validate_roles(roles.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if roles.is_empty() {
                 filter.voter_missing_all_of = None;
             } else {
@@ -284,6 +460,10 @@ impl Edit {
         }
         if let Some(val) = self.voter_missing_some_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
+            if let Err(why) = validate_roles(roles.len()) {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
             if roles.is_empty() {
                 filter.voter_missing_some_of = None;
             } else {
@@ -317,6 +497,11 @@ impl Edit {
                 };
                 filter.newer_than = Some(delta);
             }
+        }
+
+        if let Err(why) = validate_relative_duration(filter.newer_than, filter.older_than) {
+            ctx.respond_str(&why, true).await?;
+            return Ok(());
         }
 
         filter.update_settings(&ctx.bot.pool).await?;
