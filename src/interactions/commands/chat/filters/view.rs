@@ -68,6 +68,7 @@ async fn group_embed(
     let emb = EmbedBuilder::new()
         .color(constants::EMBED_DARK_BG)
         .title(format!("Filter Group '{}'", group.name))
+        .url(constants::DOCS_FILTERS)
         .build();
     ret.push(emb);
 

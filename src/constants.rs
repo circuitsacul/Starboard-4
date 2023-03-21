@@ -2,7 +2,7 @@ use std::time::Duration;
 
 pub const ZWS: &str = "\u{200B}";
 
-pub const EMBED_DARK_BG: u32 = 0x2F3136;
+pub const EMBED_DARK_BG: u32 = 0x2B2D31;
 
 pub const BOT_COLOR: u32 = 0xFFE19C;
 
@@ -15,11 +15,14 @@ pub const CREDITS_PER_MONTH: u64 = 3;
 // Links
 pub const INVITE_URL: &str = "https://discord.com/api/oauth2/authorize?client_id=700796664276844612&permissions=805661760&scope=bot%20applications.commands";
 pub const SUPPORT_URL: &str = "https://discord.gg/3gK8mSA";
-pub const DOCS_URL: &str = "https://bip.so/starboard?via=starboard";
 pub const SOURCE_URL: &str = "https://github.com/CircuitSacul/Starboard-4";
 pub const PATREON_URL: &str = "https://patreon.com/CircuitSacul";
 pub const VOTE_URL: &str = "https://top.gg/bot/700796664276844612/vote";
 pub const REVIEW_URL: &str = "https://top.gg/bot/700796664276844612#reviews";
+
+// Docs
+pub const DOCS_URL: &str = "https://bip.so/starboard?via=starboard";
+pub const DOCS_FILTERS: &str = "https://bip.so/starboard/filters-44725c?via=starboard";
 
 // Tasks
 pub const UPDATE_PRS_DELAY: Duration = Duration::from_secs(60 * 60);
