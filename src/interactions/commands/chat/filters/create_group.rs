@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     constants,
-    database::{models::filter_group::FilterGroup, DbGuild},
+    database::{models::filter_group::FilterGroup, validation::name::validate_name, DbGuild},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -36,15 +36,22 @@ impl CreateGroup {
         }
 
         DbGuild::create(&ctx.bot.pool, guild_id).await?;
-        let group = FilterGroup::create(&ctx.bot.pool, guild_id, &self.name).await?;
+        let name = match validate_name(&self.name) {
+            Ok(val) => val,
+            Err(why) => {
+                ctx.respond_str(&why, true).await?;
+                return Ok(());
+            }
+        };
+        let group = FilterGroup::create(&ctx.bot.pool, guild_id, &name).await?;
         if group.is_none() {
             ctx.respond_str(
-                &format!("A filter group named '{}' already exists.", self.name),
+                &format!("A filter group named '{name}' already exists."),
                 true,
             )
             .await?;
         } else {
-            ctx.respond_str(&format!("Created filter group '{}'.", self.name), false)
+            ctx.respond_str(&format!("Created filter group '{name}'."), false)
                 .await?;
         }
 
