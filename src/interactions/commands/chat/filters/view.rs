@@ -6,6 +6,7 @@ use twilight_util::builder::embed::{EmbedBuilder, EmbedFieldBuilder};
 
 use crate::{
     constants,
+    core::premium::is_premium::is_guild_premium,
     database::models::{filter::Filter, filter_group::FilterGroup},
     errors::StarboardResult,
     get_guild_id,
@@ -39,6 +40,8 @@ impl View {
             return Ok(());
         }
 
+        let premium = is_guild_premium(&ctx.bot, guild_id, true).await?;
+
         let bot = ctx.bot.clone();
         let mut paginator = SelectPaginatorBuilder::new(ctx);
         let mut start = 0;
@@ -46,7 +49,7 @@ impl View {
             if Some(&group.name) == self.group.as_ref() {
                 start = x;
             }
-            let embeds = group_embed(&bot.pool, &group).await?;
+            let embeds = group_embed(&bot.pool, &group, premium).await?;
             let page =
                 SelectPaginatorPageBuilder::new(format!("Filter '{}'", group.name)).embeds(embeds);
             paginator = paginator.add_page(page);
@@ -56,7 +59,11 @@ impl View {
     }
 }
 
-async fn group_embed(pool: &sqlx::PgPool, group: &FilterGroup) -> StarboardResult<Vec<Embed>> {
+async fn group_embed(
+    pool: &sqlx::PgPool,
+    group: &FilterGroup,
+    premium: bool,
+) -> StarboardResult<Vec<Embed>> {
     let mut ret = Vec::new();
     let emb = EmbedBuilder::new()
         .color(constants::EMBED_DARK_BG)
@@ -74,7 +81,7 @@ async fn group_embed(pool: &sqlx::PgPool, group: &FilterGroup) -> StarboardResul
     }
 
     for filter in filters {
-        ret.push(filter_embed(filter));
+        ret.push(filter_embed(filter, premium));
     }
 
     Ok(ret)
@@ -104,7 +111,7 @@ fn format_channels(channel_ids: &[i64]) -> String {
     }
 }
 
-fn filter_embed(filter: Filter) -> Embed {
+fn filter_embed(filter: Filter, premium: bool) -> Embed {
     let mut default_context = Vec::new();
     let mut message_context = Vec::new();
     let mut vote_context = Vec::new();
@@ -196,11 +203,21 @@ fn filter_embed(filter: Filter) -> Embed {
         message_context.push(desc);
     }
     if let Some(val) = filter.matches {
-        let desc = format!("Message must match the following regex:\n```re\n{val}\n```");
+        let mut desc = format!("Message must match the following regex:\n```re\n{val}\n```");
+        if !premium {
+            desc.push_str(
+                "\n:warning: This setting is ignored because this server doesn't have premium.",
+            );
+        }
         message_context.push(desc);
     }
     if let Some(val) = filter.not_matches {
-        let desc = format!("Message must not match the following regex:\n```re\n{val}\n```");
+        let mut desc = format!("Message must not match the following regex:\n```re\n{val}\n```");
+        if !premium {
+            desc.push_str(
+                "\n:warning: This setting is ignored because this server doesn't have premium.",
+            );
+        }
         message_context.push(desc);
     }
 
