@@ -77,26 +77,3 @@ CREATE TABLE autostar_channel_filter_groups (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-
--- migrate settings from starboards
-DO $$
-DECLARE
-    starboard record;
-    filter_group record;
-BEGIN
-    FOR starboard IN SELECT * FROM starboards WHERE
-        matches IS NOT NULL OR
-        not_matches IS NOT NULL
-    LOOP
-        -- create the filter group
-        INSERT INTO filter_groups (guild_id, name) VALUES
-            (starboard.guild_id, starboard.name);
-        -- get the created filter group
-        SELECT * FROM filter_groups INTO filter_group WHERE
-            guild_id=starboard.guild_id AND
-            name=starboard.name;
-        -- create the filter
-        INSERT INTO filters (position, filter_group_id, matches, not_matches) VALUES
-            (1, filter_group.id, starboard.matches, starboard.not_matches);
-    END LOOP;
-END $$;
