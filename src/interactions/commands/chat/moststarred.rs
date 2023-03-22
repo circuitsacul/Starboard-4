@@ -99,7 +99,12 @@ impl Moststarred {
     }
 }
 
-fn components(current_page: usize, last_page: Option<usize>, done: bool) -> Vec<Component> {
+fn components(
+    current_page: usize,
+    last_page: Option<usize>,
+    done: bool,
+    gtm_btn: Option<Button>,
+) -> Vec<Component> {
     let buttons = vec![
         Component::Button(Button {
             custom_id: Some("moststarred_scroller::back".to_string()),
@@ -127,9 +132,17 @@ fn components(current_page: usize, last_page: Option<usize>, done: bool) -> Vec<
         }),
     ];
 
-    vec![Component::ActionRow(ActionRow {
+    let mut action_rows = vec![Component::ActionRow(ActionRow {
         components: buttons,
-    })]
+    })];
+
+    if let Some(btn) = gtm_btn {
+        action_rows.push(Component::ActionRow(ActionRow {
+            components: vec![Component::Button(btn)],
+        }));
+    }
+
+    action_rows
 }
 
 async fn scrolling_paginator(
@@ -147,6 +160,7 @@ async fn scrolling_paginator(
     let mut message_id: Option<Id<MessageMarker>> = None;
     let mut current_page: usize = 1;
     let mut last_page: Option<usize> = None;
+    let mut gtm_btn: Option<Button>;
 
     let mut cache: Vec<Embedder> = Vec::new();
 
@@ -185,9 +199,10 @@ async fn scrolling_paginator(
         };
 
         // respond
+        gtm_btn = BuiltStarboardEmbed::build_go_to_message_button(embedder);
         let data = ctx
             .build_resp()
-            .components(components(current_page, last_page, false))
+            .components(components(current_page, last_page, false, gtm_btn.clone()))
             .embeds(built.embeds)
             .content(built.top_content)
             .build();
@@ -225,14 +240,14 @@ async fn scrolling_paginator(
             .edit(
                 btn_ctx
                     .build_resp()
-                    .components(components(current_page, last_page, true))
+                    .components(components(current_page, last_page, true, gtm_btn))
                     .build(),
             )
             .await?;
     } else if message_id.is_some() {
         let i = ctx.bot.interaction_client().await;
         i.update_response(&ctx.interaction.token)
-            .components(Some(&components(current_page, last_page, true)))?
+            .components(Some(&components(current_page, last_page, true, gtm_btn)))?
             .await?;
     } else {
         ctx.respond_str("Nothing to show.", true).await?;

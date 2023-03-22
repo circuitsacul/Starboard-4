@@ -72,12 +72,12 @@ impl BuiltStarboardEmbed {
         Ok(built)
     }
 
-    pub fn build_components(handle: &Embedder) -> Vec<Component> {
+    pub fn build_go_to_message_button(handle: &Embedder) -> Option<Button> {
         if handle.config.resolved.go_to_message != 2 {
-            return vec![];
+            return None;
         }
 
-        let button = Button {
+        Some(Button {
             custom_id: None,
             disabled: false,
             emoji: None,
@@ -88,10 +88,16 @@ impl BuiltStarboardEmbed {
                 handle.orig_sql_message.channel_id,
                 handle.orig_sql_message.message_id,
             )),
+        })
+    }
+
+    pub fn build_components(handle: &Embedder) -> Vec<Component> {
+        let Some(gtm) = Self::build_go_to_message_button(handle) else {
+            return vec![];
         };
 
         vec![Component::ActionRow(ActionRow {
-            components: vec![Component::Button(button)],
+            components: vec![Component::Button(gtm)],
         })]
     }
 
