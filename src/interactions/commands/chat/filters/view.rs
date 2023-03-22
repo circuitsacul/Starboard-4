@@ -35,8 +35,17 @@ impl View {
         let groups = FilterGroup::list_by_guild(&ctx.bot.pool, guild_id).await?;
 
         if groups.is_empty() {
-            ctx.respond_str("This server does not have any filter groups.", true)
-                .await?;
+            ctx.respond_str(
+                &format!(
+                    concat!(
+                        "This server does not have any filter groups. ",
+                        "Read the [filter docs](<{}>) to get started."
+                    ),
+                    constants::DOCS_FILTERS
+                ),
+                true,
+            )
+            .await?;
             return Ok(());
         }
 
@@ -68,7 +77,10 @@ async fn group_embed(
     let emb = EmbedBuilder::new()
         .color(constants::EMBED_DARK_BG)
         .title(format!("Filter Group '{}'", group.name))
-        .url(constants::DOCS_FILTERS)
+        .description(format!(
+            "Read the [filter docs]({}) to get started.",
+            constants::DOCS_FILTERS
+        ))
         .build();
     ret.push(emb);
 
