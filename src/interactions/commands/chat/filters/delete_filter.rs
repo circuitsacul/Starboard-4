@@ -5,7 +5,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
-    utils::id_as_i64::GetI64,
+    utils::{id_as_i64::GetI64, views::confirm},
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -29,20 +29,34 @@ impl DeleteFilter {
             return Ok(());
         };
 
+        let Some(mut btn_ctx) = confirm::simple(
+            &mut ctx,
+            &format!(
+                "This will delete the filter at {} for filter group '{}'. Continue?",
+                self.position, group.name
+            ),
+            true,
+        )
+        .await? else {
+            return Ok(());
+        };
+
         let ret = Filter::delete(&ctx.bot.pool, group.id, self.position as i16).await?;
 
         if ret.is_some() {
-            ctx.respond_str(&format!("Filter at {} deleted.", self.position), false)
+            btn_ctx
+                .edit_str(&format!("Filter at {} deleted.", self.position), true)
                 .await?;
         } else {
-            ctx.respond_str(
-                &format!(
-                    "No filter exists at {} for group '{}'.",
-                    self.position, self.group
-                ),
-                true,
-            )
-            .await?;
+            btn_ctx
+                .edit_str(
+                    &format!(
+                        "No filter exists at {} for group '{}'.",
+                        self.position, self.group
+                    ),
+                    true,
+                )
+                .await?;
         }
 
         Ok(())

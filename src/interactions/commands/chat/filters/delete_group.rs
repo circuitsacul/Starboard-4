@@ -1,8 +1,11 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::models::filter_group::FilterGroup, errors::StarboardResult, get_guild_id,
-    interactions::context::CommandCtx, utils::id_as_i64::GetI64,
+    database::models::filter_group::FilterGroup,
+    errors::StarboardResult,
+    get_guild_id,
+    interactions::context::CommandCtx,
+    utils::{id_as_i64::GetI64, views::confirm},
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -17,17 +20,27 @@ impl DeleteGroup {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
 
+        let Some(mut btn_ctx) = confirm::simple(
+            &mut ctx,
+            &format!("This will delete the filter group '{}'. Continue?", self.name),
+            true,
+        ).await? else {
+            return Ok(());
+        };
+
         let filter = FilterGroup::delete(&ctx.bot.pool, guild_id, &self.name).await?;
 
         if filter.is_some() {
-            ctx.respond_str(&format!("Deleted filter group '{}'.", self.name), false)
+            btn_ctx
+                .edit_str(&format!("Deleted filter group '{}'.", self.name), true)
                 .await?;
         } else {
-            ctx.respond_str(
-                &format!("Filter group '{}' does not exist.", self.name),
-                true,
-            )
-            .await?;
+            btn_ctx
+                .edit_str(
+                    &format!("Filter group '{}' does not exist.", self.name),
+                    true,
+                )
+                .await?;
         }
 
         Ok(())
