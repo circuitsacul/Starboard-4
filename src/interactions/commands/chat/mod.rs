@@ -1,6 +1,7 @@
 pub mod autostar;
 pub mod botstats;
 pub mod exclusive_groups;
+pub mod filters;
 pub mod help;
 pub mod leaderboard;
 pub mod moststarred;

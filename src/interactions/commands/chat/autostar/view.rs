@@ -3,12 +3,18 @@ use twilight_model::{
     channel::message::Embed,
     id::{marker::GuildMarker, Id},
 };
+use twilight_util::builder::embed::EmbedFieldBuilder;
 
 use crate::{
     client::bot::StarboardBot,
     concat_format,
     core::emoji::{EmojiCommon, SimpleEmoji},
-    database::AutoStarChannel,
+    database::{
+        models::{
+            autostar_channel_filter_group::AutostarChannelFilterGroup, filter_group::FilterGroup,
+        },
+        AutoStarChannel,
+    },
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
@@ -73,6 +79,31 @@ impl ViewAutoStarChannels {
     }
 }
 
+async fn filters_str(bot: &StarboardBot, asc_id: i32) -> StarboardResult<String> {
+    let filter_group_ids =
+        AutostarChannelFilterGroup::list_by_autostar_channel(&bot.pool, asc_id).await?;
+    let filter_group_ids = filter_group_ids.into_iter().map(|f| f.filter_group_id);
+    let mut filters = Vec::new();
+    for id in filter_group_ids {
+        let filter_group = FilterGroup::get(&bot.pool, id).await?;
+        filters.push(filter_group.name);
+    }
+
+    let mut filters = filters.join(", ");
+    if filters.is_empty() {
+        filters = "No filters set.".to_string();
+    }
+    Ok(format!(
+        concat!(
+            "These are the filters that must pass for a message to be valid:\n\n",
+            "{}\n\n",
+            "You can view these filters with `/filters view`, and you can change ",
+            "which ones apply with `/autostar filters [add|remove]'."
+        ),
+        filters,
+    ))
+}
+
 async fn autostar_embed(
     bot: &StarboardBot,
     guild_id: Id<GuildMarker>,
@@ -106,6 +137,10 @@ async fn autostar_embed(
     let emb = embed::build()
         .title(format!("Autostar Channel '{}'", asc.name))
         .description(asc_settings)
+        .field(EmbedFieldBuilder::new(
+            "Filters",
+            filters_str(bot, asc.id).await?,
+        ))
         .build();
 
     Ok(emb)

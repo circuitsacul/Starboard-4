@@ -32,6 +32,7 @@ pub async fn handle_command(ctx: CommandCtx) -> StarboardResult<()> {
         "overrides" => chat::overrides::Overrides,
         "exclusive-groups" => chat::exclusive_groups::ExclusiveGroups,
         "permroles" => chat::permroles::PermRoles,
+        "filters" => chat::filters::Filters,
         "xproles" => chat::xproles::XPRoles,
         "posroles" => chat::posroles::PosRoles,
         "utils" => chat::utils::Utils,

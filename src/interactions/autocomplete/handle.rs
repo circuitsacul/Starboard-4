@@ -9,7 +9,8 @@ use crate::{errors::StarboardResult, interactions::context::CommandCtx};
 use super::{
     autoredeem::autoredeem_autocomplete, autostar_name::autostar_name_autocomplete,
     exclusive_group_name::exclusive_group_name_autocomplete,
-    override_name::override_name_autocomplete, starboard_name::starboard_name_autocomplete,
+    filter_group::filter_group_name_autocomplete, override_name::override_name_autocomplete,
+    starboard_name::starboard_name_autocomplete,
 };
 
 pub fn get_sub_options(options: &Vec<CommandDataOption>) -> Option<&Vec<CommandDataOption>> {
@@ -74,6 +75,18 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
         "autostar view name" => autostar_name_autocomplete(&ctx, focused).await?,
         "autostar edit name" => autostar_name_autocomplete(&ctx, focused).await?,
         "autostar rename current-name" => autostar_name_autocomplete(&ctx, focused).await?,
+        "autostar filters add autostar-channel" => {
+            autostar_name_autocomplete(&ctx, focused).await?
+        }
+        "autostar filters add filter-group" => {
+            filter_group_name_autocomplete(&ctx, focused).await?
+        }
+        "autostar filters remove autostar-channel" => {
+            autostar_name_autocomplete(&ctx, focused).await?
+        }
+        "autostar filters remove filter-group" => {
+            filter_group_name_autocomplete(&ctx, focused).await?
+        }
         // starboards
         "starboards delete name" => starboard_name_autocomplete(&ctx, focused).await?,
         "starboards view name" => starboard_name_autocomplete(&ctx, focused).await?,
@@ -85,6 +98,14 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
             exclusive_group_name_autocomplete(&ctx, focused).await?
         }
         "starboards rename current-name" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards filters add starboard" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards filters add filter-group" => {
+            filter_group_name_autocomplete(&ctx, focused).await?
+        }
+        "starboards filters remove starboard" => starboard_name_autocomplete(&ctx, focused).await?,
+        "starboards filters remove filter-group" => {
+            filter_group_name_autocomplete(&ctx, focused).await?
+        }
         // overrides
         "overrides create starboard" => starboard_name_autocomplete(&ctx, focused).await?,
         "overrides delete name" => override_name_autocomplete(&ctx, focused).await?,
@@ -106,6 +127,16 @@ pub async fn handle_autocomplete(ctx: CommandCtx) -> StarboardResult<()> {
         "exclusive-groups rename original-name" => {
             exclusive_group_name_autocomplete(&ctx, focused).await?
         }
+        // filter groups
+        "filters create-filter group" => filter_group_name_autocomplete(&ctx, focused).await?,
+        "filters delete-filter group" => filter_group_name_autocomplete(&ctx, focused).await?,
+        "filters move-filter group" => filter_group_name_autocomplete(&ctx, focused).await?,
+        "filters rename-group current-name" => {
+            filter_group_name_autocomplete(&ctx, focused).await?
+        }
+        "filters delete-group name" => filter_group_name_autocomplete(&ctx, focused).await?,
+        "filters view group" => filter_group_name_autocomplete(&ctx, focused).await?,
+        "filters edit group" => filter_group_name_autocomplete(&ctx, focused).await?,
         // permroles
         "permroles edit-starboard starboard" => starboard_name_autocomplete(&ctx, focused).await?,
         qual => todo!("Unexpected autocomplete for {}.", qual),

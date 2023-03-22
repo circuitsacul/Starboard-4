@@ -113,6 +113,7 @@ async fn override_embed(
                 .build(),
         )
         .field(EmbedFieldBuilder::new("Regex Matching", pretty.regex).build())
+        .field(EmbedFieldBuilder::new("Filters", pretty.filters))
         .build();
 
     Ok(embed)

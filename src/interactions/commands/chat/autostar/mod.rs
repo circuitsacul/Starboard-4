@@ -1,6 +1,7 @@
 pub mod create;
 pub mod delete;
 pub mod edit;
+pub mod filters;
 pub mod rename;
 pub mod view;
 
@@ -29,6 +30,8 @@ pub enum AutoStar {
     Edit(edit::EditAutoStar),
     #[command(name = "rename")]
     Rename(rename::RenameAutoStarChannel),
+    #[command(name = "filters")]
+    Filters(filters::Filters),
 }
 
 impl AutoStar {
@@ -39,6 +42,7 @@ impl AutoStar {
             Self::View(cmd) => cmd.callback(ctx).await,
             Self::Edit(cmd) => cmd.callback(ctx).await,
             Self::Rename(cmd) => cmd.callback(ctx).await,
+            Self::Filters(cmd) => cmd.callback(ctx).await,
         }
     }
 }

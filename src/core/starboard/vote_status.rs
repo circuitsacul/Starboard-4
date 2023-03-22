@@ -9,7 +9,10 @@ use twilight_model::id::{
 
 use crate::{
     client::bot::StarboardBot,
-    core::{emoji::SimpleEmoji, has_image::has_image, permroles::Permissions},
+    core::{
+        emoji::SimpleEmoji, filters::FilterEvaluater, has_image::has_image, permroles::Permissions,
+    },
+    database::models::starboard_filter_group::StarboardFilterGroup,
     errors::StarboardResult,
     utils::{into_id::IntoId, snowflake_age::SnowflakeAge},
 };
@@ -142,6 +145,26 @@ impl<'a> VoteStatus<'a> {
             .await?;
 
             if !reactor_perms.give_votes || !author_perms.receive_votes {
+                invalid_exists_2 = true;
+                continue;
+            }
+
+            // check filters
+            let filter_groups =
+                StarboardFilterGroup::list_by_starboard(&bot.pool, config.starboard.id).await?;
+            let mut evaluater = FilterEvaluater::new(
+                bot,
+                config.starboard.guild_id.into_id(),
+                vote.message_author_id,
+                Some(vote.reactor_id),
+                Some(vote.channel_id),
+                Some(vote.message_id),
+                filter_groups.iter().map(|g| g.filter_group_id).collect(),
+            );
+            evaluater.set_user_is_bot(Some(vote.message_author_is_bot));
+            let status = evaluater.status().await?;
+
+            if !status {
                 invalid_exists_2 = true;
                 continue;
             }

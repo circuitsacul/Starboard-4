@@ -2,7 +2,7 @@ use std::time::Duration;
 
 pub const ZWS: &str = "\u{200B}";
 
-pub const EMBED_DARK_BG: u32 = 0x2F3136;
+pub const EMBED_DARK_BG: u32 = 0x2B2D31;
 
 pub const BOT_COLOR: u32 = 0xFFE19C;
 
@@ -15,11 +15,14 @@ pub const CREDITS_PER_MONTH: u64 = 3;
 // Links
 pub const INVITE_URL: &str = "https://discord.com/api/oauth2/authorize?client_id=700796664276844612&permissions=805661760&scope=bot%20applications.commands";
 pub const SUPPORT_URL: &str = "https://discord.gg/3gK8mSA";
-pub const DOCS_URL: &str = "https://bip.so/starboard?via=starboard";
 pub const SOURCE_URL: &str = "https://github.com/CircuitSacul/Starboard-4";
 pub const PATREON_URL: &str = "https://patreon.com/CircuitSacul";
 pub const VOTE_URL: &str = "https://top.gg/bot/700796664276844612/vote";
 pub const REVIEW_URL: &str = "https://top.gg/bot/700796664276844612#reviews";
+
+// Docs
+pub const DOCS_URL: &str = "https://bip.so/starboard?via=starboard";
+pub const DOCS_FILTERS: &str = "https://bip.so/starboard/filters-44725c?via=starboard";
 
 // Tasks
 pub const UPDATE_PRS_DELAY: Duration = Duration::from_secs(60 * 60);
@@ -50,6 +53,8 @@ pub const VOTE_RECOUNT: (u64, Duration) = (5, Duration::from_secs(30));
 pub const MAX_NAME_LENGTH: u32 = 32;
 pub const MIN_NAME_LENGTH: u32 = 3;
 pub const MAX_REGEX_LENGTH: u32 = 1_000;
+pub const MAX_NEWER_THAN: i64 = YEAR_SECONDS * 50;
+pub const MAX_OLDER_THAN: i64 = YEAR_SECONDS * 50;
 
 // AutoStar Validation
 pub const MAX_MAX_CHARS: i16 = 5_000;
@@ -72,8 +77,6 @@ pub const MAX_COOLDOWN_CAPACITY: i16 = 3600;
 //          to change the cycle period used by the cooldown
 //          struct.
 pub const MAX_COOLDOWN_PERIOD: i16 = 3600;
-pub const MAX_NEWER_THAN: i64 = YEAR_SECONDS * 50;
-pub const MAX_OLDER_THAN: i64 = YEAR_SECONDS * 50;
 
 pub const MAX_VOTE_EMOJIS: usize = 3;
 pub const MAX_PREM_VOTE_EMOJIS: usize = 20;
@@ -83,6 +86,15 @@ pub const MAX_PREM_STARBOARDS: i64 = 20;
 // Override Validation
 pub const MAX_CHANNELS_PER_OVERRIDE: usize = 100;
 pub const MAX_OVERRIDES_PER_STARBOARD: i64 = 10;
+
+// Filter Validation
+pub const MAX_FILTER_GROUPS: usize = 50;
+pub const MAX_FILTERS_PER_GROUP: usize = 9;
+
+pub const MAX_FILTER_ROLES: usize = 25;
+pub const MAX_FILTER_CHANNELS: usize = 25;
+pub const MAX_ATTACHMENTS: i64 = 10;
+pub const MAX_LENGTH: i64 = 5_000;
 
 // Exclusive Group Validation
 pub const MAX_EXCLUSIVE_GROUPS: i64 = 10;
