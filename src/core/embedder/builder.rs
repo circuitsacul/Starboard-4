@@ -204,8 +204,6 @@ impl BuiltStarboardEmbed {
         watermark: bool,
         is_reply: bool,
     ) -> StarboardResult<Option<Embed>> {
-        let guild_id = handle.config.starboard.guild_id.into_id();
-
         let mut zws_fields: Vec<String> = Vec::new();
         let color = if is_reply {
             constants::EMBED_DARK_BG
@@ -243,61 +241,14 @@ impl BuiltStarboardEmbed {
         let mid: Id<MessageMarker> = mid_i64.into_id();
 
         // author
-        {
-            let maybe_user = match is_reply {
-                true => handle.referenced_message.as_ref().map(|msg| msg.author_id),
-                false => Some(handle.orig_sql_message.author_id.into_id()),
-            };
-            let avatar: Option<String>;
-            let name: String;
-            (name, avatar) = match maybe_user {
-                None => ("Deleted User".to_string(), None),
-                Some(user_id) => 'out: {
-                    let member = handle
-                        .bot
-                        .cache
-                        .fog_member(
-                            &handle.bot,
-                            handle.config.starboard.guild_id.into_id(),
-                            orig.author_id,
-                        )
-                        .await?;
-                    let Some(user) = handle.bot.cache.fog_user(&handle.bot, user_id).await? else {
-                        break 'out ("Deleted User".to_string(), None)
-                    };
+        let (name, avatar) = Self::get_author(handle, is_reply).await?;
 
-                    let (name, avatar) = match member {
-                        Some(member) => (
-                            member
-                                .nickname
-                                .to_owned()
-                                .unwrap_or_else(|| user.name.to_owned()),
-                            member
-                                .server_avatar_hash
-                                .map(|av| av.guild_avatar(user_id, guild_id))
-                                .or(user.avatar_hash.map(|av| av.global_avatar(user_id))),
-                        ),
-                        None => (
-                            user.name.to_owned(),
-                            user.avatar_hash.map(|av| av.global_avatar(user_id)),
-                        ),
-                    };
-                    (name, avatar)
-                }
-            };
-            let name = if is_reply {
-                format!("Replying to {name}")
-            } else {
-                name
-            };
-
-            let mut author = EmbedAuthorBuilder::new(name).url(&link);
-            if let Some(avatar) = avatar {
-                author = author.icon_url(ImageSource::url(avatar).unwrap());
-            }
-
-            embed = embed.author(author.build())
+        let mut author = EmbedAuthorBuilder::new(name).url(&link);
+        if let Some(avatar) = avatar {
+            author = author.icon_url(ImageSource::url(avatar).unwrap());
         }
+
+        embed = embed.author(author.build());
 
         // main description
         let mut description = String::new();
@@ -374,5 +325,51 @@ impl BuiltStarboardEmbed {
 
         // build
         Ok(Some(embed.build()))
+    }
+
+    async fn get_author(
+        handle: &Embedder,
+        is_reply: bool,
+    ) -> StarboardResult<(String, Option<String>)> {
+        let (author, author_id) = if is_reply {
+            if let Some(reply) = &handle.referenced_message {
+                (reply.author.clone(), reply.author_id)
+            } else {
+                return Ok(("Replying to Deleted User".to_string(), None));
+            }
+        } else if let Some(orig) = handle.orig_message.as_option() {
+            (orig.author.clone(), orig.author_id)
+        } else {
+            return Ok(("Deleted User".to_string(), None));
+        };
+
+        let guild_id = handle.config.starboard.guild_id.into_id();
+
+        let member = if handle.config.resolved.use_server_profile {
+            handle
+                .bot
+                .cache
+                .fog_member(&handle.bot, guild_id, author_id)
+                .await?
+        } else {
+            None
+        };
+
+        let avatar = member
+            .as_ref()
+            .and_then(|m| {
+                m.server_avatar_hash
+                    .map(|av| av.guild_avatar(author_id, guild_id))
+            })
+            .or(author.avatar.map(|av| av.global_avatar(author_id)));
+        let mut name = member
+            .and_then(|m| m.nickname.clone())
+            .unwrap_or(author.name);
+
+        if is_reply {
+            name = format!("Replying to {name}");
+        }
+
+        Ok((name, avatar))
     }
 }

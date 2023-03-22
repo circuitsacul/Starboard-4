@@ -74,6 +74,7 @@ impl UpdateCache for MessageUpdate {
 
         let message = CachedMessage {
             author_id: cached.author_id,
+            author: cached.author.clone(),
             attachments,
             embeds,
             content,
