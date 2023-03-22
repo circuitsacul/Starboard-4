@@ -77,3 +77,9 @@ CREATE TABLE autostar_channel_filter_groups (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+-- indexes
+CREATE INDEX IF NOT EXISTS filter_groups__guild_id__name
+    ON filter_groups USING BTREE (guild_id, name);
+CREATE INDEX IF NOT EXISTS filters__filter_group_id
+    ON filters USING BTREE (filter_group_id);
