@@ -59,8 +59,8 @@ impl View {
                 start = x;
             }
             let embeds = group_embed(&bot.pool, &group, premium).await?;
-            let page =
-                SelectPaginatorPageBuilder::new(format!("Filter '{}'", group.name)).embeds(embeds);
+            let page = SelectPaginatorPageBuilder::new(format!("Filter Group '{}'", group.name))
+                .embeds(embeds);
             paginator = paginator.add_page(page);
         }
 
