@@ -2172,6 +2172,38 @@
     },
     "query": "SELECT * FROM overrides WHERE starboard_id=$1 AND channel_ids && $2::bigint[]"
   },
+  "4754e91a3dbb3637a0082b056d6bec3e6e5517dec6d4aec209a00cc044f7d191": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "name",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM filter_groups WHERE id=$1"
+  },
   "4799c2a2b60b149a964d4e435f3991a8b12a9ecdd8f5d413fbbe01649b185470": {
     "describe": {
       "columns": [
