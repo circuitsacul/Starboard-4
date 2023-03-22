@@ -154,6 +154,13 @@ impl SystemContent for Message {
                 "**{}** pinned **a message** to this channel. See all **pinned messages**.",
                 self.author.name,
             ),
+            MessageType::StageStart => format!("{} started **{}**", self.author.name, self.content),
+            MessageType::StageEnd => format!("{} ended **{}**", self.author.name, self.content),
+            MessageType::StageTopic => format!(
+                "{} changed the Stage topic: **{}**",
+                self.author.name, self.content
+            ),
+            MessageType::StageSpeaker => format!("{} is now a speaker.", self.author.name),
             unkown => {
                 eprintln!("Warning: unkown message type {unkown:?}");
                 self.content.clone()
