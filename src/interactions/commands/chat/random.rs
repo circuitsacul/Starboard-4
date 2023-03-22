@@ -214,6 +214,7 @@ impl RandomPost {
             .build_resp()
             .content(built.top_content)
             .embeds(built.embeds)
+            .components(built.components)
             .build();
         ctx.respond(data).await?;
 
