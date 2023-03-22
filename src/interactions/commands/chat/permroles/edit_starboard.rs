@@ -7,7 +7,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::choices::tribool::Tribool, context::CommandCtx},
-    utils::id_as_i64::GetI64,
+    utils::{id_as_i64::GetI64, pg_error::PgErrorTraits},
 };
 
 #[derive(CommandModel, CreateCommand)]
@@ -31,9 +31,9 @@ pub struct EditPermRoleStarboard {
 
 impl EditPermRoleStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        let guild_id = get_guild_id!(ctx);
+        let guild_id = get_guild_id!(ctx).get_i64();
 
-        let sb = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id.get_i64()).await?;
+        let sb = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id).await?;
         let sb = match sb {
             None => {
                 ctx.respond_str(
@@ -46,13 +46,20 @@ impl EditPermRoleStarboard {
             Some(sb) => sb,
         };
 
-        let pr_sb = PermRoleStarboard::create(&ctx.bot.pool, self.role.id.get_i64(), sb.id).await?;
-
-        let mut pr_sb = match pr_sb {
-            Some(pr_sb) => pr_sb,
-            None => PermRoleStarboard::get(&ctx.bot.pool, self.role.id.get_i64(), sb.id)
+        let ret = PermRoleStarboard::create(&ctx.bot.pool, self.role.id.get_i64(), sb.id).await;
+        let mut pr_sb = match ret {
+            Ok(Some(val)) => val,
+            Ok(None) => PermRoleStarboard::get(&ctx.bot.pool, self.role.id.get_i64(), sb.id)
                 .await?
                 .unwrap(),
+            Err(why) => {
+                if why.is_fk_violation() {
+                    ctx.respond_str(&format!("{} is not a PermRole.", self.role.mention()), true)
+                        .await?;
+                    return Ok(());
+                }
+                return Err(why.into());
+            }
         };
 
         if let Some(val) = self.vote {
