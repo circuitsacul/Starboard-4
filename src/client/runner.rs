@@ -1,11 +1,8 @@
 use std::sync::Arc;
 
 use futures::stream::StreamExt;
-use tokio::{
-    signal::unix::{signal, SignalKind},
-    sync::mpsc,
-};
-use twilight_gateway::cluster::Events;
+use tokio::signal::unix::{signal, SignalKind};
+use twilight_gateway::{stream, CloseFrame};
 
 use crate::{
     client::bot::StarboardBot,
@@ -20,36 +17,26 @@ use crate::{
 
 use super::cooldowns::Cooldowns;
 
-async fn shutdown_handler(bot: Arc<StarboardBot>) {
-    let (tx, mut rx) = mpsc::unbounded_channel();
-
-    for kind in [SignalKind::terminate(), SignalKind::interrupt()] {
-        let sender = tx.clone();
-        let mut listener = signal(kind).unwrap();
-        tokio::spawn(async move {
-            listener.recv().await;
-            sender.send(()).expect("failed to send signal");
-        });
+async fn wait_for_shutdown() {
+    let mut terminate = signal(SignalKind::terminate()).unwrap();
+    let mut interrupt = signal(SignalKind::interrupt()).unwrap();
+    tokio::select! {
+        _ = terminate.recv() => {
+            println!("Received terminate signal.");
+        }
+        _ = interrupt.recv() => {
+            println!("Received interrupt signal.");
+        }
     }
-
-    rx.recv().await;
-    println!("Shutting down bot...");
-    bot.cluster.down();
-    println!("Bot shut down.");
 }
 
-pub async fn run(mut events: Events, bot: StarboardBot) {
+pub async fn run(bot: StarboardBot) {
     let bot = Arc::new(bot);
     Cooldowns::start(bot.clone());
 
     if bot.config.development {
         println!("Running bot in development mode.");
     }
-
-    // start the cluster
-    let clone = bot.clone();
-    tokio::spawn(async move { clone.cluster.up().await });
-    tokio::spawn(shutdown_handler(bot.clone()));
 
     // start background tasks
     tokio::spawn(loop_update_posroles(bot.clone()));
@@ -58,7 +45,39 @@ pub async fn run(mut events: Events, bot: StarboardBot) {
     tokio::spawn(loop_update_supporter_roles(bot.clone()));
 
     // handle events
-    while let Some((shard_id, event)) = events.next().await {
-        handle_event(shard_id, event, bot.clone()).await;
+    let mut shards: Vec<_> = stream::create_range(
+        0..bot.config.shards,
+        bot.config.shards,
+        bot.gw_config.clone(),
+        |_, b| b.build(),
+    )
+    .collect();
+    let events = stream::ShardEventStream::new(shards.iter_mut());
+    let mut events = events.take_until(Box::pin(wait_for_shutdown()));
+
+    while let Some((shard, event)) = events.next().await {
+        let event = match event {
+            Ok(event) => event,
+            Err(why) => {
+                let fatal = why.is_fatal();
+                bot.handle_error(&why.into()).await;
+
+                if fatal {
+                    break;
+                } else {
+                    continue;
+                }
+            }
+        };
+
+        handle_event(shard.id(), event, bot.clone());
+    }
+
+    std::mem::drop(events);
+    for mut shard in shards {
+        if let Err(why) = shard.close(CloseFrame::NORMAL).await {
+            bot.handle_error(&why.into()).await;
+        };
+        println!("Shard {} shutdown.", shard.id());
     }
 }

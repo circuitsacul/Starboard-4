@@ -47,13 +47,13 @@ pub enum StarboardError {
         backtrace: Backtrace,
     },
     #[snafu(context(false))]
-    ClusterCommandError {
-        source: twilight_gateway::cluster::ClusterCommandError,
+    ReceiveMessageError {
+        source: twilight_gateway::error::ReceiveMessageError,
         backtrace: Backtrace,
     },
     #[snafu(context(false))]
-    ClusterStartError {
-        source: twilight_gateway::cluster::ClusterStartError,
+    SendError {
+        source: twilight_gateway::error::SendError,
         backtrace: Backtrace,
     },
     #[snafu(context(false))]

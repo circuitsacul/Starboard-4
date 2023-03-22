@@ -21,7 +21,6 @@ pub type ComponentCtx = Ctx<MessageComponentInteractionData>;
 
 #[derive(Debug)]
 pub struct Ctx<T> {
-    pub shard_id: u64,
     pub bot: Arc<StarboardBot>,
     pub interaction: Interaction,
     pub data: T,
@@ -31,9 +30,8 @@ pub struct Ctx<T> {
 type TwResult = StarboardResult<Response<Message>>;
 
 impl<T> Ctx<T> {
-    pub fn new(shard_id: u64, bot: Arc<StarboardBot>, interaction: Interaction, data: T) -> Self {
+    pub fn new(bot: Arc<StarboardBot>, interaction: Interaction, data: T) -> Self {
         Self {
-            shard_id,
             bot,
             interaction,
             data,

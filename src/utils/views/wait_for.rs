@@ -60,5 +60,5 @@ pub async fn wait_for_component(
         data.clone()
     };
 
-    Some(ComponentCtx::new(0, bot, event, data))
+    Some(ComponentCtx::new(bot, event, data))
 }

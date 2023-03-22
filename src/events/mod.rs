@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use twilight_gateway::Event;
+use twilight_gateway::{Event, ShardId};
 
 use crate::{
     cache::models::message::CachedMessage,
@@ -11,11 +11,11 @@ use crate::{
     utils::into_id::IntoId,
 };
 
-pub async fn handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBot>) {
+pub fn handle_event(shard_id: ShardId, event: Event, bot: Arc<StarboardBot>) {
     tokio::spawn(internal_handle_event(shard_id, event, bot));
 }
 
-async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBot>) {
+async fn internal_handle_event(shard_id: ShardId, event: Event, bot: Arc<StarboardBot>) {
     bot.cache.update(&event).await;
     bot.standby.process(&event);
 
@@ -30,11 +30,15 @@ async fn internal_handle_event(shard_id: u64, event: Event, bot: Arc<StarboardBo
     }
 }
 
-async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> StarboardResult<()> {
+async fn match_events(
+    shard_id: ShardId,
+    event: Event,
+    bot: Arc<StarboardBot>,
+) -> StarboardResult<()> {
     match event {
-        Event::InteractionCreate(int) => handle_interaction(shard_id, int.0, bot).await?,
-        Event::ShardConnected(event) => println!("Shard {} connected.", event.shard_id),
+        Event::InteractionCreate(int) => handle_interaction(int.0, bot).await?,
         Event::Ready(info) => {
+            println!("Shard {} connected.", shard_id);
             if bot.application.read().await.is_none() {
                 bot.application.write().await.replace(info.application);
                 post_commands(bot).await;
@@ -93,7 +97,6 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
             }
 
             crate::owner::handle::handle_message(
-                shard_id,
                 &bot,
                 channel_id,
                 message_id,
@@ -106,7 +109,6 @@ async fn match_events(shard_id: u64, event: Event, bot: Arc<StarboardBot>) -> St
         Event::MessageUpdate(event) => {
             if let Some(author) = &event.author {
                 crate::owner::handle::handle_message(
-                    shard_id,
                     &bot,
                     event.channel_id,
                     event.id,

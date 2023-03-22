@@ -10,7 +10,6 @@ use super::{
 };
 
 pub async fn handle_interaction(
-    shard_id: u64,
     interaction: Interaction,
     bot: Arc<StarboardBot>,
 ) -> StarboardResult<()> {
@@ -19,7 +18,7 @@ pub async fn handle_interaction(
     match data {
         InteractionData::ApplicationCommand(data) => {
             let data = *data.clone();
-            let ctx = Ctx::new(shard_id, bot, interaction, data);
+            let ctx = Ctx::new(bot, interaction, data);
 
             match ctx.interaction.kind {
                 InteractionType::ApplicationCommandAutocomplete => handle_autocomplete(ctx).await?,
@@ -29,7 +28,7 @@ pub async fn handle_interaction(
         }
         InteractionData::MessageComponent(data) => {
             let data = data.to_owned();
-            let ctx = Ctx::new(shard_id, bot, interaction, data);
+            let ctx = Ctx::new(bot, interaction, data);
 
             handle_component(ctx).await?;
         }
