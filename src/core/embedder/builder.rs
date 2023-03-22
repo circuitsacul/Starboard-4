@@ -345,11 +345,15 @@ impl BuiltStarboardEmbed {
 
         let guild_id = handle.config.starboard.guild_id.into_id();
 
-        let member = handle
-            .bot
-            .cache
-            .fog_member(&handle.bot, guild_id, author_id)
-            .await?;
+        let member = if handle.config.resolved.use_server_profile {
+            handle
+                .bot
+                .cache
+                .fog_member(&handle.bot, guild_id, author_id)
+                .await?
+        } else {
+            None
+        };
 
         let avatar = member
             .as_ref()
