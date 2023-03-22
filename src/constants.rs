@@ -53,14 +53,12 @@ pub const VOTE_RECOUNT: (u64, Duration) = (5, Duration::from_secs(30));
 pub const MAX_NAME_LENGTH: u32 = 32;
 pub const MIN_NAME_LENGTH: u32 = 3;
 pub const MAX_REGEX_LENGTH: u32 = 1_000;
-// also used for starboards // todo: still true?
 pub const MAX_NEWER_THAN: i64 = YEAR_SECONDS * 50;
-// also used for starboards // todo: still true?
 pub const MAX_OLDER_THAN: i64 = YEAR_SECONDS * 50;
 
 // AutoStar Validation
-pub const MAX_MAX_CHARS: i16 = 5_000; // todo: merge or remove
-pub const MAX_MIN_CHARS: i16 = 5_000; // todo: merge or remove
+pub const MAX_MAX_CHARS: i16 = 5_000;
+pub const MAX_MIN_CHARS: i16 = 5_000;
 
 pub const MAX_ASC_EMOJIS: usize = 3;
 pub const MAX_PREM_ASC_EMOJIS: usize = 20;
