@@ -59,10 +59,7 @@ pub async fn get_or_create_original(
 
     let orig = match orig {
         Some(orig) => orig,
-        None => {
-            let orig = DbMessage::get(&bot.pool, message_id_i64).await?.unwrap();
-            orig
-        }
+        None => DbMessage::get(&bot.pool, message_id_i64).await?.unwrap(),
     };
 
     Ok((Some(orig), Some(author_is_bot)))

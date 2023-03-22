@@ -50,7 +50,7 @@ impl Stats {
                 .max()
                 .unwrap();
 
-            let emb = embed::build()
+            embed::build()
                 .title("User Stats")
                 .description(concat_format!(
                     "Showing Stats for <@{user_id}>\n\n";
@@ -60,9 +60,7 @@ impl Stats {
                     "`{: >pad$}` - Total Upvotes Given\n" <- stats.given_upvotes;
                     "`{: >pad$}` - Total Downvotes Given\n" <- stats.given_downvotes;
                 ))
-                .build();
-
-            emb
+                .build()
         };
 
         ctx.respond(ctx.build_resp().embeds([emb]).build()).await?;
