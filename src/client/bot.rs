@@ -8,10 +8,7 @@ use futures::Future;
 use snafu::ErrorCompat;
 use sqlx::PgPool;
 use tokio::sync::RwLock;
-use twilight_gateway::{
-    cluster::{Cluster, Events, ShardScheme},
-    Intents,
-};
+use twilight_gateway::{Config as GatewayConfig, Intents};
 use twilight_http::client::{Client as HttpClient, InteractionClient};
 use twilight_model::{
     id::{marker::ChannelMarker, Id},
@@ -29,7 +26,6 @@ use crate::{
 use super::{cooldowns::Cooldowns, locks::Locks};
 
 pub struct StarboardBot {
-    pub cluster: Cluster,
     pub http: HttpClient,
     pub reqwest: reqwest::Client,
     pub cache: Cache,
@@ -37,6 +33,7 @@ pub struct StarboardBot {
     pub pool: PgPool,
     pub standby: Standby,
     pub config: Config,
+    pub gw_config: GatewayConfig,
     pub cooldowns: Cooldowns,
     pub locks: Locks,
     pub start: DateTime<Utc>,
@@ -49,9 +46,8 @@ impl Debug for StarboardBot {
 }
 
 impl StarboardBot {
-    pub async fn new(config: Config) -> StarboardResult<(Events, StarboardBot)> {
+    pub async fn new(config: Config) -> StarboardResult<Self> {
         // Setup gateway connection
-        let scheme = ShardScheme::try_from((0..config.shards, config.shards)).unwrap();
         let intents = Intents::GUILDS
             | Intents::GUILD_EMOJIS_AND_STICKERS
             | Intents::GUILD_MEMBERS
@@ -60,10 +56,7 @@ impl StarboardBot {
             | Intents::MESSAGE_CONTENT
             | Intents::GUILD_MESSAGE_REACTIONS;
 
-        let (cluster, events) = Cluster::builder(config.token.clone(), intents)
-            .shard_scheme(scheme)
-            .build()
-            .await?;
+        let gw_config = GatewayConfig::new(config.token.clone(), intents);
 
         // Setup HTTP connection
         let mut http = HttpClient::builder().token(config.token.clone());
@@ -98,22 +91,19 @@ impl StarboardBot {
         let cache = Cache::new(map);
 
         // Return the bot struct
-        Ok((
-            events,
-            Self {
-                cluster,
-                http,
-                cache,
-                application: RwLock::new(None),
-                pool,
-                standby: Standby::new(),
-                config,
-                cooldowns: Cooldowns::new(),
-                locks: Locks::new(),
-                reqwest: reqwest::Client::new(),
-                start: Utc::now(),
-            },
-        ))
+        Ok(Self {
+            http,
+            cache,
+            application: RwLock::new(None),
+            pool,
+            standby: Standby::new(),
+            config,
+            gw_config,
+            cooldowns: Cooldowns::new(),
+            locks: Locks::new(),
+            reqwest: reqwest::Client::new(),
+            start: Utc::now(),
+        })
     }
 
     pub async fn interaction_client(&self) -> InteractionClient {

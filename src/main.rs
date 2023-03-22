@@ -29,7 +29,7 @@ async fn main() {
         ))
     });
 
-    let (events, starboard) = match StarboardBot::new(config).await {
+    let bot = match StarboardBot::new(config).await {
         Ok(val) => val,
         Err(why) => {
             eprintln!("{}", &why);
@@ -41,5 +41,5 @@ async fn main() {
         }
     };
 
-    run(events, starboard).await;
+    run(bot).await;
 }

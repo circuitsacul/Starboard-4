@@ -12,7 +12,6 @@ use crate::{
 use super::commands;
 
 pub async fn handle_message(
-    _shard_id: u64,
     bot: &StarboardBot,
     channel_id: Id<ChannelMarker>,
     message_id: Id<MessageMarker>,

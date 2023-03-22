@@ -39,7 +39,7 @@ pub async fn handle_reaction_add(
     bot.cache
         .members
         .insert(
-            (reactor_member.guild_id, reactor_member.user.id),
+            (guild_id, reactor_member.user.id),
             Some(Arc::new(reactor_member.into())),
         )
         .await;

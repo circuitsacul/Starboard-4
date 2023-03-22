@@ -1,5 +1,5 @@
 use rust_fuzzy_search::fuzzy_search_best_n;
-use twilight_model::application::command::{CommandOptionChoice, CommandOptionChoiceData};
+use twilight_model::application::command::{CommandOptionChoice, CommandOptionChoiceValue};
 
 pub fn best_matches_as_choices(
     query: &str,
@@ -10,12 +10,12 @@ pub fn best_matches_as_choices(
 
     best.into_iter()
         .map(|item| item.0)
-        .map(|name| {
-            CommandOptionChoice::String(CommandOptionChoiceData {
-                name: name.to_owned(),
-                value: value.map_or_else(|| name.to_owned(), |func| func(name)),
-                name_localizations: None,
-            })
+        .map(|name| CommandOptionChoice {
+            name: name.to_owned(),
+            value: CommandOptionChoiceValue::String(
+                value.map_or_else(|| name.to_owned(), |func| func(name)),
+            ),
+            name_localizations: None,
         })
         .collect()
 }
