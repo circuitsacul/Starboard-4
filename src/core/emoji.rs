@@ -102,15 +102,16 @@ impl EmojiCommon for SimpleEmoji {
                 as_id: None,
             })
         } else {
-            let input: String = input.chars().filter(char::is_ascii_digit).collect();
-            let as_id = Id::<EmojiMarker>::from_str(&input).ok()?;
+            let input = input.rsplit_once(":")?.1;
+            let input = &input[..input.len() - 1];
+            let as_id = Id::<EmojiMarker>::from_str(input).ok()?;
 
             if !bot.cache.guild_emoji_exists(guild_id, as_id) {
                 return None;
             }
 
             Some(Self {
-                raw: input,
+                raw: input.to_string(),
                 as_id: Some(as_id),
             })
         }
