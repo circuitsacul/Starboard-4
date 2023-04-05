@@ -1,4 +1,4 @@
-use crate::{concat_format, constants, core::emoji::clean_emojis, database::OverrideValues};
+use crate::{concat_format, constants, database::OverrideValues};
 
 #[derive(Debug)]
 pub struct StarboardOverride {
@@ -174,13 +174,6 @@ impl StarboardOverride {
     }
 
     pub fn get_overrides(&self) -> serde_json::Result<OverrideValues> {
-        let mut values: OverrideValues = serde_json::from_value(self.overrides.clone())?;
-        if let Some(emojis) = &mut values.upvote_emojis {
-            clean_emojis(emojis);
-        }
-        if let Some(emojis) = &mut values.downvote_emojis {
-            clean_emojis(emojis);
-        }
-        Ok(values)
+        serde_json::from_value(self.overrides.clone())
     }
 }

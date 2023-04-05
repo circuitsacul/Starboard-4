@@ -18,6 +18,7 @@ use crate::{
     cache::models::channel::CachedChannel,
     client::bot::StarboardBot,
     constants,
+    core::emoji::SimpleEmoji,
     errors::StarboardResult,
     utils::{
         async_dash::{AsyncDashMap, AsyncDashSet},
@@ -99,7 +100,7 @@ pub struct Cache {
 
     // database side
     pub autostar_channel_ids: AsyncDashSet<Id<ChannelMarker>>,
-    pub guild_vote_emojis: AsyncDashMap<i64, Vec<String>>,
+    pub guild_vote_emojis: AsyncDashMap<i64, Vec<SimpleEmoji>>,
     pub guild_premium: AsyncDashMap<i64, bool>,
 
     // misc

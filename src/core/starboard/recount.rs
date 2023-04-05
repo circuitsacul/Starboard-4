@@ -7,10 +7,7 @@ use twilight_model::id::{
 
 use crate::{
     client::bot::StarboardBot,
-    core::{
-        emoji::{EmojiCommon, SimpleEmoji},
-        premium::is_premium::is_guild_premium,
-    },
+    core::{emoji::SimpleEmoji, premium::is_premium::is_guild_premium},
     database::{DbMember, DbMessage, DbUser, Vote},
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, into_id::IntoId},
@@ -70,9 +67,8 @@ pub async fn recount_votes(
         .await?;
     for reaction in orig_obj.reactions {
         let emoji = SimpleEmoji::from(reaction.emoji);
-        let stored = emoji.clone().into_stored();
 
-        let is_vote = StarboardConfig::is_guild_vote_emoji(&bot, guild_id_i64, &stored).await?;
+        let is_vote = StarboardConfig::is_guild_vote_emoji(&bot, guild_id_i64, &emoji).await?;
 
         if is_vote {
             recount_votes_reaction(

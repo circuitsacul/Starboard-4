@@ -1,5 +1,3 @@
-use crate::core::emoji::clean_emojis;
-
 #[derive(Clone, Debug)]
 pub struct StarboardSettings {
     // General Style
@@ -46,32 +44,24 @@ pub struct StarboardSettings {
     pub exclusive_group_priority: i16,
 }
 
-pub fn process_settings(mut settings: StarboardSettings) -> StarboardSettings {
-    clean_emojis(&mut settings.upvote_emojis);
-    clean_emojis(&mut settings.downvote_emojis);
-    settings
-}
-
 macro_rules! settings_from_record {
     ($has_settings: expr, $($name: ident),*) => {{
-        use crate::database::models::starboard_settings::{StarboardSettings, process_settings};
-        let settings = StarboardSettings {
+        use crate::database::models::starboard_settings::StarboardSettings;
+        StarboardSettings {
             $(
                 $name: $has_settings.$name,
             )*
-        };
-        process_settings(settings)
+        }
     }};
 }
 macro_rules! settings_from_row {
     ($has_settings: expr, $($name: ident),*) => {{
-        use crate::database::models::starboard_settings::{StarboardSettings, process_settings};
-        let settings = StarboardSettings {
+        use crate::database::models::starboard_settings::StarboardSettings;
+        StarboardSettings {
             $(
                 $name: $has_settings.get(stringify!($name)),
             )*
-        };
-        process_settings(settings)
+        }
     }};
 }
 

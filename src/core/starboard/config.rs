@@ -7,6 +7,7 @@ use twilight_model::id::{
 
 use crate::{
     client::bot::StarboardBot,
+    core::emoji::{EmojiCommon, SimpleEmoji},
     database::{
         helpers::settings::overrides::call_with_override_settings, Starboard, StarboardOverride,
         StarboardSettings,
@@ -96,7 +97,7 @@ impl StarboardConfig {
     pub async fn is_guild_vote_emoji(
         bot: &StarboardBot,
         guild_id: i64,
-        emoji_raw: &String,
+        emoji_raw: &SimpleEmoji,
     ) -> StarboardResult<bool> {
         if let Some(is_vote_emoji) = bot.cache.guild_vote_emojis.with(&guild_id, |_, emojis| {
             emojis.as_ref().map(|emojis| emojis.contains(emoji_raw))
@@ -121,6 +122,7 @@ impl StarboardConfig {
                 }
             }
 
+            let emojis = Vec::<SimpleEmoji>::from_stored(emojis);
             let is_vote_emoji = emojis.contains(emoji_raw);
             // cache the value
             bot.cache.guild_vote_emojis.insert(guild_id, emojis);
