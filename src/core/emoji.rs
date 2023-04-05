@@ -18,12 +18,6 @@ pub fn clean_emoji(unicode: &str) -> &str {
     unicode.strip_suffix('\u{fe0f}').unwrap_or(unicode)
 }
 
-pub fn clean_emojis(emojis: &mut [String]) {
-    for emoji in emojis.iter_mut() {
-        *emoji = clean_emoji(emoji).to_string();
-    }
-}
-
 #[derive(Clone)]
 pub struct SimpleEmoji {
     pub raw: String,
