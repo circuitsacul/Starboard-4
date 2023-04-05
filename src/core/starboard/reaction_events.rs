@@ -53,7 +53,7 @@ pub async fn handle_reaction_add(
 
     let emoji = SimpleEmoji::from(event.emoji.clone());
 
-    if !StarboardConfig::is_guild_vote_emoji(&bot, guild_id.get_i64(), &emoji.raw).await? {
+    if !StarboardConfig::is_guild_vote_emoji(&bot, guild_id.get_i64(), &emoji).await? {
         return Ok(());
     }
 

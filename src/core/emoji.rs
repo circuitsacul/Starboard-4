@@ -30,6 +30,12 @@ pub struct SimpleEmoji {
     pub as_id: Option<Id<EmojiMarker>>,
 }
 
+impl PartialEq for SimpleEmoji {
+    fn eq(&self, other: &Self) -> bool {
+        clean_emoji(&other.raw) == clean_emoji(&self.raw)
+    }
+}
+
 pub trait EmojiCommon: Sized {
     type FromOut;
     type Stored;
@@ -79,10 +85,7 @@ impl EmojiCommon for SimpleEmoji {
             Err(_) => None,
         };
 
-        Self {
-            raw: clean_emoji(&raw).to_string(),
-            as_id,
-        }
+        Self { raw, as_id }
     }
 
     fn into_stored(self) -> Self::Stored {
@@ -94,15 +97,15 @@ impl EmojiCommon for SimpleEmoji {
         bot: &StarboardBot,
         guild_id: Id<GuildMarker>,
     ) -> Option<Self> {
-        let input = clean_emoji(&input).to_string();
+        let cleaned_input = clean_emoji(&input).to_string();
 
-        if emojis::get(&input).is_some() {
+        if emojis::get(&input).is_some() || emojis::get(&cleaned_input).is_some() {
             Some(Self {
                 raw: input,
                 as_id: None,
             })
         } else {
-            let input = input.rsplit_once(":")?.1;
+            let input = input.rsplit_once(':')?.1;
             let input = &input[..input.len() - 1];
             let as_id = Id::<EmojiMarker>::from_str(input).ok()?;
 
@@ -170,7 +173,7 @@ impl From<ReactionType> for SimpleEmoji {
                 as_id: Some(id),
             },
             ReactionType::Unicode { name } => SimpleEmoji {
-                raw: clean_emoji(&name).to_string(),
+                raw: name,
                 as_id: None,
             },
         }
