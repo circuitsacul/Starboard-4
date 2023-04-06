@@ -74,9 +74,19 @@ impl<'a> VoteStatus<'a> {
                 return None;
             }
 
-            let vote_type = if config.resolved.upvote_emojis.contains(&vote.emoji.raw) {
+            let vote_type = if config
+                .resolved
+                .upvote_emojis
+                .iter()
+                .any(|e| vote.emoji == e)
+            {
                 VoteType::Upvote
-            } else if config.resolved.downvote_emojis.contains(&vote.emoji.raw) {
+            } else if config
+                .resolved
+                .downvote_emojis
+                .iter()
+                .any(|e| vote.emoji == e)
+            {
                 VoteType::Downvote
             } else {
                 return None;
