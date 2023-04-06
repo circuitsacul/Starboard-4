@@ -20,13 +20,19 @@ pub fn clean_emoji(unicode: &str) -> &str {
 
 #[derive(Clone)]
 pub struct SimpleEmoji {
-    pub raw: String,
-    pub as_id: Option<Id<EmojiMarker>>,
+    raw: String,
+    as_id: Option<Id<EmojiMarker>>,
 }
 
 impl PartialEq for SimpleEmoji {
     fn eq(&self, other: &Self) -> bool {
         clean_emoji(&other.raw) == clean_emoji(&self.raw)
+    }
+}
+
+impl PartialEq<String> for SimpleEmoji {
+    fn eq(&self, other: &String) -> bool {
+        clean_emoji(&self.raw) == clean_emoji(other)
     }
 }
 
