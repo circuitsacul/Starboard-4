@@ -57,9 +57,11 @@ impl Cooldowns {
                 sleep(cooldown.cycle_period).await;
 
                 cooldown.autostar_send.cycle();
+                cooldown.prem_autostar_send.cycle();
                 cooldown.starboard_custom_cooldown.cycle();
                 cooldown.message_edit.cycle();
                 cooldown.xp_refresh.cycle();
+                cooldown.vote_recount.cycle();
             }
         });
     }
