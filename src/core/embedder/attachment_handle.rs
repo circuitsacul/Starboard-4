@@ -44,7 +44,7 @@ impl AttachmentHandle {
         let bytes = &head.headers()["content-length"];
         let bytes = bytes.to_str().unwrap().parse::<i64>().unwrap();
 
-        if bytes > 8_000_000 {
+        if bytes > 25_000_000 {
             return Ok(None);
         }
 
