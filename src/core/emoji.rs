@@ -1,5 +1,7 @@
 use std::str::FromStr;
 
+use lazy_static::lazy_static;
+use regex::Regex;
 use twilight_http::request::channel::reaction::RequestReactionType;
 use twilight_mention::Mention;
 use twilight_model::{
@@ -36,16 +38,49 @@ impl PartialEq<String> for SimpleEmoji {
     }
 }
 
+impl SimpleEmoji {
+    pub fn from_user_input(
+        input: &str,
+        bot: &StarboardBot,
+        guild_id: Id<GuildMarker>,
+    ) -> Vec<Self> {
+        lazy_static! {
+            static ref RE: Regex =
+                Regex::new(r"(<a?:\w+:(?P<emoji_id>\d+)>|(?P<unicode>.(\u{200d}.)*\u{fe0f}?))")
+                    .unwrap();
+        };
+
+        let mut emojis = Vec::new();
+        for caps in RE.captures_iter(input) {
+            if let Some(emoji_id) = caps.name("emoji_id") {
+                let id: Id<EmojiMarker> = emoji_id.as_str().parse().unwrap();
+                if !bot.cache.guild_emoji_exists(guild_id, id) {
+                    continue;
+                }
+
+                emojis.push(Self {
+                    raw: emoji_id.as_str().to_owned(),
+                    as_id: Some(id),
+                });
+            } else if let Some(emoji) = caps.name("unicode") {
+                if emojis::get(emoji.as_str()).is_some() {
+                    emojis.push(Self {
+                        raw: emoji.as_str().to_owned(),
+                        as_id: None,
+                    })
+                }
+            }
+        }
+
+        emojis
+    }
+}
+
 pub trait EmojiCommon: Sized {
     type FromOut;
     type Stored;
 
     fn into_readable(self, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> String;
-    fn from_user_input(
-        input: String,
-        bot: &StarboardBot,
-        guild_id: Id<GuildMarker>,
-    ) -> Self::FromOut;
     fn into_stored(self) -> Self::Stored;
     fn from_stored(stored: Self::Stored) -> Self;
 }
@@ -91,34 +126,6 @@ impl EmojiCommon for SimpleEmoji {
     fn into_stored(self) -> Self::Stored {
         self.raw
     }
-
-    fn from_user_input(
-        input: String,
-        bot: &StarboardBot,
-        guild_id: Id<GuildMarker>,
-    ) -> Option<Self> {
-        let cleaned_input = clean_emoji(&input).to_string();
-
-        if emojis::get(&input).is_some() || emojis::get(&cleaned_input).is_some() {
-            Some(Self {
-                raw: input,
-                as_id: None,
-            })
-        } else {
-            let input = input.rsplit_once(':')?.1;
-            let input = &input[..input.len() - 1];
-            let as_id = Id::<EmojiMarker>::from_str(input).ok()?;
-
-            if !bot.cache.guild_emoji_exists(guild_id, as_id) {
-                return None;
-            }
-
-            Some(Self {
-                raw: input.to_string(),
-                as_id: Some(as_id),
-            })
-        }
-    }
 }
 
 impl EmojiCommon for Vec<SimpleEmoji> {
@@ -149,17 +156,6 @@ impl EmojiCommon for Vec<SimpleEmoji> {
         let mut arr = Vec::new();
         for emoji in self {
             arr.push(emoji.into_stored());
-        }
-        arr
-    }
-
-    fn from_user_input(input: String, bot: &StarboardBot, guild_id: Id<GuildMarker>) -> Self {
-        let mut arr = Vec::new();
-        for piece in input.split(' ') {
-            let emoji = SimpleEmoji::from_user_input(piece.to_string(), bot, guild_id);
-            if let Some(emoji) = emoji {
-                arr.push(emoji);
-            }
         }
         arr
     }

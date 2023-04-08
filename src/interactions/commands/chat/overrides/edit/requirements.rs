@@ -109,14 +109,14 @@ impl EditRequirements {
         }
 
         if let Some(val) = self.upvote_emojis {
-            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
+            let emojis = SimpleEmoji::from_user_input(&val, &ctx.bot, guild_id).into_stored();
             settings.upvote_emojis = Some(emojis);
 
             // delete cached value
             ctx.bot.cache.guild_vote_emojis.remove(&guild_id_i64);
         }
         if let Some(val) = self.downvote_emojis {
-            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
+            let emojis = SimpleEmoji::from_user_input(&val, &ctx.bot, guild_id).into_stored();
             settings.downvote_emojis = Some(emojis);
 
             // delete cached value

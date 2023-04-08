@@ -55,14 +55,20 @@ impl EditGeneralStyle {
             let emoji = if val == "none" {
                 None
             } else {
-                match SimpleEmoji::from_user_input(val, &ctx.bot, guild_id) {
-                    None => {
-                        ctx.respond_str("Invalid emoji for `display-emoji`.", true)
-                            .await?;
-                        return Ok(());
-                    }
-                    Some(emoji) => Some(emoji),
+                let mut emojis = SimpleEmoji::from_user_input(&val, &ctx.bot, guild_id);
+                if emojis.len() != 1 {
+                    ctx.respond_str(
+                        concat!(
+                            "Please specify exactly one emoji for `display-emoji`, or use 'none' ",
+                            "to remove."
+                        ),
+                        true,
+                    )
+                    .await?;
+                    return Ok(());
                 }
+
+                emojis.pop()
             };
             starboard.settings.display_emoji = emoji.map(|emoji| emoji.into_stored());
         }
