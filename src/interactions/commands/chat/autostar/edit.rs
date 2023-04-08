@@ -52,7 +52,7 @@ impl EditAutoStar {
         let is_prem = is_guild_premium(&ctx.bot, guild_id_i64, true).await?;
 
         if let Some(val) = self.emojis {
-            let emojis = Vec::<SimpleEmoji>::from_user_input(val, &ctx.bot, guild_id).into_stored();
+            let emojis = SimpleEmoji::from_user_input(&val, &ctx.bot, guild_id).into_stored();
             if let Err(why) = asc.set_emojis(emojis, is_prem) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
