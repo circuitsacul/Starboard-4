@@ -143,6 +143,7 @@ pub async fn format_settings(
         0 => "None",
         1 => "Link",
         2 => "Button",
+        3 => "Mention",
         _ => "Invalid",
     };
 
