@@ -8,4 +8,6 @@ pub enum GoToMessage {
     Link,
     #[option(name = "Button", value = 2)]
     Button,
+    #[option(name = "Mention", value = 3)]
+    Mention,
 }

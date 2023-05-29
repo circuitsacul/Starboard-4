@@ -110,12 +110,21 @@ impl BuiltStarboardEmbed {
                 &emoji.into_readable(&handle.bot, handle.config.starboard.guild_id.into_id()),
             );
         }
-        write!(
-            top_content,
-            " **{} |** <#{}>",
-            handle.points, handle.orig_sql_message.channel_id,
-        )
-        .unwrap();
+        write!(top_content, " **{} |** ", handle.points,).unwrap();
+        if handle.config.resolved.go_to_message == 3 {
+            write!(
+                top_content,
+                "{}",
+                fmt_message_link(
+                    handle.config.starboard.guild_id,
+                    handle.orig_sql_message.channel_id,
+                    handle.orig_sql_message.message_id,
+                )
+            )
+            .unwrap();
+        } else {
+            write!(top_content, "<#{}>", handle.orig_sql_message.channel_id,).unwrap();
+        }
         if handle.config.resolved.ping_author {
             write!(
                 top_content,
