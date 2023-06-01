@@ -80,9 +80,9 @@ impl Filter {
         call_with_filters_settings!(build_update, self, builder);
 
         builder
-            .push("WHERE id=")
+            .push(" WHERE id=")
             .push_bind(self.id)
-            .push("RETURNING *");
+            .push(" RETURNING *");
 
         let ret = builder.build().fetch_optional(pool).await?;
 
