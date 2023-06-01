@@ -119,12 +119,29 @@ impl<'a> FilterEvaluater<'a> {
         // message context
         // if there's no channel_id or message_id, then we're not in the message context,
         // and as such should not attempt validation for it.
-        let Some(channel_id) = self.channel_id else {
+        let Some(mut channel_id) = self.channel_id else {
             return Ok(true);
         };
         let Some(message_id) = self.message_id else {
             return Ok(true);
         };
+
+        // the initial message for a forum thread is treated as belonging to the forum
+        // channel itself, for two reasons:
+        // 1. This allows you to distinguish between initial posts and followup messages
+        // 2. You can't actually send any messages in a forum
+        //
+        // Only forum starter messages will have self.id == self.channel.id
+        if channel_id.get() == message_id.get() {
+            if let Some(parent_id) = self
+                .bot
+                .cache
+                .fog_parent_channel_id(self.bot, self.guild_id, channel_id)
+                .await?
+            {
+                channel_id = parent_id;
+            }
+        }
 
         if let Some(req) = &check.in_channel {
             if !req.contains(&channel_id.get_i64()) {
