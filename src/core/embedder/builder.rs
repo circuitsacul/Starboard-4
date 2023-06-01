@@ -161,7 +161,8 @@ impl BuiltStarboardEmbed {
             embeds.push(e);
         }
         if let Some(e) =
-            Self::build_primary_embed(handle, orig, parsed, files_uploaded, watermark).await?
+            Self::build_primary_embed(handle, orig, parsed, files_uploaded, watermark, false)
+                .await?
         {
             embeds.push(e);
         }
@@ -201,13 +202,14 @@ impl BuiltStarboardEmbed {
             Some(msg) => msg,
         };
         let reply_parsed = ParsedMessage::parse(ref_msg);
-        Self::build_primary_embed(handle, ref_msg, &reply_parsed, false, false).await
+        Self::build_primary_embed(handle, ref_msg, &reply_parsed, false, false, true).await
     }
 
     pub async fn build_primary_embed(
         handle: &Embedder,
         orig: &CachedMessage,
         parsed: &ParsedMessage,
+        files_uploaded: bool,
         watermark: bool,
         is_reply: bool,
     ) -> StarboardResult<Option<Embed>> {
@@ -284,7 +286,9 @@ impl BuiltStarboardEmbed {
 
         // attachments list
         let mut urls = Vec::<&str>::new();
-        urls.extend(parsed.urls.uploaded.iter().map(|url| url.as_str()));
+        if !files_uploaded || is_reply {
+            urls.extend(parsed.urls.uploaded.iter().map(|url| url.as_str()));
+        }
         if !handle.config.resolved.extra_embeds || is_reply && parsed.urls.embedded.len() > 1 {
             urls.extend(parsed.urls.embedded.iter().map(|url| url.as_str()));
         }
