@@ -130,14 +130,14 @@ async fn get_status(
 
     if asc.min_chars != 0 && event.content.len() < asc.min_chars as usize {
         invalid.push(format!(
-            " - Your message must have at least {} characters.",
+            "- Your message must have at least {} characters.",
             asc.min_chars
         ));
     }
     if let Some(max_chars) = asc.max_chars {
         if event.content.len() > max_chars as usize {
             invalid.push(format!(
-                " - Your message cannot be longer than {max_chars} characters.",
+                "- Your message cannot be longer than {max_chars} characters.",
             ));
         }
     }
@@ -156,7 +156,7 @@ async fn get_status(
         }
 
         if still_invalid {
-            invalid.push(" - Your message must include an image.".to_string());
+            invalid.push("- Your message must include an image.".to_string());
         }
     }
 
@@ -173,7 +173,7 @@ async fn get_status(
     );
     filters.set_message(MessageResult::Ok(event));
     if !filters.status().await? {
-        invalid.push(" - Your message does not meet the filter requirements.".to_string());
+        invalid.push("- Your message does not meet the filter requirements.".to_string());
     }
 
     if invalid.is_empty() {

@@ -102,10 +102,10 @@ pub async fn run_sql(
             for row in inspect {
                 x += 1;
                 if x == 5 {
-                    final_result.push_str(" - and more...");
+                    final_result.push_str("- and more...");
                     break;
                 }
-                writeln!(final_result, " - {row:?}").unwrap();
+                writeln!(final_result, "- {row:?}").unwrap();
             }
             final_result.push_str("```\n");
         }
