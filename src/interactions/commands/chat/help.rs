@@ -58,11 +58,11 @@ impl Help {
                 "Starboard's Features",
                 concat!(
                     "Starboard's key free features are:\n",
-                    " - Multiple starboards\n",
-                    " - Custom avatar/username for starboards (via webhooks)\n",
-                    " - Autostar channels\n",
-                    " - Complete per-channel starboard configuration\n",
-                    " - Limited per-role starboard configuration\n",
+                    "- Multiple starboards\n",
+                    "- Custom avatar/username for starboards (via webhooks)\n",
+                    "- Autostar channels\n",
+                    "- Complete per-channel starboard configuration\n",
+                    "- Limited per-role starboard configuration\n",
                 ),
             ))
             .field(EmbedFieldBuilder::new(
