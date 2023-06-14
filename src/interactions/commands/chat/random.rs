@@ -164,7 +164,11 @@ impl RandomPost {
             let nsfw = ctx
                 .bot
                 .cache
-                .fog_channel_nsfw(&ctx.bot, guild_id, ctx.interaction.channel_id.unwrap())
+                .fog_channel_nsfw(
+                    &ctx.bot,
+                    guild_id,
+                    ctx.interaction.channel.as_ref().unwrap().id,
+                )
                 .await?
                 .unwrap();
             if !nsfw {
