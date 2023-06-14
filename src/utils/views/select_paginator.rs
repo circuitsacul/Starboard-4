@@ -319,7 +319,7 @@ impl SelectPaginatorBuilder {
         Self(SelectPaginator {
             bot: ctx.bot.clone(),
             user: ctx.interaction.author_id().unwrap(),
-            channel: ctx.interaction.channel_id.unwrap(),
+            channel: ctx.interaction.channel.as_ref().unwrap().id,
             ctx: AnyContext::Initial(ctx),
             pages: Vec::new(),
             current: 0,

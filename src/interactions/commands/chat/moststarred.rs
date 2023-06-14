@@ -71,7 +71,11 @@ impl Moststarred {
             let nsfw = ctx
                 .bot
                 .cache
-                .fog_channel_nsfw(&ctx.bot, guild_id, ctx.interaction.channel_id.unwrap())
+                .fog_channel_nsfw(
+                    &ctx.bot,
+                    guild_id,
+                    ctx.interaction.channel.as_ref().unwrap().id,
+                )
                 .await?;
             if !nsfw.unwrap() {
                 ctx.respond_str(
