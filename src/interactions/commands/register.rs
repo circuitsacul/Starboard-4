@@ -24,7 +24,7 @@ pub async fn post_commands(bot: Arc<StarboardBot>) {
         chat::leaderboard::Leaderboard,
         chat::stats::Stats,
         chat::random::RandomPost,
-        chat::moststarred::Moststarred,
+        chat::moststarred::MostStarred,
         chat::autostar::AutoStar,
         chat::starboard::Starboard,
         chat::overrides::Overrides,

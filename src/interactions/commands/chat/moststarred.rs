@@ -30,7 +30,7 @@ use super::random::{get_config, get_embedder, get_post_query};
     desc = "Shows the most starred messages in this server.",
     dm_permission = false
 )]
-pub struct Moststarred {
+pub struct MostStarred {
     /// The starboard to show the most starred messages for.
     #[command(autocomplete = true)]
     starboard: String,
@@ -50,7 +50,7 @@ pub struct Moststarred {
     allow_nsfw: Option<bool>,
 }
 
-impl Moststarred {
+impl MostStarred {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
