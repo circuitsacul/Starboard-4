@@ -24,7 +24,7 @@ sqlx = { version = "0.6.0", features = ["macros", "postgres", "offline", "runtim
 chrono = "0.4.19"
 serde_json = "1.0"
 serde = "1.0.139"
-emojis = "0.5.1"
+emojis = "0.6.0"
 dashmap = "5.3.4"
 regex = "1.6.0"
 lazy_static = "1.4.0"
