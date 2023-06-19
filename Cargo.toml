@@ -38,4 +38,4 @@ serde_with = "2.2.0"
 psutil = "3.2.2"
 rust-fuzzy-search = "0.1.1"
 moka = { version = "0.10.0", features = ["future"] }
-cached = "0.42.0"
+cached = "0.44.0"
