@@ -310,13 +310,16 @@ impl Cache {
         &self,
         bot: &StarboardBot,
         webhook_id: Id<WebhookMarker>,
+        allow_cache: bool,
     ) -> StarboardResult<Option<Arc<Webhook>>> {
-        let cached = self.webhooks.with(&webhook_id, |_, wh| {
-            wh.as_ref().map(|wh| wh.value().clone())
-        });
+        if allow_cache {
+            let cached = self.webhooks.with(&webhook_id, |_, wh| {
+                wh.as_ref().map(|wh| wh.value().clone())
+            });
 
-        if cached.is_some() {
-            return Ok(cached);
+            if cached.is_some() {
+                return Ok(cached);
+            }
         }
 
         let wh = bot.http.webhook(webhook_id).await;
@@ -324,6 +327,7 @@ impl Cache {
         let wh = match wh {
             Err(why) => {
                 if get_status(&why) == Some(404) {
+                    self.webhooks.remove(&webhook_id);
                     None
                 } else {
                     return Err(why.into());

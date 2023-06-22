@@ -1,7 +1,10 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    core::emoji::{EmojiCommon, SimpleEmoji},
+    core::{
+        emoji::{EmojiCommon, SimpleEmoji},
+        starboard::webhooks::create_webhook,
+    },
     database::Starboard,
     errors::StarboardResult,
     get_guild_id,
@@ -84,13 +87,23 @@ impl EditGeneralStyle {
         if let Some(val) = self.go_to_message {
             starboard.settings.go_to_message = val.value() as i16;
         }
+        let message;
         if let Some(val) = self.use_webhook {
             starboard.settings.use_webhook = val;
+
+            message = Some(create_webhook(&ctx.bot, &starboard).await);
+        } else {
+            message = None;
+        }
+
+        let mut response = format!("Updated settings for '{}'.", self.name);
+        if let Some(message) = message {
+            response.push_str("\n\n");
+            response.push_str(message);
         }
 
         starboard.update_settings(&ctx.bot.pool).await?;
-        ctx.respond_str(&format!("Updated settings for '{}'.", self.name), false)
-            .await?;
+        ctx.respond_str(&response, false).await?;
         Ok(())
     }
 }
