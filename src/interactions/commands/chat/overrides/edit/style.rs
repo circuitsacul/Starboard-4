@@ -1,8 +1,11 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    core::emoji::{EmojiCommon, SimpleEmoji},
-    database::StarboardOverride,
+    core::{
+        emoji::{EmojiCommon, SimpleEmoji},
+        starboard::webhooks::create_webhook,
+    },
+    database::{Starboard, StarboardOverride},
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::choices::go_to_message::GoToMessage, context::CommandCtx},
@@ -84,16 +87,27 @@ impl EditGeneralStyle {
         if let Some(val) = self.go_to_message {
             settings.go_to_message = Some(val.value() as i16);
         }
+        let message;
         if let Some(val) = self.use_webhook {
             settings.use_webhook = Some(val);
+
+            let starboard = Starboard::get(&ctx.bot.pool, ov.starboard_id)
+                .await?
+                .unwrap();
+            message = Some(create_webhook(&ctx.bot, &starboard).await);
+        } else {
+            message = None;
         }
 
         StarboardOverride::update_settings(&ctx.bot.pool, ov.id, settings).await?;
-        ctx.respond_str(
-            &format!("Updated settings for override '{}'.", self.name),
-            false,
-        )
-        .await?;
+
+        let mut response = format!("Updated settings for override '{}'.", self.name);
+        if let Some(message) = message {
+            response.push_str("\n\n");
+            response.push_str(message);
+        }
+
+        ctx.respond_str(&response, false).await?;
         Ok(())
     }
 }

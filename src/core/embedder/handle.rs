@@ -82,7 +82,8 @@ impl Embedder {
 
         if self.config.resolved.use_webhook {
             loop {
-                if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, true).await? {
+                if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, true, true).await?
+                {
                     let parent = bot
                         .cache
                         .fog_parent_channel_id(bot, guild_id, sb_channel_id)
@@ -187,7 +188,7 @@ impl Embedder {
                 return Ok(false);
             }
 
-            let wh = get_valid_webhook(bot, &self.config.starboard, false).await?;
+            let wh = get_valid_webhook(bot, &self.config.starboard, false, true).await?;
 
             let parent = bot
                 .cache
@@ -278,7 +279,9 @@ impl Embedder {
 
         if let Some(wh_id) = self.config.starboard.webhook_id {
             if wh_id == msg.author_id.get_i64() {
-                if let Some(wh) = get_valid_webhook(bot, &self.config.starboard, false).await? {
+                if let Some(wh) =
+                    get_valid_webhook(bot, &self.config.starboard, false, true).await?
+                {
                     let parent = bot
                         .cache
                         .fog_parent_channel_id(

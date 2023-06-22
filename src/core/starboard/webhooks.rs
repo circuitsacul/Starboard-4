@@ -9,13 +9,32 @@ use crate::{
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
 
+pub async fn create_webhook(bot: &StarboardBot, starboard: &Starboard) -> &'static str {
+    if get_valid_webhook(bot, starboard, true, false).await.is_ok() {
+        concat!(
+            "I created a webhook in the starboard channel. You can change the username ",
+            "and avatar by going to channel settings > integrations > webhooks."
+        )
+    } else {
+        concat!(
+            "I tried to create a webhook, but couldn't. Please make sure I have the ",
+            "necessary permissions."
+        )
+    }
+}
+
 pub async fn get_valid_webhook(
     bot: &StarboardBot,
     starboard: &Starboard,
     allow_create: bool,
+    allow_cache: bool,
 ) -> StarboardResult<Option<Arc<Webhook>>> {
     if let Some(wh) = starboard.webhook_id {
-        if let Some(wh) = bot.cache.fog_webhook(bot, wh.into_id()).await? {
+        if let Some(wh) = bot
+            .cache
+            .fog_webhook(bot, wh.into_id(), allow_cache)
+            .await?
+        {
             return Ok(Some(wh));
         }
 
