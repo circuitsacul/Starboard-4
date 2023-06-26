@@ -21,8 +21,8 @@ pub const VOTE_URL: &str = "https://top.gg/bot/700796664276844612/vote";
 pub const REVIEW_URL: &str = "https://top.gg/bot/700796664276844612#reviews";
 
 // Docs
-pub const DOCS_URL: &str = "https://bip.so/starboard?via=starboard";
-pub const DOCS_FILTERS: &str = "https://bip.so/starboard/filters-44725c?via=starboard";
+pub const DOCS_URL: &str = "https://docs.starboard.best";
+pub const DOCS_FILTERS: &str = "https://docs.starboard.best/docs/filters";
 
 // Tasks
 pub const UPDATE_PRS_DELAY: Duration = Duration::from_secs(60 * 60);
