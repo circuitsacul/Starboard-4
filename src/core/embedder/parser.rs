@@ -120,8 +120,14 @@ impl ParsedMessage {
                 }
 
                 if let Some(provider) = &embed.provider {
-                    if provider.name.as_deref() == Some("YouTube") {
-                        modify_yt_embed(&mut embed);
+                    if let Some(name) = &provider.name {
+                        match name.as_str() {
+                            "YouTube" => modify_yt_embed(&mut embed),
+                            "FixTweet" => {
+                                embed.description = None;
+                            }
+                            _ => (),
+                        }
                     }
                 }
 
