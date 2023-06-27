@@ -1,6 +1,7 @@
 use std::{
     fmt::{Debug, Write},
     sync::Arc,
+    time::Duration,
 };
 
 use chrono::{DateTime, Utc};
@@ -59,7 +60,9 @@ impl StarboardBot {
         let gw_config = GatewayConfig::new(config.token.clone(), intents);
 
         // Setup HTTP connection
-        let mut http = HttpClient::builder().token(config.token.clone());
+        let mut http = HttpClient::builder()
+            .token(config.token.clone())
+            .timeout(Duration::from_secs(30));
         if let Some(proxy) = &config.proxy {
             http = http.proxy(proxy.to_owned(), true);
         }
