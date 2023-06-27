@@ -119,6 +119,22 @@ impl ParsedMessage {
                     }
                 }
 
+                'out: {
+                    let Some(video) = &embed.video else { break 'out; };
+                    let Some(proxy_url) = &video.proxy_url else { break 'out; };
+
+                    let handle = AttachmentHandle {
+                        filename: format!(
+                            "embed_video.{}",
+                            proxy_url.split('.').last().unwrap_or("mp4")
+                        ),
+                        content_type: Some("video".to_string()),
+                        url: proxy_url.clone(),
+                    };
+                    urls.uploaded.push(handle.url_list_item());
+                    upload_attachments.push(handle);
+                }
+
                 if let Some(provider) = &embed.provider {
                     if let Some(name) = &provider.name {
                         match name.as_str() {
