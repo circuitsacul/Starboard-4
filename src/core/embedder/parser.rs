@@ -136,8 +136,11 @@ impl ParsedMessage {
                 }
 
                 if let Some(provider) = &embed.provider {
-                    if let Some(name) = &provider.name {
-                        match name.as_str() {
+                    if let Some(mut name) = provider.name.as_deref() {
+                        if name.starts_with("FixTweet") {
+                            name = "FixTweet";
+                        }
+                        match name {
                             "YouTube" => modify_yt_embed(&mut embed),
                             "FixTweet" => {
                                 embed.description = None;
