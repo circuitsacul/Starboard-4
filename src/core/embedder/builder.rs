@@ -1,5 +1,7 @@
 use std::fmt::Write;
 
+use lazy_static::lazy_static;
+use regex::Regex;
 use twilight_model::{
     channel::message::{
         component::{ActionRow, Button, ButtonStyle},
@@ -27,6 +29,14 @@ use crate::{
 };
 
 use super::{parser::ParsedMessage, AttachmentHandle, Embedder};
+
+lazy_static! {
+    static ref URL_REGEX: Regex = Regex::new(concat!(
+        r"^https?://(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]",
+        r"{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&/=]*)$"
+    ))
+    .unwrap();
+}
 
 pub struct FullBuiltStarboardEmbed {
     pub top_content: String,
@@ -262,7 +272,9 @@ impl BuiltStarboardEmbed {
 
         'out: {
             if !orig.content.is_empty() {
-                if let Some(url) = orig.content.split('?').next() {
+                if URL_REGEX.is_match(&orig.content) {
+                    let url = orig.content.split('?').next().unwrap_or(&orig.content);
+
                     let mut found = false;
                     for item in &parsed.urls.embedded {
                         if item.url == url {
