@@ -2,22 +2,22 @@
 
 These are all the settings that can be configured for each starboard and override.
 
-## General Appearance
+## Style
 
-| display-emoji       | The emoji shown next to the number of points on a starboard post. ⭐️ by default.                                                                                                        |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ping-author         | Whether to mention the author of the original message when it appears on the starboard. False by default.                                                                               |
-| user-server-profile | Whether to use a users per-server avatar and nickname, rather than their default avatar and username. True by default.                                                                  |
-| extra-embeds        | Whether to include extra embeds when the original message also has embeds. True by default.                                                                                             |
-| use-webhook         | Whether to use a webhook to send starboard posts, rather than the bot account. Doing this will allow you to customize the avatar and username of the starboard posts. False by default. |
+| display-emoji       | The emoji shown next to the number of points on a starboard post. ⭐️ by default.                                                                                                                                                                                                               |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ping-author         | Whether to mention the author of the original message when it appears on the starboard. False by default.                                                                                                                                                                                      |
+| user-server-profile | Whether to use a users per-server avatar and nickname, rather than their default avatar and username. True by default.                                                                                                                                                                         |
+| extra-embeds        | Whether to include extra embeds when the original message also has embeds. True by default.                                                                                                                                                                                                    |
+| go-to-message       | <p>The style of the message link.</p><ul><li>None: no message link.</li><li>Link: puts a hyperlink inside the embed.</li><li>Button: puts the link in a button below the message.</li><li>Mention: replaces the channel mention with a message mention. This is the default setting.</li></ul> |
+| use-webhook         | Whether to use a webhook to send starboard posts, rather than the bot account. Doing this will allow you to customize the avatar and username of the starboard posts. False by default.                                                                                                        |
 
-## Embed Appearance
+## Embed
 
 | color           | The color of the embed on starboard posts. #FFE19C by default.                                   |
 | --------------- | ------------------------------------------------------------------------------------------------ |
-| jump-to-message | Whether to show the "Go to Message" hyperlink. True by default.                                  |
 | attachment-list | Whether to list the names (as hyperlinks) of uploaded attachments. True by default.              |
-| reply-to        | Whether to include the message that was replied to, if any, in starboard posts. True by default. |
+| replied-to      | Whether to include the message that was replied to, if any, in starboard posts. True by default. |
 
 ## Requirements
 
