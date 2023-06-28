@@ -53,9 +53,9 @@ pub fn maybe_get_attachment_handle(embed: &Embed) -> Option<AttachmentHandle> {
     };
 
     let name = {
-        let ext = url.split('.').last();
-        match ext {
-            Some(ext) => format!("attachment.{ext}"),
+        let name = url.split('/').last();
+        match name {
+            Some(name) => name.to_string(),
             None => "attachment".to_string(),
         }
     };
