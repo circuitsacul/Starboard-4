@@ -25,6 +25,7 @@
   * [XP-based Award Roles](docs/award-roles/xp-based-award-roles.md)
   * [Position-based Award Roles](docs/award-roles/position-based-award-roles.md)
 * [Utils](docs/utils.md)
+* [Fun Commands](docs/fun-commands.md)
 * [AutoStar Channels](docs/autostar-channels.md)
 
 ## Tutorials
