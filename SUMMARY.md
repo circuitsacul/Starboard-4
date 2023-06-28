@@ -21,6 +21,9 @@
 * [Filters](docs/filters.md)
 * [Exclusive Groups](docs/exclusive-groups.md)
 * [PermRoles](docs/permroles.md)
+* [Award Roles](docs/award-roles/README.md)
+  * [XP-based Award Roles](docs/award-roles/xp-based-award-roles.md)
+  * [Position-based Award Roles](docs/award-roles/position-based-award-roles.md)
 * [Utils](docs/utils.md)
 * [AutoStar Channels](docs/autostar-channels.md)
 
