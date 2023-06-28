@@ -103,7 +103,9 @@ impl ParsedMessage {
                     } else {
                         embeds.push(attachment.as_embed().unwrap());
                     }
+                    urls.embedded.push(attachment.url_list_item());
                 } else {
+                    urls.uploaded.push(attachment.url_list_item());
                     upload_attachments.push(attachment);
                 }
 
