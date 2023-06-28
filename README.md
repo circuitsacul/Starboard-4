@@ -1,40 +1,34 @@
-# Starboard-4
-A feature-rich and reliable Starboard bot, trusted by thousands of servers.
+# Starboard
 
- - [Invite Starboard](https://discord.com/api/oauth2/authorize?client_id=700796664276844612&permissions=275683339328&scope=applications.commands%20bot)
- - [Get Support](https://discord.gg/3gK8mSA)
- - [Documentation](https://starboard.best)
+Thanks for coming to Starboards docs! The point of this is to answer any questions you might have about what a starboard is, and how to use this bot. If you ever have any questions, feel free to join [the support server.](https://discord.gg/3gK8mSA)
 
-## Features
- - Multiple starboards per server
- - Multiple emojis per starboard
- - 25+ configurable options for starboards
- - Per-channel setting overrides
- - Per-role permissions
- - Autostar channels
+Click [here](https://discord.com/api/oauth2/authorize?client\_id=700796664276844612\&permissions=275683339328\&scope=bot%20applications.commands) to invite starboard.
 
-## Quickstart
- - Use `/starboards create name: starboard-name channel: #starboard` to create a starboard.
- - Use `/starboards view name: starboard-name` to view the settings.
- - Use `/starboards edit [behavior|requirements|style|embed] name: starboard-name [options...]` to edit a starboard.
+The source code for Starboard is available [here](https://github.com/circuitsacul/starboard-4). You're welcome to self-host it if you like.
 
-## Self-hosting
-You're welcome to self-host this bot if you like, as well as fork it and add your own changes. If there are features you wish the main bot had, you're also welcome to open PRs or make an issue requesting features.
+## Quick Start
 
-Currently, I offer support for self-hosting the bot if you get stuck - just join the support server, and create a thread with the "Self Hosting" tag.
+To get a working starboard, see [basic-starboard.md](tutorials/basic-starboard.md "mention"). See [starboards](docs/starboards/ "mention") for more detailed info on how to use starboards.
 
-This guide assumes that you already have a VPS to host the bot on. Some good low-cost providers are https://www.netcup.eu (what the main bot uses) and https://alphavps.com.
+## What is a Starboard?
 
-I'll add a proper self-hosting guide later, but essentially you need a PostgreSQL database, a .env file filled with the required variables from .env.example, and the pre-build docker image. To get the latest docker image from docker hub, use `docker pull circuitsacul/starboard:latest`. Start the bot with `docker run -d --env-file .env --network=host circuitsacul/starboard:latest`.
+A starboard is a discord bot that essentially allows users to "vote" to "pin" messages, but instead of pinning them to the channel using Discord's pins, they are sent to your starboard. Usually, it works like this:
 
-## Migration from Starboard-3
-If you're already hosting starboard-3 and want to switch to starboard-4, you have to alter the database structure.
+* You create a channel called #starboard.
+* If someone sends a funny message, people can react to that message with ⭐.
+* Once the message receives a certain number of :star: reactions, the message is sent to the #starboard.
 
-Start by running `psql postgresql`. Then you can run:
-```sql
-CREATE DATABASE starboard_4 WITH OWNER <starboard username> TEMPLATE <old database name>;
-```
+## Why this Starboard?
 
-Now exit, and then run `psql starboard_4 < migrate.sql` where `migrate.sql` is the file found in this repo.
+It would be easy to create a simple Starboard bot that can just do the basics, where you set a channel and a number, and you're done. But with this bot, you can do so much more - from having multiple starboards all the way to setting specific permissions for each role.
 
-After doing this, you should be able to launch starboard-4.
+This bot is sometimes confusing to new users, but once you figure out how to use it, you can customize the bot to fit your servers needs perfectly.
+
+## Key Features
+
+* Multiple starboards per server
+* Multiple upvote and downvote emojis per starboard
+* 25+ configurable options per starboard
+* Per-channel settings overrides
+* Per-role permissions
+* Autostar channels
