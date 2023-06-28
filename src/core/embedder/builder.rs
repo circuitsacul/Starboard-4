@@ -260,8 +260,24 @@ impl BuiltStarboardEmbed {
             description.push('\n');
         }
 
-        if !orig.content.is_empty() {
-            description.push_str(&orig.content);
+        'out: {
+            if !orig.content.is_empty() {
+                if let Some(url) = orig.content.split('?').next() {
+                    let mut found = false;
+                    for item in &parsed.urls.embedded {
+                        if item.url == url {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if found {
+                        break 'out;
+                    }
+                }
+
+                description.push_str(&orig.content);
+            }
         }
 
         let mut has_description;
@@ -278,10 +294,10 @@ impl BuiltStarboardEmbed {
         }
 
         // attachments list
-        let mut urls = Vec::<&str>::new();
-        urls.extend(parsed.urls.uploaded.iter().map(|url| url.as_str()));
+        let mut urls = Vec::new();
+        urls.extend(parsed.urls.uploaded.iter().map(|url| url.to_md()));
         if !handle.config.resolved.extra_embeds || is_reply && parsed.urls.embedded.len() > 1 {
-            urls.extend(parsed.urls.embedded.iter().map(|url| url.as_str()));
+            urls.extend(parsed.urls.embedded.iter().map(|url| url.to_md()));
         }
 
         if (handle.config.resolved.attachments_list || is_reply) && !urls.is_empty() {
@@ -293,7 +309,7 @@ impl BuiltStarboardEmbed {
                     break;
                 }
 
-                field.push_str(next);
+                field.push_str(&next);
                 field.push('\n');
             }
 

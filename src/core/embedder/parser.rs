@@ -18,10 +18,25 @@ pub type PrimaryImage = ImageSource;
 pub type Embeds = Vec<Embed>;
 pub type UploadAttachments = Vec<AttachmentHandle>;
 
+pub struct AttachmentListItem {
+    pub name: String,
+    pub url: String,
+}
+
+impl AttachmentListItem {
+    pub fn new(name: String, url: String) -> Self {
+        Self { name, url }
+    }
+
+    pub fn to_md(&self) -> String {
+        format!("[{}]({})", self.name, self.url)
+    }
+}
+
 #[derive(Default)]
 pub struct AttachmentUrls {
-    pub embedded: Vec<String>,
-    pub uploaded: Vec<String>,
+    pub embedded: Vec<AttachmentListItem>,
+    pub uploaded: Vec<AttachmentListItem>,
 }
 
 pub struct ParsedMessage {
@@ -66,17 +81,17 @@ impl ParsedMessage {
 
             if primary_image.is_none() {
                 if let Some(image) = handle.embedable_image() {
-                    urls.embedded.push(handle.url_list_item());
+                    urls.embedded.push(handle.attachment_list_item());
                     primary_image.replace(image);
                     continue;
                 }
             } else if let Some(embed) = handle.as_embed() {
-                urls.embedded.push(handle.url_list_item());
+                urls.embedded.push(handle.attachment_list_item());
                 embeds.push(embed);
                 continue;
             }
 
-            urls.uploaded.push(handle.url_list_item());
+            urls.uploaded.push(handle.attachment_list_item());
             upload_attachments.push(handle);
         }
 
@@ -103,9 +118,9 @@ impl ParsedMessage {
                     } else {
                         embeds.push(attachment.as_embed().unwrap());
                     }
-                    urls.embedded.push(attachment.url_list_item());
+                    urls.embedded.push(attachment.attachment_list_item());
                 } else {
-                    urls.uploaded.push(attachment.url_list_item());
+                    urls.uploaded.push(attachment.attachment_list_item());
                     upload_attachments.push(attachment);
                 }
 
@@ -141,7 +156,7 @@ impl ParsedMessage {
                     content_type: Some("video".to_string()),
                     url: proxy_url.clone(),
                 };
-                urls.uploaded.push(handle.url_list_item());
+                urls.uploaded.push(handle.attachment_list_item());
                 upload_attachments.push(handle);
             }
 

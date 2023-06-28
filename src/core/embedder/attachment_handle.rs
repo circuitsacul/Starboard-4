@@ -12,6 +12,8 @@ use crate::{
     errors::{StarboardError, StarboardResult},
 };
 
+use super::parser::AttachmentListItem;
+
 pub struct AttachmentHandle {
     pub filename: String,
     pub content_type: Option<String>,
@@ -86,11 +88,11 @@ impl AttachmentHandle {
         })
     }
 
-    pub fn url_list_item(&self) -> String {
+    pub fn attachment_list_item(&self) -> AttachmentListItem {
         if self.filename.len() > 32 {
-            format!("[{}...]({})", &self.filename[..29], self.url)
+            AttachmentListItem::new(self.filename[..29].to_string(), self.url.clone())
         } else {
-            format!("[{}]({})", self.filename, self.url)
+            AttachmentListItem::new(self.filename.clone(), self.url.clone())
         }
     }
 
