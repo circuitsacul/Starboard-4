@@ -15,6 +15,10 @@ use tokio::main;
 
 use crate::client::{bot::StarboardBot, config::Config, runner::run};
 
+pub mod translations {
+    rosetta_i18n::include_translations!();
+}
+
 #[main]
 async fn main() {
     let config = Config::from_env();

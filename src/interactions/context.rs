@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use rosetta_i18n::{Language, LanguageId};
 use twilight_http::Response;
 use twilight_model::{
     application::interaction::{
@@ -14,7 +15,7 @@ use twilight_model::{
 };
 use twilight_util::builder::InteractionResponseDataBuilder;
 
-use crate::{client::bot::StarboardBot, errors::StarboardResult};
+use crate::{client::bot::StarboardBot, errors::StarboardResult, translations::Lang};
 
 pub type CommandCtx = Ctx<CommandData>;
 pub type ComponentCtx = Ctx<MessageComponentInteractionData>;
@@ -37,6 +38,18 @@ impl<T> Ctx<T> {
             data,
             responded: false,
         }
+    }
+
+    pub fn guild_lang(&self) -> Lang {
+        let id = LanguageId::new(self.interaction.guild_locale.as_deref().unwrap_or("en"));
+
+        Lang::from_language_id(&id).unwrap_or(Lang::En)
+    }
+
+    pub fn user_lang(&self) -> Lang {
+        let id = LanguageId::new(self.interaction.locale.as_deref().unwrap_or("en"));
+
+        Lang::from_language_id(&id).unwrap_or(Lang::En)
     }
 
     pub fn build_resp(&self) -> InteractionResponseDataBuilder {
