@@ -41,13 +41,13 @@ impl<T> Ctx<T> {
     }
 
     pub fn guild_lang(&self) -> Lang {
-        let id = LanguageId::new(self.interaction.guild_locale.as_deref().unwrap_or("en"));
+        let id = LanguageId::new(&self.interaction.guild_locale.as_deref().unwrap_or("en")[0..2]);
 
         Lang::from_language_id(&id).unwrap_or(Lang::En)
     }
 
     pub fn user_lang(&self) -> Lang {
-        let id = LanguageId::new(self.interaction.locale.as_deref().unwrap_or("en"));
+        let id = LanguageId::new(&self.interaction.locale.as_deref().unwrap_or("en")[0..2]);
 
         Lang::from_language_id(&id).unwrap_or(Lang::En)
     }
