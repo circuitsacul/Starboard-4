@@ -1,0 +1,14 @@
+name: test
+
+on: push
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout Repository
+        uses: actions/checkout@v3
+      -
+        name: Test
+        run: echo git describe --tags
