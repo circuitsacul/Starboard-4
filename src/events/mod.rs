@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use twilight_gateway::{Event, ShardId};
 
@@ -51,6 +51,11 @@ async fn match_events(
             let Some(parent_id) = event.parent_id else {
                 return Ok(());
             };
+
+            // the initial message doesn't exist right away, so we need
+            // to wait a few seconds. Otherwise, the message won't
+            // receive its reaction.
+            tokio::time::sleep(Duration::from_secs(2)).await;
 
             if bot.cache.is_channel_forum(guild_id, parent_id) {
                 core::autostar::handle(
