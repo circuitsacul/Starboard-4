@@ -1,17 +1,13 @@
-use std::{
-    fmt::{Debug, Write},
-    sync::Arc,
-    time::Duration,
-};
+use std::{fmt::Debug, sync::Arc, time::Duration};
 
 use chrono::{DateTime, Utc};
 use futures::Future;
-use snafu::ErrorCompat;
 use sqlx::PgPool;
 use tokio::sync::RwLock;
 use twilight_gateway::{Config as GatewayConfig, Intents};
 use twilight_http::client::{Client as HttpClient, InteractionClient};
 use twilight_model::{
+    http::attachment::Attachment,
     id::{marker::ChannelMarker, Id},
     oauth::PartialApplication,
 };
@@ -119,25 +115,23 @@ impl StarboardBot {
     pub async fn handle_error(&self, err: &StarboardError) {
         sentry::capture_error(err);
 
-        let msg = format!("{err}").trim().to_string();
-        let mut msg = if msg.is_empty() {
+        let msg = format!("{err:#?}").trim().to_string();
+        let msg = if msg.is_empty() {
             "Some Error".to_string()
         } else {
             msg
         };
 
-        if let Some(bt) = ErrorCompat::backtrace(err) {
-            writeln!(msg, "\n```rs\n{bt:#?}\n```").unwrap();
-        }
-
         eprintln!("{msg}");
 
-        if msg.len() > 2_000 {
-            msg = msg[..1_990].to_string() + "...\n```";
-        }
+        let attachment = Attachment::from_bytes("erorr.rs".into(), msg.bytes().collect(), 1);
+        let attachments = &[attachment];
 
         if let Some(chid) = self.config.error_channel {
-            let ret = self.http.create_message(chid.into_id()).content(&msg);
+            let ret = self
+                .http
+                .create_message(chid.into_id())
+                .attachments(attachments);
             let ret = match ret {
                 Ok(ret) => ret,
                 Err(why) => return eprintln!("{why}"),
