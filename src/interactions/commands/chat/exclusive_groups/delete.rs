@@ -2,14 +2,24 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     database::ExclusiveGroup, errors::StarboardResult, get_guild_id,
-    interactions::context::CommandCtx, utils::id_as_i64::GetI64,
+    interactions::context::CommandCtx, locale_func, utils::id_as_i64::GetI64,
 };
 
+locale_func!(exclusive_groups_delete);
+locale_func!(exclusive_groups_delete_option_name);
+
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "delete", desc = "Delete an exclusive group.")]
+#[command(
+    name = "delete",
+    desc = "Delete an exclusive group.",
+    desc_localizations = "exclusive_groups_delete"
+)]
 pub struct Delete {
     /// The exclusive group to delete.
-    #[command(autocomplete = true)]
+    #[command(
+        autocomplete = true,
+        desc_localizations = "exclusive_groups_delete_option_name"
+    )]
     name: String,
 }
 
@@ -20,7 +30,7 @@ impl Delete {
         let ret = ExclusiveGroup::delete(&ctx.bot.pool, &self.name, guild_id).await?;
         let Some(group) = ret else {
             ctx.respond_str(
-                &format!("Exclusive group '{}' does not exist.", self.name),
+                &ctx.user_lang().exclusive_group_missing(self.name),
                 true,
             )
             .await?;
@@ -36,8 +46,11 @@ impl Delete {
         .fetch_all(&ctx.bot.pool)
         .await?;
 
-        ctx.respond_str(&format!("Deleted exclusive group '{}'.", self.name), false)
-            .await?;
+        ctx.respond_str(
+            &ctx.user_lang().exclusive_groups_delete_done(self.name),
+            false,
+        )
+        .await?;
 
         Ok(())
     }

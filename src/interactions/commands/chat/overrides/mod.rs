@@ -10,12 +10,16 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     errors::StarboardResult,
     interactions::{commands::permissions::manage_channels, context::CommandCtx},
+    locale_func,
 };
+
+locale_func!(overrides);
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "overrides",
     desc = "Manage overrides.",
+    desc_localizations = "overrides",
     dm_permission = false,
     default_permissions = "manage_channels"
 )]

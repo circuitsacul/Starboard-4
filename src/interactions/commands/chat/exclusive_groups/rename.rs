@@ -5,17 +5,33 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
     utils::{id_as_i64::GetI64, pg_error::PgErrorTraits},
 };
 
+locale_func!(exclusive_groups_rename);
+locale_func!(exclusive_groups_rename_option_original_name);
+locale_func!(exclusive_groups_rename_option_new_name);
+
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "rename", desc = "Rename an exclusive group.")]
+#[command(
+    name = "rename",
+    desc = "Rename an exclusive group.",
+    desc_localizations = "exclusive_groups_rename"
+)]
 pub struct Rename {
     /// The original name for the exclusive group.
-    #[command(rename = "original-name", autocomplete = true)]
+    #[command(
+        rename = "original-name",
+        autocomplete = true,
+        desc_localizations = "exclusive_groups_rename_option_original_name"
+    )]
     original_name: String,
     /// The new name for the exclusive group.
-    #[command(rename = "new-name")]
+    #[command(
+        rename = "new-name",
+        desc_localizations = "exclusive_groups_rename_option_new_name"
+    )]
     new_name: String,
 }
 
@@ -37,14 +53,19 @@ impl Rename {
         let err = match ret {
             Err(why) => {
                 if why.is_duplicate() {
-                    format!("An exclusive group named '{new_name}' already exists.")
+                    ctx.user_lang().exclusive_group_already_exists(new_name)
                 } else {
                     return Err(why.into());
                 }
             }
-            Ok(None) => format!("Exclusive group '{}' does not exist.", self.original_name),
+            Ok(None) => ctx.user_lang().exclusive_group_missing(self.original_name),
             Ok(Some(_)) => {
-                ctx.respond_str("Done.", true).await?;
+                ctx.respond_str(
+                    &ctx.user_lang()
+                        .exclusive_groups_rename_done(new_name, self.original_name),
+                    true,
+                )
+                .await?;
                 return Ok(());
             }
         };
