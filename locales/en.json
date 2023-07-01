@@ -1,9 +1,10 @@
 {
     "disabled": "disabled",
     "disable": "disable",
+    "default": "default",
+    "none": "none",
     "kw_true": "true",
     "kw_false": "false",
-    "none": "none",
 
     "filters_title": "Filters",
     "filter_title": "Filter {position}",
@@ -132,7 +133,7 @@
     "filters_edit_option_max_attachments": "Require that the message has at most this many attachments. Use -1 to disable.",
     "filters_edit_option_min_length": "Require that the message be at least this many characters long. Use 0 to disable.",
     "filters_edit_option_max_length": "Require that the message be at most this many characters long. Use -1 to disable.",
-    "filters_edit_option_matches": "(Premium) Require that the message math this regex. Use `.*` to disable.",
+    "filters_edit_option_matches": "(Premium) Require that the message match this regex. Use `.*` to disable.",
     "filters_edit_option_not_matches": "(Premium) Require that the message not match this regex. Use `.*` to disable.",
     "filters_edit_option_voter_has_all_of": "Require that the voter has all of these roles.",
     "filters_edit_option_voter_has_some_of": "Require that the voter has at least one of these roles.",
@@ -205,9 +206,6 @@
     "filters_rename_group_done": "Filter group '{old_name}' renamed to '{new_name}'.",
 
     "overrides": "Manage overrides.",
-    "overrides_channels": "Manage the channels an override affects.",
-    "overrides_channels_done": "Updated the channels for overrides '{name}'.",
-    "overrides_edit": "Edit an override.",
 
     "overrides_create": "Create an override.",
     "overrides_create_option_name": "The name of the override.",
@@ -231,6 +229,9 @@
     "overrides_view_slug": "{overwritten} overwritten settings for starboard '{starboard}' in {channels} channel(s)",
     "overrides_view_description": "This override belongs to starboard '{starboard}'.\n\nThis override applies to the following channels: {channels}",
 
+    "overrides_channels": "Manage the channels an override affects.",
+    "overrides_channels_done": "Updated the channels for overrides '{name}'.",
+
     "overrides_channels_add": "Add channels to an override.",
     "overrides_channels_add_option_name": "The name of the override to add channels to.",
     "overrides_channels_add_option_channels": "The channels to add (as a list of channel mentions).",
@@ -243,11 +244,60 @@
     "overrides_channels_set_option_name": "The name of the override to set the channels for.",
     "overrides_channels_set_option_channels": "A list of channels (as channel mentions) that the override should affect. Use \"none\" to remove all.",
 
+    "overrides_edit": "Edit an override.",
+    "overrides_edit_done": "Updated the settings for override '{name}'.",
+    "overrides_edit_option_name": "The name of the override to edit.",
+    "overrides_edit_behavior": "Override how the starboard should behave.",
+    "overrides_edit_embed": "Override the style of the embeds sent to the starboard.",
+    "overrides_edit_requirements": "Override the requirements for messages to appear on the starboard.",
+    "overrides_edit_style": "Override the general style of the starboard.",
+    "overrides_edit_reset": "Reset override settings to the defaults used by the starboard.",
+    "overrides_edit_reset_option_reset": "The names of the settings to reset, seperated by spaces.",
+    "overrides_edit_reset_done": "Reset {count} setting(s) for override '{name}'.",
+
     "sb_option_category_requirements": "Requirements",
+    "sb_option_required": "The number of upvotes a message needs. Use \"disable\" to disable.",
+    "sb_option_required_remove": "How view points the message can have before the starboard post is removed. Use \"disable\" to disable.",
+    "sb_option_upvote_emojis": "The emojis that can be used to upvote a post. Use \"none\" to remove all.",
+    "sb_option_downvote_emojis": "The emojis that can be used to downvote a post. Use \"none\" to remove all.",
+    "sb_option_self_vote": "whether to allow users to vote on their own posts.",
+    "sb_option_allow_bots": "Whether to allow bot messages to be sent to the starboard.",
+    "sb_option_require_image": "Whether to require posts to have an image in order to appear on the starboard.",
+    "sb_option_older_than": "How old a post must be in order for it to be voted on (e.x. \"1 hour\"). Use 0 to disable.",
+    "sb_option_newer_than": "How new a post must be in order for it to be voted on (e.x. \"1 hour\"). Use 0 to disable.",
+    "sb_option_matches": "(Premium) Regex that the messages must match in order to be voted on. Use \".*\" to disable.",
+    "sb_option_not_matches": "(Premium) Regex that messages must not match in order to be voted on. Use \".*\" to disbale.",
+
     "sb_option_category_behavior": "Behavior",
-    "sb_option_category_style": "Style",
+    "sb_option_enabled": "Whether the starboard is enabled.",
+    "sb_option_autoreact_upvote": "Whether to automatically react to starboard messages with the upvote emojis.",
+    "sb_option_autoreact_downvote": "Whether to automatically react to starboard messages with the downvote emojis.",
+    "sb_option_remove_invalid_reactions": "Whether to remove reactions that don't meet requirements.",
+    "sb_option_link_deletes": "If the original message is deleted, whether to also delete the starboard message.",
+    "sb_option_link_edits": "If the original message is edited, whether to also update the content of the starboard message.",
+    "sb_option_on_delete": "What to do if a moderator removes a post from the starboard manually.",
+    "sb_option_cooldown_enabled": "Whether to enable the per-user vote cooldown.",
+    "sb_option_cooldown": "The size of the cooldown (e.x. \"5/6\" means 5 votes per 6 seconds).",
+    "sb_option_exclusive_group": "Set the exclusive group this starboard belongs to.",
+    "sb_option_remove_exclusive_group": "Remove this starboard from the exclusive group.",
+    "sb_option_exclusive_group_priority": "Set the priority of this starboard within the exclusive group.",
+
     "sb_option_category_embed": "Embed Style",
+    "sb_option_color": "The color of the embeds. Use \"default\" to use the default.",
+    "sb_option_attachments_list": "Whether to include a list of attachments.",
+    "sb_option_replied_to": "Whether to include the message that was replied to, if any.",
+
+    "sb_option_category_style": "Style",
+    "sb_option_display_emoji": "The emoji to show next to the point count. Use \"none\" to remove.",
+    "sb_option_ping_author": "Whether to mention the author on starboard posts.",
+    "sb_option_use_server_profile": "Whether to use the per-server avatar and nickname for starboard posts.",
+    "sb_option_extra_embeds": "Whether to include extra embeds that were on the original message.",
+    "sb_option_go_to_message": "The style of the \"Go to Message\" link or button.",
+    "sb_option_use_webhook": "Whether to use a webhook for starboard messages.",
+
     "sb_option_category_regex": "Regex Matching",
+
+    "validation_display_emoji": "Please specify exactly one emoji for `display-emoji`, or use \"none\" to remove.",
 
     "pong": "Pong! I'm here."
 }
