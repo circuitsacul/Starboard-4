@@ -75,7 +75,7 @@ pub async fn wait_for_result(
 
 pub async fn simple(
     ctx: &mut CommandCtx,
-    prompt: &str,
+    prompt: impl Into<String>,
     danger: bool,
 ) -> StarboardResult<Option<ComponentCtx>> {
     let cmd = ctx

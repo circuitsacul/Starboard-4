@@ -8,6 +8,8 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
+    translations::Lang,
     utils::{
         embed,
         id_as_i64::GetI64,
@@ -16,6 +18,7 @@ use crate::{
     },
 };
 
+// todo: formatter
 macro_rules! fmt_trib {
     ($to_fmt: expr) => {
         $to_fmt
@@ -24,10 +27,18 @@ macro_rules! fmt_trib {
     };
 }
 
+locale_func!(permroles_view);
+locale_func!(permroles_view_option_role);
+
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "view", desc = "View the PermRoles for this server.")]
+#[command(
+    name = "view",
+    desc = "View the PermRoles for this server.",
+    desc_localizations = "permroles_view"
+)]
 pub struct ViewPermRoles {
     /// The PermRole to view settings for.
+    #[command(desc_localizations = "permroles_view_option_role")]
     role: Option<Role>,
 }
 
@@ -35,12 +46,12 @@ impl ViewPermRoles {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let bot = ctx.bot.clone();
+        let lang = ctx.user_lang();
 
         let mut perm_roles = PermRole::list_by_guild(&ctx.bot.pool, guild_id.get_i64()).await?;
 
         if perm_roles.is_empty() {
-            ctx.respond_str("This server has no PermRoles.", true)
-                .await?;
+            ctx.respond_str(lang.permroles_view_none(), true).await?;
             return Ok(());
         }
 
@@ -63,8 +74,8 @@ impl ViewPermRoles {
                     .get(&pr.role_id.into_id())
                     .map(|r| r.name.to_owned())
             });
-            let label = name.unwrap_or_else(|| format!("Deleted Role {}", pr.role_id));
-            let embed = permrole_embed(&bot, pr).await?;
+            let label = name.unwrap_or_else(|| lang.deleted_role(pr.role_id));
+            let embed = permrole_embed(&bot, pr, lang).await?;
 
             let page = SelectPaginatorPageBuilder::new(label).add_embed(embed);
             paginator = paginator.add_page(page);
@@ -76,8 +87,8 @@ impl ViewPermRoles {
     }
 }
 
-async fn permrole_embed(bot: &StarboardBot, pr: PermRole) -> StarboardResult<Embed> {
-    let mut pr_config = format!("Settings for <@&{}>:\n", pr.role_id);
+async fn permrole_embed(bot: &StarboardBot, pr: PermRole, lang: Lang) -> StarboardResult<Embed> {
+    let mut pr_config = lang.permroles_view_title(pr.role_id);
     pr_config.push_str(&concat_format!(
         "vote: {}\n" <- fmt_trib!(pr.give_votes);
         "receive-votes: {}\n" <- fmt_trib!(pr.receive_votes);
@@ -96,10 +107,7 @@ async fn permrole_embed(bot: &StarboardBot, pr: PermRole) -> StarboardResult<Emb
             Some(sb) => sb,
         };
 
-        pr_config.push_str(&format!(
-            "\nSettings for '{}' in <#{}>:\n",
-            sb.name, sb.channel_id
-        ));
+        pr_config.push_str(&lang.permroles_view_sb_title(sb.channel_id, sb.name));
         pr_config.push_str(&concat_format!(
             "vote: {}\n" <- fmt_trib!(pr_sb.give_votes);
             "receive-votes: {}\n" <- fmt_trib!(pr_sb.receive_votes);
@@ -107,7 +115,7 @@ async fn permrole_embed(bot: &StarboardBot, pr: PermRole) -> StarboardResult<Emb
     }
 
     let embed = embed::build()
-        .title("PermRoles")
+        .title(lang.permroles_title())
         .description(pr_config)
         .build();
 

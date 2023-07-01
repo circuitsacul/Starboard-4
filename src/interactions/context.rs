@@ -130,7 +130,7 @@ impl<T> Ctx<T> {
         .await
     }
 
-    pub async fn respond_str(&mut self, response: &str, ephemeral: bool) -> TwResult {
+    pub async fn respond_str(&mut self, response: impl Into<String>, ephemeral: bool) -> TwResult {
         let mut data = self.build_resp().content(response);
         if ephemeral {
             data = data.flags(MessageFlags::EPHEMERAL);
@@ -148,7 +148,7 @@ impl<T> Ctx<T> {
             .await
     }
 
-    pub async fn edit_str(&mut self, response: &str, clear_comps: bool) -> TwResult {
+    pub async fn edit_str(&mut self, response: impl Into<String>, clear_comps: bool) -> TwResult {
         let mut data = self.build_resp().content(response);
         if clear_comps {
             data = data.components([]);

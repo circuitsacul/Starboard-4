@@ -11,6 +11,7 @@
     "filter_group_title": "Filter Group '{name}'",
     "override_title": "Override '{name}'",
     "unknown_server": "Unknown Server {id}",
+    "deleted_role": "Deleted Role {id}",
 
     "premium_locked_aside": "(premium-locked)",
     "premium_locked_autostar_info": "This autostar channel is locked because it exceeds the non-premium limit.\n\n",
@@ -254,6 +255,42 @@
     "overrides_edit_reset": "Reset override settings to the defaults used by the starboard.",
     "overrides_edit_reset_option_reset": "The names of the settings to reset, seperated by spaces.",
     "overrides_edit_reset_done": "Reset {count} setting(s) for override '{name}'.",
+
+    "permroles": "View and manage PermRoles.",
+    "permroles_title": "PermRoles",
+    "permroles_option_vote": "Whether a user can vote on messages.",
+    "permroles_option_receive_votes": "Whether a user's messages can be voted on.",
+    "permroles_option_xproles": "Whether a user can gain XPRoles.",
+    "permrole_missing": "{role} is not a PermRole.",
+
+    "permroles_create": "Create a PermRole.",
+    "permroles_create_option_role": "The role to use as a PermRole.",
+    "permroles_create_limit": "You can only have up to {limit} PermRoles.",
+    "permroles_create_already_exists": "{role} is already a PermRole.",
+    "permroles_create_done": "{role} is now a PermRole.",
+
+    "permroles_delete": "Delete a PermRole.",
+    "permroles_delete_option_role": "The PermRole to delete.",
+    "permroles_delete_done": "{role} is no longer a PermRole.",
+
+    "permroles_clear_deleted": "Delete all PermRoles where the Discord role has been deleted.",
+    "permroles_clear_deleted_nothing": "Nothing to delete.",
+    "permroles_clear_deleted_confirm": "This will delete the following PermRoles:\n{to_delete}\n\nContinue?",
+    "permroles_clear_deleted_done": "Done.",
+
+    "permroles_edit": "Edit the global permissions for a PermRole.",
+    "permroles_edit_option_role": "The PermRole to edit.",
+    "permroles_edit_done": "Updated settings for {role}.",
+
+    "permroles_edit_sb": "Edit the settings for a PermRole for a starboard.",
+    "permroles_edit_sb_option_starboard": "The starboard to edit the PermRole for.",
+    "permroles_edit_sb_done": "Updated the settings for {role} in starboard '{starboard}'.",
+
+    "permroles_view": "View the PermRoles for this server.",
+    "permroles_view_option_role": "The PermRole to view settings for.",
+    "permroles_view_none": "This server has no PermRoles.",
+    "permroles_view_title": "Settings for <@&{role}>:\n",
+    "permroles_view_sb_title": "Settings for '{name}' in <#{channel}>:\n",
 
     "sb_option_category_requirements": "Requirements",
     "sb_option_required": "The number of upvotes a message needs. Use \"disable\" to disable.",
