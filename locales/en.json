@@ -317,8 +317,8 @@
     "posroles_edit_option_role": "The role to use as a position-based award role.",
     "posroles_edit_option_max_members": "How many members can have this award role.",
     "posroles_edit_limit": "You can only have up to {limit} position-based award roles.",
-    "posroles_edit_edited": "Max members set to {value}.",
-    "posroles_edit_created": "Position-based award role created.",
+    "posroles_edit_edited": "Max members for {role} set to {value}.",
+    "posroles_edit_created": "{role} is now a PosRole, with a max membership of {max}.",
 
     "posroles_view": "View the position-based award roles for this server.",
     "posroles_view_none": "This server has no PosRoles.",

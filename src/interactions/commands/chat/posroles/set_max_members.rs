@@ -1,4 +1,5 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
+use twilight_mention::Mention;
 use twilight_model::guild::Role;
 
 use crate::{
@@ -58,10 +59,17 @@ impl SetMaxMembers {
 
         if posrole.is_none() {
             PosRole::set_max_members(&ctx.bot.pool, role_id, self.max_members as i32).await?;
-            ctx.respond_str(lang.posroles_edit_edited(self.max_members), false)
-                .await?;
+            ctx.respond_str(
+                lang.posroles_edit_edited(self.role.mention(), self.max_members),
+                false,
+            )
+            .await?;
         } else {
-            ctx.respond_str(lang.posroles_edit_created(), false).await?;
+            ctx.respond_str(
+                lang.posroles_edit_created(self.max_members, self.role.mention()),
+                false,
+            )
+            .await?;
         }
 
         Ok(())
