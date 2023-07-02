@@ -323,6 +323,30 @@
     "posroles_view": "View the position-based award roles for this server.",
     "posroles_view_none": "This server has no PosRoles.",
 
+    "xproles": "View and managed XP-based award roles.",
+    "xproles_title": "XP-based Award Roles",
+    "xprole_description": "<@&{role_id}> - `{xp}` XP",
+    "xprole_missing": "{role} is not an XPRole.",
+
+    "xproles_delete": "Delete an XP-based award role.",
+    "xproles_delete_option_xprole": "The XPRole to delete.",
+    "xproles_delete_done": "{role} is no longer an XPRole.",
+
+    "xproles_clear_deleted": "Delete all XPRoles where the Discord role has been deleted.",
+    "xproles_clear_deleted_none": "Nothing to clear.",
+    "xproles_clear_deleted_confirm": "This will delete the following XPRoles:\n{to_delete}\nContinue?",
+    "xproles_clear_deleted_done": "Done.",
+
+    "xproles_setxp": "Create or modify an XP-based award role.",
+    "xproles_setxp_role": "The role to use as an XP-based award role.",
+    "xproles_setxp_required_xp": "How much XP is required to obtain this award role.",
+    "xproles_setxp_limit": "You can only have up to {limit} XP-based award roles.",
+    "xproles_setxp_edit": "Required XP for {role} set to {xp}.",
+    "xproles_setxp_create": "{role} is now an XP-based award role requiring {xp} XP.",
+
+    "xproles_view": "View all this XP-based award roles for this server.",
+    "xproles_view_none": "This server has no XPRoles.",
+
     "sb_option_category_requirements": "Requirements",
     "sb_option_required": "The number of upvotes a message needs. Use \"disable\" to disable.",
     "sb_option_required_remove": "How view points the message can have before the starboard post is removed. Use \"disable\" to disable.",
