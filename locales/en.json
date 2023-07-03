@@ -347,6 +347,17 @@
     "xproles_view": "View all this XP-based award roles for this server.",
     "xproles_view_none": "This server has no XPRoles.",
 
+    "autoredeem": "Manage auto-redeem.",
+
+    "autoredeem_disable": "Disable auto-redeem for a server.",
+    "autoredeem_disable_option_server": "The server to disable auto-redeem for.",
+    "autoredeem_disable_invalid_guild": "Please enter a server ID, or select a server from the options.",
+    "autoredeem_disable_done": "Auto-redeem disabled.",
+
+    "autoredeem_enable": "Enable auto-redeem for a server.",
+    "autoredeem_enable_dm": "Please run this command inside a server.",
+    "autoredeem_enable_done": "Auto-redeem enabled.",
+
     "sb_option_category_requirements": "Requirements",
     "sb_option_required": "The number of upvotes a message needs. Use \"disable\" to disable.",
     "sb_option_required_remove": "How view points the message can have before the starboard post is removed. Use \"disable\" to disable.",
