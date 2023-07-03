@@ -23,6 +23,8 @@ jobs:
       -
         name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       -
         name: Set Tag Name
         run: echo "TAG_NAME=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
