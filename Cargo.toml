@@ -23,7 +23,7 @@ dotenv = "0.15.0"
 sqlx = { version = "0.6.3", features = ["macros", "postgres", "offline", "runtime-tokio-rustls", "chrono", "json"]}
 chrono = "0.4.26"
 serde_json = "1.0"
-serde = "1.0.164"
+serde = "1.0.171"
 emojis = "0.6.0"
 dashmap = "5.4.0"
 regex = "1.9.1"
