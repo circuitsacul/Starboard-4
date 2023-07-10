@@ -33,7 +33,7 @@ reqwest = "0.11.18"
 sentry = "0.31.5"
 floodgate = "0.5.1"
 thousands = "0.2.0"
-snafu = { version = "0.7.4", features = ["backtraces-impl-backtrace-crate"] }
+snafu = { version = "0.7.5", features = ["backtraces-impl-backtrace-crate"] }
 serde_with = "3.0.0"
 psutil = "3.2.2"
 rust-fuzzy-search = "0.1.1"
