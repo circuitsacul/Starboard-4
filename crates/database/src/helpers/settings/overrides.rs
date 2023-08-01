@@ -40,5 +40,3 @@ macro_rules! call_with_override_settings {
         )
     };
 }
-
-pub use call_with_override_settings;

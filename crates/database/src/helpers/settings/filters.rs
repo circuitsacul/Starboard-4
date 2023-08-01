@@ -33,5 +33,3 @@ macro_rules! call_with_filters_settings {
         )
     }
 }
-
-pub use call_with_filters_settings;

@@ -6,7 +6,7 @@ use twilight_model::id::{
 };
 
 use database::{
-    helpers::settings::overrides::call_with_override_settings, Starboard, StarboardOverride,
+    call_with_override_settings, Starboard, StarboardOverride,
     StarboardSettings,
 };
 use errors::{StarboardError, StarboardResult};

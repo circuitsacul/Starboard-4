@@ -4,11 +4,9 @@ use sqlx::FromRow;
 use common::constants;
 use sqlx::PgExecutor;
 
-#[cfg(feature = "backend")]
-use crate::helpers::{
-    query::build_update::build_update, settings::autostar::call_with_autostar_settings,
-};
 use crate::DbClient;
+#[cfg(feature = "backend")]
+use crate::{call_with_autostar_settings, helpers::query::build_update::build_update};
 
 #[derive(Debug)]
 #[cfg_attr(feature = "backend", derive(FromRow))]

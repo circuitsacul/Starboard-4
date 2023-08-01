@@ -42,5 +42,3 @@ macro_rules! call_with_starboard_settings {
         )
     };
 }
-
-pub use call_with_starboard_settings;

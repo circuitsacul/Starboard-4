@@ -1,11 +1,9 @@
 #[cfg(feature = "backend")]
 use sqlx::FromRow;
 
-#[cfg(feature = "backend")]
-use crate::helpers::{
-    query::build_update::build_update, settings::filters::call_with_filters_settings,
-};
 use crate::DbClient;
+#[cfg(feature = "backend")]
+use crate::{call_with_filters_settings, helpers::query::build_update::build_update};
 
 #[cfg_attr(feature = "backend", derive(FromRow))]
 pub struct Filter {

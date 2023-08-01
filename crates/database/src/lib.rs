@@ -1,7 +1,7 @@
 #[cfg(feature = "backend")]
 mod client;
 #[cfg(feature = "backend")]
-pub mod helpers;
+mod helpers;
 mod models;
 #[cfg(feature = "backend")]
 pub mod pipelines;
