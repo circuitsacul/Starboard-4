@@ -5,10 +5,7 @@ use twilight_model::id::{
     Id,
 };
 
-use database::{
-    call_with_override_settings, Starboard, StarboardOverride,
-    StarboardSettings,
-};
+use database::{call_with_override_settings, Starboard, StarboardOverride, StarboardSettings};
 use errors::{StarboardError, StarboardResult};
 
 use crate::{
