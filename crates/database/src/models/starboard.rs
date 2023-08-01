@@ -1,3 +1,5 @@
+use sqlx::PgExecutor;
+
 use crate::DbClient;
 #[cfg(feature = "backend")]
 use crate::{
@@ -138,6 +140,21 @@ impl Starboard {
         .await?;
 
         Ok(result.map(|sb| starboard_from_record!(sb)))
+    }
+
+    pub async fn get_by_name_for_update(
+        e: impl PgExecutor<'_>,
+        name: &str,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
+        sqlx::query!(
+            "SELECT * FROM starboards WHERE guild_id=$1 AND name=$2 FOR UPDATE",
+            guild_id,
+            name
+        )
+        .fetch_optional(e)
+        .await
+        .map(|r| r.map(|r| starboard_from_record!(r)))
     }
 
     pub async fn count_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<i64> {

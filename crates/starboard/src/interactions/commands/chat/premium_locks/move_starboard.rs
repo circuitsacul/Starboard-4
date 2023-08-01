@@ -1,6 +1,6 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use database::{starboard_from_record, Starboard};
+use database::pipelines;
 use errors::StarboardResult;
 
 use crate::{interactions::context::CommandCtx, utils::id_as_i64::GetI64};
@@ -26,78 +26,22 @@ impl MoveStarboard {
                 .await?;
             return Ok(());
         };
-        let guild_id_i64 = guild_id.get_i64();
+        let guild_id = guild_id.get_i64();
 
-        let mut tx = ctx.bot.db.pool.begin().await?;
-
-        let Some(sb_from) =
-            get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.starboard_from).await?
-        else {
-            return Ok(());
-        };
-        let Some(sb_to) =
-            get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.starboard_to).await?
-        else {
-            return Ok(());
-        };
-
-        if !sb_from.premium_locked {
-            ctx.respond_str(
-                &format!("Starboard '{}' is not locked.", sb_from.name),
-                true,
-            )
-            .await?;
+        if let Err(why) = pipelines::locks::starboard::move_lock(
+            &ctx.bot.db,
+            guild_id,
+            &self.starboard_from,
+            &self.starboard_to,
+        )
+        .await?
+        {
+            ctx.respond_str(&why, true).await?;
             return Ok(());
         }
-        if sb_to.premium_locked {
-            ctx.respond_str(
-                &format!("Starboard '{}' is already locked.", sb_to.name),
-                true,
-            )
-            .await?;
-            return Ok(());
-        }
-
-        sqlx::query!(
-            "UPDATE starboards SET premium_locked=true WHERE id=$1",
-            sb_to.id,
-        )
-        .fetch_all(&mut tx)
-        .await?;
-        sqlx::query!(
-            "UPDATE starboards SET premium_locked=false WHERE id=$1",
-            sb_from.id,
-        )
-        .fetch_all(&mut tx)
-        .await?;
-
-        tx.commit().await?;
 
         ctx.respond_str("Done.", true).await?;
 
         Ok(())
     }
-}
-
-async fn get_for_update(
-    ctx: &mut CommandCtx,
-    con: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-    guild_id: i64,
-    name: &str,
-) -> StarboardResult<Option<Starboard>> {
-    let sb = sqlx::query!(
-        "SELECT * FROM starboards WHERE guild_id=$1 AND name=$2 FOR UPDATE",
-        guild_id,
-        name,
-    )
-    .fetch_optional(con)
-    .await?;
-
-    let Some(sb) = sb else {
-        ctx.respond_str(&format!("Starboard '{name}' does not exist."), true)
-            .await?;
-        return Ok(None);
-    };
-
-    Ok(Some(starboard_from_record!(sb)))
 }

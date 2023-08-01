@@ -45,26 +45,3 @@ impl MoveAutostar {
         Ok(())
     }
 }
-
-// todo: delete this
-// async fn get_for_update(
-//     ctx: &mut CommandCtx,
-//     con: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-//     guild_id: i64,
-//     name: &str,
-// ) -> StarboardResult<Option<AutoStarChannel>> {
-//     let asc = sqlx::query_as!(
-//         AutoStarChannel,
-//         "SELECT * FROM autostar_channels WHERE guild_id=$1 AND name=$2 FOR UPDATE",
-//         guild_id,
-//         name,
-//     )
-//     .fetch_optional(con)
-//     .await?;
-//     let Some(asc) = asc else {
-//         ctx.respond_str(&format!("Autotstar channel '{name}' does not exist."), true).await?;
-//         return Ok(None);
-//     };
-
-//     Ok(Some(asc))
-// }
