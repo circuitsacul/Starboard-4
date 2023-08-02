@@ -21,7 +21,7 @@ services:
     restart: always
     env_file: .env
     build:
-      dockerfile: Dockerfile
+      dockerfile: crates/starboard/Dockerfile
     depends_on:
       - db
       - proxy
