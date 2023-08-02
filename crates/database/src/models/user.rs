@@ -10,7 +10,11 @@ pub struct DbUser {
 
 #[cfg(feature = "backend")]
 impl DbUser {
-    pub async fn create(db: &crate::DbClient, user_id: i64, is_bot: bool) -> sqlx::Result<Option<Self>> {
+    pub async fn create(
+        db: &crate::DbClient,
+        user_id: i64,
+        is_bot: bool,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "INSERT INTO users (user_id, is_bot) VALUES ($1, $2)

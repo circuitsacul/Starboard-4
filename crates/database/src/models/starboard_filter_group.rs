@@ -37,7 +37,10 @@ impl StarboardFilterGroup {
         .await
     }
 
-    pub async fn list_by_starboard(db: &crate::DbClient, starboard_id: i32) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_starboard(
+        db: &crate::DbClient,
+        starboard_id: i32,
+    ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM starboard_filter_groups WHERE starboard_id=$1",

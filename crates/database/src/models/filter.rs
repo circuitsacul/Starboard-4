@@ -94,7 +94,10 @@ impl Filter {
         }
     }
 
-    pub async fn get_last_position(db: &crate::DbClient, filter_group_id: i32) -> sqlx::Result<i16> {
+    pub async fn get_last_position(
+        db: &crate::DbClient,
+        filter_group_id: i32,
+    ) -> sqlx::Result<i16> {
         sqlx::query!(
             "SELECT MAX(position) as position FROM filters WHERE filter_group_id=$1",
             filter_group_id
@@ -195,7 +198,10 @@ impl Filter {
         }
     }
 
-    pub async fn list_by_filter(db: &crate::DbClient, filter_group_id: i32) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_filter(
+        db: &crate::DbClient,
+        filter_group_id: i32,
+    ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM filters WHERE filter_group_id=$1 ORDER BY position ASC",

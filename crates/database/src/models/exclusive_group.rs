@@ -6,7 +6,11 @@ pub struct ExclusiveGroup {
 
 #[cfg(feature = "backend")]
 impl ExclusiveGroup {
-    pub async fn create(db: &crate::DbClient, name: &str, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn create(
+        db: &crate::DbClient,
+        name: &str,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "INSERT INTO exclusive_groups (name, guild_id) VALUES ($1, $2)
@@ -18,7 +22,11 @@ impl ExclusiveGroup {
         .await
     }
 
-    pub async fn delete(db: &crate::DbClient, name: &str, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(
+        db: &crate::DbClient,
+        name: &str,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
         let ret = sqlx::query_as!(
             Self,
             "DELETE FROM exclusive_groups WHERE guild_id=$1 AND name=$2 RETURNING *",

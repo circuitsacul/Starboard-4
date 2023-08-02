@@ -107,7 +107,11 @@ impl AutoStarChannel {
         .await
     }
 
-    pub async fn delete(db: &crate::DbClient, name: &String, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(
+        db: &crate::DbClient,
+        name: &String,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM autostar_channels WHERE name=$1 AND guild_id=$2 RETURNING *",

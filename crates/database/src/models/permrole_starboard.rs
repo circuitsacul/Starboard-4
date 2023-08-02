@@ -73,7 +73,10 @@ impl PermRoleStarboard {
         .await
     }
 
-    pub async fn list_by_permrole(db: &crate::DbClient, permrole_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_permrole(
+        db: &crate::DbClient,
+        permrole_id: i64,
+    ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM permrole_starboards WHERE permrole_id=$1",

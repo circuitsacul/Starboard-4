@@ -32,7 +32,10 @@ impl StarboardMessage {
         .await
     }
 
-    pub async fn delete(db: &crate::DbClient, starboard_message_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(
+        db: &crate::DbClient,
+        starboard_message_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM starboard_messages WHERE starboard_message_id=$1
@@ -43,7 +46,10 @@ impl StarboardMessage {
         .await
     }
 
-    pub async fn get(db: &crate::DbClient, starboard_message_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn get(
+        db: &crate::DbClient,
+        starboard_message_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM starboard_messages WHERE starboard_message_id=$1",

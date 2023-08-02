@@ -37,7 +37,11 @@ impl StarboardOverride {
         .await
     }
 
-    pub async fn delete(db: &crate::DbClient, guild_id: i64, name: &String) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(
+        db: &crate::DbClient,
+        guild_id: i64,
+        name: &String,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM overrides WHERE guild_id=$1 AND name=$2 RETURNING *",
@@ -117,7 +121,11 @@ impl StarboardOverride {
         .await
     }
 
-    pub async fn get(db: &crate::DbClient, guild_id: i64, name: &str) -> sqlx::Result<Option<Self>> {
+    pub async fn get(
+        db: &crate::DbClient,
+        guild_id: i64,
+        name: &str,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM overrides WHERE guild_id=$1 AND name=$2",
@@ -159,7 +167,10 @@ impl StarboardOverride {
         .map(|r| r.count.unwrap())
     }
 
-    pub async fn list_by_starboard(db: &crate::DbClient, starboard_id: i32) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_starboard(
+        db: &crate::DbClient,
+        starboard_id: i32,
+    ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM overrides WHERE starboard_id=$1",

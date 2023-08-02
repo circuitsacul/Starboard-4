@@ -48,7 +48,11 @@ impl Vote {
         Ok(Some(()))
     }
 
-    pub async fn count(db: &crate::DbClient, message_id: i64, starboard_id: i32) -> sqlx::Result<i32> {
+    pub async fn count(
+        db: &crate::DbClient,
+        message_id: i64,
+        starboard_id: i32,
+    ) -> sqlx::Result<i32> {
         let upvotes = sqlx::query!(
             "SELECT COUNT(*) as count FROM votes WHERE message_id=$1 AND starboard_id=$2
             AND is_downvote=false",

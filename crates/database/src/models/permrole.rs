@@ -10,7 +10,11 @@ pub struct PermRole {
 
 #[cfg(feature = "backend")]
 impl PermRole {
-    pub async fn create(db: &crate::DbClient, role_id: i64, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn create(
+        db: &crate::DbClient,
+        role_id: i64,
+        guild_id: i64,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "INSERT INTO permroles (role_id, guild_id) VALUES ($1, $2)

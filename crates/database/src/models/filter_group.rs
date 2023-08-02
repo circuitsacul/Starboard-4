@@ -6,7 +6,11 @@ pub struct FilterGroup {
 
 #[cfg(feature = "backend")]
 impl FilterGroup {
-    pub async fn create(db: &crate::DbClient, guild_id: i64, name: &str) -> sqlx::Result<Option<Self>> {
+    pub async fn create(
+        db: &crate::DbClient,
+        guild_id: i64,
+        name: &str,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "INSERT INTO filter_groups (guild_id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING
@@ -18,7 +22,11 @@ impl FilterGroup {
         .await
     }
 
-    pub async fn delete(db: &crate::DbClient, guild_id: i64, name: &str) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(
+        db: &crate::DbClient,
+        guild_id: i64,
+        name: &str,
+    ) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM filter_groups WHERE guild_id=$1 AND name=$2 RETURNING *",

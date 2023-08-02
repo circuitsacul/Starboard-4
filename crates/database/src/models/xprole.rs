@@ -35,7 +35,11 @@ impl XPRole {
         .await
     }
 
-    pub async fn set_required(db: &crate::DbClient, role_id: i64, required: i16) -> sqlx::Result<Self> {
+    pub async fn set_required(
+        db: &crate::DbClient,
+        role_id: i64,
+        required: i16,
+    ) -> sqlx::Result<Self> {
         sqlx::query_as!(
             Self,
             "UPDATE xproles SET required=$1 WHERE role_id=$2 RETURNING *",
