@@ -1,8 +1,6 @@
-use sqlx::PgExecutor;
-
-use crate::DbClient;
 #[cfg(feature = "backend")]
 use crate::{
+    DbClient,
     call_with_starboard_settings, helpers::query::build_update::build_update,
     starboard_from_record, starboard_from_row,
 };
@@ -143,7 +141,7 @@ impl Starboard {
     }
 
     pub async fn get_by_name_for_update(
-        e: impl PgExecutor<'_>,
+        e: impl sqlx::PgExecutor<'_>,
         name: &str,
         guild_id: i64,
     ) -> sqlx::Result<Option<Self>> {

@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 #[derive(Debug)]
 pub struct Patron {
     pub patreon_id: String,
@@ -9,7 +7,7 @@ pub struct Patron {
 
 #[cfg(feature = "backend")]
 impl Patron {
-    pub async fn create(db: &DbClient, patreon_id: &str) -> sqlx::Result<Option<Self>> {
+    pub async fn create(db: &crate::DbClient, patreon_id: &str) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "INSERT INTO patrons (patreon_id) VALUES ($1)
@@ -20,7 +18,7 @@ impl Patron {
         .await
     }
 
-    pub async fn get(db: &DbClient, patreon_id: &str) -> sqlx::Result<Option<Self>> {
+    pub async fn get(db: &crate::DbClient, patreon_id: &str) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM patrons WHERE patreon_id=$1",
@@ -30,14 +28,14 @@ impl Patron {
         .await
     }
 
-    pub async fn get_by_user(db: &DbClient, user_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn get_by_user(db: &crate::DbClient, user_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(Self, "SELECT * FROM patrons WHERE discord_id=$1", user_id)
             .fetch_all(&db.pool)
             .await
     }
 
     pub async fn set_discord_id(
-        db: &DbClient,
+        db: &crate::DbClient,
         patreon_id: &str,
         discord_id: Option<i64>,
     ) -> sqlx::Result<()> {
@@ -52,7 +50,7 @@ impl Patron {
     }
 
     pub async fn set_total_cents(
-        db: &DbClient,
+        db: &crate::DbClient,
         patreon_id: &str,
         total_cents: i64,
     ) -> sqlx::Result<()> {

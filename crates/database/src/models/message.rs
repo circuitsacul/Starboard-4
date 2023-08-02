@@ -1,7 +1,3 @@
-use crate::DbClient;
-#[cfg(feature = "backend")]
-use crate::StarboardMessage;
-
 #[derive(Debug)]
 pub struct DbMessage {
     pub message_id: i64,
@@ -20,7 +16,7 @@ pub struct DbMessage {
 #[cfg(feature = "backend")]
 impl DbMessage {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         message_id: i64,
         guild_id: i64,
         channel_id: i64,
@@ -43,7 +39,7 @@ impl DbMessage {
     }
 
     pub async fn set_freeze(
-        db: &DbClient,
+        db: &crate::DbClient,
         message_id: i64,
         frozen: bool,
     ) -> sqlx::Result<Option<Self>> {
@@ -58,7 +54,7 @@ impl DbMessage {
     }
 
     pub async fn set_forced(
-        db: &DbClient,
+        db: &crate::DbClient,
         message_id: i64,
         forced: &[i32],
     ) -> sqlx::Result<Option<Self>> {
@@ -73,7 +69,7 @@ impl DbMessage {
     }
 
     pub async fn set_trashed(
-        db: &DbClient,
+        db: &crate::DbClient,
         message_id: i64,
         trashed: bool,
         reason: Option<&str>,
@@ -89,7 +85,7 @@ impl DbMessage {
         .await
     }
 
-    pub async fn list_trashed(db: &DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_trashed(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM messages WHERE guild_id=$1 AND trashed=true ORDER BY message_id",
@@ -99,8 +95,8 @@ impl DbMessage {
         .await
     }
 
-    pub async fn get_original(db: &DbClient, message_id: i64) -> sqlx::Result<Option<Self>> {
-        let orig = if let Some(sb_msg) = StarboardMessage::get(db, message_id).await? {
+    pub async fn get_original(db: &crate::DbClient, message_id: i64) -> sqlx::Result<Option<Self>> {
+        let orig = if let Some(sb_msg) = crate::StarboardMessage::get(db, message_id).await? {
             sb_msg.message_id
         } else {
             message_id
@@ -111,7 +107,7 @@ impl DbMessage {
             .await
     }
 
-    pub async fn get(db: &DbClient, message_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn get(db: &crate::DbClient, message_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM messages WHERE message_id=$1",

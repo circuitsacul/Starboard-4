@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 pub struct ExclusiveGroup {
     pub id: i32,
     pub guild_id: i64,
@@ -8,7 +6,7 @@ pub struct ExclusiveGroup {
 
 #[cfg(feature = "backend")]
 impl ExclusiveGroup {
-    pub async fn create(db: &DbClient, name: &str, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn create(db: &crate::DbClient, name: &str, guild_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "INSERT INTO exclusive_groups (name, guild_id) VALUES ($1, $2)
@@ -20,7 +18,7 @@ impl ExclusiveGroup {
         .await
     }
 
-    pub async fn delete(db: &DbClient, name: &str, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(db: &crate::DbClient, name: &str, guild_id: i64) -> sqlx::Result<Option<Self>> {
         let ret = sqlx::query_as!(
             Self,
             "DELETE FROM exclusive_groups WHERE guild_id=$1 AND name=$2 RETURNING *",
@@ -45,7 +43,7 @@ impl ExclusiveGroup {
     }
 
     pub async fn rename(
-        db: &DbClient,
+        db: &crate::DbClient,
         guild_id: i64,
         old_name: &str,
         new_name: &str,
@@ -61,14 +59,14 @@ impl ExclusiveGroup {
         .await
     }
 
-    pub async fn get(db: &DbClient, id: i32) -> sqlx::Result<Option<Self>> {
+    pub async fn get(db: &crate::DbClient, id: i32) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(Self, "SELECT * FROM exclusive_groups WHERE id=$1", id)
             .fetch_optional(&db.pool)
             .await
     }
 
     pub async fn get_by_name(
-        db: &DbClient,
+        db: &crate::DbClient,
         guild_id: i64,
         name: &str,
     ) -> sqlx::Result<Option<Self>> {
@@ -82,7 +80,7 @@ impl ExclusiveGroup {
         .await
     }
 
-    pub async fn list_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_guild(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM exclusive_groups WHERE guild_id=$1",
@@ -92,7 +90,7 @@ impl ExclusiveGroup {
         .await
     }
 
-    pub async fn count_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<i64> {
+    pub async fn count_by_guild(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<i64> {
         sqlx::query!(
             "SELECT count(*) as count FROM exclusive_groups WHERE guild_id=$1",
             guild_id

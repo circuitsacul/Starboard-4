@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 #[derive(Debug)]
 pub struct XPRole {
     pub role_id: i64,
@@ -10,7 +8,7 @@ pub struct XPRole {
 #[cfg(feature = "backend")]
 impl XPRole {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         role_id: i64,
         guild_id: i64,
         required: i16,
@@ -27,7 +25,7 @@ impl XPRole {
         .await
     }
 
-    pub async fn delete(db: &DbClient, role_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(db: &crate::DbClient, role_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM xproles WHERE role_id=$1 RETURNING *",
@@ -37,7 +35,7 @@ impl XPRole {
         .await
     }
 
-    pub async fn set_required(db: &DbClient, role_id: i64, required: i16) -> sqlx::Result<Self> {
+    pub async fn set_required(db: &crate::DbClient, role_id: i64, required: i16) -> sqlx::Result<Self> {
         sqlx::query_as!(
             Self,
             "UPDATE xproles SET required=$1 WHERE role_id=$2 RETURNING *",
@@ -48,7 +46,7 @@ impl XPRole {
         .await
     }
 
-    pub async fn list_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_guild(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM xproles WHERE guild_id=$1 ORDER BY required DESC",
@@ -58,7 +56,7 @@ impl XPRole {
         .await
     }
 
-    pub async fn count(db: &DbClient, guild_id: i64) -> sqlx::Result<i64> {
+    pub async fn count(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<i64> {
         Ok(
             sqlx::query!("SELECT count(*) FROM xproles WHERE guild_id=$1", guild_id)
                 .fetch_one(&db.pool)

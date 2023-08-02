@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 #[derive(Debug)]
 pub struct PosRole {
     pub role_id: i64,
@@ -10,7 +8,7 @@ pub struct PosRole {
 #[cfg(feature = "backend")]
 impl PosRole {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         role_id: i64,
         guild_id: i64,
         max_members: i32,
@@ -28,7 +26,7 @@ impl PosRole {
     }
 
     pub async fn set_max_members(
-        db: &DbClient,
+        db: &crate::DbClient,
         role_id: i64,
         max_members: i32,
     ) -> sqlx::Result<Option<Self>> {
@@ -42,7 +40,7 @@ impl PosRole {
         .await
     }
 
-    pub async fn delete(db: &DbClient, role_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(db: &crate::DbClient, role_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM posroles WHERE role_id=$1 RETURNING *",
@@ -52,7 +50,7 @@ impl PosRole {
         .await
     }
 
-    pub async fn list_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_guild(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM posroles WHERE guild_id=$1 ORDER BY max_members ASC",
@@ -62,7 +60,7 @@ impl PosRole {
         .await
     }
 
-    pub async fn count(db: &DbClient, guild_id: i64) -> sqlx::Result<i64> {
+    pub async fn count(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<i64> {
         Ok(
             sqlx::query!("SELECT count(*) FROM posroles WHERE guild_id=$1", guild_id)
                 .fetch_one(&db.pool)

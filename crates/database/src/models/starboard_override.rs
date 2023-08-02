@@ -1,8 +1,3 @@
-#[cfg(feature = "backend")]
-use common::constants;
-
-use crate::DbClient;
-
 #[derive(Debug)]
 pub struct StarboardOverride {
     // serial
@@ -25,7 +20,7 @@ impl StarboardOverride {
 #[cfg(feature = "backend")]
 impl StarboardOverride {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         guild_id: i64,
         name: &String,
         starboard_id: i32,
@@ -42,7 +37,7 @@ impl StarboardOverride {
         .await
     }
 
-    pub async fn delete(db: &DbClient, guild_id: i64, name: &String) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(db: &crate::DbClient, guild_id: i64, name: &String) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM overrides WHERE guild_id=$1 AND name=$2 RETURNING *",
@@ -54,7 +49,7 @@ impl StarboardOverride {
     }
 
     pub async fn rename(
-        db: &DbClient,
+        db: &crate::DbClient,
         guild_id: i64,
         old_name: &str,
         new_name: &str,
@@ -71,10 +66,10 @@ impl StarboardOverride {
     }
 
     pub fn validate_channels(channel_ids: &[i64]) -> Result<(), String> {
-        if channel_ids.len() > constants::MAX_CHANNELS_PER_OVERRIDE {
+        if channel_ids.len() > common::constants::MAX_CHANNELS_PER_OVERRIDE {
             Err(format!(
                 "You can only have up to {} channels per override.",
-                constants::MAX_CHANNELS_PER_OVERRIDE
+                common::constants::MAX_CHANNELS_PER_OVERRIDE
             ))
         } else {
             Ok(())
@@ -82,7 +77,7 @@ impl StarboardOverride {
     }
 
     pub async fn set_channels(
-        db: &DbClient,
+        db: &crate::DbClient,
         guild_id: i64,
         name: &str,
         channel_ids: &[i64],
@@ -99,7 +94,7 @@ impl StarboardOverride {
     }
 
     pub async fn update_settings(
-        db: &DbClient,
+        db: &crate::DbClient,
         id: i32,
         settings: crate::OverrideValues,
     ) -> sqlx::Result<Option<Self>> {
@@ -108,7 +103,7 @@ impl StarboardOverride {
     }
 
     pub async fn update_settings_raw(
-        db: &DbClient,
+        db: &crate::DbClient,
         id: i32,
         settings: serde_json::Value,
     ) -> sqlx::Result<Option<Self>> {
@@ -122,7 +117,7 @@ impl StarboardOverride {
         .await
     }
 
-    pub async fn get(db: &DbClient, guild_id: i64, name: &str) -> sqlx::Result<Option<Self>> {
+    pub async fn get(db: &crate::DbClient, guild_id: i64, name: &str) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM overrides WHERE guild_id=$1 AND name=$2",
@@ -133,14 +128,14 @@ impl StarboardOverride {
         .await
     }
 
-    pub async fn list_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_guild(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(Self, "SELECT * FROM overrides WHERE guild_id=$1", guild_id)
             .fetch_all(&db.pool)
             .await
     }
 
     pub async fn list_by_starboard_and_channels(
-        db: &DbClient,
+        db: &crate::DbClient,
         starboard_id: i32,
         channel_ids: &[i64],
     ) -> sqlx::Result<Vec<Self>> {
@@ -154,7 +149,7 @@ impl StarboardOverride {
         .await
     }
 
-    pub async fn count_by_starboard(db: &DbClient, starboard_id: i32) -> sqlx::Result<i64> {
+    pub async fn count_by_starboard(db: &crate::DbClient, starboard_id: i32) -> sqlx::Result<i64> {
         sqlx::query!(
             "SELECT COUNT(*) as count FROM overrides WHERE starboard_id=$1",
             starboard_id
@@ -164,7 +159,7 @@ impl StarboardOverride {
         .map(|r| r.count.unwrap())
     }
 
-    pub async fn list_by_starboard(db: &DbClient, starboard_id: i32) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_starboard(db: &crate::DbClient, starboard_id: i32) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM overrides WHERE starboard_id=$1",

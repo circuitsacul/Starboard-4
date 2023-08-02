@@ -1,7 +1,5 @@
 use chrono::{DateTime, Utc};
 
-use crate::DbClient;
-
 #[derive(Debug)]
 pub struct DbGuild {
     pub guild_id: i64,
@@ -10,7 +8,7 @@ pub struct DbGuild {
 
 #[cfg(feature = "backend")]
 impl DbGuild {
-    pub async fn create(db: &DbClient, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn create(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT DO NOTHING RETURNING *",
@@ -20,7 +18,7 @@ impl DbGuild {
         .await
     }
 
-    pub async fn get(db: &DbClient, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn get(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(Self, "SELECT * FROM guilds WHERE guild_id=$1", guild_id)
             .fetch_optional(&db.pool)
             .await

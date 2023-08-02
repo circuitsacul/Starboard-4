@@ -1,9 +1,8 @@
 #[cfg(feature = "backend")]
 use sqlx::FromRow;
 
-use crate::DbClient;
 #[cfg(feature = "backend")]
-use crate::{call_with_filters_settings, helpers::query::build_update::build_update};
+use crate::helpers::query::build_update::build_update;
 
 #[cfg_attr(feature = "backend", derive(FromRow))]
 pub struct Filter {
@@ -46,7 +45,7 @@ pub struct Filter {
 #[cfg(feature = "backend")]
 impl Filter {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         filter_group_id: i32,
         position: i16,
     ) -> sqlx::Result<Option<Self>> {
@@ -62,7 +61,7 @@ impl Filter {
     }
 
     pub async fn delete(
-        db: &DbClient,
+        db: &crate::DbClient,
         filter_group_id: i32,
         position: i16,
     ) -> sqlx::Result<Option<Self>> {
@@ -76,10 +75,10 @@ impl Filter {
         .await
     }
 
-    pub async fn update_settings(self, db: &DbClient) -> sqlx::Result<Option<Self>> {
+    pub async fn update_settings(self, db: &crate::DbClient) -> sqlx::Result<Option<Self>> {
         let mut builder = sqlx::QueryBuilder::<sqlx::Postgres>::new("UPDATE filters SET ");
 
-        call_with_filters_settings!(build_update, self, builder);
+        crate::call_with_filters_settings!(build_update, self, builder);
 
         builder
             .push(" WHERE id=")
@@ -95,7 +94,7 @@ impl Filter {
         }
     }
 
-    pub async fn get_last_position(db: &DbClient, filter_group_id: i32) -> sqlx::Result<i16> {
+    pub async fn get_last_position(db: &crate::DbClient, filter_group_id: i32) -> sqlx::Result<i16> {
         sqlx::query!(
             "SELECT MAX(position) as position FROM filters WHERE filter_group_id=$1",
             filter_group_id
@@ -106,7 +105,7 @@ impl Filter {
     }
 
     pub async fn get_by_position(
-        db: &DbClient,
+        db: &crate::DbClient,
         filter_group_id: i32,
         position: i16,
     ) -> sqlx::Result<Option<Self>> {
@@ -143,7 +142,7 @@ impl Filter {
     }
 
     pub async fn set_position(
-        db: &DbClient,
+        db: &crate::DbClient,
         filter_group_id: i32,
         current: i16,
         new: i16,
@@ -196,7 +195,7 @@ impl Filter {
         }
     }
 
-    pub async fn list_by_filter(db: &DbClient, filter_group_id: i32) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_filter(db: &crate::DbClient, filter_group_id: i32) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM filters WHERE filter_group_id=$1 ORDER BY position ASC",

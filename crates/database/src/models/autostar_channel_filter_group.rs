@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 pub struct AutostarChannelFilterGroup {
     pub filter_group_id: i32,
     pub autostar_channel_id: i32,
@@ -8,7 +6,7 @@ pub struct AutostarChannelFilterGroup {
 #[cfg(feature = "backend")]
 impl AutostarChannelFilterGroup {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         filter_group_id: i32,
         autostar_channel_id: i32,
     ) -> sqlx::Result<Option<Self>> {
@@ -24,7 +22,7 @@ impl AutostarChannelFilterGroup {
     }
 
     pub async fn delete(
-        db: &DbClient,
+        db: &crate::DbClient,
         filter_group_id: i32,
         autostar_channel_id: i32,
     ) -> sqlx::Result<Option<Self>> {
@@ -40,7 +38,7 @@ impl AutostarChannelFilterGroup {
     }
 
     pub async fn list_by_autostar_channel(
-        db: &DbClient,
+        db: &crate::DbClient,
         autostar_channel_id: i32,
     ) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(

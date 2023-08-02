@@ -1,12 +1,8 @@
 #[cfg(feature = "backend")]
 use sqlx::FromRow;
 
-use common::constants;
-use sqlx::PgExecutor;
-
-use crate::DbClient;
 #[cfg(feature = "backend")]
-use crate::{call_with_autostar_settings, helpers::query::build_update::build_update};
+use crate::helpers::query::build_update::build_update;
 
 #[derive(Debug)]
 #[cfg_attr(feature = "backend", derive(FromRow))]
@@ -29,16 +25,16 @@ pub struct AutoStarChannel {
 impl AutoStarChannel {
     pub fn set_emojis(&mut self, val: Vec<String>, premium: bool) -> Result<(), String> {
         let limit = if premium {
-            constants::MAX_PREM_ASC_EMOJIS
+            common::constants::MAX_PREM_ASC_EMOJIS
         } else {
-            constants::MAX_ASC_EMOJIS
+            common::constants::MAX_ASC_EMOJIS
         };
 
         if val.len() > limit {
             return Err(format!(
                 "You can only have up to {} emojis per autostar channel. The premium limit is {}.",
                 limit,
-                constants::MAX_PREM_ASC_EMOJIS,
+                common::constants::MAX_PREM_ASC_EMOJIS,
             ));
         }
 
@@ -53,10 +49,10 @@ impl AutoStarChannel {
             }
         }
 
-        if val > constants::MAX_MIN_CHARS {
+        if val > common::constants::MAX_MIN_CHARS {
             Err(format!(
                 "`min-chars` cannot be greater than {}.",
-                constants::MAX_MIN_CHARS
+                common::constants::MAX_MIN_CHARS
             ))
         } else if val < 0 {
             Err("`min-chars` cannot be less than 0.".to_string())
@@ -77,10 +73,10 @@ impl AutoStarChannel {
                     Err("`max-chars` cannot be less than `min-chars.".to_string())
                 } else if val < 0 {
                     Err("`max-chars` cannot be less than 0.".to_string())
-                } else if val > constants::MAX_MAX_CHARS {
+                } else if val > common::constants::MAX_MAX_CHARS {
                     Err(format!(
                         "`max-chars` cannot be greater than {}.",
-                        constants::MAX_MAX_CHARS
+                        common::constants::MAX_MAX_CHARS
                     ))
                 } else {
                     self.max_chars = Some(val);
@@ -94,7 +90,7 @@ impl AutoStarChannel {
 #[cfg(feature = "backend")]
 impl AutoStarChannel {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         name: &String,
         channel_id: i64,
         guild_id: i64,
@@ -111,7 +107,7 @@ impl AutoStarChannel {
         .await
     }
 
-    pub async fn delete(db: &DbClient, name: &String, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(db: &crate::DbClient, name: &String, guild_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM autostar_channels WHERE name=$1 AND guild_id=$2 RETURNING *",
@@ -122,11 +118,11 @@ impl AutoStarChannel {
         .await
     }
 
-    pub async fn update_settings(self, db: &DbClient) -> sqlx::Result<Option<Self>> {
+    pub async fn update_settings(self, db: &crate::DbClient) -> sqlx::Result<Option<Self>> {
         let mut builder =
             sqlx::QueryBuilder::<sqlx::Postgres>::new("UPDATE autostar_channels SET ");
 
-        call_with_autostar_settings!(build_update, self, builder);
+        crate::call_with_autostar_settings!(build_update, self, builder);
 
         builder
             .push(" WHERE name=")
@@ -145,7 +141,7 @@ impl AutoStarChannel {
     }
 
     pub async fn rename(
-        db: &DbClient,
+        db: &crate::DbClient,
         name: &String,
         guild_id: i64,
         new_name: &String,
@@ -162,7 +158,7 @@ impl AutoStarChannel {
         .await
     }
 
-    pub async fn list_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_guild(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM autostar_channels WHERE guild_id=$1",
@@ -172,7 +168,7 @@ impl AutoStarChannel {
         .await
     }
 
-    pub async fn count_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<i64> {
+    pub async fn count_by_guild(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<i64> {
         sqlx::query!(
             "SELECT COUNT(*) as count FROM autostar_channels WHERE guild_id=$1",
             guild_id
@@ -182,7 +178,7 @@ impl AutoStarChannel {
         .map(|r| r.count.unwrap())
     }
 
-    pub async fn list_by_channel(db: &DbClient, channel_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_channel(db: &crate::DbClient, channel_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM autostar_channels WHERE channel_id = $1",
@@ -193,7 +189,7 @@ impl AutoStarChannel {
     }
 
     pub async fn get_by_name(
-        db: &DbClient,
+        db: &crate::DbClient,
         name: &String,
         guild_id: i64,
     ) -> sqlx::Result<Option<Self>> {
@@ -208,7 +204,7 @@ impl AutoStarChannel {
     }
 
     pub async fn get_by_name_for_update(
-        e: impl PgExecutor<'_>,
+        e: impl sqlx::PgExecutor<'_>,
         name: &str,
         guild_id: i64,
     ) -> sqlx::Result<Option<Self>> {

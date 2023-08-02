@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 #[derive(Debug)]
 pub struct PermRoleStarboard {
     pub permrole_id: i64,
@@ -12,7 +10,7 @@ pub struct PermRoleStarboard {
 #[cfg(feature = "backend")]
 impl PermRoleStarboard {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         permrole_id: i64,
         starboard_id: i32,
     ) -> sqlx::Result<Option<Self>> {
@@ -28,7 +26,7 @@ impl PermRoleStarboard {
     }
 
     pub async fn delete(
-        db: &DbClient,
+        db: &crate::DbClient,
         permrole_id: i64,
         starboard_id: i32,
     ) -> sqlx::Result<Option<Self>> {
@@ -42,7 +40,7 @@ impl PermRoleStarboard {
         .await
     }
 
-    pub async fn update(&self, db: &DbClient) -> sqlx::Result<Option<Self>> {
+    pub async fn update(&self, db: &crate::DbClient) -> sqlx::Result<Option<Self>> {
         if self.give_votes.is_none() && self.receive_votes.is_none() {
             return Self::delete(db, self.permrole_id, self.starboard_id).await;
         }
@@ -61,7 +59,7 @@ impl PermRoleStarboard {
     }
 
     pub async fn get(
-        db: &DbClient,
+        db: &crate::DbClient,
         permrole_id: i64,
         starboard_id: i32,
     ) -> sqlx::Result<Option<Self>> {
@@ -75,7 +73,7 @@ impl PermRoleStarboard {
         .await
     }
 
-    pub async fn list_by_permrole(db: &DbClient, permrole_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_permrole(db: &crate::DbClient, permrole_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM permrole_starboards WHERE permrole_id=$1",

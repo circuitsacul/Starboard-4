@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 #[derive(Debug)]
 pub struct Vote {
     pub message_id: i64,
@@ -13,7 +11,7 @@ pub struct Vote {
 #[cfg(feature = "backend")]
 impl Vote {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         message_id: i64,
         starboard_id: i32,
         user_id: i64,
@@ -50,7 +48,7 @@ impl Vote {
         Ok(Some(()))
     }
 
-    pub async fn count(db: &DbClient, message_id: i64, starboard_id: i32) -> sqlx::Result<i32> {
+    pub async fn count(db: &crate::DbClient, message_id: i64, starboard_id: i32) -> sqlx::Result<i32> {
         let upvotes = sqlx::query!(
             "SELECT COUNT(*) as count FROM votes WHERE message_id=$1 AND starboard_id=$2
             AND is_downvote=false",
@@ -74,7 +72,7 @@ impl Vote {
     }
 
     pub async fn delete(
-        db: &DbClient,
+        db: &crate::DbClient,
         message_id: i64,
         starboard_id: i32,
         user_id: i64,

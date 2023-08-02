@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 #[derive(Debug)]
 #[cfg_attr(feature = "backend", derive(sqlx::FromRow))]
 pub struct StarboardMessage {
@@ -12,7 +10,7 @@ pub struct StarboardMessage {
 #[cfg(feature = "backend")]
 impl StarboardMessage {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         message_id: i64,
         starboard_message_id: i64,
         starboard_id: i32,
@@ -34,7 +32,7 @@ impl StarboardMessage {
         .await
     }
 
-    pub async fn delete(db: &DbClient, starboard_message_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(db: &crate::DbClient, starboard_message_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM starboard_messages WHERE starboard_message_id=$1
@@ -45,7 +43,7 @@ impl StarboardMessage {
         .await
     }
 
-    pub async fn get(db: &DbClient, starboard_message_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn get(db: &crate::DbClient, starboard_message_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM starboard_messages WHERE starboard_message_id=$1",
@@ -56,7 +54,7 @@ impl StarboardMessage {
     }
 
     pub async fn get_by_starboard(
-        db: &DbClient,
+        db: &crate::DbClient,
         message_id: i64,
         starboard_id: i32,
     ) -> sqlx::Result<Option<Self>> {
@@ -71,7 +69,7 @@ impl StarboardMessage {
     }
 
     pub async fn set_last_point_count(
-        db: &DbClient,
+        db: &crate::DbClient,
         starboard_message_id: i64,
         point_count: i16,
     ) -> sqlx::Result<Option<Self>> {

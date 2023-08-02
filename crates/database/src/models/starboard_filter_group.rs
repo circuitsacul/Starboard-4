@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 pub struct StarboardFilterGroup {
     pub filter_group_id: i32,
     pub starboard_id: i32,
@@ -8,7 +6,7 @@ pub struct StarboardFilterGroup {
 #[cfg(feature = "backend")]
 impl StarboardFilterGroup {
     pub async fn create(
-        db: &DbClient,
+        db: &crate::DbClient,
         filter_group_id: i32,
         starboard_id: i32,
     ) -> sqlx::Result<Option<Self>> {
@@ -24,7 +22,7 @@ impl StarboardFilterGroup {
     }
 
     pub async fn delete(
-        db: &DbClient,
+        db: &crate::DbClient,
         filter_group_id: i32,
         starboard_id: i32,
     ) -> sqlx::Result<Option<Self>> {
@@ -39,7 +37,7 @@ impl StarboardFilterGroup {
         .await
     }
 
-    pub async fn list_by_starboard(db: &DbClient, starboard_id: i32) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_starboard(db: &crate::DbClient, starboard_id: i32) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(
             Self,
             "SELECT * FROM starboard_filter_groups WHERE starboard_id=$1",

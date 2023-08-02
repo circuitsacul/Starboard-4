@@ -1,5 +1,3 @@
-use crate::DbClient;
-
 #[derive(Debug)]
 pub struct PermRole {
     pub role_id: i64,
@@ -12,7 +10,7 @@ pub struct PermRole {
 
 #[cfg(feature = "backend")]
 impl PermRole {
-    pub async fn create(db: &DbClient, role_id: i64, guild_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn create(db: &crate::DbClient, role_id: i64, guild_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "INSERT INTO permroles (role_id, guild_id) VALUES ($1, $2)
@@ -24,7 +22,7 @@ impl PermRole {
         .await
     }
 
-    pub async fn delete(db: &DbClient, role_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn delete(db: &crate::DbClient, role_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             "DELETE FROM permroles WHERE role_id=$1 RETURNING *",
@@ -34,7 +32,7 @@ impl PermRole {
         .await
     }
 
-    pub async fn update(&self, db: &DbClient) -> sqlx::Result<Option<Self>> {
+    pub async fn update(&self, db: &crate::DbClient) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(
             Self,
             r#"UPDATE permroles SET obtain_xproles=$1, give_votes=$2,
@@ -48,13 +46,13 @@ impl PermRole {
         .await
     }
 
-    pub async fn get(db: &DbClient, role_id: i64) -> sqlx::Result<Option<Self>> {
+    pub async fn get(db: &crate::DbClient, role_id: i64) -> sqlx::Result<Option<Self>> {
         sqlx::query_as!(Self, "SELECT * FROM permroles WHERE role_id=$1", role_id)
             .fetch_optional(&db.pool)
             .await
     }
 
-    pub async fn count_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<i64> {
+    pub async fn count_by_guild(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<i64> {
         sqlx::query!(
             "SELECT COUNT(*) as count FROM permroles WHERE guild_id=$1",
             guild_id
@@ -64,7 +62,7 @@ impl PermRole {
         .map(|r| r.count.unwrap())
     }
 
-    pub async fn list_by_guild(db: &DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
+    pub async fn list_by_guild(db: &crate::DbClient, guild_id: i64) -> sqlx::Result<Vec<Self>> {
         sqlx::query_as!(Self, "SELECT * FROM permroles WHERE guild_id=$1", guild_id)
             .fetch_all(&db.pool)
             .await
