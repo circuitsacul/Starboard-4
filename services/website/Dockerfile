@@ -41,7 +41,7 @@ COPY --from=cacher /usr/local/cargo /usr/local/cargo
 # set env variables for build
 # The source style file. If it ends with _.sass_ or _.scss_ then it will be compiled by `dart-sass`
 # into CSS and processed by lightning css. When release is set, then it will also be minified.
-ENV LEPTOS_STYLE_FILE "style/main.scss"
+ENV LEPTOS_STYLE_FILE "style/output.css"
 # The browserlist https://browsersl.ist query used for optimizing the CSS.
 ENV LEPTOS_BROWSERQUERY "defaults"
 # build the app

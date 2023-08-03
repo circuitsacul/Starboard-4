@@ -10,7 +10,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     view! { cx,
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
-        <Stylesheet id="leptos" href="/pkg/leptos_start.css"/>
+        <Stylesheet id="leptos" href="/pkg/website.css"/>
 
         // sets the document title
         <Title text="Welcome to Leptos"/>
@@ -36,7 +36,7 @@ fn HomePage(cx: Scope) -> impl IntoView {
 
     view! { cx,
         <h1>"Welcome to Leptos!"</h1>
-        <button on:click=on_click>"Click Me: " {count}</button>
+        <button on:click=on_click class="btn">"Click Me: " {count}</button>
     }
 }
 
