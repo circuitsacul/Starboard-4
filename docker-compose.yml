@@ -27,6 +27,15 @@ services:
     ports:
        - "8080:8080"
 
+  website:
+    image: ${IMAGE_WEBSITE}
+    restart: always
+    env_file: .env
+    build:
+      dockerfile: services/website/Dockerfile
+    ports:
+      - "8000:8000"
+
   bot:
     image: ${IMAGE_BOT}
     restart: always
