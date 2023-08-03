@@ -1,51 +1,44 @@
-FROM rust:1.70.0-slim-buster as builder
-WORKDIR /usr/src/starboard
+FROM rust:1.71.0-slim-bullseye as prereq
 
-# nightly
 RUN rustup default nightly
 
-# force cargo to update the crates.io index.
-RUN cargo search --limit 0
-
-# install pkg-config (required for reqwest dependency)
 RUN apt-get update
 RUN apt-get install -y pkg-config libssl-dev
 
-# cache dependencies
-COPY Cargo.lock Cargo.lock
-COPY Cargo.toml Cargo.toml
+RUN cargo install cargo-chef
 
-COPY crates/common/Cargo.toml crates/common/Cargo.toml
-COPY crates/database/Cargo.toml crates/database/Cargo.toml
-COPY crates/errors/Cargo.toml crates/errors/Cargo.toml
-COPY crates/starboard/Cargo.toml crates/starboard/Cargo.toml
+FROM prereq AS planner
+WORKDIR /app
 
-RUN mkdir crates/common/src && touch crates/common/src/lib.rs
-RUN mkdir crates/database/src && touch crates/database/src/lib.rs
-RUN mkdir crates/errors/src && touch crates/errors/src/lib.rs
-RUN mkdir crates/starboard/src && echo "fn main() { dbg!(1); }" > crates/starboard/src/main.rs
-
-RUN cargo build --release
-RUN rm target/release/starboard
-RUN rm -r crates
-
-# copy what we need
 COPY crates crates
 COPY sqlx-data.json sqlx-data.json
+COPY Cargo.toml Cargo.toml
+COPY Cargo.lock Cargo.lock
 
-# install starboard
-RUN cargo install cargo-edit
-RUN cargo set-version --workspace --bump major
-RUN cargo build --release
+RUN cargo chef prepare --recipe-path recipe.json
 
-# get rid of cargo
-FROM debian:buster-slim
+FROM prereq as cacher
+WORKDIR /app
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --bin starboard --recipe-path recipe.json
 
-# install certificates
-RUN apt-get update && apt-get install -y ca-certificates
+FROM prereq as builder
+WORKDIR /app
 
-# copy starboard over from the builder
-COPY --from=builder /usr/src/starboard/target/release/starboard /usr/local/bin/starboard
+COPY crates crates
+COPY sqlx-data.json sqlx-data.json
+COPY Cargo.toml Cargo.toml
+COPY Cargo.lock Cargo.lock
 
-# run starboard
-CMD ["starboard"]
+# copy dependecies
+COPY --from=cacher /app/target /app/target
+COPY --from=cacher /usr/local/cargo /usr/local/cargo
+
+RUN cargo build --release --bin starboard
+
+# use googles distroless as runtime image
+FROM gcr.io/distroless/cc-debian11
+# copy app form builder
+COPY --from=builder /app/target/release/starboard /
+
+CMD ["./starboard"]
