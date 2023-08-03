@@ -9,6 +9,17 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
 
+  backup:
+    image: ${IMAGE_BACKUP}
+    restart: always
+    env_file: .env
+    build:
+      dockerfile: services/backup/Dockerfile
+    depends_on:
+      - db
+    volumes:
+      - backup:/backups
+
   proxy:
     image: ghcr.io/germanoeich/nirn-proxy:v1.3.2
     restart: always
@@ -17,15 +28,17 @@ services:
        - "8080:8080"
 
   bot:
-    image: ${IMAGE}
+    image: ${IMAGE_BOT}
     restart: always
     env_file: .env
     build:
-      dockerfile: crates/starboard/Dockerfile
+      dockerfile: services/bot/Dockerfile
     depends_on:
       - db
       - proxy
 
 volumes:
   db:
+    driver: local
+  backup:
     driver: local
