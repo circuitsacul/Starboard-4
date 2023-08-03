@@ -36,7 +36,10 @@ fn HomePage(cx: Scope) -> impl IntoView {
 
     view! { cx,
         <h1>"Welcome to Leptos!"</h1>
-        <button on:click=on_click class="btn">"Click Me: " {count}</button>
+        <button on:click=on_click class="btn">
+            "Click Me: "
+            {count}
+        </button>
     }
 }
 
@@ -57,7 +60,5 @@ fn NotFound(cx: Scope) -> impl IntoView {
         resp.set_status(actix_web::http::StatusCode::NOT_FOUND);
     }
 
-    view! { cx,
-        <h1>"Not Found"</h1>
-    }
+    view! { cx, <h1>"Not Found"</h1> }
 }
