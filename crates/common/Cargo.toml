@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dotenv = { version = "0.15.0", optional = true }
+
+[features]
+backend = ["dep:dotenv"]

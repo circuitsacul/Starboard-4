@@ -2,6 +2,11 @@ pub mod app;
 pub mod site;
 pub mod utils;
 
+#[cfg(feature = "ssr")]
+pub fn db(cx: leptos::Scope) -> std::sync::Arc<database::DbClient> {
+    leptos::use_context::<std::sync::Arc<database::DbClient>>(cx).expect("database")
+}
+
 #[cfg(feature = "hydrate")]
 use wasm_bindgen::prelude::wasm_bindgen;
 

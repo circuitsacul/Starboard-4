@@ -631,6 +631,9 @@ checksum = "186dce98367766de751c42c4f03970fc60fc012296e706ccbb9d5df9b6c1e271"
 [[package]]
 name = "common"
 version = "0.1.0"
+dependencies = [
+ "dotenv",
+]
 
 [[package]]
 name = "common_macros"
@@ -3235,9 +3238,9 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.180"
+version = "1.0.181"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ea67f183f058fe88a4e3ec6e2788e003840893b91bac4559cabedd00863b3ed"
+checksum = "6d3e73c93c3240c0bda063c239298e633114c69a888c3e37ca8bb33f343e9890"
 dependencies = [
  "serde_derive",
 ]
@@ -3265,9 +3268,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.180"
+version = "1.0.181"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24e744d7782b686ab3b73267ef05697159cc0e5abbed3f47f9933165e5219036"
+checksum = "be02f6cb0cd3a5ec20bbcfbcbd749f57daddb1a0882dc2e46a6c236c90b977ed"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3640,7 +3643,6 @@ dependencies = [
  "common",
  "dashmap",
  "database",
- "dotenv",
  "emojis",
  "errors",
  "floodgate",
@@ -4443,13 +4445,18 @@ dependencies = [
  "actix-files",
  "actix-web",
  "cfg-if",
+ "common",
  "console_error_panic_hook",
+ "database",
+ "errors",
  "http",
  "leptos",
  "leptos_actix",
  "leptos_icons",
  "leptos_meta",
  "leptos_router",
+ "once_cell",
+ "serde",
  "wasm-bindgen",
 ]
 

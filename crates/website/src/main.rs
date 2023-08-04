@@ -1,6 +1,8 @@
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    use std::sync::Arc;
+
     use actix_files::Files;
     use actix_web::*;
     use leptos::*;
@@ -12,23 +14,38 @@ async fn main() -> std::io::Result<()> {
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(|cx| view! { cx, <App/> });
 
+    let config = Arc::new(common::config::Config::from_env());
+    let db = Arc::new(database::DbClient::new(&config.db_url).await.unwrap());
+
     HttpServer::new(move || {
         let leptos_options = &conf.leptos_options;
         let site_root = &leptos_options.site_root;
 
+        let db = db.clone();
+        let db2 = db.clone();
+        let config = config.clone();
+        let config2 = config.clone();
+
         App::new()
-            .route("/api/{tail:.*}", leptos_actix::handle_server_fns())
+            .route(
+                "/api/{tail:.*}",
+                leptos_actix::handle_server_fns_with_context(move |cx| {
+                    provide_context(cx, db.clone());
+                    provide_context(cx, config.clone());
+                }),
+            )
             // serve JS/WASM/CSS from `pkg`
             .service(Files::new("/pkg", format!("{site_root}/pkg")))
             // serve other assets from the `assets` directory
             .service(Files::new("/assets", site_root))
             // serve the favicon from /favicon.ico
             .service(favicon)
-            .leptos_routes(
-                leptos_options.to_owned(),
-                routes.to_owned(),
-                |cx| view! { cx, <App/> },
-            )
+            .leptos_routes(leptos_options.to_owned(), routes.to_owned(), move |cx| {
+                provide_context(cx, db2.clone());
+                provide_context(cx, config2.clone());
+
+                view! { cx, <App/> }
+            })
             .app_data(web::Data::new(leptos_options.to_owned()))
         //.wrap(middleware::Compress::default())
     })

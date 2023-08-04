@@ -2,6 +2,13 @@ use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
 
+#[server(GetGuild, "/api")]
+pub async fn get_guild(cx: Scope, id: i64) -> Result<Option<database::DbGuild>, ServerFnError> {
+    let db = crate::db(cx);
+
+    Ok(database::DbGuild::get(&db, id).await?)
+}
+
 #[derive(Params, PartialEq)]
 struct Props {
     id: i64,
@@ -10,14 +17,19 @@ struct Props {
 #[component]
 pub fn Server(cx: Scope) -> impl IntoView {
     let params = use_params::<Props>(cx);
-
     let id = move || params.with(|p| p.as_ref().unwrap().id);
+    let guild = create_resource(cx, id, move |id| async move { get_guild(cx, id).await });
 
     view! { cx,
         <nav>
             <ServerNavBar/>
         </nav>
-        <main>{id}</main>
+        <main>
+            <Suspense fallback=move || {
+                view! { cx, <p>"Loading..."</p> }
+            }>{move || { guild.read(cx).map(|guild| view! { cx, {format!("{:?}", guild)} }) }}
+            </Suspense>
+        </main>
     }
 }
 

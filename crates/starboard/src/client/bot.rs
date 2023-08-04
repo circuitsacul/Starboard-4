@@ -13,9 +13,10 @@ use twilight_model::{
 };
 use twilight_standby::Standby;
 
+use common::config::Config;
 use errors::{StarboardError, StarboardResult};
 
-use crate::{cache::Cache, client::config::Config, utils::into_id::IntoId};
+use crate::{cache::Cache, utils::into_id::IntoId};
 
 use super::{cooldowns::Cooldowns, locks::Locks};
 
