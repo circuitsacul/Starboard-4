@@ -1,12 +1,13 @@
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    use std::sync::Arc;
+    use std::{sync::Arc, time::Duration};
 
     use actix_files::Files;
     use actix_web::*;
     use leptos::*;
     use leptos_actix::{generate_route_list, LeptosRoutes};
+    use twilight_http::client::Client as HttpClient;
     use website::app::*;
 
     let conf = get_configuration(None).await.unwrap();
@@ -16,6 +17,13 @@ async fn main() -> std::io::Result<()> {
 
     let config = Arc::new(common::config::Config::from_env());
     let db = Arc::new(database::DbClient::new(&config.db_url).await.unwrap());
+    let mut http = HttpClient::builder()
+        .token(config.token.clone())
+        .timeout(Duration::from_secs(30));
+    if let Some(proxy) = &config.proxy {
+        http = http.proxy(proxy.to_owned(), true);
+    }
+    let http = Arc::new(http.build());
 
     HttpServer::new(move || {
         let leptos_options = &conf.leptos_options;
@@ -25,6 +33,8 @@ async fn main() -> std::io::Result<()> {
         let db2 = db.clone();
         let config = config.clone();
         let config2 = config.clone();
+        let http = http.clone();
+        let http2 = http.clone();
 
         App::new()
             .route(
@@ -32,6 +42,7 @@ async fn main() -> std::io::Result<()> {
                 leptos_actix::handle_server_fns_with_context(move |cx| {
                     provide_context(cx, db.clone());
                     provide_context(cx, config.clone());
+                    provide_context(cx, http.clone());
                 }),
             )
             // serve JS/WASM/CSS from `pkg`
@@ -43,6 +54,7 @@ async fn main() -> std::io::Result<()> {
             .leptos_routes(leptos_options.to_owned(), routes.to_owned(), move |cx| {
                 provide_context(cx, db2.clone());
                 provide_context(cx, config2.clone());
+                provide_context(cx, http2.clone());
 
                 view! { cx, <App/> }
             })

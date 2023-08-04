@@ -4,7 +4,12 @@ pub mod utils;
 
 #[cfg(feature = "ssr")]
 pub fn db(cx: leptos::Scope) -> std::sync::Arc<database::DbClient> {
-    leptos::use_context::<std::sync::Arc<database::DbClient>>(cx).expect("database")
+    leptos::use_context(cx).expect("database")
+}
+
+#[cfg(feature = "ssr")]
+pub fn http(cx: leptos::Scope) -> std::sync::Arc<twilight_http::client::Client> {
+    leptos::use_context(cx).expect("http client")
 }
 
 #[cfg(feature = "hydrate")]

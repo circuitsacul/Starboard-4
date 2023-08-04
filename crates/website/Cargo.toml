@@ -24,6 +24,8 @@ wasm-bindgen = "=0.2.87"
 leptos_icons = { version = "0.0.15", features = ["FaChevronLeftSolid"] }
 serde = "1.0.181"
 once_cell = { version = "1.18.0", optional = true }
+twilight-model = "0.15.2"
+twilight-http = { version = "0.15.2", optional = true }
 
 [features]
 csr = ["leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
@@ -36,6 +38,7 @@ ssr = [
   "dep:actix-web",
   "dep:leptos_actix",
   "dep:once_cell",
+  "dep:twilight-http",
   "leptos/ssr",
   "leptos_meta/ssr",
   "leptos_router/ssr",

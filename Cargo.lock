@@ -4457,6 +4457,8 @@ dependencies = [
  "leptos_router",
  "once_cell",
  "serde",
+ "twilight-http",
+ "twilight-model",
  "wasm-bindgen",
 ]
 
