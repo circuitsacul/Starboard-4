@@ -1659,6 +1659,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "icondata"
+version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ffb16cf8cbf74c05967c0c12b492a10ad23d3511abdc77bc43c142004e3d435"
+dependencies = [
+ "icondata_core",
+ "icondata_fa",
+]
+
+[[package]]
+name = "icondata_core"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1640a4c1d5ddd08ab1d9854ffa7a2fa3dc52339492676b6d3031e77ca579f434"
+
+[[package]]
+name = "icondata_fa"
+version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "029f6e7f84560b8b4543c06ddd68a79839397672203efebd50d4364898de3c13"
+dependencies = [
+ "icondata_core",
+]
+
+[[package]]
 name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1884,6 +1909,17 @@ dependencies = [
  "serde",
  "syn 2.0.28",
  "walkdir",
+]
+
+[[package]]
+name = "leptos_icons"
+version = "0.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c4cbfd152ac2449509618939d69b4ee5ea4e1b8697ca57c447021a9d84632e2"
+dependencies = [
+ "icondata",
+ "leptos",
+ "tracing",
 ]
 
 [[package]]
@@ -4411,6 +4447,7 @@ dependencies = [
  "http",
  "leptos",
  "leptos_actix",
+ "leptos_icons",
  "leptos_meta",
  "leptos_router",
  "wasm-bindgen",

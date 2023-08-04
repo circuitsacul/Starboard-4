@@ -705,6 +705,11 @@ html {
   }
 }
 
+.link {
+  cursor: pointer;
+  text-decoration-line: underline;
+}
+
 .navbar {
   display: flex;
   align-items: center;
@@ -856,6 +861,16 @@ html {
   100% {
     background-position-y: 0;
   }
+}
+
+.link:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
 
 @keyframes modal-pop {

@@ -5,7 +5,7 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
     view! { cx,
         <div class="navbar">
             <div>
-                <a href="" class="btn btn-ghost normal-case text-xl">
+                <a href="/" class="btn btn-ghost normal-case text-xl">
                     Starboard
                 </a>
             </div>
@@ -24,8 +24,8 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
             </div>
 
             <div>
-                <a class="btn btn-primary" href="/dashboard">
-                    Dashboard
+                <a class="btn btn-primary" href="/servers">
+                    Manage
                 </a>
             </div>
         </div>
