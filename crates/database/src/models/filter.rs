@@ -1,9 +1,11 @@
+use serde::{Serialize, Deserialize};
 #[cfg(feature = "backend")]
 use sqlx::FromRow;
 
 #[cfg(feature = "backend")]
 use crate::helpers::query::build_update::build_update;
 
+#[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "backend", derive(FromRow))]
 pub struct Filter {
     pub id: i32,

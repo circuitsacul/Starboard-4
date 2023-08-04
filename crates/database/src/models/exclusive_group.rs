@@ -1,3 +1,6 @@
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ExclusiveGroup {
     pub id: i32,
     pub guild_id: i64,

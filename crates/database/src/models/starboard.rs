@@ -1,10 +1,12 @@
+use serde::{Serialize, Deserialize};
+
 #[cfg(feature = "backend")]
 use crate::{
     call_with_starboard_settings, helpers::query::build_update::build_update,
     starboard_from_record, starboard_from_row, DbClient,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Starboard {
     pub id: i32,
     pub name: String,

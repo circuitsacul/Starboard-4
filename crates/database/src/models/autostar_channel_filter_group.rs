@@ -1,3 +1,6 @@
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AutostarChannelFilterGroup {
     pub filter_group_id: i32,
     pub autostar_channel_id: i32,

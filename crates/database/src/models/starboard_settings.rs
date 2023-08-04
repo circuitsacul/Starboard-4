@@ -1,4 +1,6 @@
-#[derive(Clone, Debug)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StarboardSettings {
     // General Style
     pub display_emoji: Option<String>,
