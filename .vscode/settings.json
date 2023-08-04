@@ -16,9 +16,6 @@
     "strings": true
   },
   "css.validate": false,
-  "rust-analyzer.procMacro.ignored": {
-    "leptos_macro": ["server", "component"]
-  },
   "rust-analyzer.check.command": "clippy",
   "rust-analyzer.showUnlinkedFileNotification": false
 }
