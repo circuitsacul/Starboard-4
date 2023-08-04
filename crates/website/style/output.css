@@ -705,6 +705,19 @@ html {
   }
 }
 
+.hero {
+  display: grid;
+  width: 100%;
+  place-items: center;
+  background-size: cover;
+  background-position: center;
+}
+
+.hero > * {
+  grid-column-start: 1;
+  grid-row-start: 1;
+}
+
 .link {
   cursor: pointer;
   text-decoration-line: underline;
@@ -1010,6 +1023,10 @@ html {
 
 .inline {
   display: inline;
+}
+
+.contents {
+  display: contents;
 }
 
 .flex-1 {
