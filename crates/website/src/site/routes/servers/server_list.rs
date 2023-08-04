@@ -11,7 +11,7 @@ pub fn ServerList(cx: Scope) -> impl IntoView {
         </nav>
         <main>
             <A href="1" class="link">
-                Go to server
+                "Go to server"
             </A>
         </main>
     }

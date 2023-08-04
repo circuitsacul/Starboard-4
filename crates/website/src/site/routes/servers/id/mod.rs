@@ -59,25 +59,21 @@ pub fn Server(cx: Scope) -> impl IntoView {
     });
     provide_context(cx, guild);
 
-    view! { cx,
-        <Suspense fallback=|| ()>
-            {move || {
-                guild
-                    .with(
-                        cx,
-                        |g| {
-                            if !g.is_some() {
-                                Some(
-                                    Redirect(cx, RedirectProps::builder().path("/servers").build()),
-                                )
-                            } else {
-                                None
-                            }
-                        },
-                    )
-            }}
+    let red = move || {
+        guild.with(cx, |g| {
+            if !g.is_some() {
+                Some(Redirect(
+                    cx,
+                    RedirectProps::builder().path("/servers").build(),
+                ))
+            } else {
+                None
+            }
+        })
+    };
 
-        </Suspense>
+    view! { cx,
+        <Suspense fallback=|| ()>{red}</Suspense>
         <nav>
             <ServerNavBar/>
         </nav>
@@ -91,12 +87,13 @@ pub fn Server(cx: Scope) -> impl IntoView {
 fn ServerNavBar(cx: Scope) -> impl IntoView {
     let guild = expect_context::<GuildContext>(cx);
 
+    let title = move || guild.with(cx, |g| g.as_ref().map(|g| g.http.name.to_owned()));
     view! { cx,
         <div class="navbar">
             <div>
                 <A href="/servers" class="btn btn-sm btn-ghost normal-case">
                     <Icon icon=crate::icon!(FaChevronLeftSolid)/>
-                    {move || guild.with(cx, |g| g.as_ref().map(|g| g.http.name.to_owned()))}
+                    {title}
                 </A>
             </div>
         </div>
