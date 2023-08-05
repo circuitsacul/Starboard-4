@@ -7,6 +7,9 @@ use leptos_router::*;
 use serde::{Deserialize, Serialize};
 use twilight_model::guild::Guild;
 
+#[cfg(feature = "ssr")]
+use twilight_model::id::Id;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuildData {
     pub db: DbGuild,
@@ -17,10 +20,8 @@ pub type GuildContext = Resource<u64, Option<GuildData>>;
 
 #[server(GetGuild, "/api")]
 pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFnError> {
-    use twilight_model::id::Id;
-
     let db = crate::db(cx);
-    let http = crate::http(cx);
+    let http = crate::bot_http(cx);
 
     let http_guild = match http.guild(Id::new(id)).await {
         Ok(res) => res.model().await?,
@@ -54,7 +55,7 @@ struct Props {
 pub fn Server(cx: Scope) -> impl IntoView {
     let params = use_params::<Props>(cx);
     let id = move || params.with(|p| p.as_ref().unwrap().id);
-    let guild = create_resource(cx, id, move |id| async move {
+    let guild = create_local_resource(cx, id, move |id| async move {
         get_guild(cx, id).await.ok().flatten()
     });
     provide_context(cx, guild);

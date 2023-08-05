@@ -1,16 +1,40 @@
+pub mod auth;
 pub mod servers;
 pub mod website;
 
 use leptos::*;
 use leptos_router::*;
+use twilight_model::user::CurrentUser;
 
 use super::errors;
 
+#[server(GetUser, "/api")]
+pub async fn get_user(cx: Scope) -> Result<Option<CurrentUser>, ServerFnError> {
+    use crate::auth::context::AuthContext;
+    let Some(acx) = AuthContext::build_from_cx(cx) else {
+        return Ok(None);
+    };
+
+    Ok(Some(acx.http.current_user().await?.model().await?))
+}
+
+pub type UserRes = Resource<(), Option<CurrentUser>>;
+
 #[component]
 pub fn Index(cx: Scope) -> impl IntoView {
+    let user = create_local_resource(
+        cx,
+        || (),
+        move |_| async move { get_user(cx).await.ok().flatten() },
+    );
+    provide_context(cx, user);
+
     view! { cx,
         <Router>
             <Routes>
+                <Route path="/auth/redirect" view=auth::redirect::Redirect/>
+                <Route path="/auth/login" view=auth::login::Login/>
+
                 <WebsiteRoutes/>
                 <DashboardRoutes/>
             </Routes>

@@ -7,8 +7,9 @@ async fn main() -> std::io::Result<()> {
     use actix_web::*;
     use leptos::*;
     use leptos_actix::{generate_route_list, LeptosRoutes};
+    use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
     use twilight_http::client::Client as HttpClient;
-    use website::app::*;
+    use website::{app::*, auth::jwt};
 
     let conf = get_configuration(None).await.unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -24,6 +25,7 @@ async fn main() -> std::io::Result<()> {
         http = http.proxy(proxy.to_owned(), true);
     }
     let http = Arc::new(http.build());
+    let jwt_key = Arc::new(jwt::new_secret());
 
     HttpServer::new(move || {
         let leptos_options = &conf.leptos_options;
@@ -36,6 +38,33 @@ async fn main() -> std::io::Result<()> {
         let http = http.clone();
         let http2 = http.clone();
 
+        let oauth_client = BasicClient::new(
+            ClientId::new(config.bot_id.to_string()),
+            Some(ClientSecret::new(
+                config
+                    .client_secret
+                    .clone()
+                    .expect("CLIENT_SECRET required for website"),
+            )),
+            AuthUrl::new("https://discord.com/oauth2/authorize".to_string()).unwrap(),
+            Some(TokenUrl::new("https://discord.com/api/oauth2/token".to_string()).unwrap()),
+        )
+        .set_redirect_uri(
+            RedirectUrl::new(
+                config
+                    .redirect_url
+                    .clone()
+                    .expect("REDIRECT_URL required for website"),
+            )
+            .unwrap(),
+        );
+
+        let oauth_client = Arc::new(oauth_client);
+        let oauth_client2 = oauth_client.clone();
+
+        let jwt_key = jwt_key.clone();
+        let jwt_key2 = jwt_key.clone();
+
         App::new()
             .route(
                 "/api/{tail:.*}",
@@ -43,6 +72,8 @@ async fn main() -> std::io::Result<()> {
                     provide_context(cx, db.clone());
                     provide_context(cx, config.clone());
                     provide_context(cx, http.clone());
+                    provide_context(cx, oauth_client.clone());
+                    provide_context(cx, jwt_key.clone());
                 }),
             )
             // serve JS/WASM/CSS from `pkg`
@@ -55,6 +86,8 @@ async fn main() -> std::io::Result<()> {
                 provide_context(cx, db2.clone());
                 provide_context(cx, config2.clone());
                 provide_context(cx, http2.clone());
+                provide_context(cx, oauth_client2.clone());
+                provide_context(cx, jwt_key2.clone());
 
                 view! { cx, <App/> }
             })

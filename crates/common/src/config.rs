@@ -3,18 +3,25 @@ use std::env;
 
 pub struct Config {
     pub token: String,
+    pub bot_id: u64,
+
+    pub client_secret: Option<String>,
+    pub redirect_url: Option<String>,
+
+    pub db_url: String,
+    pub proxy: Option<String>,
+
+    pub shards: u64,
+    pub development: bool,
+
     pub patreon_token: Option<String>,
     pub sentry: Option<String>,
-    pub shards: u64,
-    pub db_url: String,
+
     pub error_channel: Option<u64>,
-    pub development: bool,
     pub owner_ids: Vec<u64>,
-    pub bot_id: u64,
     pub main_guild: Option<u64>,
     pub patron_role: Option<u64>,
     pub supporter_role: Option<u64>,
-    pub proxy: Option<String>,
 }
 
 impl Config {
@@ -24,6 +31,8 @@ impl Config {
             Err(why) => eprintln!("Failed to load .env: {why}"),
         };
         let token = env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set");
+        let client_secret = env::var("CLIENT_SECRET").ok();
+        let redirect_url = env::var("REDIRECT_URL").ok();
         let patreon_token = env::var("PATREON_TOKEN").ok();
         let sentry = env::var("SENTRY_URL").ok();
         let shards = env::var("SHARDS")
@@ -56,6 +65,8 @@ impl Config {
 
         Config {
             token,
+            client_secret,
+            redirect_url,
             patreon_token,
             sentry,
             shards,
