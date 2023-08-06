@@ -20,12 +20,16 @@ use crate::{jwt_key, oauth_client};
 use super::jwt::AuthClaims;
 
 #[cfg(feature = "ssr")]
-fn secure_cookie(name: &str, value: &str) -> HeaderValue {
+fn secure_cookie(name: &str, value: &str, samesite: bool) -> HeaderValue {
     let cookie = Cookie::build(name, value)
-        .permanent()
         .http_only(true)
         .secure(true)
-        .same_site(SameSite::Strict)
+        .same_site(if samesite {
+            SameSite::Strict
+        } else {
+            SameSite::Lax
+        })
+        .path("/")
         .finish();
     HeaderValue::from_str(&cookie.to_string()).unwrap()
 }
@@ -44,7 +48,7 @@ pub async fn begin_auth_flow(cx: leptos::Scope) -> Result<String, ServerFnError>
 
     response.insert_header(
         SET_COOKIE,
-        secure_cookie("ExpectedOAuth2State", csrf.secret()),
+        secure_cookie("ExpectedOAuth2State", csrf.secret(), false),
     );
 
     Ok(url.to_string())
@@ -81,7 +85,7 @@ pub async fn finish_auth_flow(
 
     let jwt = AuthClaims::new(user.id, token).sign(&jwt_key);
 
-    response.insert_header(SET_COOKIE, secure_cookie("SessionKey", &jwt));
+    response.insert_header(SET_COOKIE, secure_cookie("SessionKey", &jwt, true));
 
     Ok(())
 }

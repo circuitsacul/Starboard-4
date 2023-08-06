@@ -22,7 +22,7 @@ pub type UserRes = Resource<(), Option<CurrentUser>>;
 
 #[component]
 pub fn Index(cx: Scope) -> impl IntoView {
-    let user = create_local_resource(
+    let user = create_resource(
         cx,
         || (),
         move |_| async move { get_user(cx).await.ok().flatten() },

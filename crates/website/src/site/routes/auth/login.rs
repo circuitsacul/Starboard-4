@@ -11,7 +11,7 @@ struct QueryParams {
 
 #[component]
 pub fn Login(cx: Scope) -> impl IntoView {
-    let res = create_local_resource(
+    let res = create_blocking_resource(
         cx,
         move || use_query::<QueryParams>(cx).get().unwrap(),
         move |params| finish_auth_flow(cx, params.code.clone(), params.state.clone()),
@@ -26,11 +26,13 @@ pub fn Login(cx: Scope) -> impl IntoView {
                     cx,
                     |res| match res {
                         Ok(()) => {
-                            if window().location().assign("/servers").is_err() {
-                                "Something went wrong."
-                            } else {
-                                "Redirecting..."
-                            }
+                            create_effect(
+                                cx,
+                                move |_| {
+                                    window().location().assign("/servers").unwrap();
+                                },
+                            );
+                            "Redirecting..."
                         }
                         Err(_) => "Something went wrong.",
                     },

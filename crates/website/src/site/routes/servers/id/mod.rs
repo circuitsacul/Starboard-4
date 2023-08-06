@@ -55,7 +55,7 @@ struct Props {
 pub fn Server(cx: Scope) -> impl IntoView {
     let params = use_params::<Props>(cx);
     let id = move || params.with(|p| p.as_ref().unwrap().id);
-    let guild = create_local_resource(cx, id, move |id| async move {
+    let guild = create_resource(cx, id, move |id| async move {
         get_guild(cx, id).await.ok().flatten()
     });
     provide_context(cx, guild);
@@ -94,7 +94,7 @@ fn ServerNavBar(cx: Scope) -> impl IntoView {
             <div>
                 <A href="/servers" class="btn btn-sm btn-ghost normal-case">
                     <Icon icon=crate::icon!(FaChevronLeftSolid)/>
-                    {title}
+                    <Suspense fallback=|| ()>{title}</Suspense>
                 </A>
             </div>
         </div>

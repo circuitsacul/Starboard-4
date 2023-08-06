@@ -1,6 +1,6 @@
 use actix_web::HttpRequest;
 use jwt_simple::prelude::JWTClaims;
-use leptos::expect_context;
+use leptos::*;
 use twilight_http::Client;
 
 use crate::{expect_config, jwt_key};
@@ -15,7 +15,7 @@ pub struct AuthContext {
 
 impl AuthContext {
     pub fn build_from_cx(cx: leptos::Scope) -> Option<Self> {
-        let req = expect_context::<HttpRequest>(cx);
+        let req = use_context::<HttpRequest>(cx)?;
         let key = jwt_key(cx);
 
         let Some(jwt_cookie) = req.cookie("SessionKey") else {
