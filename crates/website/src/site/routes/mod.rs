@@ -9,30 +9,26 @@ use twilight_model::user::CurrentUser;
 use super::errors;
 
 #[server(GetUser, "/api")]
-pub async fn get_user(cx: Scope) -> Result<Option<CurrentUser>, ServerFnError> {
+pub async fn get_user(cx: Scope) -> Result<CurrentUser, ServerFnError> {
     use crate::auth::context::AuthContext;
-    let Some(acx) = AuthContext::build_from_cx(cx) else {
-        return Ok(None);
+    let Some(acx) = AuthContext::get(cx) else {
+        return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
     };
 
-    Ok(Some(acx.http.current_user().await?.model().await?))
+    Ok(acx.http.current_user().await?.model().await?)
 }
 
-pub type UserRes = Resource<(), Option<CurrentUser>>;
+pub type UserRes = Resource<(), Result<CurrentUser, ServerFnError>>;
 
 #[component]
 pub fn Index(cx: Scope) -> impl IntoView {
-    let user = create_resource(
-        cx,
-        || (),
-        move |_| async move { get_user(cx).await.ok().flatten() },
-    );
+    let user: UserRes = create_resource(cx, || (), move |_| get_user(cx));
     provide_context(cx, user);
 
     view! { cx,
         <Router>
             <Routes>
-                <Route path="/auth/redirect" view=auth::redirect::Redirect/>
+                <Route path="/auth/redirect" view=auth::redirect::AuthRedirect/>
                 <Route path="/auth/login" view=auth::login::Login/>
 
                 <WebsiteRoutes/>

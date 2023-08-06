@@ -1,9 +1,11 @@
+use std::sync::Arc;
+
 use actix_web::HttpRequest;
 use jwt_simple::prelude::JWTClaims;
 use leptos::*;
 use twilight_http::Client;
 
-use crate::{expect_config, jwt_key};
+use crate::{expect_auth_states, jwt_key};
 
 use super::jwt::AuthClaims;
 
@@ -14,30 +16,42 @@ pub struct AuthContext {
 }
 
 impl AuthContext {
-    pub fn build_from_cx(cx: leptos::Scope) -> Option<Self> {
+    pub fn provide(self, cx: leptos::Scope) -> Arc<Self> {
+        let states = expect_auth_states(cx);
+        let acx = Arc::new(self);
+        states
+            .write()
+            .insert(acx.claims.custom.user_id, acx.clone());
+        acx
+    }
+
+    pub fn get(cx: leptos::Scope) -> Option<Arc<Self>> {
         let req = use_context::<HttpRequest>(cx)?;
         let key = jwt_key(cx);
+        let Some(session) = req.cookie("SessionKey") else {
+            return None;
+        };
+        let claims = AuthClaims::verify(session.value(), &key)?;
 
-        let Some(jwt_cookie) = req.cookie("SessionKey") else {
+        let state = {
+            let states = expect_auth_states(cx);
+            let states = states.read();
+            states.get(&claims.custom.user_id).cloned()
+        };
+
+        let Some(state) = state else {
             return None;
         };
 
-        let jwt = jwt_cookie.value();
-        let claims = AuthClaims::verify(jwt, &key)?;
+        if claims.nonce != state.claims.nonce {
+            return None;
+        }
 
-        Some(Self {
-            http: Self::build_http(cx, claims.custom.user_token.secret().to_owned()),
-            claims,
-        })
+        Some(state)
     }
 
-    pub fn build_http(cx: leptos::Scope, access_token: String) -> Client {
-        let config = expect_config(cx);
-
-        let mut client = Client::builder().token(format!("Bearer {access_token}"));
-        if let Some(proxy) = config.proxy.clone() {
-            client = client.proxy(proxy, true);
-        }
+    pub fn build_http(access_token: &str) -> Client {
+        let client = Client::builder().token(format!("Bearer {access_token}"));
         client.build()
     }
 }

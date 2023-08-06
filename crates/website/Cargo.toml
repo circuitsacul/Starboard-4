@@ -28,6 +28,7 @@ twilight-model = "0.15.2"
 twilight-http = { version = "0.15.2", optional = true }
 jwt-simple = { version = "0.11.6", optional = true }
 oauth2 = { version = "4.4.1", optional = true }
+parking_lot = {version = "0.12.1", optional = true }
 
 [features]
 default = ["ssr", "hydrate", "csr"]
@@ -44,6 +45,7 @@ ssr = [
   "dep:twilight-http",
   "dep:jwt-simple",
   "dep:oauth2",
+  "dep:parking_lot",
   "leptos/ssr",
   "leptos_meta/ssr",
   "leptos_router/ssr",

@@ -5,10 +5,7 @@ use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
-use twilight_model::guild::Guild;
-
-#[cfg(feature = "ssr")]
-use twilight_model::id::Id;
+use twilight_model::{guild::Guild, id::Id};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuildData {
@@ -16,7 +13,7 @@ pub struct GuildData {
     pub http: Guild,
 }
 
-pub type GuildContext = Resource<u64, Option<GuildData>>;
+pub type GuildContext = Resource<u64, Result<Option<GuildData>, ServerFnError>>;
 
 #[server(GetGuild, "/api")]
 pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFnError> {
@@ -54,15 +51,16 @@ struct Props {
 #[component]
 pub fn Server(cx: Scope) -> impl IntoView {
     let params = use_params::<Props>(cx);
-    let id = move || params.with(|p| p.as_ref().unwrap().id);
-    let guild = create_resource(cx, id, move |id| async move {
-        get_guild(cx, id).await.ok().flatten()
-    });
+    let guild: GuildContext = create_resource(
+        cx,
+        move || params.with(|p| p.as_ref().unwrap().id),
+        move |id| get_guild(cx, id),
+    );
     provide_context(cx, guild);
 
     let red = move || {
         guild.with(cx, |g| {
-            if !g.is_some() {
+            if matches!(g, Ok(None)) {
                 Some(Redirect(
                     cx,
                     RedirectProps::builder().path("/servers").build(),
@@ -88,7 +86,14 @@ pub fn Server(cx: Scope) -> impl IntoView {
 fn ServerNavBar(cx: Scope) -> impl IntoView {
     let guild = expect_context::<GuildContext>(cx);
 
-    let title = move || guild.with(cx, |g| g.as_ref().map(|g| g.http.name.to_owned()));
+    let title = move || {
+        guild.with(cx, |g| {
+            g.as_ref()
+                .ok()
+                .and_then(|g| g.as_ref())
+                .map(|g| g.http.name.to_owned())
+        })
+    };
     view! { cx,
         <div class="navbar">
             <div>

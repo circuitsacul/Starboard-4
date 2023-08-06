@@ -16,7 +16,7 @@ pub fn Servers(cx: Scope) -> impl IntoView {
                 user.with(
                     cx,
                     |user| {
-                        if user.is_none() {
+                        if user.is_err() {
                             Some(view! { cx, <Redirect path="/auth/redirect"/> })
                         } else {
                             None

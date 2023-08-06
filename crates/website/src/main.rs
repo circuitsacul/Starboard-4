@@ -1,15 +1,16 @@
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    use std::{sync::Arc, time::Duration};
+    use std::{collections::HashMap, sync::Arc, time::Duration};
 
     use actix_files::Files;
     use actix_web::*;
     use leptos::*;
     use leptos_actix::{generate_route_list, LeptosRoutes};
     use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
+    use parking_lot::RwLock;
     use twilight_http::client::Client as HttpClient;
-    use website::{app::*, auth::jwt};
+    use website::{app::*, auth::jwt, AuthStates};
 
     let conf = get_configuration(None).await.unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -27,6 +28,8 @@ async fn main() -> std::io::Result<()> {
     let http = Arc::new(http.build());
     let jwt_key = Arc::new(jwt::new_secret());
 
+    let auth_states: AuthStates = Arc::new(RwLock::new(HashMap::new()));
+
     HttpServer::new(move || {
         let leptos_options = &conf.leptos_options;
         let site_root = &leptos_options.site_root;
@@ -37,6 +40,9 @@ async fn main() -> std::io::Result<()> {
         let config2 = config.clone();
         let http = http.clone();
         let http2 = http.clone();
+
+        let auth_states = auth_states.clone();
+        let auth_states2 = auth_states.clone();
 
         let oauth_client = BasicClient::new(
             ClientId::new(config.bot_id.to_string()),
@@ -74,6 +80,7 @@ async fn main() -> std::io::Result<()> {
                     provide_context(cx, http.clone());
                     provide_context(cx, oauth_client.clone());
                     provide_context(cx, jwt_key.clone());
+                    provide_context(cx, auth_states.clone());
                 }),
             )
             // serve JS/WASM/CSS from `pkg`
@@ -88,6 +95,7 @@ async fn main() -> std::io::Result<()> {
                 provide_context(cx, http2.clone());
                 provide_context(cx, oauth_client2.clone());
                 provide_context(cx, jwt_key2.clone());
+                provide_context(cx, auth_states2.clone());
 
                 view! { cx, <App/> }
             })

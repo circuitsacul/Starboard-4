@@ -3,7 +3,7 @@ use oauth2::AccessToken;
 use serde::{Deserialize, Serialize};
 use twilight_model::id::{marker::UserMarker, Id};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct AuthClaims {
     /// The ID of the authenticated user.
     pub user_id: Id<UserMarker>,
@@ -24,9 +24,10 @@ impl AuthClaims {
         }
     }
 
-    pub fn sign(self, key: &HS256Key) -> String {
-        let claims = Claims::with_custom_claims(self, Duration::from_hours(2));
-        key.authenticate(claims).unwrap()
+    pub fn build(self) -> JWTClaims<Self> {
+        let mut claims = Claims::with_custom_claims(self, Duration::from_hours(2));
+        claims.create_nonce();
+        claims
     }
 
     pub fn verify(token: &str, key: &HS256Key) -> Option<JWTClaims<Self>> {

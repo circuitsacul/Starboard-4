@@ -3,32 +3,34 @@ use leptos::*;
 use crate::auth::oauth2::begin_auth_flow;
 
 #[component]
-pub fn Redirect(cx: Scope) -> impl IntoView {
+pub fn AuthRedirect(cx: Scope) -> impl IntoView {
     let res = create_blocking_resource(cx, || (), move |_| begin_auth_flow(cx));
 
     view! { cx,
-        <Suspense fallback=|| {
-            view! { cx, "Redirecting..." }
-        }>
-            {move || {
-                res.with(
-                    cx,
-                    |url| match url {
-                        Err(_) => "Something went wrong.",
-                        Ok(url) => {
-                            let url = url.to_owned();
-                            create_effect(
-                                cx,
-                                move |_| {
-                                    window().location().assign(&url).unwrap();
-                                },
-                            );
-                            "Redirecting..."
-                        }
-                    },
-                )
-            }}
+        <Suspense fallback=|| "Redirecting...">
+            <ErrorBoundary fallback=|_, _| {
+                "Something went wrong."
+            }>
+                {move || {
+                    res.with(
+                        cx,
+                        move |url| {
+                            url
+                                .clone()
+                                .map(|url| {
+                                    create_effect(
+                                        cx,
+                                        move |_| {
+                                            window().location().assign(&url).unwrap();
+                                        },
+                                    );
+                                    view! { cx, "Redirecting..." }
+                                })
+                        },
+                    )
+                }}
 
+            </ErrorBoundary>
         </Suspense>
     }
 }

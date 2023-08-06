@@ -18,27 +18,31 @@ pub fn Login(cx: Scope) -> impl IntoView {
     );
 
     view! { cx,
-        <Suspense fallback=|| {
-            view! { cx, "Logging you in..." }
-        }>
-            {move || {
-                res.with(
-                    cx,
-                    |res| match res {
-                        Ok(()) => {
-                            create_effect(
-                                cx,
-                                move |_| {
-                                    window().location().assign("/servers").unwrap();
-                                },
-                            );
-                            "Redirecting..."
-                        }
-                        Err(_) => "Something went wrong.",
-                    },
-                )
-            }}
+        <Suspense fallback=|| "Logging you in...">
+            <ErrorBoundary fallback=|_, _| {
+                "Something went wrong."
+            }>
+                {move || {
+                    res
+                        .with(
+                            cx,
+                            move |res| {
+                                res
+                                    .clone()
+                                    .map(move |_| {
+                                        create_effect(
+                                            cx,
+                                            |_| {
+                                                window().location().assign("/servers").unwrap();
+                                            },
+                                        );
+                                        "Redirecting..."
+                                    })
+                            },
+                        )
+                }}
 
+            </ErrorBoundary>
         </Suspense>
     }
     .into_view(cx)

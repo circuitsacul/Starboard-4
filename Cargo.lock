@@ -4953,6 +4953,7 @@ dependencies = [
  "leptos_router",
  "oauth2",
  "once_cell",
+ "parking_lot 0.12.1",
  "serde",
  "twilight-http",
  "twilight-model",

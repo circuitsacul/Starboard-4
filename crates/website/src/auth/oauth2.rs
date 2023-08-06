@@ -6,6 +6,8 @@ use actix_web::{
     http::header::SET_COOKIE,
 };
 #[cfg(feature = "ssr")]
+use jwt_simple::prelude::MACLike;
+#[cfg(feature = "ssr")]
 use leptos_actix::ResponseOptions;
 #[cfg(feature = "ssr")]
 use oauth2::{
@@ -16,6 +18,8 @@ use oauth2::{
 #[cfg(feature = "ssr")]
 use crate::{jwt_key, oauth_client};
 
+#[cfg(feature = "ssr")]
+use super::context::AuthContext;
 #[cfg(feature = "ssr")]
 use super::jwt::AuthClaims;
 
@@ -83,7 +87,11 @@ pub async fn finish_auth_flow(
     let http = twilight_http::Client::new(format!("Bearer {}", token.secret()));
     let user = http.current_user().await?.model().await?;
 
-    let jwt = AuthClaims::new(user.id, token).sign(&jwt_key);
+    let claims = AuthClaims::new(user.id, token).build();
+    let jwt = jwt_key.authenticate(claims.clone()).unwrap();
+
+    let acx = AuthContext { http, claims };
+    acx.provide(cx);
 
     response.insert_header(SET_COOKIE, secure_cookie("SessionKey", &jwt, true));
 
