@@ -1,14 +1,14 @@
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    use std::{collections::HashMap, sync::Arc, time::Duration};
+    use std::{sync::Arc, time::Duration};
 
     use actix_files::Files;
     use actix_web::*;
+    use dashmap::DashMap;
     use leptos::*;
     use leptos_actix::{generate_route_list, LeptosRoutes};
     use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
-    use parking_lot::RwLock;
     use twilight_http::client::Client as HttpClient;
     use website::{app::*, auth::jwt, AuthStates};
 
@@ -28,7 +28,7 @@ async fn main() -> std::io::Result<()> {
     let http = Arc::new(http.build());
     let jwt_key = Arc::new(jwt::new_secret());
 
-    let auth_states: AuthStates = Arc::new(RwLock::new(HashMap::new()));
+    let auth_states: AuthStates = Arc::new(DashMap::new().into());
 
     HttpServer::new(move || {
         let leptos_options = &conf.leptos_options;

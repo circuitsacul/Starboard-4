@@ -19,9 +19,7 @@ impl AuthContext {
     pub fn provide(self, cx: leptos::Scope) -> Arc<Self> {
         let states = expect_auth_states(cx);
         let acx = Arc::new(self);
-        states
-            .write()
-            .insert(acx.claims.custom.user_id, acx.clone());
+        states.insert(acx.claims.custom.user_id, acx.clone());
         acx
     }
 
@@ -33,21 +31,18 @@ impl AuthContext {
         };
         let claims = AuthClaims::verify(session.value(), &key)?;
 
-        let state = {
-            let states = expect_auth_states(cx);
-            let states = states.read();
-            states.get(&claims.custom.user_id).cloned()
-        };
+        let states = expect_auth_states(cx);
+        states.with(&claims.custom.user_id, |_, state| {
+            let Some(state) = state else {
+                return None;
+            };
 
-        let Some(state) = state else {
-            return None;
-        };
+            if claims.nonce != state.claims.nonce {
+                return None;
+            }
 
-        if claims.nonce != state.claims.nonce {
-            return None;
-        }
-
-        Some(state)
+            Some(state.value().clone())
+        })
     }
 
     pub fn build_http(access_token: &str) -> Client {

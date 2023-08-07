@@ -14,14 +14,14 @@ use twilight_model::{
     },
 };
 
-use common::constants;
+use common::{
+    async_dash::{AsyncDashMap, AsyncDashSet},
+    constants,
+};
 use errors::{get_status, StarboardResult};
 
 use crate::{
-    cache::models::channel::CachedChannel,
-    client::bot::StarboardBot,
-    core::emoji::SimpleEmoji,
-    utils::async_dash::{AsyncDashMap, AsyncDashSet},
+    cache::models::channel::CachedChannel, client::bot::StarboardBot, core::emoji::SimpleEmoji,
 };
 
 use super::{

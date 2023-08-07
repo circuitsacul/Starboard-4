@@ -1,6 +1,6 @@
 use twilight_model::id::{marker::MessageMarker, Id};
 
-use crate::utils::dashset_lock::DashSetLock;
+use common::dashset_lock::DashSetLock;
 
 #[derive(Default)]
 pub struct Locks {

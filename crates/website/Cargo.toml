@@ -28,28 +28,13 @@ twilight-model = "0.15.2"
 twilight-http = { version = "0.15.2", optional = true }
 jwt-simple = { version = "0.11.6", optional = true }
 oauth2 = { version = "4.4.1", optional = true }
-parking_lot = {version = "0.12.1", optional = true }
+dashmap = "5.5.0"
 
 [features]
 default = ["ssr", "hydrate", "csr"]
 csr = ["leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
-ssr = [
-  "database/backend",
-  "common/backend",
-  "dep:errors",
-  "dep:actix-files",
-  "dep:actix-web",
-  "dep:leptos_actix",
-  "dep:once_cell",
-  "dep:twilight-http",
-  "dep:jwt-simple",
-  "dep:oauth2",
-  "dep:parking_lot",
-  "leptos/ssr",
-  "leptos_meta/ssr",
-  "leptos_router/ssr",
-]
+ssr = ["database/backend", "common/backend", "dep:errors", "dep:actix-files", "dep:actix-web", "dep:leptos_actix", "dep:once_cell", "dep:twilight-http", "dep:jwt-simple", "dep:oauth2", "leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr"]
 
 [package.metadata.leptos]
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name   

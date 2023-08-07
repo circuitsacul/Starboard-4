@@ -4,14 +4,14 @@ pub mod site;
 pub mod utils;
 
 #[cfg(feature = "ssr")]
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 #[cfg(feature = "ssr")]
 use auth::context::AuthContext;
 #[cfg(feature = "ssr")]
-use jwt_simple::prelude::HS256Key;
+use common::async_dash::AsyncDashMap;
 #[cfg(feature = "ssr")]
-use parking_lot::RwLock;
+use jwt_simple::prelude::HS256Key;
 #[cfg(feature = "ssr")]
 use twilight_http::Client;
 #[cfg(feature = "ssr")]
@@ -22,7 +22,7 @@ use twilight_model::id::Id;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 #[cfg(feature = "ssr")]
-pub type AuthStates = Arc<RwLock<HashMap<Id<UserMarker>, Arc<AuthContext>>>>;
+pub type AuthStates = Arc<AsyncDashMap<Id<UserMarker>, Arc<AuthContext>>>;
 
 #[cfg(feature = "ssr")]
 pub fn expect_auth_states(cx: leptos::Scope) -> AuthStates {

@@ -662,6 +662,7 @@ checksum = "186dce98367766de751c42c4f03970fc60fc012296e706ccbb9d5df9b6c1e271"
 name = "common"
 version = "0.1.0"
 dependencies = [
+ "dashmap",
  "dotenv",
 ]
 
@@ -4942,6 +4943,7 @@ dependencies = [
  "cfg-if",
  "common",
  "console_error_panic_hook",
+ "dashmap",
  "database",
  "errors",
  "http",
@@ -4953,7 +4955,6 @@ dependencies = [
  "leptos_router",
  "oauth2",
  "once_cell",
- "parking_lot 0.12.1",
  "serde",
  "twilight-http",
  "twilight-model",
