@@ -1,4 +1,8 @@
 pub mod overview;
+mod sidebar;
+pub mod starboards;
+
+use sidebar::{SideBar, Tab};
 
 use database::DbGuild;
 use leptos::*;
@@ -52,6 +56,7 @@ struct Props {
 
 #[component]
 pub fn Server(cx: Scope) -> impl IntoView {
+    let location = use_location(cx);
     let params = use_params::<Props>(cx);
     let guild: GuildContext = create_resource(
         cx,
@@ -78,14 +83,21 @@ pub fn Server(cx: Scope) -> impl IntoView {
         })
     };
 
+    let tab = create_memo(cx, move |_| {
+        match location.pathname.get().split('/').last().unwrap_or("") {
+            "starboards" => Tab::Starboards,
+            "overrides" => Tab::Overrides,
+            "filters" => Tab::Filters,
+            "permroles" => Tab::PermRoles,
+            "awardroles" => Tab::AwardRoles,
+            "autostar" => Tab::AutoStar,
+            _ => Tab::Overview,
+        }
+    });
+
     view! { cx,
         <Suspense fallback=|| ()>{red}</Suspense>
-        <nav>
-            <ServerNavBar/>
-        </nav>
-        <main>
-            <Outlet/>
-        </main>
+        <SideBar active=tab/>
     }
 }
 
