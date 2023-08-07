@@ -17,7 +17,7 @@ pub enum Tab {
 pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
     let guild = expect_context::<super::GuildContext>(cx);
 
-    let title = move || {
+    let title = move |cx| {
         guild.with(cx, |g| {
             g.as_ref()
                 .ok()
@@ -44,7 +44,7 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
                     <li>
                         <A href="/servers" class="btn btn-sm btn-ghost normal-case">
                             <Icon icon=crate::icon!(FaChevronLeftSolid)/>
-                            <Suspense fallback=|| ()>{title}</Suspense>
+                            <Transition fallback=|| ()>{move || title(cx)}</Transition>
                         </A>
                     </li>
 

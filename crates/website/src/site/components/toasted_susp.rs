@@ -143,7 +143,9 @@ where
                     toast(cx, Toast::error(err.to_string()));
                 }
                 fallback.with_value(|f| f())
-            }>{children.with_value(|c| c(cx))}</ErrorBoundary>
+            }>
+                <div>{children.with_value(|c| c(cx))}</div>
+            </ErrorBoundary>
         </Suspense>
     }
 }
