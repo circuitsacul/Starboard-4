@@ -34,12 +34,36 @@ pub fn ServerList(cx: Scope) -> impl IntoView {
             })
         })
     };
+    let susp = move || {
+        view! { cx,
+            <For
+                each=move || 0..10
+                key=|v| v.to_owned()
+                view=move |cx, _| view! { cx, <ServerCardSkeleton/> }
+            />
+        }
+    };
     view! { cx,
         <div class="flex justify-center">
             <div class="max-w-4xl m-12 mt-0">
-                <Suspense fallback=|| ()>{guild_cards}</Suspense>
+                <Suspense fallback=susp>{guild_cards}</Suspense>
             </div>
         </div>
+    }
+}
+
+#[component]
+fn ServerCardSkeleton(cx: Scope) -> impl IntoView {
+    view! { cx,
+        <button class="btn btn-lg btn-block btn-ghost my-2 normal-case btn-disabled !bg-transparent animate-pulse">
+            <div class="avatar">
+                <div class="w-12 mask mask-squircle bg-gray-700 bg-opacity-30"></div>
+            </div>
+            <div class="flex-1">
+                <div class="h-5 bg-gray-700 bg-opacity-30 rounded-full w-[400px]"></div>
+            </div>
+            <Icon icon=crate::icon!(FaChevronRightSolid)/>
+        </button>
     }
 }
 
@@ -52,8 +76,8 @@ fn ServerCard(cx: Scope, guild: CurrentUserGuild) -> impl IntoView {
     view! { cx,
         <A href=guild.id.to_string()>
             <button class="btn btn-lg btn-block btn-ghost my-2 normal-case">
-                {icon_url
-                    .map(|url| {
+                {match icon_url {
+                    Some(url) => {
                         view! { cx,
                             <div class="avatar">
                                 <div class="w-12 mask mask-squircle">
@@ -61,7 +85,16 @@ fn ServerCard(cx: Scope, guild: CurrentUserGuild) -> impl IntoView {
                                 </div>
                             </div>
                         }
-                    })}
+                    }
+                    None => {
+
+                        view! { cx,
+                            <div class="avatar">
+                                <div class="w-12 mask mask-squircle bg-gray-500"></div>
+                            </div>
+                        }
+                    }
+                }}
                 <div class="flex-1 text-left">{guild.name}</div>
                 <Icon icon=crate::icon!(FaChevronRightSolid)/>
             </button>
