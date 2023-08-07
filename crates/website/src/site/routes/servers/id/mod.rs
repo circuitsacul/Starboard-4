@@ -5,7 +5,7 @@ use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
-use twilight_model::{guild::Guild, id::Id};
+use twilight_model::guild::Guild;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuildData {
@@ -17,6 +17,8 @@ pub type GuildContext = Resource<u64, Result<Option<GuildData>, ServerFnError>>;
 
 #[server(GetGuild, "/api")]
 pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFnError> {
+    use twilight_model::id::Id;
+
     let db = crate::db(cx);
     let http = crate::bot_http(cx);
 
