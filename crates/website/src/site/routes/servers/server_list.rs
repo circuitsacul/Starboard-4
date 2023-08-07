@@ -7,8 +7,6 @@ use twilight_model::{
     user::CurrentUserGuild,
 };
 
-use crate::site::components::NavBar;
-
 #[server(GetGuilds, "/api")]
 pub async fn get_guilds(
     cx: Scope,
@@ -37,14 +35,9 @@ pub fn ServerList(cx: Scope) -> impl IntoView {
     let guilds = create_resource(cx, move || (), move |_| get_guilds(cx));
 
     view! { cx,
-        <nav>
-            <NavBar/>
-        </nav>
-        <main>
-            <A href="945149610484195398" class="link">
-                "Go to server"
-            </A>
-            <Suspense fallback=|| ()>{move || guilds.with(cx, |d| format!("{d:?}"))}</Suspense>
-        </main>
+        <A href="945149610484195398" class="link">
+            "Go to server"
+        </A>
+        <Suspense fallback=|| ()>{move || guilds.with(cx, |d| format!("{d:?}"))}</Suspense>
     }
 }

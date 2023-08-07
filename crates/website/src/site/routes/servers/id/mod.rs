@@ -13,7 +13,7 @@ pub struct GuildData {
     pub http: Guild,
 }
 
-pub type GuildContext = Resource<u64, Result<Option<GuildData>, ServerFnError>>;
+pub type GuildContext = Resource<Option<u64>, Result<Option<GuildData>, ServerFnError>>;
 
 #[server(GetGuild, "/api")]
 pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFnError> {
@@ -55,8 +55,13 @@ pub fn Server(cx: Scope) -> impl IntoView {
     let params = use_params::<Props>(cx);
     let guild: GuildContext = create_resource(
         cx,
-        move || params.with(|p| p.as_ref().unwrap().id),
-        move |id| get_guild(cx, id),
+        move || params.with(|p| p.as_ref().ok().map(|p| p.id)),
+        move |id| async move {
+            let Some(id) = id else {
+                return Ok(None);
+            };
+            get_guild(cx, id).await
+        },
     );
     provide_context(cx, guild);
 

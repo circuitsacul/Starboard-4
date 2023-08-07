@@ -48,6 +48,9 @@ fn WebsiteRoutes(cx: Scope) -> impl IntoView {
     view! { cx,
         <Route path="" view=website::Website>
             <Route path="" view=website::home::Home/>
+            <Route path="/servers" view=servers::Servers>
+                <Route path="" view=servers::server_list::ServerList/>
+            </Route>
 
             <Route path="/*any" view=errors::not_found::NotFound/>
         </Route>
@@ -58,7 +61,6 @@ fn WebsiteRoutes(cx: Scope) -> impl IntoView {
 fn DashboardRoutes(cx: Scope) -> impl IntoView {
     view! { cx,
         <Route path="/servers" view=servers::Servers>
-            <Route path="" view=servers::server_list::ServerList/>
             <Route path=":id" view=servers::id::Server>
                 <Route path="" view=servers::id::overview::Overview/>
             // <Route path="/starboards" view=dashboard::starboards::Starboards>
