@@ -1,33 +1,19 @@
-use std::collections::HashMap;
-
 use leptos::*;
 use leptos_router::*;
-use twilight_model::{
-    id::{marker::GuildMarker, Id},
-    user::CurrentUserGuild,
-};
+use twilight_model::user::CurrentUserGuild;
 
 #[server(GetGuilds, "/api")]
-pub async fn get_guilds(
-    cx: Scope,
-) -> Result<HashMap<Id<GuildMarker>, CurrentUserGuild>, ServerFnError> {
-    use crate::auth::context::AuthContext;
+pub async fn get_guilds(cx: Scope) -> Result<Vec<CurrentUserGuild>, ServerFnError> {
+    use super::get_manageable_guilds;
 
-    let Some(auth) = AuthContext::get(cx) else {
+    let Some(guilds) = get_manageable_guilds(cx).await else {
         return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
     };
 
-    let new_guilds: HashMap<_, _> = auth
-        .http
-        .current_user_guilds()
-        .await?
-        .models()
-        .await?
-        .into_iter()
-        .map(|g| (g.id, g))
-        .collect();
+    let mut guilds: Vec<_> = guilds.iter().map(|(_, v)| v.clone()).collect();
+    guilds.sort_by(|l, r| l.name.cmp(&r.name));
 
-    Ok(new_guilds)
+    Ok(guilds)
 }
 
 #[component]

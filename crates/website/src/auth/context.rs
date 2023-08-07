@@ -1,21 +1,40 @@
-use std::sync::Arc;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 use actix_web::HttpRequest;
 use jwt_simple::prelude::JWTClaims;
 use leptos::*;
 use twilight_http::Client;
+use twilight_model::{
+    id::{marker::GuildMarker, Id},
+    user::{CurrentUser, CurrentUserGuild},
+};
 
 use crate::{expect_auth_states, jwt_key};
 
 use super::jwt::AuthClaims;
 
-#[derive(Debug)]
+pub type Guilds = HashMap<Id<GuildMarker>, CurrentUserGuild>;
+
 pub struct AuthContext {
     pub http: Client,
     pub claims: JWTClaims<AuthClaims>,
+    pub user: CurrentUser,
+    pub guilds: Mutex<Option<Arc<Guilds>>>,
 }
 
 impl AuthContext {
+    pub fn new(http: Client, claims: JWTClaims<AuthClaims>, user: CurrentUser) -> Self {
+        Self {
+            http,
+            claims,
+            user,
+            guilds: Mutex::new(None),
+        }
+    }
+
     pub fn provide(self, cx: leptos::Scope) -> Arc<Self> {
         let states = expect_auth_states(cx);
         let acx = Arc::new(self);

@@ -103,7 +103,7 @@ pub async fn finish_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
     let claims = AuthClaims::new(user.id).build();
     let jwt = jwt_key.authenticate(claims.clone()).unwrap();
 
-    let acx = AuthContext { http, claims };
+    let acx = AuthContext::new(http, claims, user);
     acx.provide(cx);
 
     response.insert_header(SET_COOKIE, secure_cookie("SessionKey", &jwt, true));

@@ -14,7 +14,7 @@ pub async fn get_user(cx: Scope) -> Result<CurrentUser, ServerFnError> {
         return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
     };
 
-    Ok(acx.http.current_user().await?.model().await?)
+    Ok(acx.user.clone())
 }
 
 pub type UserRes = Resource<(), Result<CurrentUser, ServerFnError>>;
