@@ -1,3 +1,4 @@
+use crate::site::components::ToastedSusp;
 use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
@@ -46,7 +47,7 @@ pub fn ServerList(cx: Scope) -> impl IntoView {
     view! { cx,
         <div class="flex justify-center">
             <div class="max-w-4xl m-12 mt-0">
-                <Suspense fallback=susp>{guild_cards}</Suspense>
+                <ToastedSusp fallback=susp>{guild_cards}</ToastedSusp>
             </div>
         </div>
     }

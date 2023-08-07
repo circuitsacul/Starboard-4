@@ -581,6 +581,36 @@ html {
   --tw-backdrop-sepia:  ;
 }
 
+.alert {
+  display: grid;
+  width: 100%;
+  grid-auto-flow: row;
+  align-content: flex-start;
+  align-items: center;
+  justify-items: center;
+  gap: 1rem;
+  text-align: center;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: hsl(var(--b2) / var(--tw-border-opacity));
+  padding: 1rem;
+  --tw-text-opacity: 1;
+  color: hsl(var(--bc) / var(--tw-text-opacity));
+  border-radius: var(--rounded-box, 1rem);
+  --alert-bg: hsl(var(--b2));
+  --alert-bg-mix: hsl(var(--b1));
+  background-color: var(--alert-bg);
+}
+
+@media (min-width: 640px) {
+  .alert {
+    grid-auto-flow: column;
+    grid-template-columns: auto minmax(auto,1fr);
+    justify-items: start;
+    text-align: left;
+  }
+}
+
 .avatar {
   position: relative;
   display: inline-flex;
@@ -650,6 +680,13 @@ html {
   .btn[disabled],
   .btn:disabled {
   pointer-events: none;
+}
+
+.btn-circle {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 9999px;
+  padding: 0px;
 }
 
 .btn-group > input[type="radio"].btn {
@@ -794,6 +831,49 @@ html {
 :where(.navbar > *) {
   display: inline-flex;
   align-items: center;
+}
+
+.toast {
+  position: fixed;
+  display: flex;
+  min-width: -moz-fit-content;
+  min-width: fit-content;
+  flex-direction: column;
+  white-space: nowrap;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.alert-info {
+  border-color: hsl(var(--in) / 0.2);
+  --tw-text-opacity: 1;
+  color: hsl(var(--inc) / var(--tw-text-opacity));
+  --alert-bg: hsl(var(--in));
+  --alert-bg-mix: hsl(var(--b1));
+}
+
+.alert-success {
+  border-color: hsl(var(--su) / 0.2);
+  --tw-text-opacity: 1;
+  color: hsl(var(--suc) / var(--tw-text-opacity));
+  --alert-bg: hsl(var(--su));
+  --alert-bg-mix: hsl(var(--b1));
+}
+
+.alert-warning {
+  border-color: hsl(var(--wa) / 0.2);
+  --tw-text-opacity: 1;
+  color: hsl(var(--wac) / var(--tw-text-opacity));
+  --alert-bg: hsl(var(--wa));
+  --alert-bg-mix: hsl(var(--b1));
+}
+
+.alert-error {
+  border-color: hsl(var(--er) / 0.2);
+  --tw-text-opacity: 1;
+  color: hsl(var(--erc) / var(--tw-text-opacity));
+  --alert-bg: hsl(var(--er));
+  --alert-bg-mix: hsl(var(--b1));
 }
 
 .avatar-group :where(.avatar) {
@@ -1009,6 +1089,10 @@ html {
   }
 }
 
+.toast > * {
+  animation: toast-pop 0.25s ease-out;
+}
+
 @keyframes toast-pop {
   0% {
     transform: scale(0.9);
@@ -1053,9 +1137,23 @@ html {
   padding: 0px;
 }
 
+.btn-circle:where(.btn-xs) {
+  height: 1.5rem;
+  width: 1.5rem;
+  border-radius: 9999px;
+  padding: 0px;
+}
+
 .btn-circle:where(.btn-sm) {
   height: 2rem;
   width: 2rem;
+  border-radius: 9999px;
+  padding: 0px;
+}
+
+.btn-circle:where(.btn-md) {
+  height: 3rem;
+  width: 3rem;
   border-radius: 9999px;
   padding: 0px;
 }
@@ -1065,6 +1163,58 @@ html {
   width: 4rem;
   border-radius: 9999px;
   padding: 0px;
+}
+
+:where(.toast) {
+  right: 0px;
+  left: auto;
+  top: auto;
+  bottom: 0px;
+  --tw-translate-x: 0px;
+  --tw-translate-y: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.toast:where(.toast-start) {
+  right: auto;
+  left: 0px;
+  --tw-translate-x: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.toast:where(.toast-center) {
+  right: 50%;
+  left: 50%;
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.toast:where(.toast-end) {
+  right: 0px;
+  left: auto;
+  --tw-translate-x: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.toast:where(.toast-bottom) {
+  top: auto;
+  bottom: 0px;
+  --tw-translate-y: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.toast:where(.toast-middle) {
+  top: 50%;
+  bottom: auto;
+  --tw-translate-y: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.toast:where(.toast-top) {
+  top: 0px;
+  bottom: auto;
+  --tw-translate-y: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .avatar.online:before {
@@ -1163,6 +1313,14 @@ html {
   border-bottom-right-radius: var(--rounded-btn, 0.5rem);
 }
 
+.static {
+  position: static;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
 .m-20 {
   margin: 5rem;
 }
@@ -1218,6 +1376,10 @@ html {
   height: 1.25rem;
 }
 
+.h-6 {
+  height: 1.5rem;
+}
+
 .w-full {
   width: 100%;
 }
@@ -1245,6 +1407,10 @@ html {
 
 .w-\[400px\] {
   width: 400px;
+}
+
+.w-6 {
+  width: 1.5rem;
 }
 
 .max-w-lg {

@@ -5,6 +5,8 @@ use leptos::*;
 use leptos_router::*;
 use twilight_model::user::CurrentUser;
 
+use crate::site::components::ToastProvider;
+
 use super::errors;
 
 #[server(GetUser, "/api")]
@@ -25,14 +27,16 @@ pub fn Index(cx: Scope) -> impl IntoView {
     provide_context(cx, user);
 
     view! { cx,
-        <Router>
-            <Routes>
-                <Route path="/redirect-to-servers" view=RedirectToServers/>
+        <ToastProvider>
+            <Router>
+                <Routes>
+                    <Route path="/redirect-to-servers" view=RedirectToServers/>
 
-                <WebsiteRoutes/>
-                <DashboardRoutes/>
-            </Routes>
-        </Router>
+                    <WebsiteRoutes/>
+                    <DashboardRoutes/>
+                </Routes>
+            </Router>
+        </ToastProvider>
     }
 }
 
