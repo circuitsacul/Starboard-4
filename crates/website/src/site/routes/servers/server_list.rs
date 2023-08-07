@@ -1,4 +1,5 @@
 use leptos::*;
+use leptos_icons::*;
 use leptos_router::*;
 use twilight_model::user::CurrentUserGuild;
 
@@ -18,12 +19,52 @@ pub async fn get_guilds(cx: Scope) -> Result<Vec<CurrentUserGuild>, ServerFnErro
 
 #[component]
 pub fn ServerList(cx: Scope) -> impl IntoView {
-    let guilds = create_resource(cx, move || (), move |_| get_guilds(cx));
+    let guilds = create_local_resource(cx, move || (), move |_| get_guilds(cx));
+
+    let guild_cards = move || {
+        guilds.with(cx, move |guilds| {
+            guilds.clone().map(move |guilds| {
+                view! { cx,
+                    <For
+                        each=move || guilds.clone()
+                        key=|g| g.id
+                        view=move |cx, g| view! { cx, <ServerCard guild=g/> }
+                    />
+                }
+            })
+        })
+    };
+    view! { cx,
+        <div class="flex justify-center">
+            <div class="max-w-4xl m-12 mt-0">
+                <Suspense fallback=|| ()>{guild_cards}</Suspense>
+            </div>
+        </div>
+    }
+}
+
+#[component]
+fn ServerCard(cx: Scope, guild: CurrentUserGuild) -> impl IntoView {
+    let icon_url = guild
+        .icon
+        .map(|icon| format!("https://cdn.discordapp.com/icons/{}/{}.png", guild.id, icon));
 
     view! { cx,
-        <A href="945149610484195398" class="link">
-            "Go to server"
+        <A href=guild.id.to_string()>
+            <button class="btn btn-lg btn-block btn-ghost my-2 normal-case">
+                {icon_url
+                    .map(|url| {
+                        view! { cx,
+                            <div class="avatar">
+                                <div class="w-12 mask mask-squircle">
+                                    <img src=url/>
+                                </div>
+                            </div>
+                        }
+                    })}
+                <div class="flex-1 text-left">{guild.name}</div>
+                <Icon icon=crate::icon!(FaChevronRightSolid)/>
+            </button>
         </A>
-        <Suspense fallback=|| ()>{move || guilds.with(cx, |d| format!("{d:?}"))}</Suspense>
     }
 }
