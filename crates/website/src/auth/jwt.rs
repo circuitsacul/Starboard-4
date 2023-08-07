@@ -1,5 +1,4 @@
 use jwt_simple::prelude::*;
-use oauth2::AccessToken;
 use serde::{Deserialize, Serialize};
 use twilight_model::id::{marker::UserMarker, Id};
 
@@ -7,21 +6,11 @@ use twilight_model::id::{marker::UserMarker, Id};
 pub struct AuthClaims {
     /// The ID of the authenticated user.
     pub user_id: Id<UserMarker>,
-    /// The oauth2 token of the authenticated user.
-    ///
-    /// This is stored, unencrypted, in the cookies
-    /// of the clients browser. This is safe because
-    /// the oauth2 tokens we generate only ever have
-    /// the "identify" and "guilds" scope.
-    pub user_token: AccessToken,
 }
 
 impl AuthClaims {
-    pub fn new(user_id: Id<UserMarker>, user_token: AccessToken) -> Self {
-        Self {
-            user_id,
-            user_token,
-        }
+    pub fn new(user_id: Id<UserMarker>) -> Self {
+        Self { user_id }
     }
 
     pub fn build(self) -> JWTClaims<Self> {

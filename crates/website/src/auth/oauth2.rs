@@ -100,7 +100,7 @@ pub async fn finish_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
     let http = twilight_http::Client::new(format!("Bearer {}", token.secret()));
     let user = http.current_user().await?.model().await?;
 
-    let claims = AuthClaims::new(user.id, token).build();
+    let claims = AuthClaims::new(user.id).build();
     let jwt = jwt_key.authenticate(claims.clone()).unwrap();
 
     let acx = AuthContext { http, claims };
