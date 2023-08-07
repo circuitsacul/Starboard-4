@@ -1,6 +1,8 @@
 use leptos::*;
 
 #[cfg(feature = "ssr")]
+use actix_web::web::Query;
+#[cfg(feature = "ssr")]
 use actix_web::{
     cookie::{Cookie, SameSite},
     http::header::SET_COOKIE,
@@ -8,12 +10,16 @@ use actix_web::{
 #[cfg(feature = "ssr")]
 use jwt_simple::prelude::MACLike;
 #[cfg(feature = "ssr")]
+use leptos_actix::redirect;
+#[cfg(feature = "ssr")]
 use leptos_actix::ResponseOptions;
 #[cfg(feature = "ssr")]
 use oauth2::{
     http::HeaderValue, reqwest::async_http_client, AuthorizationCode, CsrfToken, Scope,
     TokenResponse,
 };
+#[cfg(feature = "ssr")]
+use serde::Deserialize;
 
 #[cfg(feature = "ssr")]
 use crate::{jwt_key, oauth_client};
@@ -38,8 +44,8 @@ fn secure_cookie(name: &str, value: &str, samesite: bool) -> HeaderValue {
     HeaderValue::from_str(&cookie.to_string()).unwrap()
 }
 
-#[server(BeginAuthFlow, "/api")]
-pub async fn begin_auth_flow(cx: leptos::Scope) -> Result<String, ServerFnError> {
+#[server(BeginAuthFlow, "/api", "Url", "redirect")]
+pub async fn begin_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
     let client = oauth_client(cx);
 
     let response = expect_context::<ResponseOptions>(cx);
@@ -55,30 +61,37 @@ pub async fn begin_auth_flow(cx: leptos::Scope) -> Result<String, ServerFnError>
         secure_cookie("ExpectedOAuth2State", csrf.secret(), false),
     );
 
-    Ok(url.to_string())
+    redirect(cx, url.as_ref());
+
+    Ok(())
 }
 
-#[server(FinishAuthFlow, "/api")]
-pub async fn finish_auth_flow(
-    cx: leptos::Scope,
-    code: String,
+#[cfg(feature = "ssr")]
+#[derive(Deserialize)]
+struct QueryParams {
     state: String,
-) -> Result<(), ServerFnError> {
+    code: String,
+}
+
+#[server(FinishAuthFlow, "/api", "Url", "login")]
+pub async fn finish_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
     let req = expect_context::<actix_web::HttpRequest>(cx);
     let response = expect_context::<ResponseOptions>(cx);
     let client = oauth_client(cx);
     let jwt_key = jwt_key(cx);
 
-    if req
+    let query = Query::<QueryParams>::from_query(req.query_string())?;
+
+    if !req
         .cookie("ExpectedOAuth2State")
-        .map(|c| c.value().to_string())
-        != Some(state)
+        .map(|c| c.value() == query.state)
+        .unwrap_or(false)
     {
         return Err(ServerFnError::ServerError("Invalid state".to_string()));
     }
 
     let token = client
-        .exchange_code(AuthorizationCode::new(code))
+        .exchange_code(AuthorizationCode::new(query.code.clone()))
         .request_async(async_http_client)
         .await?
         .access_token()
@@ -94,6 +107,7 @@ pub async fn finish_auth_flow(
     acx.provide(cx);
 
     response.insert_header(SET_COOKIE, secure_cookie("SessionKey", &jwt, true));
+    redirect(cx, "/redirect-to-servers");
 
     Ok(())
 }

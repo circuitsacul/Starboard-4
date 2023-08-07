@@ -15,8 +15,7 @@ pub fn AuthRedirect(cx: Scope) -> impl IntoView {
                     res.with(
                         cx,
                         move |url| {
-                            url
-                                .clone()
+                            url.clone()
                                 .map(|url| {
                                     create_effect(
                                         cx,

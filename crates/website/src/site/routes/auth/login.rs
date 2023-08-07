@@ -23,23 +23,21 @@ pub fn Login(cx: Scope) -> impl IntoView {
                 "Something went wrong."
             }>
                 {move || {
-                    res
-                        .with(
-                            cx,
-                            move |res| {
-                                res
-                                    .clone()
-                                    .map(move |_| {
-                                        create_effect(
-                                            cx,
-                                            |_| {
-                                                window().location().assign("/servers").unwrap();
-                                            },
-                                        );
-                                        "Redirecting..."
-                                    })
-                            },
-                        )
+                    res.with(
+                        cx,
+                        move |res| {
+                            res.clone()
+                                .map(move |_| {
+                                    create_effect(
+                                        cx,
+                                        |_| {
+                                            window().location().assign("/servers").unwrap();
+                                        },
+                                    );
+                                    "Redirecting..."
+                                })
+                        },
+                    )
                 }}
 
             </ErrorBoundary>

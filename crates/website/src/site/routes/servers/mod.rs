@@ -10,22 +10,17 @@ use super::UserRes;
 pub fn Servers(cx: Scope) -> impl IntoView {
     let user = expect_context::<UserRes>(cx);
 
+    let red = move || {
+        user.with(cx, |u| {
+            if u.is_err() {
+                create_effect(cx, |_| {
+                    window().location().assign("/api/redirect").unwrap();
+                })
+            }
+        });
+    };
     view! { cx,
-        <Suspense fallback=|| ()>
-            {move || {
-                user.with(
-                    cx,
-                    |user| {
-                        if user.is_err() {
-                            Some(view! { cx, <Redirect path="/auth/redirect"/> })
-                        } else {
-                            None
-                        }
-                    },
-                )
-            }}
-
-        </Suspense>
+        <Suspense fallback=|| ()>{red}</Suspense>
         <Outlet/>
     }
 }

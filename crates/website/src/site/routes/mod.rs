@@ -1,4 +1,3 @@
-pub mod auth;
 pub mod servers;
 pub mod website;
 
@@ -28,14 +27,20 @@ pub fn Index(cx: Scope) -> impl IntoView {
     view! { cx,
         <Router>
             <Routes>
-                <Route path="/auth/redirect" view=auth::redirect::AuthRedirect/>
-                <Route path="/auth/login" view=auth::login::Login/>
+                <Route path="/redirect-to-servers" view=RedirectToServers/>
 
                 <WebsiteRoutes/>
                 <DashboardRoutes/>
             </Routes>
         </Router>
     }
+}
+
+#[component]
+fn RedirectToServers(cx: Scope) -> impl IntoView {
+    create_effect(cx, |_| window().location().assign("/servers"));
+
+    view! { cx, "Redirecting..." }
 }
 
 #[component(transparent)]
