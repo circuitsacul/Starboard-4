@@ -19,10 +19,14 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
 
     let title = move |cx| {
         guild.with(cx, |g| {
-            g.as_ref()
-                .ok()
-                .and_then(|g| g.as_ref())
-                .map(|g| g.http.name.to_owned())
+            g.as_ref().ok().and_then(|g| g.as_ref()).map(|g| {
+                let name = &g.http.name;
+                if name.len() > 23 {
+                    format!("{}...", &name[0..20])
+                } else {
+                    name.to_owned()
+                }
+            })
         })
     };
 
@@ -40,7 +44,7 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
             </div>
             <div class="drawer-side">
                 <label for="my-drawer-2" class="drawer-overlay"></label>
-                <ul class="menu p-4 w-80 h-full bg-base-100 text-base-content flex flex-col space-y-2">
+                <ul class="menu p-4 w-60 h-full bg-base-100 text-base-content flex flex-col space-y-2">
                     <li>
                         <A href="/servers" class="btn btn-sm btn-ghost normal-case">
                             <Icon icon=crate::icon!(FaChevronLeftSolid)/>

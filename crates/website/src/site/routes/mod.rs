@@ -30,10 +30,14 @@ pub fn Index(cx: Scope) -> impl IntoView {
         <ToastProvider>
             <Router>
                 <Routes>
-                    <Route path="/redirect-to-servers" view=RedirectToServers/>
+                    <Route path="" view=website::Website>
+                        <Route path="/redirect-to-servers" view=RedirectToServers/>
+                        <Route path="" view=website::home::Home/>
 
-                    <WebsiteRoutes/>
-                    <DashboardRoutes/>
+                        <DashboardRoutes/>
+
+                        <Route path="/*any" view=errors::not_found::NotFound/>
+                    </Route>
                 </Routes>
             </Router>
         </ToastProvider>
@@ -48,26 +52,15 @@ fn RedirectToServers(cx: Scope) -> impl IntoView {
 }
 
 #[component(transparent)]
-fn WebsiteRoutes(cx: Scope) -> impl IntoView {
-    view! { cx,
-        <Route path="" view=website::Website>
-            <Route path="" view=website::home::Home/>
-            <Route path="/servers" view=servers::Servers>
-                <Route path="" view=servers::server_list::ServerList/>
-            </Route>
-
-            <Route path="/*any" view=errors::not_found::NotFound/>
-        </Route>
-    }
-}
-
-#[component(transparent)]
 fn DashboardRoutes(cx: Scope) -> impl IntoView {
     view! { cx,
         <Route path="/servers" view=servers::Servers>
+            <Route path="" view=servers::server_list::ServerList/>
             <Route path=":id" view=servers::id::Server>
                 <Route path="" view=servers::id::overview::Overview/>
                 <Route path="/starboards" view=servers::id::starboards::Starboards/>
+
+                <Route path="/*any" view=errors::not_found::NotFound/>
             </Route>
 
             <Route path="/*any" view=errors::not_found::NotFound/>
