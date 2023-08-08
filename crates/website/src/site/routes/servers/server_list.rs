@@ -46,7 +46,7 @@ pub fn ServerList(cx: Scope) -> impl IntoView {
     };
     view! { cx,
         <div class="flex justify-center">
-            <div class="max-w-4xl m-12 mt-0">
+            <div class="max-w-4xl w-full">
                 <ToastedSusp fallback=susp>{guild_cards}</ToastedSusp>
             </div>
         </div>
@@ -56,12 +56,12 @@ pub fn ServerList(cx: Scope) -> impl IntoView {
 #[component]
 fn ServerCardSkeleton(cx: Scope) -> impl IntoView {
     view! { cx,
-        <button class="btn btn-lg btn-block btn-ghost my-2 normal-case btn-disabled !bg-transparent animate-pulse">
+        <button class="btn btn-lg btn-block btn-ghost my-2 normal-case !flex-nowrap btn-disabled !bg-transparent animate-pulse">
             <div class="avatar">
                 <div class="w-12 mask mask-squircle bg-gray-700 bg-opacity-30"></div>
             </div>
-            <div class="flex-1">
-                <div class="h-5 bg-gray-700 bg-opacity-30 rounded-full w-[400px]"></div>
+            <div class="flex-1 truncate">
+                <div class="h-5 bg-gray-700 bg-opacity-30 rounded-full w-[200px]"></div>
             </div>
             <Icon icon=crate::icon!(FaChevronRightSolid)/>
         </button>
@@ -75,30 +75,32 @@ fn ServerCard(cx: Scope, guild: CurrentUserGuild) -> impl IntoView {
         .map(|icon| format!("https://cdn.discordapp.com/icons/{}/{}.png", guild.id, icon));
 
     view! { cx,
-        <A href=guild.id.to_string()>
-            <button class="btn btn-lg btn-block btn-ghost my-2 normal-case">
-                {match icon_url {
-                    Some(url) => {
-                        view! { cx,
-                            <div class="avatar">
-                                <div class="w-12 mask mask-squircle">
-                                    <img src=url/>
-                                </div>
+        <A
+            href=guild.id.to_string()
+            class="btn btn-lg btn-block btn-ghost my-2 normal-case !flex-nowrap"
+        >
+            {match icon_url {
+                Some(url) => {
+                    view! { cx,
+                        <div class="avatar">
+                            <div class="w-12 mask mask-squircle">
+                                <img src=url/>
                             </div>
-                        }
+                        </div>
                     }
-                    None => {
+                }
+                None => {
 
-                        view! { cx,
-                            <div class="avatar">
-                                <div class="w-12 mask mask-squircle bg-gray-500"></div>
-                            </div>
-                        }
+                    view! { cx,
+                        <div class="avatar">
+                            <div class="w-12 mask mask-squircle bg-gray-500"></div>
+                        </div>
                     }
-                }}
-                <div class="flex-1 text-left">{guild.name}</div>
-                <Icon icon=crate::icon!(FaChevronRightSolid)/>
-            </button>
+                }
+            }}
+
+            <div class="flex-1 text-left truncate">{guild.name}</div>
+            <Icon icon=crate::icon!(FaChevronRightSolid)/>
         </A>
     }
 }

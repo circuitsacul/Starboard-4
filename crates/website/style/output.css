@@ -2325,6 +2325,10 @@ html {
   width: 15rem;
 }
 
+.w-\[200px\] {
+  width: 200px;
+}
+
 .max-w-lg {
   max-width: 32rem;
 }
@@ -2365,6 +2369,14 @@ html {
 
 .flex-col {
   flex-direction: column;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+.\!flex-nowrap {
+  flex-wrap: nowrap !important;
 }
 
 .content-start {
@@ -2409,6 +2421,12 @@ html {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.5rem * var(--tw-space-x-reverse));
   margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .rounded-full {
@@ -2553,6 +2571,10 @@ html {
   padding: 2.5rem;
 }
 
+.p-0 {
+  padding: 0px;
+}
+
 .py-5 {
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
@@ -2648,6 +2670,10 @@ html {
 @media (min-width: 1024px) {
   .lg\:top-16 {
     top: 4rem;
+  }
+
+  .lg\:z-auto {
+    z-index: auto;
   }
 
   .lg\:hidden {

@@ -69,7 +69,7 @@ pub fn Server(cx: Scope) -> impl IntoView {
     );
     provide_context(cx, guild);
 
-    let red = move || {
+    let red = move |cx| {
         guild.with(cx, |g| {
             if matches!(g, Ok(None)) {
                 Some(Redirect(
@@ -95,7 +95,7 @@ pub fn Server(cx: Scope) -> impl IntoView {
     });
 
     view! { cx,
-        <Suspense fallback=|| ()>{red}</Suspense>
+        <Suspense fallback=|| ()>{move || red(cx)}</Suspense>
         <SideBar active=tab/>
     }
 }

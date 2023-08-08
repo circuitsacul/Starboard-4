@@ -4,7 +4,7 @@ use leptos::*;
 pub fn NavBar(cx: Scope) -> impl IntoView {
     view! { cx,
         <div class="navbar z-30 backdrop-blur-md fixed">
-            <div class = "flex-1 space-x-2">
+            <div class="flex-1 space-x-2">
                 <a href="/" class="btn btn-ghost normal-case text-xl">
                     Starboard
                 </a>
@@ -32,6 +32,6 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                 </a>
             </div>
         </div>
-        <div class="pt-16" />
+        <div class="pt-16"></div>
     }
 }
