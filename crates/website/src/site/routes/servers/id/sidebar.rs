@@ -42,9 +42,9 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
 
                 <Outlet/>
             </div>
-            <div class="drawer-side">
+            <div class="drawer-side lg:top-16 lg:h-min z-40">
                 <label for="my-drawer-2" class="drawer-overlay"></label>
-                <ul class="menu p-4 w-60 h-full bg-base-100 text-base-content flex flex-col space-y-2">
+                <ul class="menu p-4 w-60 h-full lg:h-min bg-base-100 text-base-content flex flex-col space-y-2">
                     <li>
                         <A href="/servers" class="btn btn-sm btn-ghost normal-case">
                             <Icon icon=crate::icon!(FaChevronLeftSolid)/>
