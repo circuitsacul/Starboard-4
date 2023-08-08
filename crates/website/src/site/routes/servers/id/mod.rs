@@ -6,7 +6,6 @@ use sidebar::{SideBar, Tab};
 
 use database::DbGuild;
 use leptos::*;
-use leptos_icons::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
 use twilight_model::guild::Guild;
@@ -98,29 +97,5 @@ pub fn Server(cx: Scope) -> impl IntoView {
     view! { cx,
         <Suspense fallback=|| ()>{red}</Suspense>
         <SideBar active=tab/>
-    }
-}
-
-#[component]
-fn ServerNavBar(cx: Scope) -> impl IntoView {
-    let guild = expect_context::<GuildContext>(cx);
-
-    let title = move || {
-        guild.with(cx, |g| {
-            g.as_ref()
-                .ok()
-                .and_then(|g| g.as_ref())
-                .map(|g| g.http.name.to_owned())
-        })
-    };
-    view! { cx,
-        <div class="navbar">
-            <div>
-                <A href="/servers" class="btn btn-sm btn-ghost normal-case">
-                    <Icon icon=crate::icon!(FaChevronLeftSolid)/>
-                    <Suspense fallback=|| ()>{title}</Suspense>
-                </A>
-            </div>
-        </div>
     }
 }
