@@ -61,8 +61,8 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                             .map(|link| {
                                 view! { cx,
                                     <li>
-                                        <a href=link.1 class="flex flex-row">
-                                            <span class="flex-1">{link.0}</span>
+                                        <a href=link.1 target="_blank">
+                                            {link.0}
                                             <Icon icon=crate::icon!(FaArrowUpRightFromSquareSolid)/>
                                         </a>
                                     </li>
