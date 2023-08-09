@@ -22,7 +22,7 @@ pub async fn get_guilds(cx: Scope) -> Result<Vec<CurrentUserGuild>, ServerFnErro
 pub fn ServerList(cx: Scope) -> impl IntoView {
     let guilds = create_local_resource(cx, move || (), move |_| get_guilds(cx));
 
-    let guild_cards = move || {
+    let guild_cards = move |cx| {
         guilds.with(cx, move |guilds| {
             guilds.clone().map(move |guilds| {
                 view! { cx,
@@ -35,7 +35,7 @@ pub fn ServerList(cx: Scope) -> impl IntoView {
             })
         })
     };
-    let susp = move || {
+    let susp = move |cx| {
         view! { cx,
             <For
                 each=move || 0..10
@@ -47,7 +47,7 @@ pub fn ServerList(cx: Scope) -> impl IntoView {
     view! { cx,
         <div class="flex justify-center">
             <div class="max-w-4xl w-full p-1">
-                <ToastedSusp fallback=susp>{guild_cards}</ToastedSusp>
+                <ToastedSusp fallback=move || susp(cx)>{move || guild_cards(cx)}</ToastedSusp>
             </div>
         </div>
     }

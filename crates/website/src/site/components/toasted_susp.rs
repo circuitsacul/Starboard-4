@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use instant::Instant;
 use leptos::*;
 use leptos_icons::*;
 
@@ -27,8 +26,7 @@ impl ToastType {
 pub struct Toast {
     pub typ: ToastType,
     pub msg: String,
-    pub ts: Instant,
-    pub lifespan: Duration,
+    pub id: u64,
 }
 
 impl Toast {
@@ -36,8 +34,7 @@ impl Toast {
         Self {
             typ: ToastType::Error,
             msg: msg.to_string(),
-            ts: Instant::now(),
-            lifespan: Duration::from_secs(5),
+            id: rand::random(),
         }
     }
 
@@ -45,8 +42,7 @@ impl Toast {
         Self {
             typ: ToastType::Warning,
             msg: msg.to_string(),
-            ts: Instant::now(),
-            lifespan: Duration::from_secs(5),
+            id: rand::random(),
         }
     }
 
@@ -54,8 +50,7 @@ impl Toast {
         Self {
             typ: ToastType::Info,
             msg: msg.to_string(),
-            ts: Instant::now(),
-            lifespan: Duration::from_secs(5),
+            id: rand::random(),
         }
     }
 
@@ -63,8 +58,7 @@ impl Toast {
         Self {
             typ: ToastType::Info,
             msg: msg.to_string(),
-            ts: Instant::now(),
-            lifespan: Duration::from_secs(5),
+            id: rand::random(),
         }
     }
 }
@@ -72,8 +66,7 @@ impl Toast {
 pub type ToastCx = RwSignal<Vec<Toast>>;
 
 pub fn toast(cx: Scope, toast: Toast) {
-    let lifespan = toast.lifespan;
-    let ts = toast.ts;
+    let id = toast.id;
     let toasts = expect_context::<ToastCx>(cx);
 
     toasts.update(|toasts| {
@@ -84,36 +77,37 @@ pub fn toast(cx: Scope, toast: Toast) {
         set_timeout(
             move || {
                 toasts.try_update(|toasts| {
-                    toasts.retain(|t| t.ts != ts);
+                    toasts.retain(|t| t.id != id);
                 });
             },
-            lifespan,
+            Duration::from_secs(5),
         )
     });
 }
 
 #[component]
 pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
-    let toasts: ToastCx = create_rw_signal(cx, Vec::<Toast>::new());
+    let toasts: ToastCx = create_rw_signal(cx, Vec::new());
     provide_context(cx, toasts);
 
-    let close = move |ts: Instant| {
-        toasts.update(|toasts| toasts.retain(|t| t.ts != ts));
+    let close = move |id: u64| {
+        toasts.update(|toasts| toasts.retain(|t| t.id != id));
     };
 
     view! { cx,
-        <div class="toast toast-end z-50">
+        <div class="toast toast-end">
             <For
                 each=move || toasts.get()
-                key=|t| t.ts
+                key=|t| format!("toast_{}", t.id)
                 view=move |cx, t| {
-                    let t = store_value(cx, t);
                     view! { cx,
-                        <div class=format!("z-50 alert {}", t.with_value(| t | t.typ.as_class()))>
-                            <span>{t.with_value(|t| t.msg.clone())}</span>
+                        <div class=format!(
+                            "z-50 alert {} max-w-lg flex flex-nowrap", t.typ.as_class()
+                        )>
+                            <div class="whitespace-break-spaces">{t.msg.clone()}</div>
                             <button
                                 class="btn btn-circle btn-sm btn-ghost"
-                                on:click=move |_| t.with_value(|t| close(t.ts))
+                                on:click=move |_| close(t.id)
                             >
                                 <Icon icon=crate::icon!(FaXmarkSolid)/>
                             </button>

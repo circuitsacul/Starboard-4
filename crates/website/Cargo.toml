@@ -36,7 +36,7 @@ twilight-http = { version = "0.15.2", optional = true }
 jwt-simple = { version = "0.11.6", optional = true }
 oauth2 = { version = "4.4.1", optional = true }
 dashmap = "5.5.0"
-instant = { version = "0.1.12", features=["wasm-bindgen", "inaccurate"] }
+rand = "0.8.5"
 
 [features]
 default = ["ssr", "hydrate", "csr"]
