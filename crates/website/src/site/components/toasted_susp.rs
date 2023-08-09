@@ -69,19 +69,21 @@ pub fn toast(cx: Scope, toast: Toast) {
     let id = toast.id;
     let toasts = expect_context::<ToastCx>(cx);
 
-    toasts.update(|toasts| {
-        toasts.push(toast);
-    });
-
     create_effect(cx, move |_| {
-        set_timeout(
-            move || {
-                toasts.try_update(|toasts| {
-                    toasts.retain(|t| t.id != id);
-                });
-            },
-            Duration::from_secs(5),
-        )
+        let toast = toast.clone();
+        request_animation_frame(move || {
+            toasts.update(|toasts| {
+                toasts.push(toast);
+            });
+            set_timeout(
+                move || {
+                    toasts.try_update(|toasts| {
+                        toasts.retain(|t| t.id != id);
+                    });
+                },
+                Duration::from_secs(5),
+            )
+        });
     });
 }
 
