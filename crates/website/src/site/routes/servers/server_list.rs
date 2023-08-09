@@ -4,34 +4,35 @@ use leptos_icons::*;
 use leptos_router::*;
 use twilight_model::user::CurrentUserGuild;
 
-#[server(GetGuilds, "/api")]
-pub async fn get_guilds(cx: Scope) -> Result<Vec<CurrentUserGuild>, ServerFnError> {
-    use super::get_manageable_guilds;
-
-    let Some(guilds) = get_manageable_guilds(cx).await else {
-        return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
-    };
-
-    let mut guilds: Vec<_> = guilds.iter().map(|(_, v)| v.clone()).collect();
-    guilds.sort_by(|l, r| l.name.cmp(&r.name));
-
-    Ok(guilds)
-}
-
 #[component]
 pub fn ServerList(cx: Scope) -> impl IntoView {
-    let guilds = create_resource(cx, move || (), move |_| get_guilds(cx));
+    let guilds = expect_context::<super::GuildsRes>(cx);
+    let sorted = create_memo(cx, move |_| {
+        guilds.read(cx).map(|guilds| {
+            guilds.map(|guilds| {
+                let mut guilds: Vec<_> = guilds.into_values().collect();
+                guilds.sort_by(|l, r| l.name.cmp(&r.name));
+                guilds
+            })
+        })
+    });
 
     let guild_cards = move |cx| {
-        guilds.with(cx, move |guilds| {
-            guilds.clone().map(move |guilds| {
-                view! { cx,
-                    <For
-                        each=move || guilds.clone()
-                        key=|g| g.id
-                        view=move |cx, g| view! { cx, <ServerCard guild=g/> }
-                    />
-                }
+        sorted.with(move |guilds| {
+            guilds.as_ref().map(move |guilds| {
+                guilds
+                    .as_ref()
+                    .map(|guilds| {
+                        let guilds = guilds.to_owned();
+                        view! { cx,
+                            <For
+                                each=move || guilds.clone()
+                                key=|g| g.id
+                                view=move |cx, g| view! { cx, <ServerCard guild=g.to_owned()/> }
+                            />
+                        }
+                    })
+                    .map_err(|e| (*e).to_owned())
             })
         })
     };

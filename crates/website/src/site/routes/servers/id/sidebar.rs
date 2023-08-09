@@ -15,16 +15,7 @@ pub enum Tab {
 
 #[component]
 pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
-    let guild = expect_context::<super::GuildContext>(cx);
-
-    let title = move |cx| {
-        guild.with(cx, |g| {
-            g.as_ref()
-                .ok()
-                .and_then(|g| g.as_ref())
-                .map(|g| g.http.name.to_owned())
-        })
-    };
+    let guild = expect_context::<super::BaseGuildCx>(cx);
 
     let cb: NodeRef<html::Input> = create_node_ref(cx);
     let close = move || {
@@ -48,7 +39,10 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
                     >
                         <Icon icon=crate::icon!(FaChevronLeftSolid)/>
                         <span class="truncate">
-                            <Transition fallback=|| ()>{move || title(cx)}</Transition>
+                            {move || guild.with(|guild| match guild {
+                                None => "".to_string(),
+                                Some(g) => g.name.clone(),
+                            })}
                         </span>
                     </A>
                     <div class="divider"></div>

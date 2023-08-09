@@ -8,7 +8,7 @@ use database::DbGuild;
 use leptos::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
-use twilight_model::guild::Guild;
+use twilight_model::{guild::Guild, id::Id, user::CurrentUserGuild};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuildData {
@@ -53,13 +53,35 @@ struct Props {
     id: u64,
 }
 
+pub type BaseGuildCx = Memo<Option<CurrentUserGuild>>;
+
 #[component]
 pub fn Server(cx: Scope) -> impl IntoView {
     let location = use_location(cx);
     let params = use_params::<Props>(cx);
+    let guild_id = create_memo(cx, move |_| params.with(|p| p.as_ref().ok().map(|p| p.id)));
+
+    let guilds = expect_context::<super::GuildsRes>(cx);
+    let base_guild: BaseGuildCx = create_memo(cx, move |_| {
+        let Some(guild_id) = guild_id.get() else {
+            return None;
+        };
+
+        guilds
+            .with(cx, |guilds| {
+                guilds
+                    .as_ref()
+                    .ok()
+                    .map(|guilds| guilds.get(&Id::new(guild_id)).cloned())
+            })
+            .flatten()
+            .flatten()
+    });
+    provide_context(cx, base_guild);
+
     let guild: GuildContext = create_resource(
         cx,
-        move || params.with(|p| p.as_ref().ok().map(|p| p.id)),
+        move || guild_id.get(),
         move |id| async move {
             let Some(id) = id else {
                 return Ok(None);
@@ -69,18 +91,9 @@ pub fn Server(cx: Scope) -> impl IntoView {
     );
     provide_context(cx, guild);
 
-    let red = move |cx| {
-        guild.with(cx, |g| {
-            if matches!(g, Ok(None)) {
-                Some(Redirect(
-                    cx,
-                    RedirectProps::builder().path("/servers").build(),
-                ))
-            } else {
-                None
-            }
-        })
-    };
+    let needs_invite = create_memo(cx, move |_| {
+        guild.with(cx, |g| matches!(g, Ok(None))).unwrap_or(false)
+    });
 
     let tab = create_memo(cx, move |_| {
         match location.pathname.get().split('/').last().unwrap_or("") {
@@ -95,7 +108,23 @@ pub fn Server(cx: Scope) -> impl IntoView {
     });
 
     view! { cx,
-        <Suspense fallback=|| ()>{move || red(cx)}</Suspense>
+        <InviteModal visible=needs_invite />
         <SideBar active=tab/>
+    }
+}
+
+#[component]
+fn InviteModal(cx: Scope, visible: Memo<bool>) -> impl IntoView {
+    view! {cx,
+        <dialog class=move || format!("modal {}", if visible.get() { "modal-open" } else { "" })>
+            <form method="dialog" class="modal-box">
+                <h3 class="font-bold text-lg">"Server Needs Setup"</h3>
+                <p class="py-4">"Please add Starboard to this server to continue."</p>
+                <div class="modal-action">
+                    <A class="btn btn-ghost" href="..">"Go Back"</A>
+                    <button class="btn btn-primary">"Invite"</button>
+                </div>
+            </form>
+        </dialog>
     }
 }
