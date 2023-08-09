@@ -25,14 +25,22 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
 
     view! { cx,
         <div class="navbar z-30 backdrop-blur-md bg-base-100/90 fixed">
-            {move || if show_hamburger.get() {
-                Some(view! {cx,
-                    <label for="dashboard-drawer" class="btn btn-ghost btn-square lg:hidden mr-2">
-                        <Icon icon=crate::icon!(FaBarsSolid) />
-                    </label>
-                })
-            } else { None }}
-
+            {move || {
+                if show_hamburger.get() {
+                    Some(
+                        view! { cx,
+                            <label
+                                for="dashboard-drawer"
+                                class="btn btn-ghost btn-square lg:hidden mr-2"
+                            >
+                                <Icon icon=crate::icon!(FaBarsSolid)/>
+                            </label>
+                        },
+                    )
+                } else {
+                    None
+                }
+            }}
             <div class="dropdown dropdown-hover lg:hidden">
                 <button class="btn btn-ghost normal-case text-xl">
                     Starboard
@@ -44,6 +52,7 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                         let _ = blur_active(cx);
                     }
                 >
+
                     <li>
                         <A href="">"Home"</A>
                     </li>
@@ -63,7 +72,6 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
 
                 </ul>
             </div>
-
             <div class="hidden lg:flex flex-1 space-x-2">
                 <A href="" class="btn btn-ghost normal-case text-xl">
                     "Starboard"
@@ -82,12 +90,10 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                 }}
 
             </div>
-
-            <div class="flex-1" />
-
+            <div class="flex-1"></div>
             <div>
                 <a class="btn btn-primary" href="/servers">
-                    <Icon icon=crate::icon!(FaGearSolid) />
+                    <Icon icon=crate::icon!(FaGearSolid)/>
                     <span class="hidden sm:inline">"Manage"</span>
                 </a>
             </div>
