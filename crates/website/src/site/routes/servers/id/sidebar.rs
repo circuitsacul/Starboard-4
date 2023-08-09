@@ -26,20 +26,21 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
         })
     };
 
+    let cb: NodeRef<html::Input> = create_node_ref(cx);
+    let close = move || {
+        cb.get_untracked().map(|cb| cb.set_checked(false)).unwrap();
+    };
+
     let maybe_active = move |tab: Tab| if tab == active.get() { "active" } else { "" };
 
     view! { cx,
         <div class="drawer lg:drawer-open">
-            <input id="my-drawer-2" type="checkbox" class="drawer-toggle"/>
+            <input _ref=cb id="dashboard-drawer" type="checkbox" class="drawer-toggle"/>
             <div class="drawer-content items-center">
-                <label for="my-drawer-2" class="btn btn-primary drawer-button lg:hidden">
-                    "Open drawer"
-                </label>
-
                 <Outlet/>
             </div>
             <div class="drawer-side lg:top-16 lg:h-min z-40 lg:z-auto">
-                <label for="my-drawer-2" class="drawer-overlay"></label>
+                <label for="dashboard-drawer" class="drawer-overlay"></label>
                 <div class="w-60 p-4 bg-base-100 text-base-content h-full lg:h-min">
                     <A
                         href="/servers"
@@ -51,7 +52,7 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
                         </span>
                     </A>
                     <div class="divider"></div>
-                    <ul class="menu p-0 flex flex-col space-y-2">
+                    <ul class="menu p-0 flex flex-col space-y-2" on:click=move |_| close()>
                         <li>
                             <A class=move || maybe_active(Tab::Overview) href="">
                                 "Overview"

@@ -46,7 +46,7 @@ pub fn ServerList(cx: Scope) -> impl IntoView {
     };
     view! { cx,
         <div class="flex justify-center">
-            <div class="max-w-4xl w-full">
+            <div class="max-w-4xl w-full p-1">
                 <ToastedSusp fallback=susp>{guild_cards}</ToastedSusp>
             </div>
         </div>
@@ -60,8 +60,8 @@ fn ServerCardSkeleton(cx: Scope) -> impl IntoView {
             <div class="avatar">
                 <div class="w-12 mask mask-squircle bg-gray-700 bg-opacity-30"></div>
             </div>
-            <div class="flex-1 truncate">
-                <div class="h-5 bg-gray-700 bg-opacity-30 rounded-full w-[200px]"></div>
+            <div class="flex-1">
+                <div class="h-5 bg-gray-700 bg-opacity-30 rounded-full w-full max-w-[250px]"></div>
             </div>
             <Icon icon=crate::icon!(FaChevronRightSolid)/>
         </button>
