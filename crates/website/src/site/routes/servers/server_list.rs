@@ -20,7 +20,7 @@ pub async fn get_guilds(cx: Scope) -> Result<Vec<CurrentUserGuild>, ServerFnErro
 
 #[component]
 pub fn ServerList(cx: Scope) -> impl IntoView {
-    let guilds = create_local_resource(cx, move || (), move |_| get_guilds(cx));
+    let guilds = create_resource(cx, move || (), move |_| get_guilds(cx));
 
     let guild_cards = move |cx| {
         guilds.with(cx, move |guilds| {
