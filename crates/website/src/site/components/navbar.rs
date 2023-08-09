@@ -24,7 +24,7 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
     };
 
     view! { cx,
-        <div class="navbar z-30 backdrop-blur-md bg-base-100/90 fixed">
+        <div class="navbar z-30 backdrop-blur bg-base-100/70 fixed">
             {move || {
                 if show_hamburger.get() {
                     Some(
