@@ -20,7 +20,23 @@ pub type GuildContext = Resource<Option<u64>, Result<Option<GuildData>, ServerFn
 
 #[server(GetGuild, "/api")]
 pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFnError> {
+    use crate::auth::context::AuthContext;
     use twilight_model::id::Id;
+
+    let Some(acx) = AuthContext::get(cx) else {
+        return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
+    };
+    if !acx
+        .guilds
+        .lock()?
+        .as_ref()
+        .map(|g| g.contains_key(&Id::new(id)))
+        .unwrap_or(false)
+    {
+        return Err(ServerFnError::ServerError(
+            "You don't have permission to manage this server.".to_string(),
+        ));
+    }
 
     let db = crate::db(cx);
     let http = crate::bot_http(cx);
