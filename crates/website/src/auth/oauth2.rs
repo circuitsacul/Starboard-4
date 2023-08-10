@@ -30,15 +30,11 @@ use super::context::AuthContext;
 use super::jwt::AuthClaims;
 
 #[cfg(feature = "ssr")]
-fn secure_cookie(name: &str, value: &str, samesite: bool) -> HeaderValue {
+fn secure_cookie(name: &str, value: &str) -> HeaderValue {
     let cookie = Cookie::build(name, value)
         .http_only(true)
         .secure(true)
-        .same_site(if samesite {
-            SameSite::Strict
-        } else {
-            SameSite::Lax
-        })
+        .same_site(SameSite::Lax)
         .path("/")
         .finish();
     HeaderValue::from_str(&cookie.to_string()).unwrap()
@@ -58,7 +54,7 @@ pub async fn begin_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
 
     response.insert_header(
         SET_COOKIE,
-        secure_cookie("ExpectedOAuth2State", csrf.secret(), false),
+        secure_cookie("ExpectedOAuth2State", csrf.secret()),
     );
 
     redirect(cx, url.as_ref());
@@ -106,8 +102,8 @@ pub async fn finish_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
     let acx = AuthContext::new(http, claims, user);
     acx.provide(cx);
 
-    response.insert_header(SET_COOKIE, secure_cookie("SessionKey", &jwt, true));
-    redirect(cx, "/redirect-to-servers");
+    response.insert_header(SET_COOKIE, secure_cookie("SessionKey", &jwt));
+    redirect(cx, "/servers");
 
     Ok(())
 }

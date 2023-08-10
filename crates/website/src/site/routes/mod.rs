@@ -31,7 +31,6 @@ pub fn Index(cx: Scope) -> impl IntoView {
             <Router>
                 <Routes>
                     <Route path="" view=website::Website>
-                        <Route path="/redirect-to-servers" view=RedirectToServers/>
                         <Route path="" view=website::home::Home/>
 
                         <DashboardRoutes/>
@@ -42,13 +41,6 @@ pub fn Index(cx: Scope) -> impl IntoView {
             </Router>
         </ToastProvider>
     }
-}
-
-#[component]
-fn RedirectToServers(cx: Scope) -> impl IntoView {
-    create_effect(cx, |_| window().location().assign("/servers"));
-
-    view! { cx, "Redirecting..." }
 }
 
 #[component(transparent)]
