@@ -2,7 +2,7 @@ use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
 
-use crate::site::routes::servers::id::get_base_guild;
+use crate::site::routes::servers::id::BaseGuildSuspense;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tab {
@@ -39,9 +39,7 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
                     >
                         <Icon icon=crate::icon!(FaChevronLeftSolid)/>
                         <span class="truncate">
-                            <Suspense fallback=|| ()>
-                                {move || get_base_guild(cx).map(|g| g.name.clone())}
-                            </Suspense>
+                            <BaseGuildSuspense fallback=move || () child=move |g| g.name.clone()/>
                         </span>
                     </A>
                     <div class="divider"></div>

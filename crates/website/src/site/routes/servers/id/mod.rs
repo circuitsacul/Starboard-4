@@ -14,6 +14,8 @@ use twilight_model::{
     user::CurrentUserGuild,
 };
 
+use crate::site::components::ToastedSusp;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuildData {
     pub db: DbGuild,
@@ -22,6 +24,60 @@ pub struct GuildData {
 
 pub type GuildContext = Resource<Option<u64>, Result<Option<GuildData>, ServerFnError>>;
 pub type GuildIdContext = Memo<Option<Id<GuildMarker>>>;
+
+#[component]
+pub fn BaseGuildSuspense<F, FIV, C, CIV>(cx: Scope, fallback: F, child: C) -> impl IntoView
+where
+    F: Fn() -> FIV + 'static,
+    FIV: IntoView,
+    C: Fn(CurrentUserGuild) -> CIV + 'static,
+    CIV: IntoView,
+{
+    let fallback = store_value(cx, fallback);
+    let child = store_value(cx, child);
+
+    view! { cx,
+        <Suspense fallback=move || {
+            fallback.with_value(|f| f())
+        }>
+            {move || match get_base_guild(cx) {
+                Some(g) => child.with_value(|f| f(g)).into_view(cx),
+                None => fallback.with_value(|f| f()).into_view(cx),
+            }}
+
+        </Suspense>
+    }
+}
+
+#[component]
+pub fn FlatGuildSuspense<F, FIV, C, CIV>(cx: Scope, fallback: F, child: C) -> impl IntoView
+where
+    F: Fn() -> FIV + 'static,
+    FIV: IntoView,
+    C: Fn(GuildData) -> CIV + 'static,
+    CIV: IntoView,
+{
+    let fallback = store_value(cx, fallback);
+    let child = store_value(cx, child);
+
+    view! { cx,
+        <Suspense fallback=move || {
+            fallback.with_value(|f| f())
+        }>
+            {move || match get_flat_guild(cx) {
+                Some(g) => child.with_value(|f| f(g)).into_view(cx),
+                None => fallback.with_value(|f| f()).into_view(cx),
+            }}
+
+        </Suspense>
+    }
+}
+
+pub fn get_flat_guild(cx: Scope) -> Option<GuildData> {
+    let guild = expect_context::<GuildContext>(cx);
+
+    guild.read(cx).and_then(|res| res.ok()).flatten()
+}
 
 pub fn get_base_guild(cx: Scope) -> Option<CurrentUserGuild> {
     let base_guilds = expect_context::<super::BaseGuildsResource>(cx);
@@ -114,10 +170,6 @@ pub fn Server(cx: Scope) -> impl IntoView {
     provide_context(cx, guild);
     provide_context(cx, guild_id);
 
-    let needs_invite = create_memo(cx, move |_| {
-        guild.with(cx, |g| matches!(g, Ok(None))).unwrap_or(false)
-    });
-
     let tab = create_memo(cx, move |_| {
         match location.pathname.get().split('/').last().unwrap_or("") {
             "starboards" => Tab::Starboards,
@@ -131,13 +183,17 @@ pub fn Server(cx: Scope) -> impl IntoView {
     });
 
     view! { cx,
-        <InviteModal visible=needs_invite />
+        <ToastedSusp fallback=|| ()>
+            {move || guild.with(cx, |g| g.as_ref().map(|_| ()).map_err(|e| e.clone()))}
+        </ToastedSusp>
+        <InviteModal/>
         <SideBar active=tab/>
     }
 }
 
 #[component]
-fn InviteModal(cx: Scope, visible: Memo<bool>) -> impl IntoView {
+fn InviteModal(cx: Scope) -> impl IntoView {
+    let guild = expect_context::<GuildContext>(cx);
     let guild_id = expect_context::<GuildIdContext>(cx);
     let url = create_memo(cx, move |_| {
         guild_id
@@ -145,16 +201,24 @@ fn InviteModal(cx: Scope, visible: Memo<bool>) -> impl IntoView {
             .map(|id| format!("/api/redirect?guild_id={id}"))
     });
 
-    view! {cx,
-        <dialog class=move || format!("modal {}", if visible.get() { "modal-open" } else { "" })>
-            <form method="dialog" class="modal-box">
-                <h3 class="font-bold text-lg">"Server Needs Setup"</h3>
-                <p class="py-4">"Please add Starboard to this server to continue."</p>
-                <div class="modal-action">
-                    <A class="btn btn-ghost" href="..">"Go Back"</A>
-                    <a class="btn btn-primary" href=move || url.get() rel="external">"Invite"</a>
-                </div>
-            </form>
-        </dialog>
+    let visible = move |cx: Scope| guild.with(cx, |g| matches!(g, Ok(None))).unwrap_or(false);
+
+    view! { cx,
+        <Suspense fallback=|| ()>
+            <dialog class=move || format!("modal {}", if visible(cx) { "modal-open" } else { "" })>
+                <form method="dialog" class="modal-box">
+                    <h3 class="font-bold text-lg">"Server Needs Setup"</h3>
+                    <p class="py-4">"Please add Starboard to this server to continue."</p>
+                    <div class="modal-action">
+                        <A class="btn btn-ghost" href="..">
+                            "Go Back"
+                        </A>
+                        <a class="btn btn-primary" href=move || url.get() rel="external">
+                            "Invite"
+                        </a>
+                    </div>
+                </form>
+            </dialog>
+        </Suspense>
     }
 }
