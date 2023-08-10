@@ -27,7 +27,8 @@ pub async fn get_manageable_guilds(cx: Scope) -> Option<Arc<Guilds>> {
 
     let acx = AuthContext::get(cx)?;
 
-    if let Some(guilds) = acx.guilds.lock().unwrap().clone() {
+    let _guard = acx.wlock.lock().await;
+    if let Some(guilds) = acx.guilds.read().await.clone() {
         return Some(guilds);
     }
 
@@ -45,8 +46,9 @@ pub async fn get_manageable_guilds(cx: Scope) -> Option<Arc<Guilds>> {
             .collect(),
     );
 
-    *acx.guilds.lock().unwrap() = Some(guilds.clone());
+    *acx.guilds.write().await = Some(guilds.clone());
 
+    std::mem::drop(_guard);
     Some(guilds)
 }
 

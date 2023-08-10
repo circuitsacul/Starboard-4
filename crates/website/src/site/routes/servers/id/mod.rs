@@ -39,19 +39,13 @@ pub fn get_base_guild(cx: Scope) -> Option<CurrentUserGuild> {
 }
 
 #[cfg(feature = "ssr")]
-pub fn can_manage_guild(cx: Scope, id: u64) -> Result<(), ServerFnError> {
-    use crate::auth::context::AuthContext;
+pub async fn can_manage_guild(cx: Scope, id: u64) -> Result<(), ServerFnError> {
+    use crate::site::routes::servers::get_manageable_guilds;
 
-    let Some(acx) = AuthContext::get(cx) else {
+    let Some(guilds) = get_manageable_guilds(cx).await else {
         return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
     };
-    if !acx
-        .guilds
-        .lock()?
-        .as_ref()
-        .map(|g| g.contains_key(&Id::new(id)))
-        .unwrap_or(false)
-    {
+    if !guilds.contains_key(&Id::new(id)) {
         return Err(ServerFnError::ServerError(
             "You don't have permission to manage this server.".to_string(),
         ));
@@ -64,7 +58,7 @@ pub fn can_manage_guild(cx: Scope, id: u64) -> Result<(), ServerFnError> {
 pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFnError> {
     use twilight_model::id::Id;
 
-    can_manage_guild(cx, id)?;
+    can_manage_guild(cx, id).await?;
 
     let db = crate::db(cx);
     let http = crate::bot_http(cx);
@@ -144,6 +138,13 @@ pub fn Server(cx: Scope) -> impl IntoView {
 
 #[component]
 fn InviteModal(cx: Scope, visible: Memo<bool>) -> impl IntoView {
+    let guild_id = expect_context::<GuildIdContext>(cx);
+    let url = create_memo(cx, move |_| {
+        guild_id
+            .get()
+            .map(|id| format!("/api/redirect?guild_id={id}"))
+    });
+
     view! {cx,
         <dialog class=move || format!("modal {}", if visible.get() { "modal-open" } else { "" })>
             <form method="dialog" class="modal-box">
@@ -151,7 +152,7 @@ fn InviteModal(cx: Scope, visible: Memo<bool>) -> impl IntoView {
                 <p class="py-4">"Please add Starboard to this server to continue."</p>
                 <div class="modal-action">
                     <A class="btn btn-ghost" href="..">"Go Back"</A>
-                    <button class="btn btn-primary">"Invite"</button>
+                    <a class="btn btn-primary" href=move || url.get() rel="external">"Invite"</a>
                 </div>
             </form>
         </dialog>

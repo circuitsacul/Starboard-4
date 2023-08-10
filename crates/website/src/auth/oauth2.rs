@@ -42,15 +42,29 @@ fn secure_cookie(name: &str, value: &str) -> HeaderValue {
 
 #[server(BeginAuthFlow, "/api", "Url", "redirect")]
 pub async fn begin_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
+    #[derive(Deserialize)]
+    struct QueryParams {
+        guild_id: Option<u64>,
+    }
+
     let client = oauth_client(cx);
 
     let response = expect_context::<ResponseOptions>(cx);
+    let req = expect_context::<actix_web::HttpRequest>(cx);
+    let query = Query::<QueryParams>::from_query(req.query_string())?;
 
-    let (url, csrf) = client
+    let mut builder = client
         .authorize_url(CsrfToken::new_random)
         .add_scope(Scope::new("identify".to_string()))
-        .add_scope(Scope::new("guilds".to_string()))
-        .url();
+        .add_scope(Scope::new("guilds".to_string()));
+
+    if let Some(id) = query.guild_id {
+        builder = builder
+            .add_scope(Scope::new("bot".to_string()))
+            .add_extra_param("guild_id", id.to_string());
+    }
+
+    let (url, csrf) = builder.url();
 
     response.insert_header(
         SET_COOKIE,
@@ -62,15 +76,15 @@ pub async fn begin_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
     Ok(())
 }
 
-#[cfg(feature = "ssr")]
-#[derive(Deserialize)]
-struct QueryParams {
-    state: String,
-    code: String,
-}
-
 #[server(FinishAuthFlow, "/api", "Url", "login")]
 pub async fn finish_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
+    #[derive(Deserialize)]
+    struct QueryParams {
+        state: String,
+        code: String,
+        guild_id: Option<u64>,
+    }
+
     let req = expect_context::<actix_web::HttpRequest>(cx);
     let response = expect_context::<ResponseOptions>(cx);
     let client = oauth_client(cx);
@@ -103,7 +117,12 @@ pub async fn finish_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
     acx.provide(cx);
 
     response.insert_header(SET_COOKIE, secure_cookie("SessionKey", &jwt));
-    redirect(cx, "/servers");
+
+    if let Some(id) = query.guild_id {
+        redirect(cx, &format!("/servers/{id}"));
+    } else {
+        redirect(cx, "/servers");
+    }
 
     Ok(())
 }

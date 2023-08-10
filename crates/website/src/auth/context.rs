@@ -1,11 +1,9 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 
 use actix_web::HttpRequest;
 use jwt_simple::prelude::JWTClaims;
 use leptos::*;
+use tokio::sync::{Mutex, RwLock};
 use twilight_http::Client;
 use twilight_model::{
     id::{marker::GuildMarker, Id},
@@ -22,7 +20,8 @@ pub struct AuthContext {
     pub http: Client,
     pub claims: JWTClaims<AuthClaims>,
     pub user: CurrentUser,
-    pub guilds: Mutex<Option<Arc<Guilds>>>,
+    pub guilds: RwLock<Option<Arc<Guilds>>>,
+    pub wlock: Mutex<()>,
 }
 
 impl AuthContext {
@@ -31,7 +30,8 @@ impl AuthContext {
             http,
             claims,
             user,
-            guilds: Mutex::new(None),
+            guilds: RwLock::new(None),
+            wlock: Mutex::new(()),
         }
     }
 
