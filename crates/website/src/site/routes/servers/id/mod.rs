@@ -8,7 +8,7 @@ use database::DbGuild;
 use leptos::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
-use twilight_model::{guild::Guild, id::Id, user::CurrentUserGuild};
+use twilight_model::guild::Guild;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuildData {
@@ -69,31 +69,11 @@ struct Props {
     id: u64,
 }
 
-pub type BaseGuildCx = Memo<Option<CurrentUserGuild>>;
-
 #[component]
 pub fn Server(cx: Scope) -> impl IntoView {
     let location = use_location(cx);
     let params = use_params::<Props>(cx);
     let guild_id = create_memo(cx, move |_| params.with(|p| p.as_ref().ok().map(|p| p.id)));
-
-    let guilds = expect_context::<super::GuildsRes>(cx);
-    let base_guild: BaseGuildCx = create_memo(cx, move |_| {
-        let Some(guild_id) = guild_id.get() else {
-            return None;
-        };
-
-        guilds
-            .with(cx, |guilds| {
-                guilds
-                    .as_ref()
-                    .ok()
-                    .map(|guilds| guilds.get(&Id::new(guild_id)).cloned())
-            })
-            .flatten()
-            .flatten()
-    });
-    provide_context(cx, base_guild);
 
     let guild: GuildContext = create_resource(
         cx,
@@ -105,6 +85,7 @@ pub fn Server(cx: Scope) -> impl IntoView {
             get_guild(cx, id).await
         },
     );
+
     provide_context(cx, guild);
 
     let needs_invite = create_memo(cx, move |_| {

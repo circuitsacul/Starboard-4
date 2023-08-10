@@ -68,7 +68,7 @@ pub fn Servers(cx: Scope) -> impl IntoView {
 
     let user = expect_context::<UserRes>(cx);
 
-    let red = move || {
+    let red = move |cx| {
         user.with(cx, |u| {
             if u.is_err() {
                 create_effect(cx, |_| {
@@ -78,7 +78,7 @@ pub fn Servers(cx: Scope) -> impl IntoView {
         });
     };
     view! { cx,
-        <Suspense fallback=|| ()>{red}</Suspense>
+        <Suspense fallback=|| ()>{move || red(cx)}</Suspense>
         <Outlet/>
     }
 }
