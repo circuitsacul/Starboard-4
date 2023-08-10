@@ -14,7 +14,10 @@ use twilight_model::{
 #[cfg(feature = "ssr")]
 use crate::auth::context::Guilds;
 
-use super::UserRes;
+use super::UserResource;
+
+pub type BaseGuildsResource =
+    Resource<(), Result<HashMap<Id<GuildMarker>, CurrentUserGuild>, ServerFnError>>;
 
 #[cfg(feature = "ssr")]
 pub async fn get_manageable_guilds(cx: Scope) -> Option<Arc<Guilds>> {
@@ -55,18 +58,15 @@ pub async fn get_guilds(
         return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
     };
 
-    Ok(guilds.as_ref().to_owned().into_iter().collect())
+    Ok(guilds.iter().map(|(k, v)| (*k, v.clone())).collect())
 }
-
-pub type GuildsRes =
-    Resource<(), Result<HashMap<Id<GuildMarker>, CurrentUserGuild>, ServerFnError>>;
 
 #[component]
 pub fn Servers(cx: Scope) -> impl IntoView {
-    let guilds: GuildsRes = create_resource(cx, move || (), move |_| get_guilds(cx));
+    let guilds: BaseGuildsResource = create_resource(cx, move || (), move |_| get_guilds(cx));
     provide_context(cx, guilds);
 
-    let user = expect_context::<UserRes>(cx);
+    let user = expect_context::<UserResource>(cx);
 
     let red = move |cx| {
         user.with(cx, |u| {

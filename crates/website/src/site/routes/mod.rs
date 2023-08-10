@@ -9,6 +9,8 @@ use crate::site::components::ToastProvider;
 
 use super::errors;
 
+pub type UserResource = Resource<(), Result<CurrentUser, ServerFnError>>;
+
 #[server(GetUser, "/api")]
 pub async fn get_user(cx: Scope) -> Result<CurrentUser, ServerFnError> {
     use crate::auth::context::AuthContext;
@@ -19,11 +21,9 @@ pub async fn get_user(cx: Scope) -> Result<CurrentUser, ServerFnError> {
     Ok(acx.user.clone())
 }
 
-pub type UserRes = Resource<(), Result<CurrentUser, ServerFnError>>;
-
 #[component]
 pub fn Index(cx: Scope) -> impl IntoView {
-    let user: UserRes = create_resource(cx, || (), move |_| get_user(cx));
+    let user: UserResource = create_resource(cx, || (), move |_| get_user(cx));
     provide_context(cx, user);
 
     view! { cx,

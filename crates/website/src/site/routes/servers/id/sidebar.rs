@@ -2,6 +2,8 @@ use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
 
+use crate::site::routes::servers::id::get_base_guild;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tab {
     Overview,
@@ -15,8 +17,6 @@ pub enum Tab {
 
 #[component]
 pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
-    let guild = expect_context::<super::GuildContext>(cx);
-
     let cb: NodeRef<html::Input> = create_node_ref(cx);
     let close = move || {
         cb.get_untracked().map(|cb| cb.set_checked(false)).unwrap();
@@ -40,9 +40,7 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
                         <Icon icon=crate::icon!(FaChevronLeftSolid)/>
                         <span class="truncate">
                             <Suspense fallback=|| ()>
-                                {move || {
-                                    guild.read(cx).map(|g| g.map(|g| g.map(|g| g.http.name.clone())))
-                                }}
+                                {move || get_base_guild(cx).map(|g| g.name.clone())}
                             </Suspense>
                         </span>
                     </A>

@@ -6,7 +6,7 @@ use twilight_model::user::CurrentUserGuild;
 
 #[component]
 pub fn ServerList(cx: Scope) -> impl IntoView {
-    let guilds = expect_context::<super::GuildsRes>(cx);
+    let guilds = expect_context::<super::BaseGuildsResource>(cx);
     let sorted = create_memo(cx, move |_| {
         guilds.read(cx).map(|guilds| {
             guilds.map(|guilds| {
