@@ -38,10 +38,9 @@ pub fn get_base_guild(cx: Scope) -> Option<CurrentUserGuild> {
         .flatten()
 }
 
-#[server(GetGuild, "/api")]
-pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFnError> {
+#[cfg(feature = "ssr")]
+pub fn can_manage_guild(cx: Scope, id: u64) -> Result<(), ServerFnError> {
     use crate::auth::context::AuthContext;
-    use twilight_model::id::Id;
 
     let Some(acx) = AuthContext::get(cx) else {
         return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
@@ -57,6 +56,15 @@ pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFn
             "You don't have permission to manage this server.".to_string(),
         ));
     }
+
+    Ok(())
+}
+
+#[server(GetGuild, "/api")]
+pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFnError> {
+    use twilight_model::id::Id;
+
+    can_manage_guild(cx, id)?;
 
     let db = crate::db(cx);
     let http = crate::bot_http(cx);
@@ -93,6 +101,7 @@ struct Props {
 pub fn Server(cx: Scope) -> impl IntoView {
     let location = use_location(cx);
     let params = use_params::<Props>(cx);
+
     let guild_id: GuildIdContext = create_memo(cx, move |_| {
         params.with(|p| p.as_ref().ok().map(|p| Id::new(p.id)))
     });
@@ -102,7 +111,7 @@ pub fn Server(cx: Scope) -> impl IntoView {
         move || guild_id.get().map(|id| id.get()),
         move |id| async move {
             let Some(id) = id else {
-                return Ok(None);
+                return Err(ServerFnError::Args("Invalid request.".to_string()));
             };
             get_guild(cx, id).await
         },
