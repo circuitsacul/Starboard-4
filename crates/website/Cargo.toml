@@ -25,6 +25,7 @@ leptos_icons = { version = "0.0.15", features = [
     "FaChevronLeftSolid",
     "FaChevronRightSolid",
     "FaArrowUpRightFromSquareSolid",
+    "FaPlusSolid",
     "FaXmarkSolid",
     "FaGearSolid",
     "FaBarsSolid",

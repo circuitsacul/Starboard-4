@@ -2,6 +2,8 @@ pub mod overview;
 mod sidebar;
 pub mod starboards;
 
+use std::collections::HashMap;
+
 use sidebar::{SideBar, Tab};
 
 use database::DbGuild;
@@ -9,8 +11,12 @@ use leptos::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
 use twilight_model::{
+    channel::Channel,
     guild::Guild,
-    id::{marker::GuildMarker, Id},
+    id::{
+        marker::{ChannelMarker, GuildMarker},
+        Id,
+    },
     user::CurrentUserGuild,
 };
 
@@ -20,6 +26,7 @@ use crate::site::components::ToastedSusp;
 pub struct GuildData {
     pub db: DbGuild,
     pub http: Guild,
+    pub channels: HashMap<Id<ChannelMarker>, Channel>,
 }
 
 pub type GuildContext = Resource<Option<u64>, Result<Option<GuildData>, ServerFnError>>;
@@ -96,6 +103,12 @@ pub fn get_base_guild(cx: Scope) -> Option<CurrentUserGuild> {
 
 #[cfg(feature = "ssr")]
 pub async fn can_manage_guild(cx: Scope, id: u64) -> Result<(), ServerFnError> {
+    if id == 0 {
+        return Err(ServerFnError::ServerError(
+            "ah yes, the 0 snowflake".to_string(),
+        ));
+    }
+
     use crate::site::routes::servers::get_manageable_guilds;
 
     let Some(guilds) = get_manageable_guilds(cx).await else {
@@ -129,6 +142,14 @@ pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFn
             }
         }
     };
+    let channels = http
+        .guild_channels(Id::new(id))
+        .await?
+        .models()
+        .await?
+        .into_iter()
+        .map(|c| (c.id, c))
+        .collect();
     let db_guild = match DbGuild::create(&db, id as i64).await? {
         Some(v) => v,
         None => DbGuild::get(&db, id as i64)
@@ -139,12 +160,13 @@ pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFn
     Ok(Some(GuildData {
         db: db_guild,
         http: http_guild,
+        channels,
     }))
 }
 
 #[derive(Params, PartialEq)]
 struct Props {
-    id: u64,
+    guild_id: u64,
 }
 
 #[component]
@@ -153,7 +175,7 @@ pub fn Server(cx: Scope) -> impl IntoView {
     let params = use_params::<Props>(cx);
 
     let guild_id: GuildIdContext = create_memo(cx, move |_| {
-        params.with(|p| p.as_ref().ok().map(|p| Id::new(p.id)))
+        params.with(|p| p.as_ref().ok().map(|p| Id::new(p.guild_id)))
     });
 
     let guild: GuildContext = create_resource(
@@ -171,7 +193,7 @@ pub fn Server(cx: Scope) -> impl IntoView {
     provide_context(cx, guild_id);
 
     let tab = create_memo(cx, move |_| {
-        match location.pathname.get().split('/').last().unwrap_or("") {
+        match location.pathname.get().split('/').nth(3).unwrap_or("") {
             "starboards" => Tab::Starboards,
             "overrides" => Tab::Overrides,
             "filters" => Tab::Filters,
