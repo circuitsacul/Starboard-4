@@ -97,14 +97,14 @@ pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
     };
 
     view! { cx,
-        <div class="toast toast-end">
+        <div class="toast toast-end z-50 p-0 m-0 gap-0">
             <For
                 each=move || toasts.get()
                 key=|t| format!("toast_{}", t.id)
                 view=move |cx, t| {
                     view! { cx,
                         <div class=format!(
-                            "z-50 alert {} max-w-lg flex flex-nowrap", t.typ.as_class()
+                            "mb-4 mr-4 z-40 alert {} max-w-lg flex flex-nowrap", t.typ.as_class()
                         )>
                             <div class="whitespace-break-spaces">{t.msg.clone()}</div>
                             <button
@@ -117,7 +117,6 @@ pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
                     }
                 }
             />
-
         </div>
         {children(cx)}
     }
