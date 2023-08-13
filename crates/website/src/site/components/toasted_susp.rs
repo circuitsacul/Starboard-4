@@ -117,6 +117,7 @@ pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
                     }
                 }
             />
+
         </div>
         {children(cx)}
     }
@@ -138,7 +139,9 @@ where
                     toast(cx, Toast::error(err.to_string()));
                 }
                 fallback.with_value(|f| f())
-            }><div>{children.with_value(|c| c(cx))}</div></ErrorBoundary>
+            }>
+                <div>{children.with_value(|c| c(cx))}</div>
+            </ErrorBoundary>
         </Suspense>
     }
 }

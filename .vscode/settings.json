@@ -1,8 +1,4 @@
 {
-  "emmet.includeLanguages": {
-    "rust": "html",
-    "*.rs": "html"
-  },
   "tailwindCSS.includeLanguages": {
     "rust": "html",
     "*.rs": "html"

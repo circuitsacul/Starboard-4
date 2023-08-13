@@ -81,29 +81,28 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
         let title = store_value(cx, title);
         starboards.read(cx).map(|sb| sb.map(|sb| {
             let sb = store_value(cx, sb);
-            view! {cx,
+            view! { cx,
                 <For
                     each=move || sb.with_value(|sb| sb.clone())
                     key=|sb| sb.0
-                    view=move |cx, sb| view! {cx, <Card title=title.with_value(|f| f(&sb.1)) href=sb.0.to_string()/>}
+                    view=move |cx, sb| {
+                        view! { cx,
+                            <Card title=title.with_value(|f| f(&sb.1)) href=sb.0.to_string()/>
+                        }
+                    }
                 />
             }
         }).map_err(|e| e.clone()))
     };
 
-    view! {
-        cx,
-        <Outlet />
+    view! { cx,
+        <Outlet/>
         <CardList>
-            <ToastedSusp fallback=move || view! {cx,
-                <For
-                    each=|| 0..10
-                    key=|t| *t
-                    view=move |_, _| view!{cx, <CardSkeleton/>}
-                />
-            }>
-                {move || starboards_view(cx)}
-            </ToastedSusp>
+            <ToastedSusp fallback=move || {
+                view! { cx,
+                    <For each=|| 0..10 key=|t| *t view=move |_, _| view! { cx, <CardSkeleton/> }/>
+                }
+            }>{move || starboards_view(cx)}</ToastedSusp>
         </CardList>
     }
 }
