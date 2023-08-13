@@ -1,6 +1,6 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use database::{validation, Starboard, StarboardOverride};
+use database::{validation::{self, ToBotStr}, Starboard, StarboardOverride};
 use errors::StarboardResult;
 
 use crate::{
@@ -170,14 +170,14 @@ impl EditRequirements {
             Some(settings.newer_than.unwrap_or(resolved.newer_than)),
             Some(settings.older_than.unwrap_or(resolved.older_than)),
         ) {
-            ctx.respond_str(&why, true).await?;
+            ctx.respond_str(&why.to_bot_str(), true).await?;
             return Ok(());
         }
 
         if let Some(val) = self.matches {
             match validation::regex::validate_regex(val, is_prem) {
                 Err(why) => {
-                    ctx.respond_str(&why, true).await?;
+                    ctx.respond_str(&why.to_bot_str(), true).await?;
                     return Ok(());
                 }
                 Ok(val) => settings.matches = Some(val),
@@ -186,7 +186,7 @@ impl EditRequirements {
         if let Some(val) = self.not_matches {
             match validation::regex::validate_regex(val, is_prem) {
                 Err(why) => {
-                    ctx.respond_str(&why, true).await?;
+                    ctx.respond_str(&why.to_bot_str(), true).await?;
                     return Ok(());
                 }
                 Ok(val) => settings.not_matches = Some(val),

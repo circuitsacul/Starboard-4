@@ -104,6 +104,8 @@ pub fn validate_cooldown(capacity: i16, period: i16) -> Result<(), String> {
     }
 }
 
+/// assumes that the actual contents of upvote and downvote
+/// are valid emojis.
 pub fn validate_vote_emojis(
     upvote: &[String],
     downvote: &[String],

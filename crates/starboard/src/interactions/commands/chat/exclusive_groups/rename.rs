@@ -1,6 +1,6 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use database::{validation::name::validate_name, ExclusiveGroup};
+use database::{validation::{name::validate_name, ToBotStr}, ExclusiveGroup};
 use errors::{PgErrorTraits, StarboardResult};
 
 use crate::{get_guild_id, interactions::context::CommandCtx, utils::id_as_i64::GetI64};
@@ -22,7 +22,7 @@ impl Rename {
 
         let new_name = match validate_name(&self.new_name) {
             Err(why) => {
-                ctx.respond_str(&why, true).await?;
+                ctx.respond_str(&why.to_bot_str(), true).await?;
                 return Ok(());
             }
             Ok(name) => name,

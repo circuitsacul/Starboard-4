@@ -1,11 +1,25 @@
 use common::constants;
 
-pub fn validate_name(name: &String) -> Result<String, String> {
+use super::ToBotStr;
+
+#[derive(Clone, Copy)]
+pub enum NameErr {
+    TooLong,
+    TooShort,
+}
+
+impl ToBotStr for NameErr {
+    fn to_bot_str(&self) -> String {
+        match self {
+            Self::TooLong => format!("The name cannot be longer than {} characters.", constants::MAX_NAME_LENGTH),
+            Self::TooShort => "The name must be at least 3 characters.".into(),
+        }
+    }
+}
+
+pub fn validate_name(name: &str) -> Result<String, NameErr> {
     if name.len() > constants::MAX_NAME_LENGTH as usize {
-        return Err(format!(
-            "The name cannot be longer than {} characters.",
-            constants::MAX_NAME_LENGTH
-        ));
+        return Err(NameErr::TooLong);
     }
 
     let filtered: String = name
@@ -16,7 +30,7 @@ pub fn validate_name(name: &String) -> Result<String, String> {
         .collect();
 
     if filtered.len() < 3 {
-        Err("The name must be at least 3 characters (special characters are excluded).".to_string())
+        Err(NameErr::TooShort)
     } else {
         Ok(filtered)
     }

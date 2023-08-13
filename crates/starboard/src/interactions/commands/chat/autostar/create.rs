@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::application::interaction::application_command::InteractionChannel;
 
 use common::constants;
-use database::{validation, AutoStarChannel, DbGuild};
+use database::{validation::{self, ToBotStr}, AutoStarChannel, DbGuild};
 use errors::StarboardResult;
 
 use crate::{
@@ -38,7 +38,7 @@ impl CreateAutoStarChannel {
 
         let name = match validation::name::validate_name(&self.name) {
             Err(why) => {
-                ctx.respond_str(&why, true).await?;
+                ctx.respond_str(&why.to_bot_str(), true).await?;
                 return Ok(());
             }
             Ok(name) => name,
