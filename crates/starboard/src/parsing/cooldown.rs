@@ -1,4 +1,4 @@
-use database::validation::starboard_settings::validate_cooldown;
+use database::validation::{starboard_settings::validate_cooldown, ToBotStr};
 use lazy_static::lazy_static;
 
 pub fn parse_cooldown(inp: &str) -> Result<(i16, i16), String> {
@@ -28,6 +28,6 @@ pub fn parse_cooldown(inp: &str) -> Result<(i16, i16), String> {
         Ok(period) => period,
     };
 
-    validate_cooldown(capacity, period)?;
+    validate_cooldown(capacity, period).map_err(|e| e.to_bot_str())?;
     Ok((capacity, period))
 }

@@ -1,6 +1,9 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use database::{validation, ExclusiveGroup, Starboard};
+use database::{
+    validation::{self, ToBotStr},
+    ExclusiveGroup, Starboard,
+};
 use errors::StarboardResult;
 
 use crate::{
@@ -97,7 +100,7 @@ impl EditBehavior {
         if let Some(val) = self.xp_multiplier {
             let val = val.to_string().parse().unwrap();
             if let Err(why) = validation::starboard_settings::validate_xp_multiplier(val) {
-                ctx.respond_str(&why, true).await?;
+                ctx.respond_str(&why.to_bot_str(), true).await?;
                 return Ok(());
             }
             starboard.settings.xp_multiplier = val;
