@@ -1,6 +1,9 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use database::{validation::{self, ToBotStr}, Starboard};
+use database::{
+    validation::{self, ToBotStr},
+    Starboard,
+};
 use errors::StarboardResult;
 
 use crate::{
@@ -74,8 +77,8 @@ impl EditRequirements {
         let is_prem = is_guild_premium(&ctx.bot, guild_id_i64, true).await?;
 
         if let Some(val) = self.required {
-            let val = match validation::starboard_settings::validate_required(
-                val,
+            let val = match parsing::starboard_settings::parse_required(
+                &val,
                 starboard.settings.required_remove,
             ) {
                 Ok(val) => val,
@@ -87,8 +90,8 @@ impl EditRequirements {
             starboard.settings.required = val;
         }
         if let Some(val) = self.required_remove {
-            let val = match validation::starboard_settings::validate_required_remove(
-                val,
+            let val = match parsing::starboard_settings::parse_required_remove(
+                &val,
                 starboard.settings.required,
             ) {
                 Ok(val) => val,
@@ -119,7 +122,7 @@ impl EditRequirements {
             &starboard.settings.downvote_emojis,
             is_prem,
         ) {
-            ctx.respond_str(&why, true).await?;
+            ctx.respond_str(&why.to_bot_str(), true).await?;
             return Ok(());
         }
 

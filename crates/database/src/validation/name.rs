@@ -11,7 +11,10 @@ pub enum NameErr {
 impl ToBotStr for NameErr {
     fn to_bot_str(&self) -> String {
         match self {
-            Self::TooLong => format!("The name cannot be longer than {} characters.", constants::MAX_NAME_LENGTH),
+            Self::TooLong => format!(
+                "The name cannot be longer than {} characters.",
+                constants::MAX_NAME_LENGTH
+            ),
             Self::TooShort => "The name must be at least 3 characters.".into(),
         }
     }

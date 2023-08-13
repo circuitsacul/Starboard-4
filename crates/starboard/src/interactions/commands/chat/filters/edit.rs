@@ -1,7 +1,10 @@
 use twilight_interactions::command::{CommandModel, CommandOption, CreateCommand, CreateOption};
 
 use common::constants;
-use database::{validation::{self, ToBotStr}, Filter, FilterGroup};
+use database::{
+    validation::{self, ToBotStr},
+    Filter, FilterGroup,
+};
 use errors::StarboardResult;
 
 use crate::{

@@ -5,14 +5,17 @@ use super::ToBotStr;
 pub enum RegexErr {
     NotPremium,
     TooLong,
-    ParseError(regex::Error)
+    ParseError(regex::Error),
 }
 
 impl ToBotStr for RegexErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::NotPremium => "The `matches` and `not-matches` settings require premium".into(),
-            Self::TooLong => format!("The `matches` and `not-matches` settings must be under {} characters.", constants::MAX_REGEX_LENGTH),
+            Self::TooLong => format!(
+                "The `matches` and `not-matches` settings must be under {} characters.",
+                constants::MAX_REGEX_LENGTH
+            ),
             Self::ParseError(err) => format!("```\n{err}\n```"),
         }
     }

@@ -1,7 +1,10 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use common::constants;
-use database::{validation::{name::validate_name, ToBotStr}, DbGuild, FilterGroup};
+use database::{
+    validation::{name::validate_name, ToBotStr},
+    DbGuild, FilterGroup,
+};
 use errors::StarboardResult;
 
 use crate::{get_guild_id, interactions::context::CommandCtx, utils::id_as_i64::GetI64};

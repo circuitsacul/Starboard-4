@@ -2,7 +2,10 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::application::interaction::application_command::InteractionChannel;
 
 use common::constants;
-use database::{validation::{self, ToBotStr}, DbGuild, Starboard};
+use database::{
+    validation::{self, ToBotStr},
+    DbGuild, Starboard,
+};
 use errors::StarboardResult;
 
 use crate::{
