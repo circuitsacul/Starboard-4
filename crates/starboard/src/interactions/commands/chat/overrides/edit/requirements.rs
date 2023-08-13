@@ -1,6 +1,9 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use database::{validation, Starboard, StarboardOverride};
+use database::{
+    validation::{self, ToBotStr},
+    Starboard, StarboardOverride,
+};
 use errors::StarboardResult;
 
 use crate::{
@@ -81,29 +84,25 @@ impl EditRequirements {
         let is_prem = is_guild_premium(&ctx.bot, guild_id_i64, true).await?;
 
         if let Some(val) = self.required {
-            let val = match validation::starboard_settings::validate_required(
-                val,
-                resolved.required_remove,
-            ) {
-                Ok(val) => val,
-                Err(why) => {
-                    ctx.respond_str(&why, true).await?;
-                    return Ok(());
-                }
-            };
+            let val =
+                match parsing::starboard_settings::parse_required(&val, resolved.required_remove) {
+                    Ok(val) => val,
+                    Err(why) => {
+                        ctx.respond_str(&why, true).await?;
+                        return Ok(());
+                    }
+                };
             settings.required = Some(val);
         }
         if let Some(val) = self.required_remove {
-            let val = match validation::starboard_settings::validate_required_remove(
-                val,
-                resolved.required,
-            ) {
-                Ok(val) => val,
-                Err(why) => {
-                    ctx.respond_str(&why, true).await?;
-                    return Ok(());
-                }
-            };
+            let val =
+                match parsing::starboard_settings::parse_required_remove(&val, resolved.required) {
+                    Ok(val) => val,
+                    Err(why) => {
+                        ctx.respond_str(&why, true).await?;
+                        return Ok(());
+                    }
+                };
             settings.required_remove = Some(val);
         }
 
@@ -132,7 +131,7 @@ impl EditRequirements {
                 .unwrap_or(&resolved.downvote_emojis),
             is_prem,
         ) {
-            ctx.respond_str(&why, true).await?;
+            ctx.respond_str(&why.to_bot_str(), true).await?;
             return Ok(());
         }
 
@@ -170,14 +169,14 @@ impl EditRequirements {
             Some(settings.newer_than.unwrap_or(resolved.newer_than)),
             Some(settings.older_than.unwrap_or(resolved.older_than)),
         ) {
-            ctx.respond_str(&why, true).await?;
+            ctx.respond_str(&why.to_bot_str(), true).await?;
             return Ok(());
         }
 
         if let Some(val) = self.matches {
             match validation::regex::validate_regex(val, is_prem) {
                 Err(why) => {
-                    ctx.respond_str(&why, true).await?;
+                    ctx.respond_str(&why.to_bot_str(), true).await?;
                     return Ok(());
                 }
                 Ok(val) => settings.matches = Some(val),
@@ -186,7 +185,7 @@ impl EditRequirements {
         if let Some(val) = self.not_matches {
             match validation::regex::validate_regex(val, is_prem) {
                 Err(why) => {
-                    ctx.respond_str(&why, true).await?;
+                    ctx.respond_str(&why.to_bot_str(), true).await?;
                     return Ok(());
                 }
                 Ok(val) => settings.not_matches = Some(val),

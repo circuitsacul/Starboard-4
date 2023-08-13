@@ -1,7 +1,10 @@
 use twilight_interactions::command::{CommandModel, CommandOption, CreateCommand, CreateOption};
 
 use common::constants;
-use database::{validation, Filter, FilterGroup};
+use database::{
+    validation::{self, ToBotStr},
+    Filter, FilterGroup,
+};
 use errors::StarboardResult;
 
 use crate::{
@@ -514,7 +517,7 @@ impl Edit {
             filter.newer_than,
             filter.older_than,
         ) {
-            ctx.respond_str(&why, true).await?;
+            ctx.respond_str(&why.to_bot_str(), true).await?;
             return Ok(());
         }
 
