@@ -1,3 +1,4 @@
+mod api;
 pub mod id;
 
 use std::collections::HashMap;
@@ -13,10 +14,14 @@ use twilight_model::id::{
 
 use crate::site::components::{Card, CardList, CardSkeleton, ToastedSusp};
 
+use self::api::UpdateStarboard;
+
 use super::{get_flat_guild, GuildIdContext};
 
 pub type StarboardsResource =
     Resource<Option<Id<GuildMarker>>, Result<HashMap<i32, Starboard>, ServerFnError>>;
+pub type UpdateStarboardAction =
+    Action<UpdateStarboard, Result<Result<(), HashMap<String, String>>, ServerFnError>>;
 
 pub fn get_starboard(cx: Scope, starboard_id: i32) -> Option<Starboard> {
     let starboards = expect_context::<StarboardsResource>(cx);
@@ -60,6 +65,9 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
     );
     provide_context(cx, starboards);
 
+    let update_starboard_act: UpdateStarboardAction = create_server_action::<UpdateStarboard>(cx);
+    provide_context(cx, update_starboard_act);
+
     let starboards_view = move |cx| {
         let guild = get_flat_guild(cx);
         let channel = move |id: Id<ChannelMarker>| {
@@ -79,20 +87,23 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
             format!("'{}' in {}", sb.name, channel(Id::new(sb.channel_id as _)))
         };
         let title = store_value(cx, title);
-        starboards.read(cx).map(|sb| sb.map(|sb| {
-            let sb = store_value(cx, sb);
-            view! { cx,
-                <For
-                    each=move || sb.with_value(|sb| sb.clone())
-                    key=|sb| sb.0
-                    view=move |cx, sb| {
-                        view! { cx,
-                            <Card title=title.with_value(|f| f(&sb.1)) href=sb.0.to_string()/>
+        starboards.read(cx).map(|sb| {
+            sb.map(|sb| {
+                let sb = store_value(cx, sb);
+                view! { cx,
+                    <For
+                        each=move || sb.with_value(|sb| sb.clone())
+                        key=|sb| sb.0
+                        view=move |cx, sb| {
+                            view! { cx,
+                                <Card title=title.with_value(|f| f(&sb.1)) href=sb.0.to_string()/>
+                            }
                         }
-                    }
-                />
-            }
-        }).map_err(|e| e.clone()))
+                    />
+                }
+            })
+            .map_err(|e| e.clone())
+        })
     };
 
     view! { cx,
