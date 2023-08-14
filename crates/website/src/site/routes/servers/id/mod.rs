@@ -1,3 +1,5 @@
+mod api;
+mod components;
 pub mod overview;
 mod sidebar;
 pub mod starboards;
@@ -17,7 +19,6 @@ use twilight_model::{
         marker::{ChannelMarker, GuildMarker},
         Id,
     },
-    user::CurrentUserGuild,
 };
 
 use crate::site::components::ToastedSusp;
@@ -31,138 +32,6 @@ pub struct GuildData {
 
 pub type GuildContext = Resource<Option<u64>, Result<Option<GuildData>, ServerFnError>>;
 pub type GuildIdContext = Memo<Option<Id<GuildMarker>>>;
-
-#[component]
-pub fn BaseGuildSuspense<F, FIV, C, CIV>(cx: Scope, fallback: F, child: C) -> impl IntoView
-where
-    F: Fn() -> FIV + 'static,
-    FIV: IntoView,
-    C: Fn(CurrentUserGuild) -> CIV + 'static,
-    CIV: IntoView,
-{
-    let fallback = store_value(cx, fallback);
-    let child = store_value(cx, child);
-
-    view! { cx,
-        <Suspense fallback=move || {
-            fallback.with_value(|f| f())
-        }>
-            {move || match get_base_guild(cx) {
-                Some(g) => child.with_value(|f| f(g)).into_view(cx),
-                None => fallback.with_value(|f| f()).into_view(cx),
-            }}
-
-        </Suspense>
-    }
-}
-
-#[component]
-pub fn FlatGuildSuspense<F, FIV, C, CIV>(cx: Scope, fallback: F, child: C) -> impl IntoView
-where
-    F: Fn() -> FIV + 'static,
-    FIV: IntoView,
-    C: Fn(GuildData) -> CIV + 'static,
-    CIV: IntoView,
-{
-    let fallback = store_value(cx, fallback);
-    let child = store_value(cx, child);
-
-    view! { cx,
-        <Suspense fallback=move || {
-            fallback.with_value(|f| f())
-        }>
-            {move || match get_flat_guild(cx) {
-                Some(g) => child.with_value(|f| f(g)).into_view(cx),
-                None => fallback.with_value(|f| f()).into_view(cx),
-            }}
-
-        </Suspense>
-    }
-}
-
-pub fn get_flat_guild(cx: Scope) -> Option<GuildData> {
-    let guild = expect_context::<GuildContext>(cx);
-
-    guild.read(cx).and_then(|res| res.ok()).flatten()
-}
-
-pub fn get_base_guild(cx: Scope) -> Option<CurrentUserGuild> {
-    let base_guilds = expect_context::<super::BaseGuildsResource>(cx);
-    let guild_id = expect_context::<GuildIdContext>(cx);
-
-    base_guilds
-        .with(cx, |guilds| {
-            let Ok(guilds) = guilds else {
-                return None;
-            };
-
-            guilds.get(&guild_id.get()?).cloned()
-        })
-        .flatten()
-}
-
-#[cfg(feature = "ssr")]
-pub async fn can_manage_guild(cx: Scope, id: u64) -> Result<(), ServerFnError> {
-    if id == 0 {
-        return Err(ServerFnError::ServerError(
-            "ah yes, the 0 snowflake".to_string(),
-        ));
-    }
-
-    use crate::site::routes::servers::get_manageable_guilds;
-
-    let Some(guilds) = get_manageable_guilds(cx).await else {
-        return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
-    };
-    if !guilds.contains_key(&Id::new(id)) {
-        return Err(ServerFnError::ServerError(
-            "You don't have permission to manage this server.".to_string(),
-        ));
-    }
-
-    Ok(())
-}
-
-#[server(GetGuild, "/api")]
-pub async fn get_guild(cx: Scope, id: u64) -> Result<Option<GuildData>, ServerFnError> {
-    use twilight_model::id::Id;
-
-    can_manage_guild(cx, id).await?;
-
-    let db = crate::db(cx);
-    let http = crate::bot_http(cx);
-
-    let http_guild = match http.guild(Id::new(id)).await {
-        Ok(res) => res.model().await?,
-        Err(why) => {
-            if errors::get_status(&why) == Some(404) {
-                return Ok(None);
-            } else {
-                return Err(why.into());
-            }
-        }
-    };
-    let channels = http
-        .guild_channels(Id::new(id))
-        .await?
-        .models()
-        .await?
-        .into_iter()
-        .map(|c| (c.id, c))
-        .collect();
-    let db_guild = match DbGuild::create(&db, id as i64).await? {
-        Some(v) => v,
-        None => DbGuild::get(&db, id as i64)
-            .await?
-            .expect("guild wasn't deleted"),
-    };
-
-    Ok(Some(GuildData {
-        db: db_guild,
-        http: http_guild,
-        channels,
-    }))
-}
 
 #[derive(Params, PartialEq)]
 struct Props {
@@ -185,7 +54,7 @@ pub fn Server(cx: Scope) -> impl IntoView {
             let Some(id) = id else {
                 return Err(ServerFnError::Args("Invalid request.".to_string()));
             };
-            get_guild(cx, id).await
+            self::api::get_guild(cx, id).await
         },
     );
 

@@ -1,3 +1,4 @@
+mod api;
 pub mod servers;
 pub mod website;
 
@@ -11,19 +12,9 @@ use super::errors;
 
 pub type UserResource = Resource<(), Result<CurrentUser, ServerFnError>>;
 
-#[server(GetUser, "/api")]
-pub async fn get_user(cx: Scope) -> Result<CurrentUser, ServerFnError> {
-    use crate::auth::context::AuthContext;
-    let Some(acx) = AuthContext::get(cx) else {
-        return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
-    };
-
-    Ok(acx.user.clone())
-}
-
 #[component]
 pub fn Index(cx: Scope) -> impl IntoView {
-    let user: UserResource = create_resource(cx, || (), move |_| get_user(cx));
+    let user: UserResource = create_resource(cx, || (), move |_| self::api::get_user(cx));
     provide_context(cx, user);
 
     view! { cx,

@@ -14,14 +14,12 @@ use twilight_model::id::{
 
 use crate::site::components::{Card, CardList, CardSkeleton, ToastedSusp};
 
-use self::api::UpdateStarboard;
-
-use super::{get_flat_guild, GuildIdContext};
+use super::{components::get_flat_guild, GuildIdContext};
 
 pub type StarboardsResource =
     Resource<Option<Id<GuildMarker>>, Result<HashMap<i32, Starboard>, ServerFnError>>;
 pub type UpdateStarboardAction =
-    Action<UpdateStarboard, Result<Result<(), HashMap<String, String>>, ServerFnError>>;
+    Action<self::api::UpdateStarboard, Result<Result<(), HashMap<String, String>>, ServerFnError>>;
 
 pub fn get_starboard(cx: Scope, starboard_id: i32) -> Option<Starboard> {
     let starboards = expect_context::<StarboardsResource>(cx);
@@ -31,23 +29,6 @@ pub fn get_starboard(cx: Scope, starboard_id: i32) -> Option<Starboard> {
         })
         .flatten()
         .flatten()
-}
-
-#[server(GetStarboards, "/api")]
-pub async fn get_starboards(
-    cx: Scope,
-    guild_id: u64,
-) -> Result<HashMap<i32, Starboard>, ServerFnError> {
-    use super::can_manage_guild;
-
-    can_manage_guild(cx, guild_id).await?;
-
-    let db = crate::db(cx);
-
-    Starboard::list_by_guild(&db, guild_id as i64)
-        .await
-        .map_err(|e| e.into())
-        .map(|v| v.into_iter().map(|s| (s.id, s)).collect())
 }
 
 #[component]
@@ -60,12 +41,13 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
             let Some(guild_id) = guild_id else {
                 return Err(ServerFnError::ServerError("No guild ID.".to_string()));
             };
-            get_starboards(cx, guild_id.get()).await
+            self::api::get_starboards(cx, guild_id.get()).await
         },
     );
     provide_context(cx, starboards);
 
-    let update_starboard_act: UpdateStarboardAction = create_server_action::<UpdateStarboard>(cx);
+    let update_starboard_act: UpdateStarboardAction =
+        create_server_action::<self::api::UpdateStarboard>(cx);
     provide_context(cx, update_starboard_act);
 
     let starboards_view = move |cx| {

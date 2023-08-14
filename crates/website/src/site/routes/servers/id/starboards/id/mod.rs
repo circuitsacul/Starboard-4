@@ -12,7 +12,7 @@ use leptos::*;
 use leptos_router::*;
 use twilight_model::id::Id;
 
-use crate::site::{components::FullScreenPopup, routes::servers::id::get_flat_guild};
+use crate::site::{components::FullScreenPopup, routes::servers::id::components::get_flat_guild};
 
 use super::get_starboard;
 

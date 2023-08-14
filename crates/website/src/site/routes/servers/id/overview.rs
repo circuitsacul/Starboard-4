@@ -1,6 +1,6 @@
 use leptos::*;
 
-use super::FlatGuildSuspense;
+use super::components::FlatGuildSuspense;
 
 #[component]
 pub fn Overview(cx: Scope) -> impl IntoView {

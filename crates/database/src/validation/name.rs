@@ -21,7 +21,7 @@ impl ToBotStr for NameErr {
     fn to_web_str(&self) -> String {
         match self {
             Self::TooLong => format!("Too long (max {}).", constants::MAX_NAME_LENGTH),
-            Self::TooShort => "Too short (min 3).".into()
+            Self::TooShort => "Too short (min 3).".into(),
         }
     }
 }

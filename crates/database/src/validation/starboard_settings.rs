@@ -159,8 +159,14 @@ impl ToBotStr for CooldownErr {
     fn to_web_str(&self) -> String {
         match self {
             Self::Negative => "Capacity and period cannot be negative.".into(),
-            Self::CapacityTooLarge => format!("Capacity is too large (max {}).", constants::MAX_COOLDOWN_CAPACITY),
-            Self::PeriodTooLarge => format!("Period is too large (max {}).", constants::MAX_COOLDOWN_PERIOD),
+            Self::CapacityTooLarge => format!(
+                "Capacity is too large (max {}).",
+                constants::MAX_COOLDOWN_CAPACITY
+            ),
+            Self::PeriodTooLarge => format!(
+                "Period is too large (max {}).",
+                constants::MAX_COOLDOWN_PERIOD
+            ),
         }
     }
 }

@@ -2,7 +2,7 @@ use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
 
-use crate::site::routes::servers::id::BaseGuildSuspense;
+use super::components::BaseGuildSuspense;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tab {

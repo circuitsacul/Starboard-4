@@ -45,7 +45,7 @@ impl ToBotStr for RelativeDurationErr {
             Self::OlderThanTooLarge => format!(
                 "Minimum age must be less than {}.",
                 humantime::format_duration(Duration::from_secs(constants::MAX_OLDER_THAN as _))
-            )
+            ),
         }
     }
 }
