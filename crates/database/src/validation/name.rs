@@ -18,6 +18,12 @@ impl ToBotStr for NameErr {
             Self::TooShort => "The name must be at least 3 characters.".into(),
         }
     }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::TooLong => format!("Too long (max {}).", constants::MAX_NAME_LENGTH),
+            Self::TooShort => "Too short (min 3).".into()
+        }
+    }
 }
 
 pub fn validate_name(name: &str) -> Result<String, NameErr> {

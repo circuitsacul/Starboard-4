@@ -31,6 +31,23 @@ impl ToBotStr for RelativeDurationErr {
             ),
         }
     }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::OlderThanGreaterThanNewerThan => {
+                "The minimum age must be less than the maximum age.".into()
+            }
+            Self::OlderThanNegative => "Minimum age must be greater than 0.".into(),
+            Self::NewerThanNegative => "Maximum age must be greater than 0.".into(),
+            Self::NewerThanTooLarge => format!(
+                "Maximum age must be less than {}.",
+                humantime::format_duration(Duration::from_secs(constants::MAX_NEWER_THAN as _))
+            ),
+            Self::OlderThanTooLarge => format!(
+                "Minimum age must be less than {}.",
+                humantime::format_duration(Duration::from_secs(constants::MAX_OLDER_THAN as _))
+            )
+        }
+    }
 }
 
 pub fn validate_relative_duration(

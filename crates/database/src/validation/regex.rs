@@ -19,6 +19,13 @@ impl ToBotStr for RegexErr {
             Self::ParseError(err) => format!("```\n{err}\n```"),
         }
     }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::NotPremium => "This setting requires premium.".into(),
+            Self::TooLong => format!("Too long (max {}).", constants::MAX_REGEX_LENGTH),
+            Self::ParseError(err) => err.to_string(),
+        }
+    }
 }
 
 pub fn validate_regex(input: String, is_premium: bool) -> Result<Option<String>, RegexErr> {

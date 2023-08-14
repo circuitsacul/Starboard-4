@@ -28,6 +28,13 @@ impl ToBotStr for RequiredErr {
             ),
         }
     }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::LessThanRemove => "Must be less than Required to Remove.".into(),
+            Self::TooSmall => format!("Cannot be less than {}.", constants::MIN_REQUIRED),
+            Self::TooLarge => format!("Cannot be greater than {}.", constants::MAX_REQUIRED),
+        }
+    }
 }
 
 pub fn validate_required(val: i16, required_remove: Option<i16>) -> Result<i16, RequiredErr> {
@@ -66,6 +73,13 @@ impl ToBotStr for RemoveErr {
             ),
         }
     }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::GreaterThanRequired => "Must be less than the required upvotes.".into(),
+            Self::TooSmall => format!("Must be at least {}.", constants::MIN_REQUIRED_REMOVE),
+            Self::TooLarge => format!("Must be at most {}.", constants::MAX_REQUIRED_REMOVE),
+        }
+    }
 }
 
 pub fn validate_required_remove(val: i16, required: Option<i16>) -> Result<i16, RemoveErr> {
@@ -102,6 +116,12 @@ impl ToBotStr for XPMulErr {
             ),
         }
     }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::TooLarge => format!("Must be at most {}.", constants::MAX_XP_MULTIPLIER),
+            Self::TooSmall => format!("Must be at least {}.", constants::MIN_XP_MULTIPLIER),
+        }
+    }
 }
 
 pub fn validate_xp_multiplier(val: f32) -> Result<(), XPMulErr> {
@@ -136,6 +156,13 @@ impl ToBotStr for CooldownErr {
             ),
         }
     }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::Negative => "Capacity and period cannot be negative.".into(),
+            Self::CapacityTooLarge => format!("Capacity is too large (max {}).", constants::MAX_COOLDOWN_CAPACITY),
+            Self::PeriodTooLarge => format!("Period is too large (max {}).", constants::MAX_COOLDOWN_PERIOD),
+        }
+    }
 }
 
 pub fn validate_cooldown(capacity: i16, period: i16) -> Result<(), CooldownErr> {
@@ -162,6 +189,20 @@ impl ToBotStr for VoteEmojiErr {
             Self::EmojisNotUnique => {
                 "`upvote-emojis` and `downvote-emojis` cannot share emojis.".into()
             }
+            Self::LimitReached => format!(
+                "You can only have up to {} vote emojis. Upgrade to premium to get up to {}.",
+                constants::MAX_VOTE_EMOJIS,
+                constants::MAX_PREM_VOTE_EMOJIS
+            ),
+            Self::PremiumLimitReached => format!(
+                "You can only have up to {} vote emojis.",
+                constants::MAX_PREM_VOTE_EMOJIS
+            ),
+        }
+    }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::EmojisNotUnique => "Emojis cannot be both upvote and downvote emojis.".into(),
             Self::LimitReached => format!(
                 "You can only have up to {} vote emojis. Upgrade to premium to get up to {}.",
                 constants::MAX_VOTE_EMOJIS,
