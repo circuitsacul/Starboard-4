@@ -2,6 +2,7 @@ mod card;
 mod fspopup;
 mod navbar;
 mod toasted_susp;
+pub mod form;
 
 pub use card::{Card, CardList, CardSkeleton};
 pub use fspopup::FullScreenPopup;

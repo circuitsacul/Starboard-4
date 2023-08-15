@@ -2,11 +2,13 @@ use common::constants;
 use database::Starboard;
 use leptos::*;
 
+use crate::site::components::form::Label;
+
 #[component]
 pub fn Style(cx: Scope, sb: Starboard, hidden: Memo<bool>) -> impl IntoView {
     view! {
         cx,
-        <div class:hidden=hidden class="p-4">
+        <div class:hidden=hidden>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <Label for_="">"Display Emoji"</Label>
@@ -104,12 +106,5 @@ pub fn Style(cx: Scope, sb: Starboard, hidden: Memo<bool>) -> impl IntoView {
                 </div>
             </div>
         </div>
-    }
-}
-
-#[component]
-fn Label(cx: Scope, for_: &'static str, children: Children) -> impl IntoView {
-    view! {cx,
-        <label class="label" for=for_><span class="label-text">{children(cx)}</span></label>
     }
 }
