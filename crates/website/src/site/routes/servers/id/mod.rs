@@ -30,7 +30,7 @@ pub struct GuildData {
     pub channels: HashMap<Id<ChannelMarker>, Channel>,
 }
 
-pub type GuildContext = Resource<Option<u64>, Result<Option<GuildData>, ServerFnError>>;
+pub type GuildContext = Resource<Option<Id<GuildMarker>>, Result<Option<GuildData>, ServerFnError>>;
 pub type GuildIdContext = Memo<Option<Id<GuildMarker>>>;
 
 #[derive(Params, PartialEq)]
@@ -49,12 +49,12 @@ pub fn Server(cx: Scope) -> impl IntoView {
 
     let guild: GuildContext = create_resource(
         cx,
-        move || guild_id.get().map(|id| id.get()),
-        move |id| async move {
-            let Some(id) = id else {
+        move || guild_id.get(),
+        move |guild_id| async move {
+            let Some(guild_id) = guild_id else {
                 return Err(ServerFnError::Args("Invalid request.".to_string()));
             };
-            self::api::get_guild(cx, id).await
+            self::api::get_guild(cx, guild_id).await
         },
     );
 

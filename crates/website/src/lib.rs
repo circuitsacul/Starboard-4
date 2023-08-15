@@ -2,6 +2,7 @@ pub mod app;
 pub mod auth;
 pub mod site;
 pub mod utils;
+pub mod validation;
 
 #[cfg(feature = "ssr")]
 use std::sync::Arc;

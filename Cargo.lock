@@ -5063,6 +5063,7 @@ dependencies = [
  "console_error_panic_hook",
  "dashmap",
  "database",
+ "emojis",
  "errors",
  "http",
  "jwt-simple",

@@ -17,9 +17,9 @@ use crate::site::components::{Card, CardList, CardSkeleton, ToastedSusp};
 use super::{components::get_flat_guild, GuildIdContext};
 
 pub type StarboardsResource =
-    Resource<Option<Id<GuildMarker>>, Result<HashMap<i32, Starboard>, ServerFnError>>;
+    Resource<(Option<Id<GuildMarker>>, usize), Result<HashMap<i32, Starboard>, ServerFnError>>;
 pub type UpdateStarboardAction =
-    Action<self::api::UpdateStarboard, Result<Result<(), HashMap<String, String>>, ServerFnError>>;
+    Action<self::api::UpdateStarboard, Result<HashMap<String, String>, ServerFnError>>;
 
 pub fn get_starboard(cx: Scope, starboard_id: i32) -> Option<Starboard> {
     let starboards = expect_context::<StarboardsResource>(cx);
@@ -34,21 +34,22 @@ pub fn get_starboard(cx: Scope, starboard_id: i32) -> Option<Starboard> {
 #[component]
 pub fn Starboards(cx: Scope) -> impl IntoView {
     let guild_id = expect_context::<GuildIdContext>(cx);
-    let starboards: StarboardsResource = create_resource(
-        cx,
-        move || guild_id.get(),
-        move |guild_id| async move {
-            let Some(guild_id) = guild_id else {
-                return Err(ServerFnError::ServerError("No guild ID.".to_string()));
-            };
-            self::api::get_starboards(cx, guild_id.get()).await
-        },
-    );
-    provide_context(cx, starboards);
 
     let update_starboard_act: UpdateStarboardAction =
         create_server_action::<self::api::UpdateStarboard>(cx);
     provide_context(cx, update_starboard_act);
+
+    let starboards: StarboardsResource = create_resource(
+        cx,
+        move || (guild_id.get(), update_starboard_act.version().get()),
+        move |(guild_id, _)| async move {
+            let Some(guild_id) = guild_id else {
+                return Err(ServerFnError::ServerError("No guild ID.".to_string()));
+            };
+            self::api::get_starboards(cx, guild_id).await
+        },
+    );
+    provide_context(cx, starboards);
 
     let starboards_view = move |cx| {
         let guild = get_flat_guild(cx);
