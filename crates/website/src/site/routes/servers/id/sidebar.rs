@@ -30,7 +30,7 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
             <div class="drawer-content items-center">
                 <Outlet/>
             </div>
-            <div class="drawer-side lg:top-16 lg:h-min z-40 lg:z-auto">
+            <div class="drawer-side lg:top-16 lg:h-min lg:z-auto z-[2]">
                 <label for="dashboard-drawer" class="drawer-overlay"></label>
                 <div class="w-60 p-4 bg-base-100 text-base-content h-full lg:h-min">
                     <A
