@@ -2646,8 +2646,8 @@ html {
   z-index: 40;
 }
 
-.z-50 {
-  z-index: 50;
+.z-\[1000\] {
+  z-index: 1000;
 }
 
 .col-span-full {

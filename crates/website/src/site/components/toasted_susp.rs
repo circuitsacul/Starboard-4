@@ -3,23 +3,12 @@ use std::time::Duration;
 use leptos::*;
 use leptos_icons::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum ToastType {
     Error,
     Warning,
     Info,
     Success,
-}
-
-impl ToastType {
-    pub fn as_class(&self) -> &'static str {
-        match self {
-            Self::Error => "alert-error",
-            Self::Warning => "alert-warning",
-            Self::Info => "alert-info",
-            Self::Success => "alert-success",
-        }
-    }
 }
 
 #[derive(Clone)]
@@ -97,15 +86,19 @@ pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
     };
 
     view! { cx,
-        <div class="toast toast-end z-50 p-0 m-0 gap-0">
+        <div class="toast toast-end z-[1000] p-0 m-0 gap-0">
             <For
                 each=move || toasts.get()
                 key=|t| format!("toast_{}", t.id)
                 view=move |cx, t| {
                     view! { cx,
-                        <div class=format!(
-                            "mb-4 mr-4 z-40 alert {} max-w-lg flex flex-nowrap", t.typ.as_class()
-                        )>
+                        <div
+                            class="mb-4 mr-4 z-[1000] alert max-w-lg flex flex-nowrap"
+                            class=("alert-error", t.typ == ToastType::Error)
+                            class=("alert-info", t.typ == ToastType::Info)
+                            class=("alert-warning", t.typ == ToastType::Warning)
+                            class=("alert-success", t.typ == ToastType::Success)
+                        >
                             <div class="whitespace-break-spaces">{t.msg.clone()}</div>
                             <button
                                 class="btn btn-circle btn-sm btn-ghost"
