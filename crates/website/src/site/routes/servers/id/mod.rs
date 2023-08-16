@@ -96,20 +96,25 @@ fn InviteModal(cx: Scope) -> impl IntoView {
 
     view! { cx,
         <Suspense fallback=|| ()>
-            <dialog class=move || format!("modal {}", if visible(cx) { "modal-open" } else { "" })>
-                <form method="dialog" class="modal-box">
-                    <h3 class="font-bold text-lg">"Server Needs Setup"</h3>
-                    <p class="py-4">"Please add Starboard to this server to continue."</p>
-                    <div class="modal-action">
-                        <A class="btn btn-ghost" href="..">
-                            "Go Back"
-                        </A>
-                        <a class="btn btn-primary" href=move || url.get() rel="external">
-                            "Invite"
-                        </a>
-                    </div>
-                </form>
-            </dialog>
+            <Show
+                when=move || visible(cx)
+                fallback=|_| ()
+            >
+                <dialog class="modal modal-open">
+                    <form method="dialog" class="modal-box">
+                        <h3 class="font-bold text-lg">"Server Needs Setup"</h3>
+                        <p class="py-4">"Please add Starboard to this server to continue."</p>
+                        <div class="modal-action">
+                            <A class="btn btn-ghost" href="..">
+                                "Go Back"
+                            </A>
+                            <a class="btn btn-primary" href=move || url.get() rel="external">
+                                "Invite"
+                            </a>
+                        </div>
+                    </form>
+                </dialog>
+            </Show>
         </Suspense>
     }
 }
