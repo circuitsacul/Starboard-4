@@ -45,7 +45,7 @@ impl Toast {
 
     pub fn success(msg: impl ToString) -> Self {
         Self {
-            typ: ToastType::Info,
+            typ: ToastType::Success,
             msg: msg.to_string(),
             id: rand::random(),
         }
@@ -93,6 +93,7 @@ pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
                 view=move |cx, t| {
                     view! { cx,
                         <div
+                            style="width: unset"
                             class="mb-4 mr-4 z-[1000] alert max-w-lg flex flex-nowrap"
                             class=("alert-error", t.typ == ToastType::Error)
                             class=("alert-info", t.typ == ToastType::Info)

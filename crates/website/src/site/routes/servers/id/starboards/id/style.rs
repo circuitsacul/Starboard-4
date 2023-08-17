@@ -2,10 +2,15 @@ use common::constants;
 use database::Starboard;
 use leptos::*;
 
-use crate::site::components::form::Label;
+use crate::site::components::form::{Label, ValidationErrors, ErrorNote};
 
 #[component]
-pub fn Style(cx: Scope, sb: Starboard, hidden: Memo<bool>) -> impl IntoView {
+pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
+    cx: Scope,
+    errs: E,
+    sb: Starboard,
+    hidden: Memo<bool>,
+) -> impl IntoView {
     view! {
         cx,
         <div class:hidden=hidden>
@@ -16,6 +21,7 @@ pub fn Style(cx: Scope, sb: Starboard, hidden: Memo<bool>) -> impl IntoView {
                     <button type="button" class="btn btn-ghost btn-square">
                         {sb.settings.display_emoji.clone().unwrap_or_else(|| "".into())}
                     </button>
+                    <ErrorNote errs=errs key="display_emoji"/>
                 </div>
 
                 <div>
@@ -26,6 +32,7 @@ pub fn Style(cx: Scope, sb: Starboard, hidden: Memo<bool>) -> impl IntoView {
                         id="color"
                         value=format!("#{:X}", sb.settings.color.unwrap_or(constants::BOT_COLOR as i32))
                     />
+                    <ErrorNote errs=errs key="color"/>
                 </div>
 
                 <div class="col-span-full">
@@ -36,6 +43,7 @@ pub fn Style(cx: Scope, sb: Starboard, hidden: Memo<bool>) -> impl IntoView {
                         <option value="2" selected=sb.settings.go_to_message==2>"Button"</option>
                         <option value="3" selected=sb.settings.go_to_message==3>"Link mention"</option>
                     </select>
+                    <ErrorNote errs=errs key="go_to_message"/>
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-8">

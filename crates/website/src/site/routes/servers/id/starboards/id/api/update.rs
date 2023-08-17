@@ -1,11 +1,9 @@
 #![allow(clippy::too_many_arguments)]
 
-use std::collections::HashMap;
-
 use leptos::*;
 use twilight_model::id::{marker::GuildMarker, Id};
 
-pub type ValidationErrors = HashMap<String, String>;
+use crate::site::components::form::ValidationErrors;
 
 type Checkbox = Option<String>;
 

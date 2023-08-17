@@ -1,3 +1,4 @@
+mod api;
 pub mod behavior;
 pub mod regex;
 pub mod requirements;
@@ -12,7 +13,10 @@ use leptos::*;
 use leptos_router::*;
 use twilight_model::id::Id;
 
-use crate::site::{components::FullScreenPopup, routes::servers::id::components::get_flat_guild};
+use crate::site::{
+    components::{toast, FullScreenPopup, Toast},
+    routes::servers::id::components::get_flat_guild,
+};
 
 use super::get_starboard;
 
@@ -46,13 +50,18 @@ impl Tab {
 
 #[component]
 pub fn Starboard(cx: Scope) -> impl IntoView {
-    let update_sb = expect_context::<super::UpdateStarboardAction>(cx);
+    let update_sb = create_server_action::<self::api::UpdateStarboard>(cx);
+    let errs = create_memo(cx, move |_| match update_sb.value().get() {
+        Some(Ok(v)) => v,
+        _ => Default::default(),
+    });
+
+    let current_tab = create_rw_signal(cx, Tab::Requirements);
 
     let params = use_params::<Props>(cx);
     let sb_id: StarboardIdContext = create_memo(cx, move |_| {
         params.with(|p| p.as_ref().ok().map(|p| StarboardId(p.starboard_id)))
     });
-
     provide_context(cx, sb_id);
 
     let get_sb = move |cx| {
@@ -81,9 +90,26 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
 
         format!("Starboard '{}' in {}", sb.name, channel)
     };
-
-    let current_tab = create_rw_signal(cx, Tab::Requirements);
     let make_is_hidden = move |tab: Tab| create_memo(cx, move |_| tab != current_tab.get());
+
+    create_effect(cx, move |_| {
+        match update_sb.value().get() {
+            Some(Ok(errs)) => {
+                if errs.is_empty() {
+                    toast(cx, Toast::success("Settings saved."));
+                } else {
+                    toast(
+                        cx,
+                        Toast::warning(
+                            "Some settings were saved, but there were some errors as well.",
+                        ),
+                    );
+                }
+            }
+            Some(Err(e)) => toast(cx, Toast::error(e)),
+            None => (),
+        };
+    });
 
     view! {cx,
         <Suspense fallback=|| ()>
@@ -94,7 +120,15 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                 <div class="btn btn-outline btn-error">"Delete"</div>
                 <div class="flex-1"/>
                 <A href=".." class="btn btn-ghost">"Cancel"</A>
-                <input type="submit" class="btn btn-primary">"Save"</input>
+                <button type="submit" class="btn btn-primary" class=("btn-disabled", update_sb.pending().get())>
+                    <Show
+                        when=move || update_sb.pending().get()
+                        fallback=|_| ()
+                    >
+                        <span class="loading loading-spinner loading-sm"/>
+                    </Show>
+                    "Save"
+                </button>
             }
         >
             <ul class="menu menu-horizontal flex space-x-1">
@@ -112,10 +146,10 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                     <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>
                     <input type="hidden" name="starboard_id" value=sb.id.to_string()/>
 
-                    <Behavior sb=sb.clone() hidden=make_is_hidden(Tab::Behavior)/>
-                    <Regex sb=sb.clone() hidden=make_is_hidden(Tab::Regex)/>
-                    <Requirements sb=sb.clone() hidden=make_is_hidden(Tab::Requirements)/>
-                    <Style sb=sb.clone() hidden=make_is_hidden(Tab::Style)/>
+                    <Behavior errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Behavior)/>
+                    <Regex errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Regex)/>
+                    <Requirements errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Requirements)/>
+                    <Style errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Style)/>
                 };
                 Some(tview)
             }}
