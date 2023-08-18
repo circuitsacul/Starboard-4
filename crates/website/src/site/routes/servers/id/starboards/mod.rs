@@ -1,9 +1,11 @@
+pub mod add;
 mod api;
 pub mod id;
 
 use std::collections::HashMap;
 
 use leptos::*;
+use leptos_icons::*;
 use leptos_router::*;
 
 use database::Starboard;
@@ -12,12 +14,13 @@ use twilight_model::id::{
     Id,
 };
 
-use crate::site::components::{Card, CardList, CardSkeleton, ToastedSusp};
+use crate::site::components::{toast, Card, CardList, CardSkeleton, Toast, ToastedSusp};
 
 use super::{components::get_flat_guild, GuildIdContext};
 
 pub type StarboardsResource =
-    Resource<Option<Id<GuildMarker>>, Result<HashMap<i32, Starboard>, ServerFnError>>;
+    Resource<(Option<Id<GuildMarker>>, (usize,)), Result<HashMap<i32, Starboard>, ServerFnError>>;
+pub type CreateStarboardAction = Action<self::api::CreateStarboard, Result<(), ServerFnError>>;
 
 pub fn get_starboard(cx: Scope, starboard_id: i32) -> Option<Starboard> {
     let starboards = expect_context::<StarboardsResource>(cx);
@@ -31,12 +34,15 @@ pub fn get_starboard(cx: Scope, starboard_id: i32) -> Option<Starboard> {
 
 #[component]
 pub fn Starboards(cx: Scope) -> impl IntoView {
+    let create_sb: CreateStarboardAction = create_server_action::<self::api::CreateStarboard>(cx);
+    provide_context(cx, create_sb);
+
     let guild_id = expect_context::<GuildIdContext>(cx);
 
     let starboards: StarboardsResource = create_resource(
         cx,
-        move || guild_id.get(),
-        move |guild_id| async move {
+        move || (guild_id.get(), (create_sb.version().get(),)),
+        move |(guild_id, _)| async move {
             let Some(guild_id) = guild_id else {
                 return Err(ServerFnError::ServerError("No guild ID.".to_string()));
             };
@@ -44,6 +50,12 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
         },
     );
     provide_context(cx, starboards);
+
+    create_effect(cx, move |_| {
+        if let Some(Err(why)) = create_sb.value().get() {
+            toast(cx, Toast::error(why))
+        }
+    });
 
     let starboards_view = move |cx| {
         let guild = get_flat_guild(cx);
@@ -86,6 +98,13 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
     view! { cx,
         <Outlet/>
         <CardList>
+            <div class="flex justify-end">
+                <A href="add" class="btn btn-outline">
+                    <Icon icon=crate::icon!(FaPlusSolid)/>
+                    "New Starboard"
+                </A>
+            </div>
+
             <ToastedSusp fallback=move || {
                 view! { cx,
                     <For each=|| 0..10 key=|t| *t view=move |_, _| view! { cx, <CardSkeleton/> }/>

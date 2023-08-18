@@ -89,9 +89,9 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                 }}
 
             </div> <div class="flex-1"></div> <div>
-                <a class="btn btn-primary" href="/servers">
+                <a class="btn btn-ghost" href="/servers">
                     <Icon icon=crate::icon!(FaGearSolid)/>
-                    <span class="hidden sm:inline">"Manage"</span>
+                    <span class="hidden sm:inline">"Servers"</span>
                 </a>
             </div>
         </div>

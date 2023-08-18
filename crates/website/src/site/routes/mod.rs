@@ -43,6 +43,7 @@ fn DashboardRoutes(cx: Scope) -> impl IntoView {
                 <Route path="" view=servers::id::overview::Overview/>
                 <Route path="/starboards" view=servers::id::starboards::Starboards>
                     <Route path="" view=move |_| ()/>
+                    <Route path="add" view=servers::id::starboards::add::Add/>
                     <Route path=":starboard_id" view=servers::id::starboards::id::Starboard/>
                 </Route>
 

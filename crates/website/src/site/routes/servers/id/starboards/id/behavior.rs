@@ -10,9 +10,5 @@ pub fn Behavior<E: SignalWith<ValidationErrors> + Copy + 'static>(
     sb: Starboard,
     hidden: Memo<bool>,
 ) -> impl IntoView {
-    view! {cx,
-        <div class:hidden=hidden>
-            {format!("{sb:?}")} " behavior"
-        </div>
-    }
+    view! { cx, <div class:hidden=hidden>{format!("{sb:?}")} " behavior"</div> }
 }

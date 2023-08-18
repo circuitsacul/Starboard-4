@@ -21,7 +21,7 @@ use twilight_model::{
     },
 };
 
-use crate::site::components::ToastedSusp;
+use crate::site::components::{Popup, ToastedSusp};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuildData {
@@ -96,24 +96,24 @@ fn InviteModal(cx: Scope) -> impl IntoView {
 
     view! { cx,
         <Suspense fallback=|| ()>
-            <Show
-                when=move || visible(cx)
-                fallback=|_| ()
-            >
-                <dialog class="modal modal-open">
-                    <form method="dialog" class="modal-box">
-                        <h3 class="font-bold text-lg">"Server Needs Setup"</h3>
-                        <p class="py-4">"Please add Starboard to this server to continue."</p>
-                        <div class="modal-action">
+            <Show when=move || visible(cx) fallback=|_| ()>
+                <Popup
+                    title=|| "Server Needs Setup"
+                    actions=move || {
+                        view! { cx,
+                            <div class="flex-1"></div>
                             <A class="btn btn-ghost" href="..">
                                 "Go Back"
                             </A>
                             <a class="btn btn-primary" href=move || url.get() rel="external">
                                 "Invite"
                             </a>
-                        </div>
-                    </form>
-                </dialog>
+                        }
+                    }
+                >
+
+                    "Please add Starboard to this server to continue."
+                </Popup>
             </Show>
         </Suspense>
     }

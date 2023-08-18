@@ -111,57 +111,67 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
         };
     });
 
-    view! {cx,
+    view! { cx,
         <Suspense fallback=|| ()>
-        <ActionForm action=update_sb>
-        <FullScreenPopup
-            title=move || get_title(cx)
-            actions=move || view! {cx,
-                <div class="btn btn-outline btn-error">"Delete"</div>
-                <div class="flex-1"/>
-                <A href=".." class="btn btn-ghost">"Cancel"</A>
-                <button type="submit" class="btn btn-primary" class=("btn-disabled", update_sb.pending().get())>
-                    <Show
-                        when=move || update_sb.pending().get()
-                        fallback=|_| ()
-                    >
-                        <span class="loading loading-spinner loading-sm"/>
-                    </Show>
-                    "Save"
-                </button>
-            }
-        >
-            <ul class="menu menu-horizontal flex space-x-1">
-                <TabButton tab=Tab::Requirements sig=current_tab/>
-                <TabButton tab=Tab::Behavior sig=current_tab/>
-                <TabButton tab=Tab::Style sig=current_tab/>
-                <TabButton tab=Tab::Regex sig=current_tab/>
-            </ul>
-            {move || {
-                let Some(sb) = get_sb(cx) else {
-                    return None;
-                };
+            <ActionForm action=update_sb>
+                <FullScreenPopup
+                    title=move || get_title(cx)
+                    actions=move || {
+                        view! { cx,
+                            <div class="btn btn-outline btn-error">"Delete"</div>
+                            <div class="flex-1"></div>
+                            <A href=".." class="btn btn-ghost">
+                                "Cancel"
+                            </A>
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                class=("btn-disabled", update_sb.pending().get())
+                            >
+                                <Show when=move || update_sb.pending().get() fallback=|_| ()>
+                                    <span class="loading loading-spinner loading-sm"></span>
+                                </Show>
+                                "Save"
+                            </button>
+                        }
+                    }
+                >
 
-                let tview = view! {cx,
-                    <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>
-                    <input type="hidden" name="starboard_id" value=sb.id.to_string()/>
+                    <ul class="menu menu-horizontal flex space-x-1">
+                        <TabButton tab=Tab::Requirements sig=current_tab/>
+                        <TabButton tab=Tab::Behavior sig=current_tab/>
+                        <TabButton tab=Tab::Style sig=current_tab/>
+                        <TabButton tab=Tab::Regex sig=current_tab/>
+                    </ul>
+                    {move || {
+                        let Some(sb) = get_sb(cx) else { return None;
+                    };
+                        let tview = 
+                        view! { cx,
+                            <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>
+                            <input type="hidden" name="starboard_id" value=sb.id.to_string()/>
 
-                    <Behavior errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Behavior)/>
-                    <Regex errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Regex)/>
-                    <Requirements errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Requirements)/>
-                    <Style errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Style)/>
-                };
-                Some(tview)
-            }}
-        </FullScreenPopup>
-        </ActionForm>
+                            <Behavior errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Behavior)/>
+                            <Regex errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Regex)/>
+                            <Requirements
+                                errs=errs
+                                sb=sb.clone()
+                                hidden=make_is_hidden(Tab::Requirements)
+                            />
+                            <Style errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Style)/>
+                        };
+                        Some(tview)
+                    }}
+
+                </FullScreenPopup>
+            </ActionForm>
         </Suspense>
     }
 }
 
 #[component]
 pub fn TabButton(cx: Scope, tab: Tab, sig: RwSignal<Tab>) -> impl IntoView {
-    view! {cx,
+    view! { cx,
         <li>
             <button
                 on:click=move |_| sig.set(tab)

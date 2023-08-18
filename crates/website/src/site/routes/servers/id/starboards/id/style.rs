@@ -2,7 +2,7 @@ use common::constants;
 use database::Starboard;
 use leptos::*;
 
-use crate::site::components::form::{Label, ValidationErrors, ErrorNote};
+use crate::site::components::form::{ErrorNote, Label, ValidationErrors};
 
 #[component]
 pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
@@ -11,8 +11,7 @@ pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
     sb: Starboard,
     hidden: Memo<bool>,
 ) -> impl IntoView {
-    view! {
-        cx,
+    view! { cx,
         <div class:hidden=hidden>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -30,7 +29,9 @@ pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
                         type="color"
                         name="color"
                         id="color"
-                        value=format!("#{:X}", sb.settings.color.unwrap_or(constants::BOT_COLOR as i32))
+                        value=format!(
+                            "#{:X}", sb.settings.color.unwrap_or(constants::BOT_COLOR as i32)
+                        )
                     />
                     <ErrorNote errs=errs key="color"/>
                 </div>
@@ -38,10 +39,18 @@ pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
                 <div class="col-span-full">
                     <Label for_="go_to_message">"Go to Message"</Label>
                     <select name="go_to_message" id="go_to_message" class="select select-bordered">
-                        <option value="0" selected=sb.settings.go_to_message==0>"Disabled"</option>
-                        <option value="1" selected=sb.settings.go_to_message==1>"Link inside embed"</option>
-                        <option value="2" selected=sb.settings.go_to_message==2>"Button"</option>
-                        <option value="3" selected=sb.settings.go_to_message==3>"Link mention"</option>
+                        <option value="0" selected=sb.settings.go_to_message == 0>
+                            "Disabled"
+                        </option>
+                        <option value="1" selected=sb.settings.go_to_message == 1>
+                            "Link inside embed"
+                        </option>
+                        <option value="2" selected=sb.settings.go_to_message == 2>
+                            "Button"
+                        </option>
+                        <option value="3" selected=sb.settings.go_to_message == 3>
+                            "Link mention"
+                        </option>
                     </select>
                     <ErrorNote errs=errs key="go_to_message"/>
                 </div>
