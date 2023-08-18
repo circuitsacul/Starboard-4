@@ -100,7 +100,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
         match update_sb.value().get() {
             Some(Ok(errs)) => {
                 if errs.is_empty() {
-                    toast(cx, Toast::info("Settings saved."));
+                    toast(cx, Toast::success("Settings saved."));
                 } else {
                     toast(
                         cx,
