@@ -117,6 +117,13 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
 
     view! { cx,
         <Suspense fallback=|| ()>
+            <Show
+                when=move || sb.with(cx, |s| matches!(s, Ok(None))).unwrap_or(false)
+                fallback=|_| ()
+            >
+                <Redirect path=".."/>
+            </Show>
+
             <ActionForm action=update_sb>
                 <FullScreenPopup
                     title=move || get_title(sb.read(cx).and_then(|r| r.ok()).flatten())
