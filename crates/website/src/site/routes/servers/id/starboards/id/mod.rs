@@ -96,7 +96,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
         match update_sb.value().get() {
             Some(Ok(errs)) => {
                 if errs.is_empty() {
-                    toast(cx, Toast::success("Settings saved."));
+                    toast(cx, Toast::info("Settings saved."));
                 } else {
                     toast(
                         cx,
@@ -146,7 +146,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                     {move || {
                         let Some(sb) = get_sb(cx) else { return None;
                     };
-                        let tview = 
+                        let tview =
                         view! { cx,
                             <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>
                             <input type="hidden" name="starboard_id" value=sb.id.to_string()/>
