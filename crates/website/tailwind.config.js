@@ -8,6 +8,7 @@ module.exports = {
       {
         dark: {
           primary: "#ffe19c",
+          'primary-focus' : '#a08e64',
           secondary: "#e879f9",
           accent: "#67e8f9",
           neutral: "#2a323c",

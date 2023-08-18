@@ -446,7 +446,6 @@ html {
 
 :root {
   --p: 42 100% 81%;
-  --pf: 42 100% 74%;
   --sf: 292 91% 66%;
   --af: 187 92% 62%;
   --nf: 213 18% 13%;
@@ -471,6 +470,7 @@ html {
   --border-btn: 1px;
   --tab-border: 1px;
   --tab-radius: 0.5rem;
+  --pf: 42 24% 51%;
   --s: 292 91% 73%;
   --a: 187 92% 69%;
   --n: 213 18% 20%;
@@ -1032,20 +1032,6 @@ html {
     background-color: hsl(var(--pf) / var(--tw-bg-opacity));
   }
 
-  .btn-info:hover {
-    --tw-border-opacity: 1;
-    border-color: hsl(var(--in) / var(--tw-border-opacity));
-    --tw-bg-opacity: 1;
-    background-color: hsl(var(--in) / var(--tw-bg-opacity));
-  }
-
-  .btn-success:hover {
-    --tw-border-opacity: 1;
-    border-color: hsl(var(--su) / var(--tw-border-opacity));
-    --tw-bg-opacity: 1;
-    background-color: hsl(var(--su) / var(--tw-bg-opacity));
-  }
-
   .btn-error:hover {
     --tw-border-opacity: 1;
     border-color: hsl(var(--er) / var(--tw-border-opacity));
@@ -1368,12 +1354,6 @@ html {
   opacity: 1;
 }
 
-.modal-action {
-  display: flex;
-  margin-top: 1.5rem;
-  justify-content: flex-end;
-}
-
 :root:has(:is(.modal-open, .modal:target, .modal-toggle:checked + .modal, .modal[open])) {
   overflow: hidden;
 }
@@ -1539,40 +1519,6 @@ html {
   border-color: hsl(var(--pf) / var(--tw-border-opacity));
   --tw-bg-opacity: 1;
   background-color: hsl(var(--pf) / var(--tw-bg-opacity));
-}
-
-.btn-info {
-  --tw-border-opacity: 1;
-  border-color: hsl(var(--in) / var(--tw-border-opacity));
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--in) / var(--tw-bg-opacity));
-  --tw-text-opacity: 1;
-  color: hsl(var(--inc) / var(--tw-text-opacity));
-  outline-color: hsl(var(--in) / 1);
-}
-
-.btn-info.btn-active {
-  --tw-border-opacity: 1;
-  border-color: hsl(var(--in) / var(--tw-border-opacity));
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--in) / var(--tw-bg-opacity));
-}
-
-.btn-success {
-  --tw-border-opacity: 1;
-  border-color: hsl(var(--su) / var(--tw-border-opacity));
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--su) / var(--tw-bg-opacity));
-  --tw-text-opacity: 1;
-  color: hsl(var(--suc) / var(--tw-text-opacity));
-  outline-color: hsl(var(--su) / 1);
-}
-
-.btn-success.btn-active {
-  --tw-border-opacity: 1;
-  border-color: hsl(var(--su) / var(--tw-border-opacity));
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--su) / var(--tw-bg-opacity));
 }
 
 .btn-error {
@@ -2197,12 +2143,6 @@ html {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
-.modal-action > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
-  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
-}
-
 @keyframes modal-pop {
   0% {
     opacity: 0;
@@ -2375,14 +2315,6 @@ html {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
   min-height: 2rem;
-  font-size: 0.875rem;
-}
-
-.btn-md {
-  height: 3rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  min-height: 3rem;
   font-size: 0.875rem;
 }
 
@@ -2854,10 +2786,6 @@ html {
   flex-wrap: nowrap;
 }
 
-.items-end {
-  align-items: flex-end;
-}
-
 .items-center {
   align-items: center;
 }
@@ -2964,11 +2892,6 @@ html {
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
-}
-
-.py-4 {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
 }
 
 .pt-10 {
