@@ -2,35 +2,18 @@ pub mod add;
 mod api;
 pub mod id;
 
-use std::collections::HashMap;
-
 use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
 
 use database::Starboard;
-use twilight_model::id::{
-    marker::{ChannelMarker, GuildMarker},
-    Id,
-};
+use twilight_model::id::{marker::ChannelMarker, Id};
 
 use crate::site::components::{toast, Card, CardList, CardSkeleton, Toast, ToastedSusp};
 
 use super::{components::get_flat_guild, GuildIdContext};
 
-pub type StarboardsResource =
-    Resource<(Option<Id<GuildMarker>>, (usize,)), Result<HashMap<i32, Starboard>, ServerFnError>>;
 pub type CreateStarboardAction = Action<self::api::CreateStarboard, Result<(), ServerFnError>>;
-
-pub fn get_starboard(cx: Scope, starboard_id: i32) -> Option<Starboard> {
-    let starboards = expect_context::<StarboardsResource>(cx);
-    starboards
-        .with(cx, |sbs| {
-            sbs.as_ref().ok().map(|sbs| sbs.get(&starboard_id).cloned())
-        })
-        .flatten()
-        .flatten()
-}
 
 #[component]
 pub fn Starboards(cx: Scope) -> impl IntoView {
@@ -39,7 +22,7 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
 
     let guild_id = expect_context::<GuildIdContext>(cx);
 
-    let starboards: StarboardsResource = create_resource(
+    let starboards = create_resource(
         cx,
         move || (guild_id.get(), (create_sb.version().get(),)),
         move |(guild_id, _)| async move {
@@ -49,7 +32,6 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
             self::api::get_starboards(cx, guild_id).await
         },
     );
-    provide_context(cx, starboards);
 
     create_effect(cx, move |_| {
         if let Some(Err(why)) = create_sb.value().get() {

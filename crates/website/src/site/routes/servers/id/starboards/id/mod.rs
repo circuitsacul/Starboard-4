@@ -15,14 +15,8 @@ use twilight_model::id::Id;
 
 use crate::site::{
     components::{toast, FullScreenPopup, Toast},
-    routes::servers::id::components::get_flat_guild,
+    routes::servers::id::{components::get_flat_guild, GuildIdContext},
 };
-
-use super::get_starboard;
-
-#[derive(Clone, Copy, PartialEq)]
-pub struct StarboardId(pub i32);
-pub type StarboardIdContext = Memo<Option<StarboardId>>;
 
 #[derive(Params, PartialEq, Clone)]
 struct Props {
@@ -59,19 +53,29 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
     let current_tab = create_rw_signal(cx, Tab::Requirements);
 
     let params = use_params::<Props>(cx);
-    let sb_id: StarboardIdContext = create_memo(cx, move |_| {
-        params.with(|p| p.as_ref().ok().map(|p| StarboardId(p.starboard_id)))
-    });
-    provide_context(cx, sb_id);
+    let guild_id = expect_context::<GuildIdContext>(cx);
 
-    let get_sb = move |cx| {
-        let Ok(params) = params.get() else {
-            return None;
-        };
-        get_starboard(cx, params.starboard_id)
-    };
-    let get_title = move |cx| {
-        let Some(sb) = get_sb(cx) else {
+    let sb = create_resource(
+        cx,
+        move || {
+            let sb_id = params.get().ok().map(|p| p.starboard_id);
+            let guild_id = guild_id.get();
+            (sb_id, guild_id)
+        },
+        move |(sb_id, guild_id)| async move {
+            let Some(sb_id) = sb_id else {
+                return Ok(None);
+            };
+            let Some(guild_id) = guild_id else {
+                return Ok(None);
+            };
+
+            self::api::get_starboard(cx, guild_id, sb_id).await
+        },
+    );
+
+    let get_title = move |sb: Option<database::Starboard>| {
+        let Some(sb) = sb else {
             return "".to_string();
         };
 
@@ -115,7 +119,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
         <Suspense fallback=|| ()>
             <ActionForm action=update_sb>
                 <FullScreenPopup
-                    title=move || get_title(cx)
+                    title=move || get_title(sb.read(cx).and_then(|r| r.ok()).flatten())
                     actions=move || {
                         view! { cx,
                             <div class="btn btn-outline btn-error">"Delete"</div>
@@ -144,8 +148,8 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                         <TabButton tab=Tab::Regex sig=current_tab/>
                     </ul>
                     {move || {
-                        let Some(sb) = get_sb(cx) else { return None;
-                    };
+                        let sb = sb.read(cx).and_then(|r| r.ok()).flatten();
+                        let Some(sb) = sb else { return None; };
                         let tview =
                         view! { cx,
                             <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>
