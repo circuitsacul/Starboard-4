@@ -31,8 +31,7 @@ pub fn Add(cx: Scope) -> impl IntoView {
                     {move || {
                         let Some(Ok(Some(g))) = guild.read(cx) else { return None;
                     };
-                        let tview = 
-                        view! { cx,
+                        let tview = view! { cx,
                             <input type="hidden" name="guild_id" value=g.http.id.to_string()/>
                             "hi"
                         };

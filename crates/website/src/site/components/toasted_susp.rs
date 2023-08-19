@@ -94,12 +94,35 @@ pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
                     view! { cx,
                         <div
                             style="width: unset"
-                            class="mb-4 mr-4 z-[1000] alert max-w-lg flex flex-nowrap"
-                            class=("alert-error", t.typ == ToastType::Error)
-                            class=("alert-info", t.typ == ToastType::Info)
-                            class=("alert-warning", t.typ == ToastType::Warning)
-                            class=("alert-success", t.typ == ToastType::Success)
+                            class=concat!(
+                                "mb-4 mr-4 z-[1000] alert max-w-lg flex flex-nowrap ",
+                                "bg-neutral-950/30 border-0 drop-shadow-xl"
+                            )
                         >
+
+                            {move || {
+                                let (class, icon) = match t.typ {
+                                    ToastType::Error => {
+                                        ("text-error", crate::icon!(FaCircleExclamationSolid))
+                                    }
+                                    ToastType::Info => {
+                                        ("text-info", crate::icon!(FaCircleInfoSolid))
+                                    }
+                                    ToastType::Warning => {
+                                        ("text-warning", crate::icon!(FaTriangleExclamationSolid))
+                                    }
+                                    ToastType::Success => {
+                                        ("text-success", crate::icon!(FaCheckSolid))
+                                    }
+                                };
+
+                                view! { cx,
+                                    <div class=class>
+                                        <Icon icon=icon/>
+                                    </div>
+                                }
+                            }}
+
                             <div class="whitespace-break-spaces">{t.msg.clone()}</div>
                             <button
                                 class="btn btn-circle btn-sm btn-ghost"

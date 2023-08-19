@@ -33,6 +33,7 @@ pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
                             "#{:X}", sb.settings.color.unwrap_or(constants::BOT_COLOR as i32)
                         )
                     />
+
                     <ErrorNote errs=errs key="color"/>
                 </div>
 

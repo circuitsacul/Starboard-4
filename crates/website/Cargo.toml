@@ -29,6 +29,10 @@ leptos_icons = { version = "0.0.15", features = [
     "FaXmarkSolid",
     "FaGearSolid",
     "FaBarsSolid",
+    "FaCheckSolid",
+    "FaCircleInfoSolid",
+    "FaTriangleExclamationSolid",
+    "FaCircleExclamationSolid",
 ] }
 serde = "1.0.181"
 once_cell = { version = "1.18.0", optional = true }

@@ -156,9 +156,9 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                     </ul>
                     {move || {
                         let sb = sb.read(cx).and_then(|r| r.ok()).flatten();
-                        let Some(sb) = sb else { return None; };
-                        let tview =
-                        view! { cx,
+                        let Some(sb) = sb else { return None;
+                    };
+                        let tview = view! { cx,
                             <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>
                             <input type="hidden" name="starboard_id" value=sb.id.to_string()/>
 
