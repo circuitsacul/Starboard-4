@@ -22,29 +22,25 @@ use twilight_model::{
 pub async fn get_manageable_guilds(cx: Scope) -> Option<Arc<Guilds>> {
     let acx = AuthContext::get(cx)?;
 
-    let _guard = acx.wlock.lock().await;
-    if let Some(guilds) = acx.guilds.read().await.clone() {
-        return Some(guilds);
+    let mut guilds = acx.guilds.write().await;
+
+    if guilds.is_none() {
+        guilds.replace(Arc::new(
+            acx.http
+                .current_user_guilds()
+                .await
+                .ok()?
+                .models()
+                .await
+                .ok()?
+                .into_iter()
+                .filter(|g| g.permissions.contains(Permissions::ADMINISTRATOR))
+                .map(|g| (g.id, g))
+                .collect(),
+        ));
     }
 
-    let guilds: Arc<HashMap<_, _>> = Arc::new(
-        acx.http
-            .current_user_guilds()
-            .await
-            .ok()?
-            .models()
-            .await
-            .ok()?
-            .into_iter()
-            .filter(|g| g.permissions.contains(Permissions::ADMINISTRATOR))
-            .map(|g| (g.id, g))
-            .collect(),
-    );
-
-    *acx.guilds.write().await = Some(guilds.clone());
-
-    std::mem::drop(_guard);
-    Some(guilds)
+    guilds.clone()
 }
 
 #[server(GetGuilds, "/api")]
