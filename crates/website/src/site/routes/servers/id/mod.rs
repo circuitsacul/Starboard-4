@@ -4,8 +4,6 @@ pub mod overview;
 mod sidebar;
 pub mod starboards;
 
-use std::collections::HashMap;
-
 use sidebar::{SideBar, Tab};
 
 use database::DbGuild;
@@ -13,12 +11,8 @@ use leptos::*;
 use leptos_router::*;
 use serde::{Deserialize, Serialize};
 use twilight_model::{
-    channel::Channel,
     guild::Guild,
-    id::{
-        marker::{ChannelMarker, GuildMarker},
-        Id,
-    },
+    id::{marker::GuildMarker, Id},
 };
 
 use crate::site::components::{Popup, ToastedSusp};
@@ -27,7 +21,6 @@ use crate::site::components::{Popup, ToastedSusp};
 pub struct GuildData {
     pub db: DbGuild,
     pub http: Guild,
-    pub channels: HashMap<Id<ChannelMarker>, Channel>,
 }
 
 pub type GuildContext = Resource<Option<Id<GuildMarker>>, Result<Option<GuildData>, ServerFnError>>;

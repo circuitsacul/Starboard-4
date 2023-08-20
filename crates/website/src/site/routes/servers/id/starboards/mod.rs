@@ -6,12 +6,9 @@ use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
 
-use database::Starboard;
-use twilight_model::id::{marker::ChannelMarker, Id};
-
 use crate::site::components::{toast, Card, CardList, CardSkeleton, Toast, ToastedSusp};
 
-use super::{components::get_flat_guild, GuildIdContext};
+use super::GuildIdContext;
 
 pub type CreateStarboardAction = Action<self::api::CreateStarboard, Result<(), ServerFnError>>;
 
@@ -40,24 +37,6 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
     });
 
     let starboards_view = move |cx| {
-        let guild = get_flat_guild(cx);
-        let channel = move |id: Id<ChannelMarker>| {
-            let guild = guild.clone();
-            match guild {
-                None => "unknown channel".to_string(),
-                Some(g) => match g.channels.get(&id) {
-                    None => "deleted channel".to_string(),
-                    Some(c) => match &c.name {
-                        None => "unknown channel".to_string(),
-                        Some(n) => format!("#{n}"),
-                    },
-                },
-            }
-        };
-        let title = move |sb: &Starboard| {
-            format!("'{}' in {}", sb.name, channel(Id::new(sb.channel_id as _)))
-        };
-        let title = store_value(cx, title);
         starboards.read(cx).map(|sb| {
             sb.map(|sb| {
                 let sb = store_value(cx, sb);
@@ -66,9 +45,7 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
                         each=move || sb.with_value(|sb| sb.clone())
                         key=|sb| sb.0
                         view=move |cx, sb| {
-                            view! { cx,
-                                <Card title=title.with_value(|f| f(&sb.1)) href=sb.0.to_string()/>
-                            }
+                            view! { cx, <Card title=sb.1.name href=sb.0.to_string()/> }
                         }
                     />
                 }

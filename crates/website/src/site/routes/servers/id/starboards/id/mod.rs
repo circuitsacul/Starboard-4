@@ -11,11 +11,10 @@ use style::Style;
 
 use leptos::*;
 use leptos_router::*;
-use twilight_model::id::Id;
 
 use crate::site::{
     components::{toast, FullScreenPopup, Toast},
-    routes::servers::id::{components::get_flat_guild, GuildIdContext},
+    routes::servers::id::GuildIdContext,
 };
 
 #[derive(Params, PartialEq, Clone)]
@@ -64,36 +63,16 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
         },
         move |(sb_id, guild_id)| async move {
             let Some(sb_id) = sb_id else {
-                return Ok(None);
+                return Ok((None, None));
             };
             let Some(guild_id) = guild_id else {
-                return Ok(None);
+                return Ok((None, None));
             };
 
             self::api::get_starboard(cx, guild_id, sb_id).await
         },
     );
 
-    let get_title = move |sb: Option<database::Starboard>| {
-        let Some(sb) = sb else {
-            return "".to_string();
-        };
-
-        let channel = 'out: {
-            let Some(guild) = get_flat_guild(cx) else {
-                break 'out "unknown channel".to_string();
-            };
-            match guild.channels.get(&Id::new(sb.channel_id as _)) {
-                Some(channel) => match &channel.name {
-                    Some(n) => format!("#{n}"),
-                    None => "unknown channel".to_string(),
-                },
-                None => "deleted channel".to_string(),
-            }
-        };
-
-        format!("Starboard '{}' in {}", sb.name, channel)
-    };
     let make_is_hidden = move |tab: Tab| create_memo(cx, move |_| tab != current_tab.get());
 
     create_effect(cx, move |_| {
@@ -115,10 +94,25 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
         };
     });
 
+    let get_title = move |cx| {
+        let (sb_name, ch_name) = sb
+            .with(cx, |sb| {
+                sb.as_ref()
+                    .ok()
+                    .map(|(sb, ch)| (sb.as_ref().map(|v| v.name.clone()), ch.clone()))
+            })
+            .flatten()
+            .unwrap_or((None, None));
+
+        let sb_name = sb_name.unwrap_or_else(|| "unknown".into());
+        let ch_name = ch_name.unwrap_or_else(|| "unknown".into());
+        format!("'{sb_name}' in #{ch_name}")
+    };
+
     view! { cx,
         <Suspense fallback=|| ()>
             <Show
-                when=move || sb.with(cx, |s| matches!(s, Ok(None))).unwrap_or(false)
+                when=move || sb.with(cx, |s| matches!(s, Ok((None, _)))).unwrap_or(false)
                 fallback=|_| ()
             >
                 <Redirect path=".."/>
@@ -126,7 +120,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
 
             <ActionForm action=update_sb>
                 <FullScreenPopup
-                    title=move || get_title(sb.read(cx).and_then(|r| r.ok()).flatten())
+                    title=move || get_title(cx)
                     actions=move || {
                         view! { cx,
                             <div class="btn btn-outline btn-error">"Delete"</div>
@@ -155,8 +149,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                         <TabButton tab=Tab::Regex sig=current_tab/>
                     </ul>
                     {move || {
-                        let sb = sb.read(cx).and_then(|r| r.ok()).flatten();
-                        let Some(sb) = sb else { return None;
+                        let Some(Ok((Some(sb), _))) = sb.read(cx) else { return None;
                     };
                         let tview = view! { cx,
                             <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>

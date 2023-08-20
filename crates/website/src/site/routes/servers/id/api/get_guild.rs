@@ -41,14 +41,6 @@ pub async fn get_guild(
             }
         }
     };
-    let channels = http
-        .guild_channels(guild_id)
-        .await?
-        .models()
-        .await?
-        .into_iter()
-        .map(|c| (c.id, c))
-        .collect();
     let db_guild = match DbGuild::create(&db, guild_id.get() as i64).await? {
         Some(v) => v,
         None => DbGuild::get(&db, guild_id.get() as i64)
@@ -59,6 +51,5 @@ pub async fn get_guild(
     Ok(Some(GuildData {
         db: db_guild,
         http: http_guild,
-        channels,
     }))
 }
