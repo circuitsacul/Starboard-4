@@ -1,30 +1,40 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
+use twilight_mention::Mention;
 use twilight_model::guild::Role;
 
 use crate::{
-    concat_format,
-    core::premium::is_premium::is_guild_premium,
     database::PosRole,
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::deleted_roles::get_deleted_roles, context::CommandCtx},
+    locale_func,
     utils::{id_as_i64::GetI64, into_id::IntoId, views::confirm},
 };
 
+locale_func!(posroles_delete);
+locale_func!(posroles_delete_option_posrole);
+
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "delete", desc = "Delete a position-based award role.")]
+#[command(
+    name = "delete",
+    desc = "Delete a position-based award role.",
+    desc_localizations = "posroles_delete"
+)]
 pub struct Delete {
     /// The PosRole to delete.
+    #[command(desc_localizations = "posroles_delete_option_posrole")]
     posrole: Role,
 }
 
 impl Delete {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
+        let lang = ctx.user_lang();
+
         let role = PosRole::delete(&ctx.bot.pool, self.posrole.id.get_i64()).await?;
 
         let (msg, ephemeral) = match role {
-            None => ("That is not a PosRole.", true),
-            Some(_) => ("PosRole deleted.", false),
+            None => (lang.posrole_missing(self.posrole.mention()), true),
+            Some(_) => (lang.posroles_delete_done(self.posrole.mention()), false),
         };
         ctx.respond_str(msg, ephemeral).await?;
 
@@ -32,10 +42,13 @@ impl Delete {
     }
 }
 
+locale_func!(posroles_clear_deleted);
+
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "clear-deleted",
-    desc = "Delete PosRoles if the Discord role has been deleted."
+    desc = "Delete PosRoles if the Discord role has been deleted.",
+    desc_localizations = "posroles_clear_deleted"
 )]
 pub struct ClearDeleted;
 
@@ -43,12 +56,7 @@ impl ClearDeleted {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
-
-        if !is_guild_premium(&ctx.bot, guild_id_i64, true).await? {
-            ctx.respond_str("Only premium servers can use this command.", true)
-                .await?;
-            return Ok(());
-        }
+        let lang = ctx.user_lang();
 
         let pr = PosRole::list_by_guild(&ctx.bot.pool, guild_id_i64).await?;
 
@@ -59,17 +67,14 @@ impl ClearDeleted {
         );
 
         if to_delete.is_empty() {
-            ctx.respond_str("Nothing to clear.", true).await?;
+            ctx.respond_str(lang.posroles_clear_deleted_nothing(), true)
+                .await?;
             return Ok(());
         }
 
         let conf = confirm::simple(
             &mut ctx,
-            &concat_format!(
-                "This will delete the following PosRoles:\n";
-                "{to_delete_pretty}\n";
-                "Do you wish to continue?";
-            ),
+            lang.posroles_clear_deleted_confirm(to_delete_pretty),
             true,
         )
         .await?;
@@ -82,7 +87,9 @@ impl ClearDeleted {
             PosRole::delete(&ctx.bot.pool, role.get_i64()).await?;
         }
 
-        btn_ctx.edit_str("Done.", true).await?;
+        btn_ctx
+            .edit_str(lang.posroles_clear_deleted_done(), true)
+            .await?;
 
         Ok(())
     }

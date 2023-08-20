@@ -1,13 +1,16 @@
 mod add;
 mod remove;
 
-use crate::{errors::StarboardResult, interactions::context::CommandCtx};
+use crate::{errors::StarboardResult, interactions::context::CommandCtx, locale_func};
 use twilight_interactions::command::{CommandModel, CreateCommand};
+
+locale_func!(autostar_filters);
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "filters",
-    desc = "Manage filter groups for an autostar channel."
+    desc = "Manage filter groups for an autostar channel.",
+    desc_localizations = "autostar_filters"
 )]
 pub enum Filters {
     #[command(name = "add")]

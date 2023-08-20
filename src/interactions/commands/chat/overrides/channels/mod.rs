@@ -4,10 +4,16 @@ mod set;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::{errors::StarboardResult, interactions::context::CommandCtx};
+use crate::{errors::StarboardResult, interactions::context::CommandCtx, locale_func};
+
+locale_func!(overrides_channels);
 
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "channels", desc = "Manage the channels an override affects.")]
+#[command(
+    name = "channels",
+    desc = "Manage the channels an override affects.",
+    desc_localizations = "overrides_channels"
+)]
 pub enum ManageOverrideChannels {
     #[command(name = "set")]
     Set(set::SetOverrideChannels),

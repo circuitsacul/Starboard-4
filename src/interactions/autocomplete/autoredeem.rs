@@ -22,7 +22,7 @@ pub async fn autoredeem_autocomplete(
             .cache
             .guilds
             .with(&id, |_, g| g.as_ref().map(|g| format!("{} {id}", g.name)))
-            .unwrap_or_else(|| format!("Unkown Server {id}"))
+            .unwrap_or_else(|| ctx.user_lang().unknown_server(id))
     };
     let guild_names = guild_ids
         .iter()

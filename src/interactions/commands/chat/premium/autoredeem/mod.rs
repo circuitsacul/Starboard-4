@@ -3,10 +3,16 @@ mod enable;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::{errors::StarboardResult, interactions::context::CommandCtx};
+use crate::{errors::StarboardResult, interactions::context::CommandCtx, locale_func};
+
+locale_func!(autoredeem);
 
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "autoredeem", desc = "Manage autoredeem.")]
+#[command(
+    name = "autoredeem",
+    desc = "Manage autoredeem.",
+    desc_localizations = "autoredeem"
+)]
 pub enum Autoredeem {
     #[command(name = "disable")]
     Disable(disable::Disable),

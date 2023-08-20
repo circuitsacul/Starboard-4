@@ -12,13 +12,17 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     errors::StarboardResult,
     interactions::{commands::permissions::manage_roles_channels, context::CommandCtx},
+    locale_func,
 };
+
+locale_func!(filters);
 
 #[allow(clippy::large_enum_variant)] // Edit(edit::Edit) being the culprit
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "filters",
     desc = "Manage filters.",
+    desc_localizations = "filters",
     default_permissions = "manage_roles_channels",
     dm_permission = false
 )]

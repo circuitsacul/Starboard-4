@@ -12,6 +12,8 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::{commands::format_settings::format_settings, context::CommandCtx},
+    locale_func,
+    translations::Lang,
     utils::{
         embed,
         id_as_i64::GetI64,
@@ -19,11 +21,18 @@ use crate::{
     },
 };
 
+locale_func!(overrides_view);
+locale_func!(overrides_view_option_name);
+
 #[derive(CreateCommand, CommandModel)]
-#[command(name = "view", desc = "View your overrides.")]
+#[command(
+    name = "view",
+    desc = "View your overrides.",
+    desc_localizations = "overrides_view"
+)]
 pub struct ViewOverride {
     /// The name of the override to view. Leave blank to show all.
-    #[command(autocomplete = true)]
+    #[command(autocomplete = true, desc_localizations = "overrides_view_option_name")]
     name: Option<String>,
 }
 
@@ -32,11 +41,11 @@ impl ViewOverride {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
         let bot = ctx.bot.clone();
+        let lang = ctx.user_lang();
 
         let overrides = StarboardOverride::list_by_guild(&ctx.bot.pool, guild_id_i64).await?;
         if overrides.is_empty() {
-            ctx.respond_str("This server has no overrides.", true)
-                .await?;
+            ctx.respond_str(lang.overrides_view_none(), true).await?;
             return Ok(());
         }
 
@@ -51,16 +60,15 @@ impl ViewOverride {
             let sb = Starboard::get(&bot.pool, ov.starboard_id).await?.unwrap();
 
             let label = ov.name.clone();
-            let description = format!(
-                "{} overwritten settings for starboard '{}' in {} channel(s)",
+            let description = lang.overrides_view_slug(
+                ov.channel_ids.len(),
                 ov.overrides.as_object().unwrap().len(),
                 sb.name,
-                ov.channel_ids.len(),
             );
 
             let page = SelectPaginatorPageBuilder::new(label)
                 .description(description)
-                .add_embed(override_embed(&bot, guild_id, ov).await?);
+                .add_embed(override_embed(&bot, guild_id, ov, lang).await?);
             paginator = paginator.add_page(page);
         }
 
@@ -74,6 +82,7 @@ async fn override_embed(
     bot: &StarboardBot,
     guild_id: Id<GuildMarker>,
     ov: StarboardOverride,
+    lang: Lang,
 ) -> StarboardResult<Embed> {
     let name = ov.name.clone();
     let sb = Starboard::get(&bot.pool, ov.starboard_id).await?.unwrap();
@@ -84,36 +93,30 @@ async fn override_embed(
     let pretty = format_settings(bot, guild_id, &config).await?;
 
     let embed = embed::build()
-        .title(format!("Override '{name}'"))
-        .description(format!(
-            concat!(
-                "This override belongs to the starboard '{}'.\n\n",
-                "This override applies to the following channels: {}",
-            ),
-            &config.starboard.name, channels,
-        ))
+        .title(lang.override_title(name))
+        .description(lang.overrides_view_description(channels, &config.starboard.name))
         .field(
-            EmbedFieldBuilder::new("Requirements", pretty.requirements)
+            EmbedFieldBuilder::new(lang.sb_option_category_requirements(), pretty.requirements)
                 .inline()
                 .build(),
         )
         .field(
-            EmbedFieldBuilder::new("Behaviour", pretty.behavior)
+            EmbedFieldBuilder::new(lang.sb_option_category_behavior(), pretty.behavior)
                 .inline()
                 .build(),
         )
         .field(
-            EmbedFieldBuilder::new("Style", pretty.style)
+            EmbedFieldBuilder::new(lang.sb_option_category_style(), pretty.style)
                 .inline()
                 .build(),
         )
         .field(
-            EmbedFieldBuilder::new("Embed Style", pretty.embed)
+            EmbedFieldBuilder::new(lang.sb_option_category_embed(), pretty.embed)
                 .inline()
                 .build(),
         )
-        .field(EmbedFieldBuilder::new("Regex Matching", pretty.regex).build())
-        .field(EmbedFieldBuilder::new("Filters", pretty.filters))
+        .field(EmbedFieldBuilder::new(lang.sb_option_category_regex(), pretty.regex).build())
+        .field(EmbedFieldBuilder::new(lang.filters_title(), pretty.filters))
         .build();
 
     Ok(embed)

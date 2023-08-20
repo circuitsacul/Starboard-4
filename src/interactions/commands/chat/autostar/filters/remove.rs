@@ -10,20 +10,34 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
     utils::id_as_i64::GetI64,
 };
+
+locale_func!(autostar_filters_remove);
+locale_func!(autostar_filters_remove_option_autostar_channel);
+locale_func!(autostar_filters_remove_option_filter_group);
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "remove",
-    desc = "Remove a filter group from an autostar channel."
+    desc = "Remove a filter group from an autostar channel.",
+    desc_localizations = "autostar_filters_remove"
 )]
 pub struct Remove {
     /// The autostar channel to remove the filter group from.
-    #[command(autocomplete = true, rename = "autostar-channel")]
+    #[command(
+        autocomplete = true,
+        rename = "autostar-channel",
+        desc_localizations = "autostar_filters_remove_option_autostar_channel"
+    )]
     autostar_channel: String,
     /// The filter group to remove from the autostar channel.
-    #[command(autocomplete = true, rename = "filter-group")]
+    #[command(
+        autocomplete = true,
+        rename = "filter-group",
+        desc_localizations = "autostar_filters_remove_option_filter_group"
+    )]
     filter_group: String,
 }
 
@@ -35,7 +49,7 @@ impl Remove {
             &ctx.bot.pool, guild_id, &self.filter_group
         ).await? else {
             ctx.respond_str(
-                &format!("No filter group named '{}' exists.", self.filter_group),
+                &ctx.user_lang().filter_group_missing(self.filter_group),
                 true,
             ).await?;
             return Ok(());
@@ -45,7 +59,7 @@ impl Remove {
             &ctx.bot.pool, &self.autostar_channel, guild_id
         ).await? else {
             ctx.respond_str(
-                &format!("No autostar channel named '{}' exists.", self.autostar_channel),
+                &ctx.user_lang().autostar_channel_missing(self.autostar_channel),
                 true,
             ).await?;
             return Ok(());
@@ -55,16 +69,15 @@ impl Remove {
 
         if ret.is_some() {
             ctx.respond_str(
-                &format!(
-                    "Removed the filter group '{}' from autostar channel '{}'.",
-                    group.name, asc.name
-                ),
+                &ctx.user_lang()
+                    .autostar_filters_remove_success(asc.name, group.name),
                 false,
             )
             .await?;
         } else {
             ctx.respond_str(
-                "That filter group is not applied to that autostar channel.",
+                &ctx.user_lang()
+                    .autostar_filters_remove_fail(asc.name, group.name),
                 true,
             )
             .await?;

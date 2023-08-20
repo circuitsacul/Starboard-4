@@ -7,6 +7,7 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
     utils::id_as_i64::GetI64,
 };
 
@@ -21,27 +22,35 @@ macro_rules! reset_settings {
     }}
 }
 
+locale_func!(overrides_edit_reset);
+locale_func!(overrides_edit_option_name);
+locale_func!(overrides_edit_reset_option_reset);
+
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "reset",
-    desc = "Reset override settings to the defaults used by the starboard."
+    desc = "Reset override settings to the defaults used by the starboard.",
+    desc_localizations = "overrides_edit_reset"
 )]
 pub struct ResetOverrideSettings {
     /// The override to reset settings for.
-    #[command(autocomplete = true)]
+    #[command(autocomplete = true, desc_localizations = "overrides_edit_option_name")]
     name: String,
+
     /// The settings to reset, space seperated.
+    #[command(desc_localizations = "overrides_edit_reset_option_reset")]
     reset: String,
 }
 
 impl ResetOverrideSettings {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
+        let lang = ctx.user_lang();
 
         let ov = StarboardOverride::get(&ctx.bot.pool, guild_id, &self.name).await?;
         let ov = match ov {
             None => {
-                ctx.respond_str("No override with that name was found.", true)
+                ctx.respond_str(&lang.override_missing(self.name), true)
                     .await?;
                 return Ok(());
             }
@@ -66,11 +75,7 @@ impl ResetOverrideSettings {
 
         StarboardOverride::update_settings(&ctx.bot.pool, ov.id, settings).await?;
         ctx.respond_str(
-            &format!(
-                "Reset {} setting(s) for override '{}'.",
-                reset.len() - frontend_final_count_sub,
-                ov.name
-            ),
+            &lang.overrides_edit_reset_done(reset.len() - frontend_final_count_sub, ov.name),
             false,
         )
         .await?;

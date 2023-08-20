@@ -11,41 +11,39 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
+    translations::Lang,
     utils::{
         id_as_i64::GetI64,
         views::select_paginator::{SelectPaginatorBuilder, SelectPaginatorPageBuilder},
     },
 };
 
+locale_func!(filters_view);
+locale_func!(filters_view_option_group);
+
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "view",
-    desc = "View filter groups and filters for this server."
+    desc = "View filter groups and filters for this server.",
+    desc_localizations = "filters_view"
 )]
 pub struct View {
     /// The filter group to view.
-    #[command(autocomplete = true)]
+    #[command(autocomplete = true, desc_localizations = "filters_view_option_group")]
     group: Option<String>,
 }
 
 impl View {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
+        let lang = ctx.user_lang();
 
         let groups = FilterGroup::list_by_guild(&ctx.bot.pool, guild_id).await?;
 
         if groups.is_empty() {
-            ctx.respond_str(
-                &format!(
-                    concat!(
-                        "This server does not have any filter groups. ",
-                        "Read the [filter docs](<{}>) to get started."
-                    ),
-                    constants::DOCS_FILTERS
-                ),
-                true,
-            )
-            .await?;
+            ctx.respond_str(&lang.filters_view_no_groups(constants::DOCS_FILTERS), true)
+                .await?;
             return Ok(());
         }
 
@@ -58,9 +56,9 @@ impl View {
             if Some(&group.name) == self.group.as_ref() {
                 start = x;
             }
-            let embeds = group_embed(&bot.pool, &group, premium).await?;
-            let page = SelectPaginatorPageBuilder::new(format!("Filter Group '{}'", group.name))
-                .embeds(embeds);
+            let embeds = group_embed(&bot.pool, &group, premium, lang).await?;
+            let page =
+                SelectPaginatorPageBuilder::new(lang.filter_group_title(group.name)).embeds(embeds);
             paginator = paginator.add_page(page);
         }
 
@@ -72,15 +70,13 @@ async fn group_embed(
     pool: &sqlx::PgPool,
     group: &FilterGroup,
     premium: bool,
+    lang: Lang,
 ) -> StarboardResult<Vec<Embed>> {
     let mut ret = Vec::new();
     let emb = EmbedBuilder::new()
         .color(constants::EMBED_DARK_BG)
-        .title(format!("Filter Group '{}'", group.name))
-        .description(format!(
-            "Read the [filter docs]({}) to get started.",
-            constants::DOCS_FILTERS
-        ))
+        .title(lang.filter_group_title(&group.name))
+        .description(lang.filters_view_read_docs(constants::DOCS_FILTERS))
         .build();
     ret.push(emb);
 
@@ -88,21 +84,21 @@ async fn group_embed(
     if filters.is_empty() {
         let emb = EmbedBuilder::new()
             .color(constants::EMBED_DARK_BG)
-            .description("This filter group has no filters.")
+            .description(lang.filters_view_group_no_filters())
             .build();
         ret.push(emb);
     }
 
     for filter in filters {
-        ret.push(filter_embed(filter, premium));
+        ret.push(filter_embed(filter, premium, lang));
     }
 
     Ok(ret)
 }
 
-fn format_roles(role_ids: &[i64]) -> String {
+fn format_roles(role_ids: &[i64], lang: Lang) -> String {
     if role_ids.is_empty() {
-        "None set. This condition always passes.".to_string()
+        lang.filters_view_condition_no_roles().to_string()
     } else {
         role_ids
             .iter()
@@ -112,9 +108,9 @@ fn format_roles(role_ids: &[i64]) -> String {
     }
 }
 
-fn format_channels(channel_ids: &[i64]) -> String {
+fn format_channels(channel_ids: &[i64], lang: Lang) -> String {
     if channel_ids.is_empty() {
-        "None set. This condition always passes.".to_string()
+        lang.filters_view_condition_no_channels().to_string()
     } else {
         channel_ids
             .iter()
@@ -124,157 +120,110 @@ fn format_channels(channel_ids: &[i64]) -> String {
     }
 }
 
-fn filter_embed(filter: Filter, premium: bool) -> Embed {
+fn filter_embed(filter: Filter, premium: bool, lang: Lang) -> Embed {
     let mut default_context = Vec::new();
     let mut message_context = Vec::new();
     let mut vote_context = Vec::new();
 
     // default context
     if let Some(val) = filter.user_has_all_of {
-        let desc = format!("User must have all of these roles:\n{}", format_roles(&val));
+        let desc = lang.filters_view_user_has_all_of(format_roles(&val, lang));
         default_context.push(desc);
     }
     if let Some(val) = filter.user_has_some_of {
-        let desc = format!(
-            "User must have at least one of these roles:\n{}",
-            format_roles(&val),
-        );
+        let desc = lang.filters_view_user_has_some_of(format_roles(&val, lang));
         default_context.push(desc);
     }
     if let Some(val) = filter.user_missing_all_of {
-        let desc = format!(
-            "User must be missing all of these roles:\n{}",
-            format_roles(&val),
-        );
+        let desc = lang.filters_view_user_missing_all_of(format_roles(&val, lang));
         default_context.push(desc);
     }
     if let Some(val) = filter.user_missing_some_of {
-        let desc = format!(
-            "User must be missing at least one of these roles:\n{}",
-            format_roles(&val),
-        );
+        let desc = lang.filters_view_user_missing_some_of(format_roles(&val, lang));
         default_context.push(desc);
     }
     if let Some(val) = filter.user_is_bot {
         let desc = if val {
-            "User must be a bot."
+            lang.filters_view_user_must_be_bot()
         } else {
-            "User must not be a bot."
+            lang.filters_view_user_must_be_human()
         };
         default_context.push(desc.to_string());
     }
 
     // message context
     if let Some(val) = filter.in_channel {
-        let desc = format!(
-            "Message must be in one of these channels:\n{}",
-            format_channels(&val)
-        );
+        let desc = lang.filters_view_in_channel(format_channels(&val, lang));
         message_context.push(desc);
     }
     if let Some(val) = filter.not_in_channel {
-        let desc = format!(
-            "Message must not be in any of these channels:\n{}",
-            format_channels(&val)
-        );
+        let desc = lang.filters_view_not_in_channel(format_channels(&val, lang));
         message_context.push(desc);
     }
     if let Some(val) = filter.in_channel_or_sub_channels {
-        let desc = format!(
-            "Message must be in one of these channels or one of their sub-channels:\n{}",
-            format_channels(&val)
-        );
+        let desc = lang.filters_view_in_channel_or_sub_channels(format_channels(&val, lang));
         message_context.push(desc);
     }
     if let Some(val) = filter.not_in_channel_or_sub_channels {
-        let desc = format!(
-            "Message must not be in any of these channels or any of their sub-channels:\n{}",
-            format_channels(&val)
-        );
+        let desc = lang.filters_view_not_in_channel_or_sub_channels(format_channels(&val, lang));
         message_context.push(desc);
     }
     if let Some(val) = filter.min_attachments {
-        let desc = format!("Message must have at least {val} attachments.");
+        let desc = lang.filters_view_min_attachments(val);
         message_context.push(desc);
     }
     if let Some(val) = filter.max_attachments {
-        let desc = format!("Message cannot have more than {val} attachments.");
+        let desc = lang.filters_view_max_attachments(val);
         message_context.push(desc);
     }
     if let Some(val) = filter.min_length {
-        let desc = format!(
-            "Message must be at least {} characters long.",
-            val.separate_with_commas()
-        );
+        let desc = lang.filters_view_min_length(val.separate_with_commas());
         message_context.push(desc);
     }
     if let Some(val) = filter.max_length {
-        let desc = format!(
-            "Message cannot be longer than {} characters.",
-            val.separate_with_commas()
-        );
+        let desc = lang.filters_view_max_length(val.separate_with_commas());
         message_context.push(desc);
     }
     if let Some(val) = filter.matches {
-        let mut desc = format!("Message must match the following regex:\n```re\n{val}\n```");
+        let mut desc = lang.filters_view_matches(val);
         if !premium {
-            desc.push_str(
-                "\n:warning: This setting is ignored because this server doesn't have premium.",
-            );
+            desc.push_str(lang.filters_view_regex_not_applied());
         }
         message_context.push(desc);
     }
     if let Some(val) = filter.not_matches {
-        let mut desc = format!("Message must not match the following regex:\n```re\n{val}\n```");
+        let mut desc = lang.filters_view_not_matches(val);
         if !premium {
-            desc.push_str(
-                "\n:warning: This setting is ignored because this server doesn't have premium.",
-            );
+            desc.push_str(lang.filters_view_regex_not_applied());
         }
         message_context.push(desc);
     }
 
     // voter context
     if let Some(val) = filter.voter_has_all_of {
-        let desc = format!(
-            "Voter must have all of these roles:\n{}",
-            format_roles(&val)
-        );
+        let desc = lang.filters_view_voter_has_all_of(format_roles(&val, lang));
         vote_context.push(desc);
     }
     if let Some(val) = filter.voter_has_some_of {
-        let desc = format!(
-            "Voter must have at least one of these roles:\n{}",
-            format_roles(&val),
-        );
+        let desc = lang.filters_view_voter_has_some_of(format_roles(&val, lang));
         vote_context.push(desc);
     }
     if let Some(val) = filter.voter_missing_all_of {
-        let desc = format!(
-            "Voter must be missing all of these roles:\n{}",
-            format_roles(&val),
-        );
+        let desc = lang.filters_view_voter_missing_all_of(format_roles(&val, lang));
         vote_context.push(desc);
     }
     if let Some(val) = filter.voter_missing_some_of {
-        let desc = format!(
-            "Voter must be missing at least one of these roles:\n{}",
-            format_roles(&val),
-        );
+        let desc = lang.filters_view_voter_missing_some_of(format_roles(&val, lang));
         vote_context.push(desc);
     }
     if let Some(val) = filter.older_than {
-        let desc = format!(
-            "Message must be older than {}.",
-            humantime::format_duration(Duration::from_secs(val as u64)),
-        );
+        let desc = lang
+            .filters_view_older_than(humantime::format_duration(Duration::from_secs(val as u64)));
         vote_context.push(desc);
     }
     if let Some(val) = filter.newer_than {
-        let desc = format!(
-            "Message must be newer than {}.",
-            humantime::format_duration(Duration::from_secs(val as u64)),
-        );
+        let desc = lang
+            .filters_view_newer_than(humantime::format_duration(Duration::from_secs(val as u64)));
         vote_context.push(desc);
     }
 
@@ -291,32 +240,32 @@ fn filter_embed(filter: Filter, premium: bool) -> Embed {
     if !default_context.is_empty() {
         has_conditions = true;
         emb = emb.field(EmbedFieldBuilder::new(
-            "Default Context",
+            lang.filters_default_context_title(),
             default_context.join("\n\n"),
         ));
     }
     if !message_context.is_empty() {
         has_conditions = true;
         emb = emb.field(EmbedFieldBuilder::new(
-            "Message Context",
+            lang.filters_message_context_title(),
             message_context.join("\n\n"),
         ));
     }
     if !vote_context.is_empty() {
         has_conditions = true;
         emb = emb.field(EmbedFieldBuilder::new(
-            "Vote Context",
+            lang.filters_vote_context_title(),
             vote_context.join("\n\n"),
         ));
     }
 
     if !has_conditions {
-        desc.push_str("\n\nThis filter has no conditions, so it always passes.");
+        desc.push_str(lang.filters_view_no_conditions());
     }
 
     emb = emb
         .description(desc)
-        .title(format!("Filter {}", filter.position));
+        .title(lang.filter_title(filter.position));
 
     emb.build()
 }

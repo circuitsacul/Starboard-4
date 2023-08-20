@@ -6,14 +6,25 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
     utils::{id_as_i64::GetI64, views::confirm},
 };
 
+locale_func!(autostar_delete);
+locale_func!(autostar_delete_option_name);
+
 #[derive(CreateCommand, CommandModel)]
-#[command(name = "delete", desc = "Delete an autostar channel.")]
+#[command(
+    name = "delete",
+    desc = "Delete an autostar channel.",
+    desc_localizations = "autostar_delete"
+)]
 pub struct DeleteAutoStarChannel {
     /// The name of the autostar channel to delete.
-    #[command(autocomplete = true)]
+    #[command(
+        autocomplete = true,
+        desc_localizations = "autostar_delete_option_name"
+    )]
     name: String,
 }
 
@@ -21,16 +32,8 @@ impl DeleteAutoStarChannel {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
 
-        let mut btn_ctx = match confirm::simple(
-            &mut ctx,
-            &format!(
-                "Are you sure you want to delete the autostar channel '{}'?",
-                self.name
-            ),
-            true,
-        )
-        .await?
-        {
+        let conf = ctx.user_lang().autostar_delete_confirm(&self.name);
+        let mut btn_ctx = match confirm::simple(&mut ctx, &conf, true).await? {
             None => return Ok(()),
             Some(btn_ctx) => btn_ctx,
         };
@@ -44,11 +47,11 @@ impl DeleteAutoStarChannel {
         .await?;
         if ret.is_none() {
             btn_ctx
-                .edit_str("No autostar channel with that name was found.", true)
+                .edit_str(&ctx.user_lang().autostar_channel_missing(self.name), true)
                 .await?;
         } else {
             btn_ctx
-                .edit_str(&format!("Deleted autostar channel '{}'.", self.name), true)
+                .edit_str(&ctx.user_lang().autostar_delete_done(self.name), true)
                 .await?;
         }
         Ok(())

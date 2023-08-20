@@ -7,12 +7,16 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     errors::StarboardResult,
     interactions::{commands::permissions::manage_channels, context::CommandCtx},
+    locale_func,
 };
+
+locale_func!(exclusive_groups);
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "exclusive-groups",
     desc = "Manage exclusive groups for starboards.",
+    desc_localizations = "exclusive_groups",
     default_permissions = "manage_channels",
     dm_permission = false
 )]

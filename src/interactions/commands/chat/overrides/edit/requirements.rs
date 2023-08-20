@@ -17,49 +17,90 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
     utils::id_as_i64::GetI64,
 };
+
+locale_func!(overrides_edit_requirements);
+locale_func!(overrides_edit_option_name);
+
+locale_func!(sb_option_required);
+locale_func!(sb_option_required_remove);
+locale_func!(sb_option_upvote_emojis);
+locale_func!(sb_option_downvote_emojis);
+locale_func!(sb_option_self_vote);
+locale_func!(sb_option_allow_bots);
+locale_func!(sb_option_require_image);
+locale_func!(sb_option_older_than);
+locale_func!(sb_option_newer_than);
+locale_func!(sb_option_matches);
+locale_func!(sb_option_not_matches);
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "requirements",
-    desc = "Edit the requirements for messages to appear on the starboard."
+    desc = "Edit the requirements for messages to appear on the starboard.",
+    desc_localizations = "overrides_edit_requirements"
 )]
 pub struct EditRequirements {
     /// The override to edit.
-    #[command(autocomplete = true)]
+    #[command(autocomplete = true, desc_localizations = "overrides_edit_option_name")]
     name: String,
 
     /// The number of upvotes a message needs. Use "none" to unset.
+    #[command(desc_localizations = "sb_option_required")]
     required: Option<String>,
+
     /// How few points the message can have before a starboarded post is removed. Use "none" to unset.
-    #[command(rename = "required-remove")]
+    #[command(
+        rename = "required-remove",
+        desc_localizations = "sb_option_required_remove"
+    )]
     required_remove: Option<String>,
+
     /// The emojis that can be used to upvote a post. Use 'none' to remove all.
-    #[command(rename = "upvote-emojis")]
+    #[command(
+        rename = "upvote-emojis",
+        desc_localizations = "sb_option_upvote_emojis"
+    )]
     upvote_emojis: Option<String>,
+
     /// The emojis that can be used to downvote a post. Use 'none' to remove all.
-    #[command(rename = "downvote-emojis")]
+    #[command(
+        rename = "downvote-emojis",
+        desc_localizations = "sb_option_downvote_emojis"
+    )]
     downvote_emojis: Option<String>,
+
     /// Whether to allow users to vote on their own posts.
-    #[command(rename = "self-vote")]
+    #[command(rename = "self-vote", desc_localizations = "sb_option_self_vote")]
     self_vote: Option<bool>,
+
     /// Whether to allow bot messages to be on the starboard.
-    #[command(rename = "allow-bots")]
+    #[command(rename = "allow-bots", desc_localizations = "sb_option_allow_bots")]
     allow_bots: Option<bool>,
+
     /// Whether to require posts to have an image to appear on the starboard.
-    #[command(rename = "require-image")]
+    #[command(
+        rename = "require-image",
+        desc_localizations = "sb_option_require_image"
+    )]
     require_image: Option<bool>,
+
     /// How old a post must be in order for it to be voted on (e.g. "1 hour"). Use 0 to disable.
-    #[command(rename = "older-than")]
+    #[command(rename = "older-than", desc_localizations = "sb_option_older_than")]
     older_than: Option<String>,
+
     /// How new a post must be in order for it to be voted on (e.g. "1 hour"). Use 0 to disable.
-    #[command(rename = "newer-than")]
+    #[command(rename = "newer-than", desc_localizations = "sb_option_newer_than")]
     newer_than: Option<String>,
+
     /// (Premium) Content that messages must match to be starred (supports regex). Use ".*" to disable.
+    #[command(desc_localizations = "sb_option_matches")]
     matches: Option<String>,
-    #[command(rename = "not-matches")]
+
     /// (Premium) content that messages must not match to be starred (supports regex). Use ".*" to disable.
+    #[command(rename = "not-matches", desc_localizations = "sb_option_not_matches")]
     not_matches: Option<String>,
 }
 
@@ -67,9 +108,11 @@ impl EditRequirements {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
+        let lang = ctx.user_lang();
+
         let ov = match StarboardOverride::get(&ctx.bot.pool, guild_id_i64, &self.name).await? {
             None => {
-                ctx.respond_str("No override with that name was found.", true)
+                ctx.respond_str(&lang.override_missing(self.name), true)
                     .await?;
                 return Ok(());
             }
@@ -195,11 +238,8 @@ impl EditRequirements {
         }
 
         StarboardOverride::update_settings(&ctx.bot.pool, ov.id, settings).await?;
-        ctx.respond_str(
-            &format!("Updated settings for override '{}'.", self.name),
-            false,
-        )
-        .await?;
+        ctx.respond_str(&lang.overrides_edit_done(self.name), false)
+            .await?;
 
         Ok(())
     }

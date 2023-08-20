@@ -6,10 +6,16 @@ pub mod style;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::{errors::StarboardResult, interactions::context::CommandCtx};
+use crate::{errors::StarboardResult, interactions::context::CommandCtx, locale_func};
+
+locale_func!(overrides_edit);
 
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "edit", desc = "Edit an override.")]
+#[command(
+    name = "edit",
+    desc = "Edit an override.",
+    desc_localizations = "overrides_edit"
+)]
 pub enum EditOverride {
     #[command(name = "embed")]
     Embed(embed::EditEmbedStyle),

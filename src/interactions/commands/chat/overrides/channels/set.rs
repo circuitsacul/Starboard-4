@@ -5,17 +5,32 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
     utils::id_as_i64::GetI64,
 };
 
+locale_func!(overrides_channels_set);
+locale_func!(overrides_channels_set_option_name);
+locale_func!(overrides_channels_set_option_channels);
+
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "set", desc = "Set the channels that an override affects.")]
+#[command(
+    name = "set",
+    desc = "Set the channels that an override affects.",
+    desc_localizations = "overrides_channels_set"
+)]
 pub struct SetOverrideChannels {
     /// The override to set the channels for.
-    #[command(autocomplete = true, rename = "override")]
+    #[command(
+        autocomplete = true,
+        rename = "override",
+        desc_localizations = "overrides_channels_set_option_name"
+    )]
     name: String,
+
     /// A list of channels that the override should affect. Use "none" to
     /// remove all.
+    #[command(desc_localizations = "overrides_channels_set_option_channels")]
     channels: String,
 }
 
@@ -23,6 +38,7 @@ impl SetOverrideChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
+        let lang = ctx.user_lang();
 
         let channel_ids: Vec<_> = textable_channel_ids(&ctx.bot, guild_id, &self.channels)
             .await?
@@ -37,17 +53,11 @@ impl SetOverrideChannels {
                 .await?;
 
         if ov.is_none() {
-            ctx.respond_str(
-                &format!("No override with the name '{}' exists.", self.name),
-                true,
-            )
-            .await?;
+            ctx.respond_str(&lang.override_missing(self.name), true)
+                .await?;
         } else {
-            ctx.respond_str(
-                &format!("Set the channels for override '{}'.", self.name),
-                false,
-            )
-            .await?;
+            ctx.respond_str(&lang.overrides_channels_done(self.name), false)
+                .await?;
         }
         Ok(())
     }

@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
@@ -8,21 +6,35 @@ use crate::{
     database::DbGuild,
     errors::StarboardResult,
     interactions::context::CommandCtx,
+    locale_func,
     utils::{id_as_i64::GetI64, views::confirm},
 };
 
+locale_func!(premium_redeem);
+locale_func!(premium_redeem_option_months);
+
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "redeem", desc = "Redeem your premium credits.")]
+#[command(
+    name = "redeem",
+    desc = "Redeem your premium credits.",
+    desc_localizations = "premium_redeem"
+)]
 pub struct Redeem {
     /// The number of months of premium to redeem. Each month is three credits.
-    #[command(min_value = 1, max_value = 6)]
+    #[command(
+        min_value = 1,
+        max_value = 6,
+        desc_localizations = "premium_redeem_option_months"
+    )]
     months: i64,
 }
 
 impl Redeem {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
+        let lang = ctx.user_lang();
+
         let Some(guild_id) = ctx.interaction.guild_id else {
-            ctx.respond_str("Please run this command in the server you want premium for.", true).await?;
+            ctx.respond_str(lang.premium_redeem_dm(), true).await?;
             return Ok(());
         };
         let guild_id_i64 = guild_id.get_i64();
@@ -34,29 +46,19 @@ impl Redeem {
             None => DbGuild::get(&ctx.bot.pool, guild_id_i64).await?.unwrap(),
         };
 
-        let end_pretty = if let Some(end) = guild.premium_end {
-            Cow::Owned(format!(
-                "This server has premium until <t:{}:F>.",
-                end.timestamp()
-            ))
+        let mut conf = if let Some(end) = guild.premium_end {
+            lang.premium_end_premium_until(end.timestamp())
         } else {
-            Cow::Borrowed("This server does not have premium.")
+            lang.premium_end_no_premium().to_string()
         };
 
-        let ret = confirm::simple(
-            &mut ctx,
-            &format!(
-                concat!(
-                    "{} Doing this will will add {} month(s) of premium (each \"month\" is 31 ",
-                    "days), and cost you {} credits. Do you wish to continue?"
-                ),
-                end_pretty,
-                self.months,
-                self.months * constants::CREDITS_PER_MONTH as i64
-            ),
-            false,
-        )
-        .await?;
+        conf.push_str("\n\n");
+        conf.push_str(&lang.premium_redeem_confirm(
+            self.months * constants::CREDITS_PER_MONTH as i64,
+            self.months,
+        ));
+
+        let ret = confirm::simple(&mut ctx, conf, false).await?;
         let Some(mut btn_ctx) = ret else {
             return Ok(());
         };
@@ -71,15 +73,9 @@ impl Redeem {
         .await?;
 
         let resp = match ret {
-            RedeemPremiumResult::Ok => concat!(
-                "Done.\n\nTip: Use `/premium autoredeem enable` to enable autoredeem for this ",
-                "server, so you don't have to repeatedly redeem credits."
-            ),
-            RedeemPremiumResult::StateMismatch => concat!(
-                "This server's premium status changed while you were running the command. ",
-                "Please try again."
-            ),
-            RedeemPremiumResult::TooFewCredits => "You don't have enough credits.",
+            RedeemPremiumResult::Ok => lang.premium_redeem_done(),
+            RedeemPremiumResult::StateMismatch => lang.premium_redeem_state_mismatch(),
+            RedeemPremiumResult::TooFewCredits => lang.premium_redeem_too_few_credits(),
         };
         btn_ctx.edit_str(resp, true).await?;
 

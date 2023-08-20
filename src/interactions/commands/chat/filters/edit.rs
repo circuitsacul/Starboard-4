@@ -13,38 +13,76 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
+    translations::Lang,
     utils::id_as_i64::GetI64,
 };
 
-fn validate_roles(length: usize) -> Result<(), String> {
+fn validate_roles(length: usize, lang: Lang) -> Result<(), String> {
     if length > constants::MAX_FILTER_ROLES {
-        Err(format!(
-            "You can only have up to {} roles in a list.",
-            constants::MAX_FILTER_ROLES
-        ))
+        Err(lang.filters_max_roles(constants::MAX_FILTER_ROLES))
     } else {
         Ok(())
     }
 }
 
-fn validate_channels(length: usize) -> Result<(), String> {
+fn validate_channels(length: usize, lang: Lang) -> Result<(), String> {
     if length > constants::MAX_FILTER_CHANNELS {
-        Err(format!(
-            "You can only have up to {} channels in a list.",
-            constants::MAX_FILTER_CHANNELS
-        ))
+        Err(lang.filters_max_channels(constants::MAX_FILTER_CHANNELS))
     } else {
         Ok(())
     }
 }
+
+locale_func!(filters_edit);
+locale_func!(filters_edit_option_group);
+locale_func!(filters_edit_option_position);
+locale_func!(filters_edit_option_instant_pass);
+locale_func!(filters_edit_option_instant_fail);
+locale_func!(filters_edit_option_user_has_all_of);
+locale_func!(filters_edit_option_user_has_some_of);
+locale_func!(filters_edit_option_user_missing_all_of);
+locale_func!(filters_edit_option_user_missing_some_of);
+locale_func!(filters_edit_option_user_is_bot);
+locale_func!(filters_edit_option_in_channel);
+locale_func!(filters_edit_option_not_in_channel);
+locale_func!(filters_edit_option_in_channel_or_sub_channels);
+locale_func!(filters_edit_option_not_in_channel_or_sub_channels);
+locale_func!(filters_edit_option_min_attachments);
+locale_func!(filters_edit_option_max_attachments);
+locale_func!(filters_edit_option_min_length);
+locale_func!(filters_edit_option_max_length);
+locale_func!(filters_edit_option_matches);
+locale_func!(filters_edit_option_not_matches);
+locale_func!(filters_edit_option_voter_has_all_of);
+locale_func!(filters_edit_option_voter_has_some_of);
+locale_func!(filters_edit_option_voter_missing_all_of);
+locale_func!(filters_edit_option_voter_missing_some_of);
+locale_func!(filters_edit_option_older_than);
+locale_func!(filters_edit_option_newer_than);
+locale_func!(filters_bot_req_must_be_bot);
+locale_func!(filters_bot_req_must_be_human);
+locale_func!(filters_bot_req_disabled);
 
 #[derive(CreateOption, CommandOption)]
 pub enum UserBotRequirement {
-    #[option(name = "User must be a bot", value = 0)]
+    #[option(
+        name = "User must be a bot",
+        value = 0,
+        name_localizations = "filters_bot_req_must_be_bot"
+    )]
     MustBeBot,
-    #[option(name = "User must not be a bot", value = 1)]
+    #[option(
+        name = "User must not be a bot",
+        value = 1,
+        name_localizations = "filters_bot_req_must_be_human"
+    )]
     MustBeHuman,
-    #[option(name = "Disabled", value = 2)]
+    #[option(
+        name = "Disabled",
+        value = 2,
+        name_localizations = "filters_bot_req_disabled"
+    )]
     Disabled,
 }
 
@@ -59,89 +97,184 @@ impl From<UserBotRequirement> for Option<bool> {
 }
 
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "edit", desc = "Edit a filters conditions.")]
+#[command(
+    name = "edit",
+    desc = "Edit a filters conditions.",
+    desc_localizations = "filters_edit"
+)]
 pub struct Edit {
     /// The name of the filter group containing the filter to be edited.
-    #[command(autocomplete = true)]
+    #[command(autocomplete = true, desc_localizations = "filters_edit_option_group")]
     group: String,
+
     /// The position of the filter to edit.
-    #[command(min_value = 1, max_value = 1_000)]
+    #[command(
+        min_value = 1,
+        max_value = 1_000,
+        desc_localizations = "filters_edit_option_position"
+    )]
     position: i64,
 
     // general info
     /// If true and this filter passes, the entire filter groups passes.
-    #[command(rename = "instant-pass")]
+    #[command(
+        rename = "instant-pass",
+        desc_localizations = "filters_edit_option_instant_pass"
+    )]
     instant_pass: Option<bool>,
+
     /// If true and this filter fails, then the entire filter group fails.
-    #[command(rename = "instant-fail")]
+    #[command(
+        rename = "instant-fail",
+        desc_localizations = "filters_edit_option_instant_fail"
+    )]
     instant_fail: Option<bool>,
 
     // default context
     /// Require that the user/author has all of these roles.
-    #[command(rename = "user-has-all-of")]
+    #[command(
+        rename = "user-has-all-of",
+        desc_localizations = "filters_edit_option_user_has_all_of"
+    )]
     user_has_all_of: Option<String>,
+
     /// Require that the user/author has at least one of these roles.
-    #[command(rename = "user-has-some-of")]
+    #[command(
+        rename = "user-has-some-of",
+        desc_localizations = "filters_edit_option_user_has_some_of"
+    )]
     user_has_some_of: Option<String>,
+
     /// Require that the user/author is missing all of these roles.
-    #[command(rename = "user-missing-all-of")]
+    #[command(
+        rename = "user-missing-all-of",
+        desc_localizations = "filters_edit_option_user_missing_all_of"
+    )]
     user_missing_all_of: Option<String>,
+
     /// Require that the user/author is missing at least one of these roles.
-    #[command(rename = "user-missing-some-of")]
+    #[command(
+        rename = "user-missing-some-of",
+        desc_localizations = "filters_edit_option_user_missing_some_of"
+    )]
     user_missing_some_of: Option<String>,
+
     /// Require that the user is or is not a bot.
-    #[command(rename = "user-is-bot")]
+    #[command(
+        rename = "user-is-bot",
+        desc_localizations = "filters_edit_option_user_is_bot"
+    )]
     user_is_bot: Option<UserBotRequirement>,
 
     // message context
     /// Require that the message was sent in one of these channels.
-    #[command(rename = "in-channel")]
+    #[command(
+        rename = "in-channel",
+        desc_localizations = "filters_edit_option_in_channel"
+    )]
     in_channel: Option<String>,
+
     /// Require that the message was not sent in one of these channels.
-    #[command(rename = "not-in-channel")]
+    #[command(
+        rename = "not-in-channel",
+        desc_localizations = "filters_edit_option_not_in_channel"
+    )]
     not_in_channel: Option<String>,
+
     /// Require that the message was sent in one of these channels or their sub-channels.
-    #[command(rename = "in-channel-or-sub-channels")]
+    #[command(
+        rename = "in-channel-or-sub-channels",
+        desc_localizations = "filters_edit_option_in_channel_or_sub_channels"
+    )]
     in_channel_or_sub_channels: Option<String>,
+
     /// Require that the message was not sent in one of these channels or their sub-channels.
-    #[command(rename = "not-in-channel-or-sub-channels")]
+    #[command(
+        rename = "not-in-channel-or-sub-channels",
+        desc_localizations = "filters_edit_option_not_in_channel_or_sub_channels"
+    )]
     not_in_channel_or_sub_channels: Option<String>,
+
     /// Require that the message has at least this many attachments. Use 0 to disable.
-    #[command(rename = "min-attachments")]
+    #[command(
+        rename = "min-attachments",
+        desc_localizations = "filters_edit_option_min_attachments"
+    )]
     min_attachments: Option<i64>,
+
     /// Require that the message have at most this many attachments. Use -1 to disable.
-    #[command(rename = "max-attachments")]
+    #[command(
+        rename = "max-attachments",
+        desc_localizations = "filters_edit_option_max_attachments"
+    )]
     max_attachments: Option<i64>,
+
     /// Require that the message be at least this many characters long. Use 0 to disable.
-    #[command(rename = "min-length")]
+    #[command(
+        rename = "min-length",
+        desc_localizations = "filters_edit_option_min_length"
+    )]
     min_length: Option<i64>,
+
     /// Require that the message be at most this many characters long. Use -1 to disable.
-    #[command(rename = "max-length")]
+    #[command(
+        rename = "max-length",
+        desc_localizations = "filters_edit_option_max_length"
+    )]
     max_length: Option<i64>,
+
     /// (Premium) Require that the message match this regex. Use `.*` to disable.
+    #[command(desc_localizations = "filters_edit_option_matches")]
     matches: Option<String>,
+
     /// (Premium) Require that the message not match this regex. Use `.*` to disable.
-    #[command(rename = "not-matches")]
+    #[command(
+        rename = "not-matches",
+        desc_localizations = "filters_edit_option_not_matches"
+    )]
     not_matches: Option<String>,
 
     // vote context
     /// Require that the voter has all of these roles.
-    #[command(rename = "voter-has-all-of")]
+    #[command(
+        rename = "voter-has-all-of",
+        desc_localizations = "filters_edit_option_voter_has_all_of"
+    )]
     voter_has_all_of: Option<String>,
+
     /// Require that the voter has at least one of these roles.
-    #[command(rename = "voter-has-some-of")]
+    #[command(
+        rename = "voter-has-some-of",
+        desc_localizations = "filters_edit_option_voter_has_some_of"
+    )]
     voter_has_some_of: Option<String>,
+
     /// Require that the voter is missing all of these roles.
-    #[command(rename = "voter-missing-all-of")]
+    #[command(
+        rename = "voter-missing-all-of",
+        desc_localizations = "filters_edit_option_voter_missing_all_of"
+    )]
     voter_missing_all_of: Option<String>,
+
     /// Require that the voter is missing at least one of these roles.
-    #[command(rename = "voter-missing-some-of")]
+    #[command(
+        rename = "voter-missing-some-of",
+        desc_localizations = "filters_edit_option_voter_missing_some_of"
+    )]
     voter_missing_some_of: Option<String>,
+
     /// Require that the message being voted on is over a certain age. Use "disable" to disable.
-    #[command(rename = "older-than")]
+    #[command(
+        rename = "older-than",
+        desc_localizations = "filters_edit_option_older_than"
+    )]
     older_than: Option<String>,
+
     /// Require that the message being voted on is under a certain age. Use "disable" to disable.
-    #[command(rename = "newer-than")]
+    #[command(
+        rename = "newer-than",
+        desc_localizations = "filters_edit_option_newer_than"
+    )]
     newer_than: Option<String>,
 }
 
@@ -154,7 +287,7 @@ impl Edit {
             &ctx.bot.pool, guild_id_i64, &self.group
         ).await? else {
             ctx.respond_str(
-                &format!("No filter group named '{}' exists.", self.group),
+                &ctx.user_lang().filter_group_missing(self.group),
                 true,
             ).await?;
             return Ok(());
@@ -164,7 +297,7 @@ impl Edit {
             &ctx.bot.pool, group.id, self.position as i16
         ).await? else {
             ctx.respond_str(
-                &format!("No filter for group '{}' at {} exists.", self.group, self.position),
+                &ctx.user_lang().filter_missing(self.group, self.position),
                 true,
             ).await?;
             return Ok(());
@@ -183,7 +316,7 @@ impl Edit {
         // default context
         if let Some(val) = self.user_has_all_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
-            if let Err(why) = validate_roles(roles.len()) {
+            if let Err(why) = validate_roles(roles.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -195,7 +328,7 @@ impl Edit {
         }
         if let Some(val) = self.user_has_some_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
-            if let Err(why) = validate_roles(roles.len()) {
+            if let Err(why) = validate_roles(roles.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -207,7 +340,7 @@ impl Edit {
         }
         if let Some(val) = self.user_missing_all_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
-            if let Err(why) = validate_roles(roles.len()) {
+            if let Err(why) = validate_roles(roles.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -219,7 +352,7 @@ impl Edit {
         }
         if let Some(val) = self.user_missing_some_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
-            if let Err(why) = validate_roles(roles.len()) {
+            if let Err(why) = validate_roles(roles.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -236,7 +369,7 @@ impl Edit {
         // message context
         if let Some(val) = self.in_channel {
             let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
-            if let Err(why) = validate_channels(channels.len()) {
+            if let Err(why) = validate_channels(channels.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -248,7 +381,7 @@ impl Edit {
         }
         if let Some(val) = self.not_in_channel {
             let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
-            if let Err(why) = validate_channels(channels.len()) {
+            if let Err(why) = validate_channels(channels.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -260,7 +393,7 @@ impl Edit {
         }
         if let Some(val) = self.in_channel_or_sub_channels {
             let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
-            if let Err(why) = validate_channels(channels.len()) {
+            if let Err(why) = validate_channels(channels.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -272,7 +405,7 @@ impl Edit {
         }
         if let Some(val) = self.not_in_channel_or_sub_channels {
             let channels = textable_channel_ids(&ctx.bot, guild_id, &val).await?;
-            if let Err(why) = validate_channels(channels.len()) {
+            if let Err(why) = validate_channels(channels.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -285,16 +418,14 @@ impl Edit {
         if let Some(val) = self.min_attachments {
             if val > constants::MAX_ATTACHMENTS {
                 ctx.respond_str(
-                    &format!(
-                        "You can only have up to {} attachments.",
-                        constants::MAX_ATTACHMENTS
-                    ),
+                    &ctx.user_lang()
+                        .filters_max_min_attachments(constants::MAX_ATTACHMENTS),
                     true,
                 )
                 .await?;
                 return Ok(());
             } else if val < 0 {
-                ctx.respond_str("`min-attachments` must be at least 0.", true)
+                ctx.respond_str(ctx.user_lang().filters_min_min_attachments(), true)
                     .await?;
                 return Ok(());
             }
@@ -308,16 +439,14 @@ impl Edit {
         if let Some(val) = self.max_attachments {
             if val > constants::MAX_ATTACHMENTS {
                 ctx.respond_str(
-                    &format!(
-                        "You can only have up to {} attachments.",
-                        constants::MAX_ATTACHMENTS
-                    ),
+                    &ctx.user_lang()
+                        .filters_max_max_attachments(constants::MAX_ATTACHMENTS),
                     true,
                 )
                 .await?;
                 return Ok(());
             } else if val < -1 {
-                ctx.respond_str("`max-attachments` must be at least -1.", true)
+                ctx.respond_str(ctx.user_lang().filters_min_max_attachments(), true)
                     .await?;
                 return Ok(());
             }
@@ -331,16 +460,14 @@ impl Edit {
         if let Some(val) = self.min_length {
             if val > constants::MAX_LENGTH {
                 ctx.respond_str(
-                    &format!(
-                        "`min-length` cannot be longer than {}.",
-                        constants::MAX_LENGTH
-                    ),
+                    &ctx.user_lang()
+                        .filters_max_min_length(constants::MAX_LENGTH),
                     true,
                 )
                 .await?;
                 return Ok(());
             } else if val < 0 {
-                ctx.respond_str("`min-length` must be at least 0.", true)
+                ctx.respond_str(ctx.user_lang().filters_min_min_length(), true)
                     .await?;
                 return Ok(());
             }
@@ -354,16 +481,14 @@ impl Edit {
         if let Some(val) = self.max_length {
             if val > constants::MAX_LENGTH {
                 ctx.respond_str(
-                    &format!(
-                        "`max-length` cannot be longer than {}.",
-                        constants::MAX_LENGTH
-                    ),
+                    &ctx.user_lang()
+                        .filters_max_max_length(constants::MAX_LENGTH),
                     true,
                 )
                 .await?;
                 return Ok(());
             } else if val < -1 {
-                ctx.respond_str("`max-length` must be at least -1.", true)
+                ctx.respond_str(ctx.user_lang().filters_min_max_length(), true)
                     .await?;
                 return Ok(());
             }
@@ -377,10 +502,8 @@ impl Edit {
         if let Some(val) = self.matches {
             if val.len() > constants::MAX_REGEX_LENGTH as usize {
                 ctx.respond_str(
-                    &format!(
-                        "`matches` cannot be longer than {}.",
-                        constants::MAX_REGEX_LENGTH
-                    ),
+                    &ctx.user_lang()
+                        .filters_max_matches(constants::MAX_REGEX_LENGTH),
                     true,
                 )
                 .await?;
@@ -391,11 +514,8 @@ impl Edit {
                 filter.matches = None;
             } else {
                 if !premium {
-                    ctx.respond_str(
-                        "Only premium servers can use the `matches` condition.",
-                        true,
-                    )
-                    .await?;
+                    ctx.respond_str(ctx.user_lang().filters_matches_premium(), true)
+                        .await?;
                     return Ok(());
                 }
 
@@ -405,10 +525,8 @@ impl Edit {
         if let Some(val) = self.not_matches {
             if val.len() > constants::MAX_REGEX_LENGTH as usize {
                 ctx.respond_str(
-                    &format!(
-                        "`not-matches` cannot be longer than {}.",
-                        constants::MAX_REGEX_LENGTH
-                    ),
+                    &ctx.user_lang()
+                        .filters_max_not_matches(constants::MAX_REGEX_LENGTH),
                     true,
                 )
                 .await?;
@@ -419,11 +537,8 @@ impl Edit {
                 filter.not_matches = None;
             } else {
                 if !premium {
-                    ctx.respond_str(
-                        "Only premium servers can use the `not-matches` condition.",
-                        true,
-                    )
-                    .await?;
+                    ctx.respond_str(ctx.user_lang().filters_matches_premium(), true)
+                        .await?;
                     return Ok(());
                 }
 
@@ -434,7 +549,7 @@ impl Edit {
         // vote context
         if let Some(val) = self.voter_has_all_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
-            if let Err(why) = validate_roles(roles.len()) {
+            if let Err(why) = validate_roles(roles.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -446,7 +561,7 @@ impl Edit {
         }
         if let Some(val) = self.voter_has_some_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
-            if let Err(why) = validate_roles(roles.len()) {
+            if let Err(why) = validate_roles(roles.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -458,7 +573,7 @@ impl Edit {
         }
         if let Some(val) = self.voter_missing_all_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
-            if let Err(why) = validate_roles(roles.len()) {
+            if let Err(why) = validate_roles(roles.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -470,7 +585,7 @@ impl Edit {
         }
         if let Some(val) = self.voter_missing_some_of {
             let roles = parse_role_ids(&ctx.bot, guild_id, &val);
-            if let Err(why) = validate_roles(roles.len()) {
+            if let Err(why) = validate_roles(roles.len(), ctx.user_lang()) {
                 ctx.respond_str(&why, true).await?;
                 return Ok(());
             }
@@ -481,7 +596,7 @@ impl Edit {
             }
         }
         if let Some(val) = self.older_than {
-            if val == "disable" {
+            if val == "disable" || val == ctx.user_lang().disable() {
                 filter.older_than = None;
             } else {
                 let delta = match parse_time_delta(&val) {
@@ -495,7 +610,7 @@ impl Edit {
             }
         }
         if let Some(val) = self.newer_than {
-            if val == "disable" {
+            if val == "disable" || val == ctx.user_lang().disable() {
                 filter.newer_than = None;
             } else {
                 let delta = match parse_time_delta(&val) {
@@ -517,10 +632,7 @@ impl Edit {
         filter.update_settings(&ctx.bot.pool).await?;
 
         ctx.respond_str(
-            &format!(
-                "Updated settings for filter at {} for group '{}'.",
-                self.position, group.name
-            ),
+            &ctx.user_lang().filters_edit_done(self.group, self.position),
             false,
         )
         .await?;

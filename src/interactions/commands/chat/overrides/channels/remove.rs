@@ -5,16 +5,31 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
     utils::id_as_i64::GetI64,
 };
 
+locale_func!(overrides_channels_remove);
+locale_func!(overrides_channels_remove_option_name);
+locale_func!(overrides_channels_remove_option_channels);
+
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "remove", desc = "Remove channels from an override.")]
+#[command(
+    name = "remove",
+    desc = "Remove channels from an override.",
+    desc_localizations = "overrides_channels_remove"
+)]
 pub struct RemoveOverrideChannels {
     /// The override to remove channels from.
-    #[command(autocomplete = true, rename = "override")]
+    #[command(
+        autocomplete = true,
+        rename = "override",
+        desc_localizations = "overrides_channels_remove_option_name"
+    )]
     name: String,
+
     /// The channels to remove.
+    #[command(desc_localizations = "overrides_channels_remove_option_channels")]
     channels: String,
 }
 
@@ -22,6 +37,7 @@ impl RemoveOverrideChannels {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
+        let lang = ctx.user_lang();
 
         let ov = StarboardOverride::get(&ctx.bot.pool, guild_id_i64, &self.name).await?;
         if let Some(ov) = ov {
@@ -42,20 +58,14 @@ impl RemoveOverrideChannels {
             .await?;
 
             if ret.is_some() {
-                ctx.respond_str(
-                    &format!("Updated the channels for override '{}'.", self.name),
-                    false,
-                )
-                .await?;
+                ctx.respond_str(&lang.overrides_channels_done(self.name), false)
+                    .await?;
                 return Ok(());
             }
         }
 
-        ctx.respond_str(
-            &format!("No override with the name '{}' exists.", self.name),
-            true,
-        )
-        .await?;
+        ctx.respond_str(&lang.override_missing(self.name), true)
+            .await?;
         Ok(())
     }
 }

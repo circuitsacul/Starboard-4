@@ -10,12 +10,16 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     errors::StarboardResult,
     interactions::{commands::permissions::manage_channels, context::CommandCtx},
+    locale_func,
 };
+
+locale_func!(autostar);
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "autostar",
     desc = "Manage autostar channels.",
+    desc_localizations = "autostar",
     dm_permission = false,
     default_permissions = "manage_channels"
 )]

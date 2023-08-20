@@ -8,12 +8,16 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use crate::{
     errors::StarboardResult,
     interactions::{commands::permissions::manage_roles, context::CommandCtx},
+    locale_func,
 };
+
+locale_func!(posroles);
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "posroles",
     desc = "View and manage position-based award roles.",
+    desc_localizations = "posroles",
     dm_permission = false,
     default_permissions = "manage_roles"
 )]

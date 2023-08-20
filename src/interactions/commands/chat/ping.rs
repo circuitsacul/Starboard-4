@@ -8,7 +8,7 @@ pub struct Ping;
 
 impl Ping {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
-        ctx.respond_str("Pong! I'm here.", false).await?;
+        ctx.respond_str(ctx.user_lang().pong(), false).await?;
 
         Ok(())
     }

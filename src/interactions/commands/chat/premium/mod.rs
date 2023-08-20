@@ -4,12 +4,15 @@ mod redeem;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use crate::{errors::StarboardResult, interactions::context::CommandCtx};
+use crate::{errors::StarboardResult, interactions::context::CommandCtx, locale_func};
+
+locale_func!(premium);
 
 #[derive(CommandModel, CreateCommand)]
 #[command(
     name = "premium",
-    desc = "Premium-releated commands. See /premium-locks for locks."
+    desc = "Premium-releated commands. See /premium-locks for locks.",
+    desc_localizations = "premium"
 )]
 pub enum Premium {
     #[command(name = "info")]

@@ -6,13 +6,22 @@ use crate::{
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,
+    locale_func,
     utils::id_as_i64::GetI64,
 };
 
+locale_func!(exclusive_groups_create);
+locale_func!(exclusive_groups_create_option_name);
+
 #[derive(CommandModel, CreateCommand)]
-#[command(name = "create", desc = "Create an exclusive group for starboards.")]
+#[command(
+    name = "create",
+    desc = "Create an exclusive group for starboards.",
+    desc_localizations = "exclusive_groups_create"
+)]
 pub struct Create {
     /// The name for the exclusive group.
+    #[command(desc_localizations = "exclusive_groups_create_option_name")]
     name: String,
 }
 
@@ -33,10 +42,8 @@ impl Create {
         let count = ExclusiveGroup::count_by_guild(&ctx.bot.pool, guild_id).await?;
         if count >= constants::MAX_EXCLUSIVE_GROUPS {
             ctx.respond_str(
-                &format!(
-                    "You can only have up to {} exclusive groups.",
-                    constants::MAX_EXCLUSIVE_GROUPS
-                ),
+                &ctx.user_lang()
+                    .exclusive_groups_create_limit_reached(constants::MAX_EXCLUSIVE_GROUPS),
                 true,
             )
             .await?;
@@ -46,14 +53,11 @@ impl Create {
         let group = ExclusiveGroup::create(&ctx.bot.pool, &name, guild_id).await?;
 
         if group.is_some() {
-            ctx.respond_str(&format!("Created exclusive group '{name}'."), false)
+            ctx.respond_str(&ctx.user_lang().exclusive_groups_create_done(name), false)
                 .await?;
         } else {
-            ctx.respond_str(
-                &format!("An exclusive group named '{name}' already exists."),
-                true,
-            )
-            .await?;
+            ctx.respond_str(&ctx.user_lang().exclusive_group_already_exists(name), true)
+                .await?;
         }
 
         Ok(())
