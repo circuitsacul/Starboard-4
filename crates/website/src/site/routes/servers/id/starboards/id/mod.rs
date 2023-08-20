@@ -117,37 +117,43 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
             >
                 <Redirect path=".."/>
             </Show>
+        </Suspense>
 
-            <ActionForm action=update_sb>
-                <FullScreenPopup
-                    title=move || get_title(cx)
-                    actions=move || {
-                        view! { cx,
-                            <div class="btn btn-outline btn-error">"Delete"</div>
-                            <div class="flex-1"></div>
-                            <A href=".." class="btn btn-ghost">
-                                "Cancel"
-                            </A>
-                            <button
-                                type="submit"
-                                class="btn btn-primary"
-                                class=("btn-disabled", update_sb.pending().get())
-                            >
-                                <Show when=move || update_sb.pending().get() fallback=|_| ()>
-                                    <span class="loading loading-spinner loading-sm"></span>
-                                </Show>
-                                "Save"
-                            </button>
-                        }
+        <ActionForm action=update_sb>
+            <FullScreenPopup
+                title=move || view! {cx,
+                    <Suspense fallback=||()>
+                        {move || get_title(cx)}
+                    </Suspense>
+                }
+                actions=move || {
+                    view! { cx,
+                        <div class="btn btn-outline btn-error">"Delete"</div>
+                        <div class="flex-1"></div>
+                        <A href=".." class="btn btn-ghost">
+                            "Cancel"
+                        </A>
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            class=("btn-disabled", update_sb.pending().get())
+                        >
+                            <Show when=move || update_sb.pending().get() fallback=|_| ()>
+                                <span class="loading loading-spinner loading-sm"></span>
+                            </Show>
+                            "Save"
+                        </button>
                     }
-                >
+                }
+            >
 
-                    <ul class="menu menu-horizontal flex space-x-1">
-                        <TabButton tab=Tab::Requirements sig=current_tab/>
-                        <TabButton tab=Tab::Behavior sig=current_tab/>
-                        <TabButton tab=Tab::Style sig=current_tab/>
-                        <TabButton tab=Tab::Regex sig=current_tab/>
-                    </ul>
+                <ul class="menu menu-horizontal flex space-x-1">
+                    <TabButton tab=Tab::Requirements sig=current_tab/>
+                    <TabButton tab=Tab::Behavior sig=current_tab/>
+                    <TabButton tab=Tab::Style sig=current_tab/>
+                    <TabButton tab=Tab::Regex sig=current_tab/>
+                </ul>
+                <Suspense fallback=||()>
                     {move || {
                         let Some(Ok((Some(sb), _))) = sb.read(cx) else { return None;
                     };
@@ -166,10 +172,10 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                         };
                         Some(tview)
                     }}
+                </Suspense>
 
-                </FullScreenPopup>
-            </ActionForm>
-        </Suspense>
+            </FullScreenPopup>
+        </ActionForm>
     }
 }
 
