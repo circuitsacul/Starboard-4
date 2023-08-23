@@ -69,7 +69,7 @@ pub fn PickerInput(cx: Scope, data: Vec<PickerItem>) -> impl IntoView {
 pub fn Popup(cx: Scope, items: Vec<PickerItem>) -> impl IntoView {
     view! {cx,
         <dialog id="popup" class="modal">
-            <form method="dialog" class="modal-box">
+            <form method="dialog" class="modal-box h-screen max-w-sm">
                 <ItemPills items=items.clone() disabled=Signal::derive(cx, || false)/>
             </form>
             <form method="dialog" class="modal-backdrop">

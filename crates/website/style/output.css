@@ -2850,6 +2850,10 @@ html {
   height: 100%;
 }
 
+.h-screen {
+  height: 100vh;
+}
+
 .\!max-h-full {
   max-height: 100% !important;
 }
@@ -2884,6 +2888,10 @@ html {
 
 .max-w-lg {
   max-width: 32rem;
+}
+
+.max-w-sm {
+  max-width: 24rem;
 }
 
 .flex-1 {
