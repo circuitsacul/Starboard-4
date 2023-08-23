@@ -25,6 +25,14 @@ fn channel_sort_key(channel: &Channel) -> (i8, Option<i32>) {
     (typ, channel.position)
 }
 
+fn clip_name(name: String) -> String {
+    if name.len() > 22 {
+        format!("{}...", &name[0..19])
+    } else {
+        name
+    }
+}
+
 fn channels_to_picker_items(
     cx: Scope,
     mut channels: Vec<Channel>,
@@ -37,13 +45,10 @@ fn channels_to_picker_items(
 
     let mut channel_threads = HashMap::<Id<ChannelMarker>, Vec<PickerItem>>::new();
     for t in threads {
-        let name = t.name.unwrap_or("unknown".into()).into_view(cx);
+        let name = clip_name(t.name.unwrap_or("unknown".into()));
         let item = PickerItem {
-            view: view! {cx,
-                <Icon icon=crate::icon!(FaMessageRegular)/>
-                {name}
-            }
-            .into_view(cx),
+            icon: crate::icon!(FaMessageRegular),
+            name,
             value: t.id.to_string(),
             children: Vec::new(),
             selected: create_rw_signal(cx, false),
@@ -64,7 +69,8 @@ fn channels_to_picker_items(
     for c in channels {
         let threads = channel_threads.remove(&c.id).unwrap_or_default();
         let mut item = PickerItem {
-            view: c.name.unwrap_or("unknown".into()).into_view(cx),
+            icon: crate::icon!(FaHashtagSolid),
+            name: clip_name(c.name.unwrap_or("unknown".into())),
             value: c.id.to_string(),
             children: threads,
             selected: create_rw_signal(cx, false),
@@ -72,23 +78,13 @@ fn channels_to_picker_items(
 
         match c.kind {
             ChannelType::GuildCategory => {
-                item.view = view! {cx,
-                    <Icon icon=crate::icon!(FaBarsSolid)/>
-                    <div class="uppercase">{item.view}</div>
-                }
-                .into_view(cx);
+                item.icon = crate::icon!(FaBarsSolid);
 
                 let idx = categories.len();
                 categories.push(item);
                 category_indices.insert(c.id, idx);
             }
             _ => {
-                item.view = view! {cx,
-                    <Icon icon=crate::icon!(FaHashtagSolid)/>
-                    {item.view}
-                }
-                .into_view(cx);
-
                 let category = match c.parent_id {
                     None => None,
                     Some(id) => category_indices.get(&id).copied(),

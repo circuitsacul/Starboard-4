@@ -24,6 +24,7 @@ wasm-bindgen = "=0.2.87"
 leptos_icons = { version = "0.0.15", features = [
     "FaChevronLeftSolid",
     "FaChevronRightSolid",
+    "FaChevronDownSolid",
     "FaArrowUpRightFromSquareSolid",
     "FaPlusSolid",
     "FaXmarkSolid",
