@@ -9,6 +9,28 @@ pub struct PickerItem {
     pub collapsed: bool,
     pub children: Vec<PickerItem>,
     pub selected: RwSignal<bool>,
+    pub search_visible: Option<Signal<bool>>,
+}
+
+fn recursive_set_search_visible<S>(cx: Scope, search: S, items: &mut [PickerItem])
+where
+    S: SignalWith<String> + Clone + Copy + 'static,
+{
+    for item in items {
+        recursive_set_search_visible(cx, search, &mut item.children);
+        let child_signals: Vec<_> = item
+            .children
+            .iter()
+            .map(|item| item.search_visible.unwrap())
+            .collect();
+        let name = item.name.to_lowercase();
+        let sig = Signal::derive(cx, move || {
+            let children = child_signals.iter().any(|sig| sig.get());
+            let this = search.with(|t| t.is_empty() || name.contains(t));
+            children || this
+        });
+        item.search_visible.replace(sig);
+    }
 }
 
 fn count_selected(items: &[PickerItem]) -> usize {
@@ -74,16 +96,25 @@ pub fn PickerInput(cx: Scope, data: Vec<PickerItem>, id: &'static str) -> impl I
 #[component]
 pub fn Popup(
     cx: Scope,
-    items: Vec<PickerItem>,
+    mut items: Vec<PickerItem>,
     propagate: bool,
     id: &'static str,
 ) -> impl IntoView {
+    let search = create_rw_signal(cx, "".to_string());
+    recursive_set_search_visible(cx, search, &mut items);
     view! {cx,
         <dialog id=format!("popup_{id}") class="modal">
             <form method="dialog" class="modal-box h-screen max-w-sm">
+                <input
+                    type="text"
+                    placeholder="Search"
+                    class="input input-bordered w-full mb-2"
+                    on:input=move |e| search.set(event_target_value(&e).to_lowercase())
+                />
                 <ItemPills
                     items=items.clone()
                     propagate=propagate
+                    search=search
                     disabled=Signal::derive(cx, || false)
                 />
             </form>
@@ -95,14 +126,16 @@ pub fn Popup(
 }
 
 #[component]
-pub fn ItemPills<S>(
+pub fn ItemPills<DisabledS, SearchS>(
     cx: Scope,
     items: Vec<PickerItem>,
     propagate: bool,
-    disabled: S,
+    disabled: DisabledS,
+    search: SearchS,
 ) -> impl IntoView
 where
-    S: SignalGet<bool> + Clone + Copy + 'static,
+    DisabledS: SignalGet<bool> + Clone + Copy + 'static,
+    SearchS: SignalWith<String> + Clone + Copy + 'static,
 {
     view! {cx,
         <For
@@ -110,27 +143,35 @@ where
             key=|p| p.value.clone()
             view=move |cx, p| {
                 let has_children = !p.children.is_empty();
+                let search_visible = p.search_visible.unwrap();
                 let show_children = create_rw_signal(cx, !p.collapsed);
+                let children_shown = Signal::derive(
+                    cx, move || show_children.get() || search.with(|t| !t.is_empty())
+                );
+                let pclone = p.clone();
                 view! {cx,
-                    <div class="m-1 flex gap-x-1">
-                        <Show
-                            when=move || has_children
-                            fallback=|cx| view! { cx, <div style="width: 1.5rem"></div>}
-                        >
-                            <button
-                                type="button"
-                                class="btn btn-xs btn-ghost btn-circle swap swap-rotate"
-                                class=("swap-active", move || !show_children.get())
-                                on:click=move |_| show_children.update(|v| *v = !*v)
+                    <Show when=move || search_visible.get() fallback=|_| ()>
+                        <div class="m-1 flex gap-x-1">
+                            <Show
+                                when=move || has_children
+                                fallback=|cx| view! { cx, <div style="width: 1.5rem"></div>}
                             >
-                                <Icon class="swap-on" icon=crate::icon!(FaChevronRightSolid)/>
-                                <Icon class="swap-off" icon=crate::icon!(FaChevronDownSolid)/>
-                            </button>
-                        </Show>
-                        <ItemPill item=p.clone() disabled=disabled/>
-                    </div>
+                                <button
+                                    type="button"
+                                    class="btn btn-xs btn-ghost btn-circle swap swap-rotate"
+                                    class=("swap-active", move || !children_shown.get())
+                                    on:click=move |_| show_children.update(|v| *v = !*v)
+                                    disabled=search.with(|t| !t.is_empty())
+                                >
+                                    <Icon class="swap-on" icon=crate::icon!(FaChevronRightSolid)/>
+                                    <Icon class="swap-off" icon=crate::icon!(FaChevronDownSolid)/>
+                                </button>
+                            </Show>
+                            <ItemPill item=pclone.clone() disabled=disabled/>
+                        </div>
+                    </Show>
                     <Show
-                        when=move || has_children && show_children.get()
+                        when=move || has_children && children_shown.get() && search_visible.get()
                         fallback=|_| ()
                     >
                         {
@@ -145,6 +186,7 @@ where
                                         <ItemPills
                                             items=items.clone()
                                             propagate=propagate
+                                            search=search
                                             disabled=child_disabled
                                         />
                                     </div>

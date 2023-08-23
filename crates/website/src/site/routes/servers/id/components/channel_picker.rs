@@ -53,6 +53,7 @@ fn channels_to_picker_items(
             collapsed: false,
             children: Vec::new(),
             selected: create_rw_signal(cx, false),
+            search_visible: None,
         };
 
         // SAFETY: all threads have a parent
@@ -76,6 +77,7 @@ fn channels_to_picker_items(
             collapsed: true,
             children: threads,
             selected: create_rw_signal(cx, false),
+            search_visible: None,
         };
 
         match c.kind {
