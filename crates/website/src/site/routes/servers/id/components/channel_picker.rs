@@ -50,6 +50,7 @@ fn channels_to_picker_items(
             icon: crate::icon!(FaMessageRegular),
             name,
             value: t.id.to_string(),
+            collapsed: false,
             children: Vec::new(),
             selected: create_rw_signal(cx, false),
         };
@@ -72,6 +73,7 @@ fn channels_to_picker_items(
             icon: crate::icon!(FaHashtagSolid),
             name: clip_name(c.name.unwrap_or("unknown".into())),
             value: c.id.to_string(),
+            collapsed: true,
             children: threads,
             selected: create_rw_signal(cx, false),
         };
@@ -79,6 +81,7 @@ fn channels_to_picker_items(
         match c.kind {
             ChannelType::GuildCategory => {
                 item.icon = crate::icon!(FaBarsSolid);
+                item.collapsed = false;
 
                 let idx = categories.len();
                 categories.push(item);

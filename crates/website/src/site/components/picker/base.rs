@@ -6,6 +6,7 @@ pub struct PickerItem {
     pub icon: Icon,
     pub name: String,
     pub value: String,
+    pub collapsed: bool,
     pub children: Vec<PickerItem>,
     pub selected: RwSignal<bool>,
 }
@@ -90,7 +91,7 @@ where
             key=|p| p.value.clone()
             view=move |cx, p| {
                 let has_children = !p.children.is_empty();
-                let show_children = create_rw_signal(cx, false);
+                let show_children = create_rw_signal(cx, !p.collapsed);
                 view! {cx,
                     <div class="m-1 flex gap-x-1">
                         <Show
