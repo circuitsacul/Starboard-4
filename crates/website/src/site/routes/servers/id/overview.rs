@@ -1,8 +1,10 @@
 use leptos::*;
 
-use super::components::FlatGuildSuspense;
+use crate::site::routes::servers::id::components::ChannelPicker;
 
 #[component]
 pub fn Overview(cx: Scope) -> impl IntoView {
-    view! { cx, <FlatGuildSuspense fallback=|| "loading..." child=|g| format!("{g:?}")/> }
+    view! { cx,
+        <ChannelPicker/>
+    }
 }

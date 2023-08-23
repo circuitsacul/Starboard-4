@@ -2050,6 +2050,12 @@ html {
   margin-top: 0;
 }
 
+.mockup-phone .display {
+  overflow: hidden;
+  border-radius: 40px;
+  margin-top: -25px;
+}
+
 .mockup-browser .mockup-browser-toolbar .input {
   position: relative;
   margin-left: auto;
@@ -2276,6 +2282,14 @@ html {
 
 .btm-nav-lg > *:where(.active) {
   border-top-width: 4px;
+}
+
+.btn-xs {
+  height: 1.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  min-height: 1.5rem;
+  font-size: 0.75rem;
 }
 
 .btn-sm {
@@ -2634,6 +2648,10 @@ html {
   margin: 0px;
 }
 
+.m-1 {
+  margin: 0.25rem;
+}
+
 .my-2 {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
@@ -2648,12 +2666,20 @@ html {
   margin-bottom: 1rem;
 }
 
+.ml-8 {
+  margin-left: 2rem;
+}
+
 .mr-2 {
   margin-right: 0.5rem;
 }
 
 .mr-4 {
   margin-right: 1rem;
+}
+
+.block {
+  display: block;
 }
 
 .inline {
@@ -2894,6 +2920,10 @@ html {
 
 .font-bold {
   font-weight: 700;
+}
+
+.uppercase {
+  text-transform: uppercase;
 }
 
 .normal-case {
