@@ -38,20 +38,25 @@ fn flatten_items(items: Vec<PickerItem>) -> Vec<PickerItem> {
 }
 
 #[component]
-pub fn Picker(cx: Scope, data: Vec<PickerItem>) -> impl IntoView {
+pub fn Picker(
+    cx: Scope,
+    data: Vec<PickerItem>,
+    propagate: bool,
+    id: &'static str,
+) -> impl IntoView {
     view! {cx,
-        <PickerInput data=data.clone()/>
-        <Popup items=data/>
+        <PickerInput data=data.clone() id=id/>
+        <Popup items=data propagate=propagate id=id/>
     }
 }
 
 #[component]
-pub fn PickerInput(cx: Scope, data: Vec<PickerItem>) -> impl IntoView {
+pub fn PickerInput(cx: Scope, data: Vec<PickerItem>, id: &'static str) -> impl IntoView {
     let flat_data = flatten_items(data.clone());
     let flat_data2 = flat_data.clone();
 
     view! {cx,
-        <select hidden>
+        <select hidden id=id name=id>
             <For
                 each=move || flat_data.clone()
                 key=|p| p.value.clone()
@@ -60,18 +65,27 @@ pub fn PickerInput(cx: Scope, data: Vec<PickerItem>) -> impl IntoView {
                 }
             />
         </select>
-        <button onclick="popup.showModal()" type="button" class="btn btn-ghost">
+        <button onclick=format!("popup_{id}.showModal()") type="button" class="btn btn-ghost">
             {move || flat_data2.iter().filter(|c| c.selected.get()).count()}
         </button>
     }
 }
 
 #[component]
-pub fn Popup(cx: Scope, items: Vec<PickerItem>) -> impl IntoView {
+pub fn Popup(
+    cx: Scope,
+    items: Vec<PickerItem>,
+    propagate: bool,
+    id: &'static str,
+) -> impl IntoView {
     view! {cx,
-        <dialog id="popup" class="modal">
+        <dialog id=format!("popup_{id}") class="modal">
             <form method="dialog" class="modal-box h-screen max-w-sm">
-                <ItemPills items=items.clone() disabled=Signal::derive(cx, || false)/>
+                <ItemPills
+                    items=items.clone()
+                    propagate=propagate
+                    disabled=Signal::derive(cx, || false)
+                />
             </form>
             <form method="dialog" class="modal-backdrop">
                 <button>close</button>
@@ -81,7 +95,12 @@ pub fn Popup(cx: Scope, items: Vec<PickerItem>) -> impl IntoView {
 }
 
 #[component]
-pub fn ItemPills<S>(cx: Scope, items: Vec<PickerItem>, disabled: S) -> impl IntoView
+pub fn ItemPills<S>(
+    cx: Scope,
+    items: Vec<PickerItem>,
+    propagate: bool,
+    disabled: S,
+) -> impl IntoView
 where
     S: SignalGet<bool> + Clone + Copy + 'static,
 {
@@ -117,13 +136,17 @@ where
                         {
                             let child_disabled = Signal::derive(
                                 cx,
-                                move || disabled.get() || p.selected.get()
+                                move || disabled.get() || (p.selected.get() && propagate)
                             );
                             let items = p.children.clone();
                             move || {
                                 view! {cx,
                                     <div class="ml-8">
-                                        <ItemPills items=items.clone() disabled=child_disabled/>
+                                        <ItemPills
+                                            items=items.clone()
+                                            propagate=propagate
+                                            disabled=child_disabled
+                                        />
                                     </div>
                                 }
                             }
