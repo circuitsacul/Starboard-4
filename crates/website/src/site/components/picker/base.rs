@@ -217,8 +217,8 @@ where
             type="button"
             class="btn btn-xs normal-case rounded-full"
             class=("btn-primary", item.selected)
-            class=("btn-disabled", move || disabled.get())
             on:click=move |_| item.selected.update(|v| *v = !*v)
+            disabled=move || disabled.get()
         >
             <Icon icon=item.icon/>
             {clip_name(&item.name)}
