@@ -6,7 +6,6 @@ pub struct PickerItem {
     pub icon: Icon,
     pub name: String,
     pub value: String,
-    pub collapsed: bool,
     pub children: Vec<PickerItem>,
     pub selected: RwSignal<bool>,
     pub search_visible: Option<Signal<bool>>,
@@ -144,7 +143,7 @@ where
             view=move |cx, p| {
                 let has_children = !p.children.is_empty();
                 let search_visible = p.search_visible.unwrap();
-                let show_children = create_rw_signal(cx, !p.collapsed);
+                let show_children = create_rw_signal(cx, false);
                 let children_shown = Signal::derive(
                     cx, move || show_children.get() || search.with(|t| !t.is_empty())
                 );
