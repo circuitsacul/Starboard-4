@@ -58,6 +58,14 @@ fn flatten_items(items: Vec<PickerItem>) -> Vec<PickerItem> {
     result
 }
 
+fn clip_name(name: &str) -> String {
+    if name.len() > 22 {
+        format!("{}...", &name[0..19])
+    } else {
+        name.to_owned()
+    }
+}
+
 #[component]
 pub fn Picker(
     cx: Scope,
@@ -213,7 +221,7 @@ where
             on:click=move |_| item.selected.update(|v| *v = !*v)
         >
             <Icon icon=item.icon/>
-            {item.name.clone()}
+            {clip_name(&item.name)}
             {move || match count_selected(&item.children) {
                 0 => ().into_view(cx),
                 c => view! { cx,

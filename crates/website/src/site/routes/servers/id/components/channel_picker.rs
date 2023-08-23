@@ -25,14 +25,6 @@ fn channel_sort_key(channel: &Channel) -> (i8, Option<i32>) {
     (typ, channel.position)
 }
 
-fn clip_name(name: String) -> String {
-    if name.len() > 22 {
-        format!("{}...", &name[0..19])
-    } else {
-        name
-    }
-}
-
 fn channels_to_picker_items(
     cx: Scope,
     mut channels: Vec<Channel>,
@@ -45,7 +37,7 @@ fn channels_to_picker_items(
 
     let mut channel_threads = HashMap::<Id<ChannelMarker>, Vec<PickerItem>>::new();
     for t in threads {
-        let name = clip_name(t.name.unwrap_or("unknown".into()));
+        let name = t.name.unwrap_or("unknown".into());
         let item = PickerItem {
             icon: crate::icon!(FaMessageRegular),
             name,
@@ -71,7 +63,7 @@ fn channels_to_picker_items(
         let threads = channel_threads.remove(&c.id).unwrap_or_default();
         let mut item = PickerItem {
             icon: crate::icon!(FaHashtagSolid),
-            name: clip_name(c.name.unwrap_or("unknown".into())),
+            name: c.name.unwrap_or("unknown".into()),
             value: c.id.to_string(),
             children: threads,
             selected: create_rw_signal(cx, false),
