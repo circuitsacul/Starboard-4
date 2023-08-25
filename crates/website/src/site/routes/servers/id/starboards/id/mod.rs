@@ -57,7 +57,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
     let sb = create_resource(
         cx,
         move || {
-            let sb_id = params.get().ok().map(|p| p.starboard_id);
+            let sb_id = params.get_untracked().ok().map(|p| p.starboard_id);
             let guild_id = guild_id.get();
             (sb_id, guild_id)
         },
