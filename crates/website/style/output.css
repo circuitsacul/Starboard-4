@@ -2416,6 +2416,10 @@ html {
   border-radius: var(--rounded-box, 1rem);
 }
 
+.rounded-btn {
+  border-radius: var(--rounded-btn, 0.5rem);
+}
+
 .btm-nav-xs > *:where(.active) {
   border-top-width: 1px;
 }
@@ -2810,6 +2814,10 @@ html {
   margin-bottom: 1rem;
 }
 
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
 .mb-4 {
   margin-bottom: 1rem;
 }
@@ -2826,16 +2834,16 @@ html {
   margin-right: 1rem;
 }
 
-.mb-2 {
-  margin-bottom: 0.5rem;
-}
-
 .inline {
   display: inline;
 }
 
 .flex {
   display: flex;
+}
+
+.inline-flex {
+  display: inline-flex;
 }
 
 .grid {
@@ -2928,6 +2936,10 @@ html {
   flex-direction: column;
 }
 
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 .\!flex-nowrap {
   flex-wrap: nowrap !important;
 }
@@ -2952,8 +2964,16 @@ html {
   gap: 0px;
 }
 
+.gap-2 {
+  gap: 0.5rem;
+}
+
 .gap-4 {
   gap: 1rem;
+}
+
+.gap-1 {
+  gap: 0.25rem;
 }
 
 .gap-x-1 {
@@ -2997,8 +3017,21 @@ html {
   border-radius: 9999px;
 }
 
+.border {
+  border-width: 1px;
+}
+
 .border-0 {
   border-width: 0px;
+}
+
+.border-base-content {
+  --tw-border-opacity: 1;
+  border-color: hsl(var(--bc) / var(--tw-border-opacity));
+}
+
+.border-opacity-20 {
+  --tw-border-opacity: 0.2;
 }
 
 .\!bg-transparent {

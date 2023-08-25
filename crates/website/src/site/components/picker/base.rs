@@ -11,6 +11,12 @@ pub struct PickerItem {
     pub search_visible: Option<Signal<bool>>,
 }
 
+impl PartialEq for PickerItem {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
+    }
+}
+
 fn recursive_set_search_visible<S>(cx: Scope, search: S, items: &mut [PickerItem])
 where
     S: SignalWith<String> + Clone + Copy + 'static,
@@ -71,32 +77,105 @@ pub fn Picker(
     cx: Scope,
     data: Vec<PickerItem>,
     propagate: bool,
+    single: bool,
     id: &'static str,
+    placeholder: &'static str,
 ) -> impl IntoView {
     view! {cx,
-        <PickerInput data=data.clone() id=id/>
-        <Popup items=data propagate=propagate id=id/>
+        {if single {
+            view! {cx, <PickerSingleInput data=data.clone() id=id placeholder=placeholder/>}
+        } else {
+            view! {cx, <PickerMultiInput data=data.clone() id=id placeholder=placeholder/>}
+        }}
+        <Popup items=data propagate=propagate single=single id=id/>
     }
 }
 
 #[component]
-pub fn PickerInput(cx: Scope, data: Vec<PickerItem>, id: &'static str) -> impl IntoView {
-    let flat_data = flatten_items(data.clone());
-    let flat_data2 = flat_data.clone();
+pub fn PickerSingleInput(
+    cx: Scope,
+    data: Vec<PickerItem>,
+    id: &'static str,
+    placeholder: &'static str,
+) -> impl IntoView {
+    let flat_data = store_value(cx, flatten_items(data.clone()));
+    let selected = create_memo(cx, move |_| {
+        flat_data.with_value(|d| d.iter().find(|i| i.selected.get()).cloned())
+    });
+
+    view! {cx,
+        <input
+            type="hidden"
+            id=id
+            name=id
+            prop:value=move || selected.get().map(|v| v.value.clone()).unwrap_or("".into())
+        />
+        <button
+            type="button"
+            onclick=format!("popup_{id}.showModal()")
+            on:click=move |_| { if let Some(v) = selected.get() { v.selected.set(false) } }
+            class="btn btn-ghost btn-sm normal-case"
+        >
+            <Show when=move || selected.with(|v| v.is_some()) fallback=move |_| placeholder>
+                {move || {
+                    let selected = selected.get().unwrap();
+                    view! {cx,
+                        <Icon icon=selected.icon/>
+                        {selected.name}
+                    }
+                }}
+            </Show>
+        </button>
+    }
+}
+
+#[component]
+pub fn PickerMultiInput(
+    cx: Scope,
+    data: Vec<PickerItem>,
+    id: &'static str,
+    placeholder: &'static str,
+) -> impl IntoView {
+    let flat_data = store_value(cx, flatten_items(data.clone()));
+    let selected = create_memo(cx, move |_| {
+        flat_data
+            .with_value(|d| d.clone().into_iter().filter(|i| i.selected.get()))
+            .collect::<Vec<_>>()
+    });
 
     view! {cx,
         <select hidden id=id name=id>
             <For
-                each=move || flat_data.clone()
+                each=move || flat_data.with_value(|d| d.clone())
                 key=|p| p.value.clone()
                 view=move |cx, p| view! {cx,
                     <option value=p.value selected=move || p.selected.get()/>
                 }
             />
         </select>
-        <button onclick=format!("popup_{id}.showModal()") type="button" class="btn btn-ghost">
-            {move || flat_data2.iter().filter(|c| c.selected.get()).count()}
-        </button>
+        <div
+            class=concat!(
+                "inline-flex flex-row flex-wrap border border-base-content border-opacity-20 ",
+                "rounded-btn p-2 gap-1"
+            )
+        >
+            <Show when=move || !selected.with(|v| v.is_empty()) fallback=move |_| placeholder>
+                <For
+                    each=move || selected.get()
+                    key=|item| item.value.clone()
+                    view=move |cx, item| view! {cx,
+                        <ItemPill item=item disabled=Signal::derive(cx, || false) single=false/>
+                    }
+                />
+            </Show>
+            <button
+                onclick=format!("popup_{id}.showModal()")
+                type="button"
+                class="btn btn-xs btn-ghost normal-case"
+            >
+                "+ Add"
+            </button>
+        </div>
     }
 }
 
@@ -105,6 +184,7 @@ pub fn Popup(
     cx: Scope,
     mut items: Vec<PickerItem>,
     propagate: bool,
+    single: bool,
     id: &'static str,
 ) -> impl IntoView {
     let search = create_rw_signal(cx, "".to_string());
@@ -121,6 +201,7 @@ pub fn Popup(
                 <ItemPills
                     items=items.clone()
                     propagate=propagate
+                    single=single
                     search=search
                     disabled=Signal::derive(cx, || false)
                 />
@@ -137,6 +218,7 @@ pub fn ItemPills<DisabledS, SearchS>(
     cx: Scope,
     items: Vec<PickerItem>,
     propagate: bool,
+    single: bool,
     disabled: DisabledS,
     search: SearchS,
 ) -> impl IntoView
@@ -174,7 +256,7 @@ where
                                     <Icon class="swap-off" icon=crate::icon!(FaChevronDownSolid)/>
                                 </button>
                             </Show>
-                            <ItemPill item=pclone.clone() disabled=disabled/>
+                            <ItemPill item=pclone.clone() disabled=disabled single=single/>
                         </div>
                     </Show>
                     <Show
@@ -193,6 +275,7 @@ where
                                         <ItemPills
                                             items=items.clone()
                                             propagate=propagate
+                                            single=single
                                             search=search
                                             disabled=child_disabled
                                         />
@@ -208,13 +291,13 @@ where
 }
 
 #[component]
-pub fn ItemPill<S>(cx: Scope, item: PickerItem, disabled: S) -> impl IntoView
+pub fn ItemPill<S>(cx: Scope, item: PickerItem, disabled: S, single: bool) -> impl IntoView
 where
     S: SignalGet<bool> + Clone + Copy + 'static,
 {
     view! {cx,
         <button
-            type="button"
+            type=if single {"submit"} else {"button"}
             class="btn btn-xs normal-case rounded-full"
             class=("btn-primary", item.selected)
             on:click=move |_| item.selected.update(|v| *v = !*v)

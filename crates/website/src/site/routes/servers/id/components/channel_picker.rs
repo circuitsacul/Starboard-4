@@ -99,7 +99,7 @@ fn channels_to_picker_items(
 }
 
 #[component]
-pub fn ChannelPicker(cx: Scope, propagate: bool, id: &'static str) -> impl IntoView {
+pub fn ChannelPicker(cx: Scope, propagate: bool, single: bool, id: &'static str) -> impl IntoView {
     let guild_id = expect_context::<GuildIdContext>(cx);
     let channels = create_resource(
         cx,
@@ -119,7 +119,19 @@ pub fn ChannelPicker(cx: Scope, propagate: bool, id: &'static str) -> impl IntoV
                 channels.with(cx, |data| {
                     data.clone().map(|(channels, threads)| {
                         let items = channels_to_picker_items(cx, channels, threads);
-                        view! {cx, <Picker data=items propagate=propagate id=id/>}
+                        view! {cx,
+                            <Picker
+                                data=items
+                                propagate=propagate
+                                single=single
+                                placeholder=if single {
+                                    "Select a channel..."
+                                } else {
+                                    "No channels selected."
+                                }
+                                id=id
+                            />
+                        }
                     })
                 })
             }}
