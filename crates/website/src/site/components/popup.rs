@@ -50,7 +50,7 @@ where
                         <Icon icon=crate::icon!(FaXmarkSolid) width="1.3em" height="1.3em"/>
                     </A>
                 </div>
-                <div class="my-4 px-4 flex-1 overflow-scroll">{children(cx)}</div>
+                <div class="p-4 flex-1 overflow-scroll">{children(cx)}</div>
                 <div class="flex flex-row space-x-2">{actions}</div>
             </div>
         </dialog>

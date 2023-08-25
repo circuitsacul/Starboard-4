@@ -4,14 +4,14 @@ use leptos::*;
 use leptos_icons::*;
 use twilight_model::{
     channel::{Channel, ChannelType},
-    id::{marker::ChannelMarker, Id},
+    id::{
+        marker::{ChannelMarker, GuildMarker},
+        Id,
+    },
 };
 
 use crate::site::{
-    components::{
-        picker::{Picker, PickerItem},
-        ToastedSusp,
-    },
+    components::picker::{PickerItem, PickerMultiInput, PickerPopup, PickerSingleInput},
     routes::servers::id::{api::get_channels, GuildIdContext},
 };
 
@@ -98,10 +98,14 @@ fn channels_to_picker_items(
     lone_channels.into_iter().chain(categories).collect()
 }
 
+pub type ChannelPickerResource =
+    Resource<Option<Id<GuildMarker>>, Result<Vec<PickerItem>, ServerFnError>>;
+
 #[component]
-pub fn ChannelPicker(cx: Scope, propagate: bool, single: bool, id: &'static str) -> impl IntoView {
+pub fn ChannelPickerProvider(cx: Scope, children: Children) -> impl IntoView {
     let guild_id = expect_context::<GuildIdContext>(cx);
-    let channels = create_resource(
+    // local because PickerItem can't be Serialize/Deserialize
+    let channels: ChannelPickerResource = create_local_resource(
         cx,
         move || guild_id.get(),
         move |guild_id| async move {
@@ -109,32 +113,96 @@ pub fn ChannelPicker(cx: Scope, propagate: bool, single: bool, id: &'static str)
                 return Err(ServerFnError::ServerError("No guild ID.".into()));
             };
 
-            get_channels(cx, guild_id).await
+            let (channels, threads) = get_channels(cx, guild_id).await?;
+            Ok(channels_to_picker_items(cx, channels, threads))
         },
     );
+    provide_context(cx, channels);
+
+    view! {cx, {children(cx)}}
+}
+
+#[component]
+pub fn ChannelPickerPopup(
+    cx: Scope,
+    propagate: bool,
+    single: bool,
+    id: &'static str,
+) -> impl IntoView {
+    let channels = expect_context::<ChannelPickerResource>(cx);
 
     view! {cx,
-        <ToastedSusp fallback=move || ()>
+        <Suspense fallback=move || ()>
             {move || {
                 channels.with(cx, |data| {
-                    data.clone().map(|(channels, threads)| {
-                        let items = channels_to_picker_items(cx, channels, threads);
+                    data.clone().map(|items| {
                         view! {cx,
-                            <Picker
-                                data=items
+                            <PickerPopup
+                                items=items
                                 propagate=propagate
                                 single=single
-                                placeholder=if single {
-                                    "Select a channel..."
-                                } else {
-                                    "No channels selected."
-                                }
                                 id=id
                             />
                         }
                     })
                 })
             }}
-        </ToastedSusp>
+        </Suspense>
+    }
+}
+
+#[component]
+pub fn SingleChannelPickerInput(cx: Scope, id: &'static str) -> impl IntoView {
+    let channels = expect_context::<ChannelPickerResource>(cx);
+
+    view! {cx,
+        <Suspense
+            fallback=move || view! {cx,
+                <button disabled class="btn btn-ghost btn-sm normal-case">
+                    "Loading..."
+                </button>
+            }
+        >
+            {move || {
+                channels.with(cx, |data| {
+                    data.clone().map(|items| {
+                        view! {cx,
+                            <PickerSingleInput
+                                data=items
+                                id=id
+                                placeholder="Select a channel"
+                            />
+                        }
+                    })
+                })
+            }}
+        </Suspense>
+    }
+}
+#[component]
+pub fn MultiChannelPickerInput(cx: Scope, id: &'static str) -> impl IntoView {
+    let channels = expect_context::<ChannelPickerResource>(cx);
+
+    view! {cx,
+        <Suspense fallback=move || view! {cx,
+            <div class=concat!(
+                "inline-flex flex-row flex-wrap border border-base-content border-opacity-20 ",
+                "rounded-btn p-2 gap-1"
+            )>"Loading..."</div>
+        }>
+            {move || {
+                channels.with(cx, |data| {
+                    data.clone().map(|items| {
+                        view! {cx,
+                            <PickerMultiInput
+                                data=items
+                                id=id
+                                placeholder="No channels selected"
+                            />
+                        }
+                    })
+                })
+            }}
+        </Suspense>
     }
 }

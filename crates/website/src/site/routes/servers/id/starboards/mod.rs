@@ -32,7 +32,10 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
 
     create_effect(cx, move |_| {
         if let Some(Err(why)) = create_sb.value().get() {
-            toast(cx, Toast::error(why))
+            if matches!(why, ServerFnError::Deserialization(_)) {
+                return;
+            }
+            toast(cx, Toast::error(why));
         }
     });
 

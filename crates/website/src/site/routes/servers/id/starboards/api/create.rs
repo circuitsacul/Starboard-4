@@ -5,6 +5,7 @@ use twilight_model::id::{
 };
 
 /// TODO: validate channel existence and type
+/// TODO: validate name
 #[server(CreateStarboard, "/api")]
 pub async fn create_starboard(
     cx: Scope,
@@ -28,7 +29,10 @@ pub async fn create_starboard(
         ));
     };
 
-    redirect(cx, &sb.id.to_string());
+    redirect(
+        cx,
+        &format!("/servers/{}/starboards/{}", guild_id, &sb.id.to_string()),
+    );
 
     Ok(())
 }

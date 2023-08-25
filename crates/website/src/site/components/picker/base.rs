@@ -73,25 +73,6 @@ fn clip_name(name: &str) -> String {
 }
 
 #[component]
-pub fn Picker(
-    cx: Scope,
-    data: Vec<PickerItem>,
-    propagate: bool,
-    single: bool,
-    id: &'static str,
-    placeholder: &'static str,
-) -> impl IntoView {
-    view! {cx,
-        {if single {
-            view! {cx, <PickerSingleInput data=data.clone() id=id placeholder=placeholder/>}
-        } else {
-            view! {cx, <PickerMultiInput data=data.clone() id=id placeholder=placeholder/>}
-        }}
-        <Popup items=data propagate=propagate single=single id=id/>
-    }
-}
-
-#[component]
 pub fn PickerSingleInput(
     cx: Scope,
     data: Vec<PickerItem>,
@@ -180,7 +161,7 @@ pub fn PickerMultiInput(
 }
 
 #[component]
-pub fn Popup(
+pub fn PickerPopup(
     cx: Scope,
     mut items: Vec<PickerItem>,
     propagate: bool,
