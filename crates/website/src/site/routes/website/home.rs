@@ -1,5 +1,7 @@
 use leptos::*;
 
+use crate::site::components::EmojiButton;
+
 #[component]
 pub fn Home(cx: Scope) -> impl IntoView {
     view! { cx,

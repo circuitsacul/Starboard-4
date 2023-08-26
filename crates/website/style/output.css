@@ -2151,6 +2151,12 @@ html {
   margin-top: 0;
 }
 
+.mockup-phone .display {
+  overflow: hidden;
+  border-radius: 40px;
+  margin-top: -25px;
+}
+
 .mockup-browser .mockup-browser-toolbar .input {
   position: relative;
   margin-left: auto;
@@ -2834,6 +2840,10 @@ html {
   margin-right: 1rem;
 }
 
+.block {
+  display: block;
+}
+
 .inline {
   display: inline;
 }
@@ -3122,6 +3132,11 @@ html {
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
 }
 
 .font-bold {

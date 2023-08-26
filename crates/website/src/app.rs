@@ -10,6 +10,7 @@ pub fn App(cx: Scope) -> impl IntoView {
     view! { cx,
         <Stylesheet id="leptos" href="/pkg/website.css"/>
         <Title text="Welcome to Leptos"/>
+        <Script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"/>
 
         <Index/>
     }

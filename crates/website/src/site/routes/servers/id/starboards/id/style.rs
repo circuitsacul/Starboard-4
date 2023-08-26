@@ -2,7 +2,10 @@ use common::constants;
 use database::Starboard;
 use leptos::*;
 
-use crate::site::components::form::{ErrorNote, Label, ValidationErrors};
+use crate::site::components::{
+    form::{ErrorNote, Label, ValidationErrors},
+    EmojiButton,
+};
 
 #[component]
 pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
@@ -16,10 +19,11 @@ pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <Label for_="">"Display Emoji"</Label>
-                    <input type="hidden" name="display_emoji" id="display_emoji"/>
-                    <button type="button" class="btn btn-ghost btn-square">
-                        {sb.settings.display_emoji.clone().unwrap_or_else(|| "".into())}
-                    </button>
+                    <EmojiButton
+                        id="display_emoji"
+                        name="display_emoji"
+                        initial=sb.settings.display_emoji.clone().unwrap_or_else(|| "".into())
+                    />
                     <ErrorNote errs=errs key="display_emoji"/>
                 </div>
 
