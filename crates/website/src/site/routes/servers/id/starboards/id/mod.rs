@@ -154,7 +154,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                 }
             >
 
-                <ul class="menu menu-horizontal flex gap-x-1">
+                <ul class="tabs">
                     <TabButton tab=Tab::Requirements sig=current_tab/>
                     <TabButton tab=Tab::Behavior sig=current_tab/>
                     <TabButton tab=Tab::Style sig=current_tab/>
@@ -198,7 +198,8 @@ pub fn TabButton(cx: Scope, tab: Tab, sig: RwSignal<Tab>) -> impl IntoView {
         <li>
             <button
                 on:click=move |_| sig.set(tab)
-                class=move || if sig.get() == tab { "active" } else { "" }
+                class="tab tab-bordered"
+                class=("tab-active", move || sig.get() == tab)
                 type="button"
             >
                 {tab.as_str()}
