@@ -47,6 +47,7 @@ dashmap = "5.5.0"
 rand = "0.8.5"
 tokio = { version = "1.30.0", optional = true }
 emojis = "0.6.0"
+serde_json = "1.0.105"
 
 [features]
 default = ["ssr", "hydrate", "csr"]

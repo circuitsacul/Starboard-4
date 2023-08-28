@@ -3121,11 +3121,6 @@ html {
   text-align: left;
 }
 
-.text-2xl {
-  font-size: 1.5rem;
-  line-height: 2rem;
-}
-
 .text-lg {
   font-size: 1.125rem;
   line-height: 1.75rem;
@@ -3207,6 +3202,16 @@ html {
 input[type="color"] {
   background: none;
   cursor: pointer;
+}
+
+em-emoji {
+  display: flex;
+  justify-content: center;
+}
+
+em-emoji span {
+  display: flex;
+  justify-content: center;
 }
 
 @media (min-width: 768px) {
