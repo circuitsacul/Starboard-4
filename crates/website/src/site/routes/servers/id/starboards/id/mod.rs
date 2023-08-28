@@ -147,7 +147,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                 }
             >
 
-                <ul class="menu menu-horizontal flex space-x-1">
+                <ul class="menu menu-horizontal flex gap-x-1">
                     <TabButton tab=Tab::Requirements sig=current_tab/>
                     <TabButton tab=Tab::Behavior sig=current_tab/>
                     <TabButton tab=Tab::Style sig=current_tab/>
