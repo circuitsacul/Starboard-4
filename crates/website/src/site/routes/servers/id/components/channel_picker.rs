@@ -11,7 +11,7 @@ use twilight_model::{
 };
 
 use crate::site::{
-    components::picker::{PickerItem, PickerMultiInput, PickerPopup, PickerSingleInput},
+    components::{PickerItem, PickerMultiInput, PickerPopup, PickerSingleInput},
     routes::servers::id::{api::get_channels, GuildIdContext},
 };
 
