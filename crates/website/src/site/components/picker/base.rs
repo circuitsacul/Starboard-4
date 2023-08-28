@@ -247,7 +247,8 @@ where
                                 <ItemPill item=p.with_value(|v| v.to_owned()) disabled=disabled single=single/>
                             </Show>
                             <Show when=move || !selectable fallback=|_| ()>
-                                <label for=id.with_value(|id| id.clone())>
+                                <label for=id.with_value(|id| id.clone()) class="text-xs flex items-center gap-2 px-1">
+                                    <Icon icon=p.with_value(|p| p.icon)/>
                                     {move || p.with_value(|v| v.name.to_owned())}
                                 </label>
                             </Show>
