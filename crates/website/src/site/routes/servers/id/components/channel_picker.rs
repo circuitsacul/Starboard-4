@@ -27,6 +27,7 @@ fn channel_sort_key(channel: &Channel) -> (i8, Option<i32>) {
 
 fn channels_to_picker_items(
     cx: Scope,
+    allow_categories: bool,
     mut channels: Vec<Channel>,
     mut threads: Vec<Channel>,
 ) -> Vec<PickerItem> {
@@ -43,6 +44,7 @@ fn channels_to_picker_items(
             name,
             value: t.id.to_string(),
             children: Vec::new(),
+            selectable: true,
             selected: create_rw_signal(cx, false),
             search_visible: None,
         };
@@ -67,12 +69,14 @@ fn channels_to_picker_items(
             value: c.id.to_string(),
             children: threads,
             selected: create_rw_signal(cx, false),
+            selectable: true,
             search_visible: None,
         };
 
         match c.kind {
             ChannelType::GuildCategory => {
                 item.icon = crate::icon!(FaBarsSolid);
+                item.selectable = allow_categories;
 
                 let idx = categories.len();
                 categories.push(item);
@@ -102,7 +106,7 @@ pub type ChannelPickerResource =
     Resource<Option<Id<GuildMarker>>, Result<Vec<PickerItem>, ServerFnError>>;
 
 #[component]
-pub fn ChannelPickerProvider(cx: Scope, children: Children) -> impl IntoView {
+pub fn ChannelPickerProvider(cx: Scope, children: Children, categories: bool) -> impl IntoView {
     let guild_id = expect_context::<GuildIdContext>(cx);
     // local because PickerItem can't be Serialize/Deserialize
     let channels: ChannelPickerResource = create_local_resource(
@@ -114,7 +118,7 @@ pub fn ChannelPickerProvider(cx: Scope, children: Children) -> impl IntoView {
             };
 
             let (channels, threads) = get_channels(cx, guild_id).await?;
-            Ok(channels_to_picker_items(cx, channels, threads))
+            Ok(channels_to_picker_items(cx, categories, channels, threads))
         },
     );
     provide_context(cx, channels);

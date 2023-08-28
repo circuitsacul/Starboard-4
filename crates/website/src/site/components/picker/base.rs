@@ -7,6 +7,7 @@ pub struct PickerItem {
     pub name: String,
     pub value: String,
     pub children: Vec<PickerItem>,
+    pub selectable: bool,
     pub selected: RwSignal<bool>,
     pub search_visible: Option<Signal<bool>>,
 }
@@ -212,13 +213,17 @@ where
             each=move || items.clone()
             key=|p| p.value.clone()
             view=move |cx, p| {
+                let selectable = p.selectable;
                 let has_children = !p.children.is_empty();
                 let search_visible = p.search_visible.unwrap();
+                let id = store_value(cx, format!("picker_item_{}", p.value));
+
+                let p = store_value(cx, p);
+
                 let show_children = create_rw_signal(cx, false);
                 let children_shown = Signal::derive(
                     cx, move || show_children.get() || search.with(|t| !t.is_empty())
                 );
-                let pclone = p.clone();
                 view! {cx,
                     <Show when=move || search_visible.get() fallback=|_| ()>
                         <div class="m-1 flex gap-x-1">
@@ -227,6 +232,7 @@ where
                                 fallback=|cx| view! { cx, <div style="width: 1.5rem"></div>}
                             >
                                 <button
+                                    id=id.with_value(|id| id.clone())
                                     type="button"
                                     class="btn btn-xs btn-ghost btn-circle swap swap-rotate"
                                     class=("swap-active", move || !children_shown.get())
@@ -237,7 +243,14 @@ where
                                     <Icon class="swap-off" icon=crate::icon!(FaChevronDownSolid)/>
                                 </button>
                             </Show>
-                            <ItemPill item=pclone.clone() disabled=disabled single=single/>
+                            <Show when=move || selectable fallback=|_| ()>
+                                <ItemPill item=p.with_value(|v| v.to_owned()) disabled=disabled single=single/>
+                            </Show>
+                            <Show when=move || !selectable fallback=|_| ()>
+                                <label for=id.with_value(|id| id.clone())>
+                                    {move || p.with_value(|v| v.name.to_owned())}
+                                </label>
+                            </Show>
                         </div>
                     </Show>
                     <Show
@@ -247,9 +260,9 @@ where
                         {
                             let child_disabled = Signal::derive(
                                 cx,
-                                move || disabled.get() || (p.selected.get() && propagate)
+                                move || disabled.get() || (p.with_value(|p| p.selected.get()) && propagate)
                             );
-                            let items = p.children.clone();
+                            let items = p.with_value(|p| p.children.clone());
                             move || {
                                 view! {cx,
                                     <div class="ml-8">

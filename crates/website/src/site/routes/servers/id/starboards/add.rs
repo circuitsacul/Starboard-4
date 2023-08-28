@@ -17,7 +17,7 @@ pub fn Add(cx: Scope) -> impl IntoView {
     let create_sb = expect_context::<CreateStarboardAction>(cx);
 
     view! { cx,
-        <ChannelPickerProvider>
+        <ChannelPickerProvider categories=false>
             <Suspense fallback=|| ()>
                 <ActionForm action=create_sb>
                     <Popup
