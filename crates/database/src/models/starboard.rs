@@ -55,6 +55,17 @@ impl Starboard {
         .map(|row| row.map(|row| starboard_from_record!(row)))
     }
 
+    pub async fn delete_by_id(db: &DbClient, guild_id: i64, id: i32) -> sqlx::Result<bool> {
+        sqlx::query!(
+            "DELETE FROM starboards WHERE guild_id=$1 AND id=$2",
+            guild_id,
+            id
+        )
+        .fetch_optional(&db.pool)
+        .await
+        .map(|row| row.is_some())
+    }
+
     pub async fn update_settings(self, db: &DbClient) -> sqlx::Result<Option<Self>> {
         let mut builder = sqlx::QueryBuilder::<sqlx::Postgres>::new("UPDATE starboards SET ");
 

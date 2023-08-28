@@ -11,17 +11,25 @@ use crate::site::components::{toast, Card, CardList, CardSkeleton, Toast, Toaste
 use super::GuildIdContext;
 
 pub type CreateStarboardAction = Action<self::api::CreateStarboard, Result<(), ServerFnError>>;
+pub type DeleteStarboardAction = Action<self::api::DeleteStarboard, Result<(), ServerFnError>>;
 
 #[component]
 pub fn Starboards(cx: Scope) -> impl IntoView {
     let create_sb: CreateStarboardAction = create_server_action::<self::api::CreateStarboard>(cx);
+    let delete_sb: DeleteStarboardAction = create_server_action::<self::api::DeleteStarboard>(cx);
     provide_context(cx, create_sb);
+    provide_context(cx, delete_sb);
 
     let guild_id = expect_context::<GuildIdContext>(cx);
 
     let starboards = create_resource(
         cx,
-        move || (guild_id.get(), (create_sb.version().get(),)),
+        move || {
+            (
+                guild_id.get(),
+                (create_sb.version().get(), delete_sb.version().get()),
+            )
+        },
         move |(guild_id, _)| async move {
             let Some(guild_id) = guild_id else {
                 return Err(ServerFnError::ServerError("No guild ID.".to_string()));
@@ -35,6 +43,11 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
             if matches!(why, ServerFnError::Deserialization(_)) {
                 return;
             }
+            toast(cx, Toast::error(why));
+        }
+    });
+    create_effect(cx, move |_| {
+        if let Some(Err(why)) = delete_sb.value().get() {
             toast(cx, Toast::error(why));
         }
     });

@@ -1,5 +1,4 @@
 use leptos::*;
-use serde::Serialize;
 use twilight_model::id::{marker::EmojiMarker, Id};
 
 use crate::site::routes::servers::id::GuildContext;

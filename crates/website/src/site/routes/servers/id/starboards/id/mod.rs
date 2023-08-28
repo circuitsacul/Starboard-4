@@ -17,6 +17,8 @@ use crate::site::{
     routes::servers::id::GuildIdContext,
 };
 
+use super::DeleteStarboardAction;
+
 #[derive(Params, PartialEq, Clone)]
 struct Props {
     starboard_id: i32,
@@ -128,7 +130,12 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                 }
                 actions=move || {
                     view! { cx,
-                        <div class="btn btn-outline btn-error">"Delete"</div>
+                        <div
+                            class="btn btn-outline btn-error"
+                            onclick="delete_sb_modal.showModal()"
+                        >
+                            "Delete"
+                        </div>
                         <div class="flex-1"></div>
                         <A href=".." class="btn btn-ghost">
                             "Cancel"
@@ -176,6 +183,12 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
 
             </FullScreenPopup>
         </ActionForm>
+
+        <Suspense fallback=|| ()>
+            {move || {
+                params.get().map(move |p| view! {cx, <DeletePopup sb_id=p.starboard_id/>})
+            }}
+        </Suspense>
     }
 }
 
@@ -191,5 +204,37 @@ pub fn TabButton(cx: Scope, tab: Tab, sig: RwSignal<Tab>) -> impl IntoView {
                 {tab.as_str()}
             </button>
         </li>
+    }
+}
+
+#[component]
+pub fn DeletePopup(cx: Scope, sb_id: i32) -> impl IntoView {
+    let action = expect_context::<DeleteStarboardAction>(cx);
+
+    let guild_id = expect_context::<GuildIdContext>(cx);
+
+    view! {cx,
+        <dialog id="delete_sb_modal" class="modal">
+            <form method="dialog" class="modal-box">
+                <h3 class="font-bold text-xl">"Are you sure?"</h3>
+                <p class="py-4">"This will permanently delete this starboard."</p>
+                <div class="modal-action">
+                    <button class="btn btn-ghost">"Cancel"</button>
+                    <ActionForm action=action>
+                        <Suspense fallback=|| ()>
+                            <input
+                                type="hidden"
+                                name="guild_id"
+                                value=guild_id.get().map(|v| v.to_string()).unwrap_or_default()
+                            />
+                            <input type="hidden" name="starboard_id" value=sb_id/>
+                        </Suspense>
+                        <button class="btn btn-error">
+                            "Delete"
+                        </button>
+                    </ActionForm>
+                </div>
+            </form>
+        </dialog>
     }
 }
