@@ -77,6 +77,7 @@ fn channels_to_picker_items(
             ChannelType::GuildCategory => {
                 item.icon = crate::icon!(FaBarsSolid);
                 item.selectable = allow_categories;
+                item.name = item.name.to_uppercase();
 
                 let idx = categories.len();
                 categories.push(item);
