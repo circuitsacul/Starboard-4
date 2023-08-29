@@ -48,6 +48,9 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
     });
     create_effect(cx, move |_| {
         if let Some(Err(why)) = delete_sb.value().get() {
+            if matches!(why, ServerFnError::Deserialization(_)) {
+                return;
+            }
             toast(cx, Toast::error(why));
         }
     });

@@ -216,11 +216,13 @@ pub fn DeletePopup(cx: Scope, sb_id: i32) -> impl IntoView {
 
     view! {cx,
         <dialog id="delete_sb_modal" class="modal">
-            <form method="dialog" class="modal-box">
+            <div class="modal-box">
                 <h3 class="font-bold text-xl">"Are you sure?"</h3>
                 <p class="py-4">"This will permanently delete this starboard."</p>
                 <div class="modal-action">
-                    <button class="btn btn-ghost">"Cancel"</button>
+                    <button class="btn btn-ghost" onclick="delete_sb_modal.close()">
+                        "Cancel"
+                    </button>
                     <ActionForm action=action>
                         <Suspense fallback=|| ()>
                             <input
@@ -230,12 +232,18 @@ pub fn DeletePopup(cx: Scope, sb_id: i32) -> impl IntoView {
                             />
                             <input type="hidden" name="starboard_id" value=sb_id/>
                         </Suspense>
-                        <button class="btn btn-error">
+                        <button
+                            class="btn btn-error"
+                            disabled=move || action.pending().get()
+                        >
+                            <Show when=move || action.pending().get() fallback=|_| ()>
+                                <span class="loading loading-spinner loading-sm"></span>
+                            </Show>
                             "Delete"
                         </button>
                     </ActionForm>
                 </div>
-            </form>
+            </div>
         </dialog>
     }
 }
