@@ -46,36 +46,43 @@ pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
                     <ul class="menu p-0 flex flex-col space-y-2" on:click=move |_| close()>
                         <li>
                             <A class=move || maybe_active(Tab::Overview) href="">
+                                <Icon icon=crate::icon!(FaChartSimpleSolid)/>
                                 "Overview"
                             </A>
                         </li>
                         <li>
                             <A class=move || maybe_active(Tab::Starboards) href="starboards">
+                                <Icon icon=crate::icon!(FaStarSolid)/>
                                 "Starboards"
                             </A>
                         </li>
                         <li>
                             <A class=move || maybe_active(Tab::Overrides) href="overrides">
+                                <Icon icon=crate::icon!(FaGearSolid)/>
                                 "Overrides"
                             </A>
                         </li>
                         <li>
                             <A class=move || maybe_active(Tab::Filters) href="filters">
+                                <Icon icon=crate::icon!(FaFilterSolid)/>
                                 "Filters"
                             </A>
                         </li>
                         <li>
                             <A class=move || maybe_active(Tab::PermRoles) href="permroles">
+                                <Icon icon=crate::icon!(FaAtSolid)/>
                                 "PermRoles"
                             </A>
                         </li>
                         <li>
                             <A class=move || maybe_active(Tab::AwardRoles) href="awardroles">
+                                <Icon icon=crate::icon!(FaAwardSolid)/>
                                 "Award Roles"
                             </A>
                         </li>
                         <li>
                             <A class=move || maybe_active(Tab::AutoStar) href="autostar">
+                                <Icon icon=crate::icon!(FaRobotSolid)/>
                                 "Autostar Channels"
                             </A>
                         </li>
