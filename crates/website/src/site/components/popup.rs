@@ -25,7 +25,7 @@ where
                         <Icon icon=crate::icon!(FaXmarkSolid) width="1.3em" height="1.3em"/>
                     </A>
                 </div>
-                <div class="px-6 flex-1 overflow-y-scroll">{children(cx)}</div>
+                <div class="px-6 flex-1 overflow-y-auto">{children(cx)}</div>
                 <div class="px-6 pt-4 flex flex-row gap-x-2">{actions}</div>
             </div>
         </dialog>
