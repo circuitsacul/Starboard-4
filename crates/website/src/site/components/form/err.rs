@@ -15,7 +15,9 @@ pub fn ErrorNote<E: SignalWith<ValidationErrors> + 'static>(
     view! { cx,
         <Show when=move || err.get().is_some() fallback=|_| ()>
             <label for=key class="label">
-                <span class="label-text-alt text-error">{move || err.get().unwrap()}</span>
+                <span class="label-text-alt text-error">
+                    {move || err.get().unwrap_or_else(|| "".into())}
+                </span>
             </label>
         </Show>
     }
