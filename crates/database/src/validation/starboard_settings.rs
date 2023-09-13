@@ -30,7 +30,7 @@ impl ToBotStr for RequiredErr {
     }
     fn to_web_str(&self) -> String {
         match self {
-            Self::LessThanRemove => "Must be less than Required to Remove.".into(),
+            Self::LessThanRemove => "Must be greater than Required to Remove.".into(),
             Self::TooSmall => format!("Cannot be less than {}.", constants::MIN_REQUIRED),
             Self::TooLarge => format!("Cannot be greater than {}.", constants::MAX_REQUIRED),
         }
@@ -75,7 +75,7 @@ impl ToBotStr for RemoveErr {
     }
     fn to_web_str(&self) -> String {
         match self {
-            Self::GreaterThanRequired => "Must be less than the required upvotes.".into(),
+            Self::GreaterThanRequired => "Must be less than the Required.".into(),
             Self::TooSmall => format!("Must be at least {}.", constants::MIN_REQUIRED_REMOVE),
             Self::TooLarge => format!("Must be at most {}.", constants::MAX_REQUIRED_REMOVE),
         }
