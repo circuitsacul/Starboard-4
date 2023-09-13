@@ -143,7 +143,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                         <button
                             type="submit"
                             class="btn btn-primary"
-                            class=("btn-disabled", update_sb.pending().get())
+                            disabled=move || update_sb.pending().get()
                         >
                             <Show when=move || update_sb.pending().get() fallback=|_| ()>
                                 <span class="loading loading-spinner loading-sm"></span>
