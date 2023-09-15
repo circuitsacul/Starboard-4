@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-twilight-gateway = "0.15.2"
+twilight-gateway = { version = "0.15.2", default-features=false, features = [ "native", "twilight-http", "zlib-stock" ] }
 twilight-http = "0.15.2"
 twilight-model = "0.15.2"
 twilight-validate = "0.15.1"
