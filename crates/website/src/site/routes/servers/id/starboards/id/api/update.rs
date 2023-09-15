@@ -1,5 +1,6 @@
 #![allow(clippy::too_many_arguments)]
 
+use database::validation::regex::validate_regex;
 use leptos::*;
 use twilight_model::id::{marker::GuildMarker, Id};
 
@@ -23,9 +24,24 @@ pub async fn update_starboard(
     go_to_message: i16,
     attachments_list: Checkbox,
     replied_to: Checkbox,
+    // requirements
+    required: Option<i16>,
+    required_remove: Option<i16>,
+    // upvote_emojis: Vec<String>,
+    // downvote_emojis: Vec<String>,
+    self_vote: Checkbox,
+    allow_bots: Checkbox,
+    require_image: Checkbox,
+    // older_than: i64,
+    // newer_than: i64,
+    matches: Option<String>,
+    not_matches: Option<String>,
 ) -> Result<ValidationErrors, ServerFnError> {
     use common::constants;
-    use database::Starboard;
+    use database::{
+        validation::{self, ToBotStr},
+        DbGuild, Starboard,
+    };
 
     use crate::{site::routes::servers::id::api::can_manage_guild, validation::is_valid_emoji};
 
@@ -42,6 +58,10 @@ pub async fn update_starboard(
     }
 
     let guild = http.guild(guild_id).await?.model().await?;
+    let db_guild = DbGuild::get(&db, sb.guild_id)
+        .await?
+        .expect("a db guild to exist");
+    let premium = db_guild.premium_end.is_some();
 
     let mut errors = ValidationErrors::new();
 
@@ -87,6 +107,90 @@ pub async fn update_starboard(
 
     sb.settings.attachments_list = attachments_list.is_some();
     sb.settings.replied_to = replied_to.is_some();
+
+    if let Some(required) = required {
+        match validation::starboard_settings::validate_required(required, required_remove) {
+            Ok(val) => sb.settings.required = Some(val),
+            Err(why) => {
+                errors.insert("required".into(), why.to_web_str());
+            }
+        };
+    } else {
+        sb.settings.required = None;
+    }
+
+    if let Some(required_remove) = required_remove {
+        match validation::starboard_settings::validate_required_remove(required_remove, required) {
+            Ok(val) => sb.settings.required_remove = Some(val),
+            Err(why) => {
+                errors.insert("required_remove".into(), why.to_web_str());
+            }
+        }
+    } else {
+        sb.settings.required_remove = None;
+    }
+
+    // match validation::starboard_settings::validate_vote_emojis(
+    //     &upvote_emojis,
+    //     &downvote_emojis,
+    //     premium,
+    // ) {
+    //     Ok(()) => {
+    //         sb.settings.upvote_emojis = upvote_emojis;
+    //         sb.settings.downvote_emojis = downvote_emojis;
+    //     }
+    //     Err(why) => {
+    //         errors.insert("upvote_emojis".into(), why.to_web_str());
+    //     }
+    // }
+
+    sb.settings.self_vote = self_vote.is_some();
+    sb.settings.allow_bots = allow_bots.is_some();
+    sb.settings.require_image = require_image.is_some();
+
+    // match validate_relative_duration(Some(newer_than), Some(older_than)) {
+    //     Ok(()) => {
+    //         sb.settings.newer_than = newer_than;
+    //         sb.settings.older_than = older_than;
+    //     }
+    //     Err(why) => {
+    //         let is_newer_than = match why {
+    //             RelativeDurationErr::OlderThanGreaterThanNewerThan => false,
+    //             RelativeDurationErr::OlderThanNegative => false,
+    //             RelativeDurationErr::NewerThanNegative => true,
+    //             RelativeDurationErr::OlderThanTooLarge => false,
+    //             RelativeDurationErr::NewerThanTooLarge => true,
+    //         };
+    //         let key = if is_newer_than {
+    //             "newer_than"
+    //         } else {
+    //             "older_than"
+    //         };
+    //         errors.insert(key.into(), why.to_web_str());
+    //     }
+    // }
+
+    if let Some(re) = matches {
+        match validate_regex(re, premium) {
+            Ok(val) => sb.settings.matches = val,
+            Err(why) => {
+                errors.insert("matches".into(), why.to_web_str());
+            }
+        }
+    } else {
+        sb.settings.matches = None;
+    }
+
+    if let Some(re) = not_matches {
+        match validate_regex(re, premium) {
+            Ok(val) => sb.settings.not_matches = val,
+            Err(why) => {
+                errors.insert("not_matches".into(), why.to_web_str());
+            }
+        }
+    } else {
+        sb.settings.not_matches = None;
+    }
 
     // update settings and return errors
     sb.update_settings(&db).await?;
