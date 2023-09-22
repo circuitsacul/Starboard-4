@@ -60,6 +60,7 @@ pub async fn run(bot: StarboardBot) {
             Ok(event) => event,
             Err(why) => {
                 let fatal = why.is_fatal();
+                eprintln!("{}: {:#?}", shard.id(), shard.status());
                 bot.handle_error(&why.into()).await;
 
                 if fatal {
