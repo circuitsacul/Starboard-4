@@ -5,8 +5,7 @@
 use std::collections::HashSet;
 
 use common::constants;
-
-use super::ToBotStr;
+use errors::ErrToStr;
 
 pub enum RequiredErr {
     LessThanRemove,
@@ -14,7 +13,7 @@ pub enum RequiredErr {
     TooLarge,
 }
 
-impl ToBotStr for RequiredErr {
+impl ErrToStr for RequiredErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::LessThanRemove => "`required` must be greater than `required-remove`.".into(),
@@ -59,7 +58,7 @@ pub enum RemoveErr {
     TooLarge,
 }
 
-impl ToBotStr for RemoveErr {
+impl ErrToStr for RemoveErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::GreaterThanRequired => "`required-remove` must be less than `required.`".into(),
@@ -103,7 +102,7 @@ pub enum XPMulErr {
     TooSmall,
 }
 
-impl ToBotStr for XPMulErr {
+impl ErrToStr for XPMulErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::TooLarge => format!(
@@ -140,7 +139,7 @@ pub enum CooldownErr {
     PeriodTooLarge,
 }
 
-impl ToBotStr for CooldownErr {
+impl ErrToStr for CooldownErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::Negative => {
@@ -189,7 +188,7 @@ pub enum VoteEmojiErr {
     PremiumLimitReached,
 }
 
-impl ToBotStr for VoteEmojiErr {
+impl ErrToStr for VoteEmojiErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::EmojisNotUnique => {

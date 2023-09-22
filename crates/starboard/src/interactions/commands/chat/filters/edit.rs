@@ -1,11 +1,8 @@
 use twilight_interactions::command::{CommandModel, CommandOption, CreateCommand, CreateOption};
 
 use common::constants;
-use database::{
-    validation::{self, ToBotStr},
-    Filter, FilterGroup,
-};
-use errors::StarboardResult;
+use database::{validation, Filter, FilterGroup};
+use errors::{ErrToStr, StarboardResult};
 
 use crate::{
     core::premium::is_premium::is_guild_premium, get_guild_id, interactions::context::CommandCtx,
@@ -488,10 +485,11 @@ impl Edit {
             if val == "disable" {
                 filter.older_than = None;
             } else {
-                let delta = match parsing::time_delta::parse_time_delta(&val) {
+                let delta = match common::parsing::relative_duration::parse_relative_duration(&val)
+                {
                     Ok(val) => val,
                     Err(why) => {
-                        ctx.respond_str(&why, true).await?;
+                        ctx.respond_str(&why.to_bot_str(), true).await?;
                         return Ok(());
                     }
                 };
@@ -502,10 +500,11 @@ impl Edit {
             if val == "disable" {
                 filter.newer_than = None;
             } else {
-                let delta = match parsing::time_delta::parse_time_delta(&val) {
+                let delta = match common::parsing::relative_duration::parse_relative_duration(&val)
+                {
                     Ok(val) => val,
                     Err(why) => {
-                        ctx.respond_str(&why, true).await?;
+                        ctx.respond_str(&why.to_bot_str(), true).await?;
                         return Ok(());
                     }
                 };

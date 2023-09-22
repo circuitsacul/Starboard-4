@@ -5,6 +5,7 @@ mod helpers;
 mod models;
 #[cfg(feature = "backend")]
 pub mod pipelines;
+#[cfg(feature = "backend")]
 pub mod validation;
 
 #[cfg(feature = "backend")]

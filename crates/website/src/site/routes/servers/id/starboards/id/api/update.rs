@@ -1,6 +1,5 @@
 #![allow(clippy::too_many_arguments)]
 
-use database::validation::regex::validate_regex;
 use leptos::*;
 use twilight_model::id::{marker::GuildMarker, Id};
 
@@ -32,16 +31,21 @@ pub async fn update_starboard(
     self_vote: Checkbox,
     allow_bots: Checkbox,
     require_image: Checkbox,
-    // older_than: i64,
-    // newer_than: i64,
+    older_than: Option<String>,
+    newer_than: Option<String>,
     matches: Option<String>,
     not_matches: Option<String>,
 ) -> Result<ValidationErrors, ServerFnError> {
     use common::constants;
     use database::{
-        validation::{self, ToBotStr},
+        validation,
+        validation::{
+            regex::validate_regex,
+            relative_duration::{validate_relative_duration, RelativeDurationErr},
+        },
         DbGuild, Starboard,
     };
+    use errors::ErrToStr;
 
     use crate::{site::routes::servers::id::api::can_manage_guild, validation::is_valid_emoji};
 
@@ -144,31 +148,57 @@ pub async fn update_starboard(
     //     }
     // }
 
+    'out: {
+        let older_than = if let Some(older_than) = older_than {
+            match common::parsing::relative_duration::parse_relative_duration(&older_than) {
+                Ok(value) => Some(value),
+                Err(why) => {
+                    errors.insert("older_than".into(), why.to_web_str());
+                    break 'out;
+                }
+            }
+        } else {
+            None
+        };
+        let newer_than = if let Some(newer_than) = newer_than {
+            match common::parsing::relative_duration::parse_relative_duration(&newer_than) {
+                Ok(value) => Some(value),
+                Err(why) => {
+                    errors.insert("newer_than".into(), why.to_web_str());
+                    break 'out;
+                }
+            }
+        } else {
+            None
+        };
+
+        match validate_relative_duration(newer_than, older_than) {
+            Ok(()) => {
+                sb.settings.older_than = older_than.unwrap_or(0);
+                sb.settings.newer_than = newer_than.unwrap_or(0);
+            }
+            Err(why @ RelativeDurationErr::OlderThanGreaterThanNewerThan) => {
+                errors.insert("older_than".into(), why.to_web_str());
+                errors.insert("newer_than".into(), why.to_web_str());
+            }
+            Err(
+                why @ (RelativeDurationErr::OlderThanNegative
+                | RelativeDurationErr::OlderThanTooLarge),
+            ) => {
+                errors.insert("older_than".into(), why.to_web_str());
+            }
+            Err(
+                why @ (RelativeDurationErr::NewerThanNegative
+                | RelativeDurationErr::NewerThanTooLarge),
+            ) => {
+                errors.insert("newer_than".into(), why.to_web_str());
+            }
+        }
+    };
+
     sb.settings.self_vote = self_vote.is_some();
     sb.settings.allow_bots = allow_bots.is_some();
     sb.settings.require_image = require_image.is_some();
-
-    // match validate_relative_duration(Some(newer_than), Some(older_than)) {
-    //     Ok(()) => {
-    //         sb.settings.newer_than = newer_than;
-    //         sb.settings.older_than = older_than;
-    //     }
-    //     Err(why) => {
-    //         let is_newer_than = match why {
-    //             RelativeDurationErr::OlderThanGreaterThanNewerThan => false,
-    //             RelativeDurationErr::OlderThanNegative => false,
-    //             RelativeDurationErr::NewerThanNegative => true,
-    //             RelativeDurationErr::OlderThanTooLarge => false,
-    //             RelativeDurationErr::NewerThanTooLarge => true,
-    //         };
-    //         let key = if is_newer_than {
-    //             "newer_than"
-    //         } else {
-    //             "older_than"
-    //         };
-    //         errors.insert(key.into(), why.to_web_str());
-    //     }
-    // }
 
     if let Some(re) = matches {
         match validate_regex(re, premium) {

@@ -1,6 +1,5 @@
 use common::constants;
-
-use super::ToBotStr;
+use errors::ErrToStr;
 
 #[derive(Clone, Copy)]
 pub enum NameErr {
@@ -8,7 +7,7 @@ pub enum NameErr {
     TooShort,
 }
 
-impl ToBotStr for NameErr {
+impl ErrToStr for NameErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::TooLong => format!(

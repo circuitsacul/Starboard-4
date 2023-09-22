@@ -12,6 +12,8 @@ pub fn Requirements<E: SignalWith<ValidationErrors> + Copy + 'static>(
 ) -> impl IntoView {
     let required_enabled = create_rw_signal(cx, sb.settings.required.is_some());
     let required_remove_enabled = create_rw_signal(cx, sb.settings.required_remove.is_some());
+    let newer_than_enabled = create_rw_signal(cx, sb.settings.newer_than > 0);
+    let older_than_enabled = create_rw_signal(cx, sb.settings.older_than > 0);
 
     view! { cx,
         <div class:hidden=hidden>
@@ -89,6 +91,49 @@ pub fn Requirements<E: SignalWith<ValidationErrors> + Copy + 'static>(
                         class="checkbox checkbox-primary"
                     />
                     <Label for_="require_image">"Require Image"</Label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <Label for_="newer_than">"Newer Than"</Label>
+                    <div class="flex flex-row items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked=newer_than_enabled
+                            on:input=move |e| newer_than_enabled.set(event_target_checked(&e))
+                            class="toggle toggle-primary"
+                        />
+                        <input
+                            type="input"
+                            name="newer_than"
+                            id="newer_than"
+                            value=format!("{}s", sb.settings.newer_than)
+                            class="input input-bordered input-sm"
+                            disabled=move || !newer_than_enabled.get()
+                        />
+                    </div>
+                    <ErrorNote errs=errs key="newer_than"/>
+                </div>
+                <div>
+                    <Label for_="older_than">"Older Than"</Label>
+                    <div class="flex flex-row items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked=older_than_enabled
+                            on:input=move |e| older_than_enabled.set(event_target_checked(&e))
+                            class="toggle toggle-primary"
+                        />
+                        <input
+                            type="input"
+                            name="older_than"
+                            id="older_than"
+                            value=format!("{}s", sb.settings.older_than)
+                            class="input input-bordered input-sm"
+                            disabled=move || !older_than_enabled.get()
+                        />
+                    </div>
+                    <ErrorNote errs=errs key="older_than"/>
                 </div>
             </div>
         </div>

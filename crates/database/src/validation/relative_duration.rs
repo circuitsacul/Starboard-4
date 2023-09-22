@@ -1,8 +1,7 @@
 use std::time::Duration;
 
 use common::constants;
-
-use super::ToBotStr;
+use errors::ErrToStr;
 
 #[derive(Debug, Clone, Copy)]
 pub enum RelativeDurationErr {
@@ -13,7 +12,7 @@ pub enum RelativeDurationErr {
     NewerThanTooLarge,
 }
 
-impl ToBotStr for RelativeDurationErr {
+impl ErrToStr for RelativeDurationErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::OlderThanGreaterThanNewerThan => {
