@@ -9,13 +9,25 @@ pub mod parsing;
 pub mod utils;
 
 use tokio::main;
+use tracing_subscriber::{fmt, EnvFilter};
 
 use common::config::Config;
 
 use crate::client::{bot::StarboardBot, runner::run};
 
+fn init_tracing() {
+    tracing::subscriber::set_global_default(
+        fmt::Subscriber::builder()
+            .with_env_filter(EnvFilter::from_default_env())
+            .finish(),
+    )
+    .expect("Unable to set global tracing subscriber");
+}
+
 #[main]
 async fn main() {
+    init_tracing();
+
     let config = Config::from_env();
 
     let _sentry_guard = config.sentry.as_ref().map(|url| {
