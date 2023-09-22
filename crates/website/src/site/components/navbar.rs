@@ -63,6 +63,7 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                                     <li>
                                         <a href=link.1 target="_blank">
                                             {link.0}
+                                            <div class="flex-1"/>
                                             <Icon icon=crate::icon!(FaArrowUpRightFromSquareSolid)/>
                                         </a>
                                     </li>
@@ -88,7 +89,9 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                         })
                 }}
 
-            </div> <div class="flex-1"></div> <div>
+            </div>
+            <div class="flex-1"/>
+            <div>
                 <a class="btn btn-ghost" href="/servers">
                     <Icon icon=crate::icon!(FaGearSolid)/>
                     <span class="hidden sm:inline">"Servers"</span>
