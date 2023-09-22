@@ -1,4 +1,5 @@
 use leptos::*;
+use leptos_meta::*;
 
 #[component]
 pub fn NotFound(cx: Scope) -> impl IntoView {
@@ -16,5 +17,8 @@ pub fn NotFound(cx: Scope) -> impl IntoView {
         resp.set_status(actix_web::http::StatusCode::NOT_FOUND);
     }
 
-    view! { cx, <h1>"Not Found"</h1> }
+    view! { cx,
+        <Title text="404"/>
+        <h1>"Not Found"</h1>
+    }
 }

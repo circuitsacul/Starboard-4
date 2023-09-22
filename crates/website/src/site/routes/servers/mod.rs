@@ -5,6 +5,7 @@ pub mod server_list;
 use std::collections::HashMap;
 
 use leptos::*;
+use leptos_meta::*;
 use leptos_router::*;
 use twilight_model::{
     id::{marker::GuildMarker, Id},
@@ -32,6 +33,7 @@ pub fn Servers(cx: Scope) -> impl IntoView {
         });
     };
     view! { cx,
+        <Title text="Dashboard"/>
         <Suspense fallback=|| ()>{move || red(cx)}</Suspense>
         <Outlet/>
     }
