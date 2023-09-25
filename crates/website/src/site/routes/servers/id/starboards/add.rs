@@ -2,7 +2,7 @@ use leptos::*;
 use leptos_router::*;
 
 use crate::site::{
-    components::Popup,
+    components::{form::ErrorNote, Popup},
     routes::servers::id::{
         components::{ChannelPickerPopup, ChannelPickerProvider, SingleChannelPickerInput},
         GuildContext,
@@ -15,6 +15,10 @@ use super::CreateStarboardAction;
 pub fn Add(cx: Scope) -> impl IntoView {
     let guild = expect_context::<GuildContext>(cx);
     let create_sb = expect_context::<CreateStarboardAction>(cx);
+    let errs = create_memo(cx, move |_| match create_sb.value().get() {
+        Some(Ok(v)) => v,
+        _ => Default::default(),
+    });
 
     view! { cx,
         <ChannelPickerProvider categories=false>
@@ -36,8 +40,7 @@ pub fn Add(cx: Scope) -> impl IntoView {
                         title=|| "Create Starboard"
                     >
                         {move || {
-                            let Some(Ok(Some(g))) = guild.read(cx) else { return None;
-                        };
+                            let Some(Ok(Some(g))) = guild.read(cx) else { return None; };
                             let tview = view! { cx,
                                 <input type="hidden" name="guild_id" value=g.http.id.to_string()/>
                                 <div class="flex flex-col items-start gap-4">
@@ -45,9 +48,11 @@ pub fn Add(cx: Scope) -> impl IntoView {
                                     <input
                                         type="text"
                                         name="name"
+                                        placeholder="Name"
                                         class="input input-bordered w-full"
                                     />
                                 </div>
+                                <ErrorNote errs=errs key="name"/>
                             };
                             Some(tview)
                         }}

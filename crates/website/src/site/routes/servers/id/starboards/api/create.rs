@@ -4,29 +4,40 @@ use twilight_model::id::{
     Id,
 };
 
+use crate::site::components::form::ValidationErrors;
+
 /// TODO: validate channel existence and type
-/// TODO: validate name
 #[server(CreateStarboard, "/api")]
 pub async fn create_starboard(
     cx: Scope,
     guild_id: Id<GuildMarker>,
     channel_id: Id<ChannelMarker>,
     name: String,
-) -> Result<(), ServerFnError> {
-    use database::Starboard;
+) -> Result<ValidationErrors, ServerFnError> {
+    use database::{validation::name::validate_name, Starboard};
+    use errors::ErrToStr;
     use leptos_actix::redirect;
 
     use crate::site::routes::servers::id::api::can_manage_guild;
+
+    let mut errors = ValidationErrors::new();
 
     can_manage_guild(cx, guild_id).await?;
 
     let db = crate::db(cx);
 
+    let name = match validate_name(&name) {
+        Ok(name) => name,
+        Err(why) => {
+            errors.insert("name".into(), why.to_web_str());
+            return Ok(errors);
+        }
+    };
+
     let sb = Starboard::create(&db, &name, channel_id.get() as _, guild_id.get() as _).await?;
     let Some(sb) = sb else {
-        return Err(ServerFnError::ServerError(
-            "That name is already in use.".into(),
-        ));
+        errors.insert("name".into(), "That name is already in use.".into());
+        return Ok(errors);
     };
 
     redirect(
@@ -34,5 +45,5 @@ pub async fn create_starboard(
         &format!("/servers/{}/starboards/{}", guild_id, &sb.id.to_string()),
     );
 
-    Ok(())
+    Ok(errors)
 }

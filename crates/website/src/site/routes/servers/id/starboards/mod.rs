@@ -6,11 +6,14 @@ use leptos::*;
 use leptos_icons::*;
 use leptos_router::*;
 
-use crate::site::components::{toast, Card, CardList, CardSkeleton, Toast, ToastedSusp};
+use crate::site::components::{
+    form::ValidationErrors, toast, Card, CardList, CardSkeleton, Toast, ToastedSusp,
+};
 
 use super::GuildIdContext;
 
-pub type CreateStarboardAction = Action<self::api::CreateStarboard, Result<(), ServerFnError>>;
+pub type CreateStarboardAction =
+    Action<self::api::CreateStarboard, Result<ValidationErrors, ServerFnError>>;
 pub type DeleteStarboardAction = Action<self::api::DeleteStarboard, Result<(), ServerFnError>>;
 
 #[component]
