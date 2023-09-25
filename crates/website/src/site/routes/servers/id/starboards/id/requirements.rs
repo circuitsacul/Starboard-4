@@ -1,4 +1,7 @@
+use std::time::Duration;
+
 use database::Starboard;
+use humantime::format_duration;
 use leptos::*;
 
 use crate::site::components::form::{ErrorNote, Label, ValidationErrors};
@@ -108,7 +111,7 @@ pub fn Requirements<E: SignalWith<ValidationErrors> + Copy + 'static>(
                             type="input"
                             name="newer_than"
                             id="newer_than"
-                            value=format!("{}s", sb.settings.newer_than)
+                            value=format_duration(Duration::from_secs(sb.settings.newer_than as _)).to_string()
                             class="input input-bordered input-sm"
                             disabled=move || !newer_than_enabled.get()
                         />
@@ -128,7 +131,7 @@ pub fn Requirements<E: SignalWith<ValidationErrors> + Copy + 'static>(
                             type="input"
                             name="older_than"
                             id="older_than"
-                            value=format!("{}s", sb.settings.older_than)
+                            value=format_duration(Duration::from_secs(sb.settings.older_than as _)).to_string()
                             class="input input-bordered input-sm"
                             disabled=move || !older_than_enabled.get()
                         />
