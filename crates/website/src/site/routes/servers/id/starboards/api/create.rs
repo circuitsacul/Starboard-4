@@ -11,7 +11,7 @@ use crate::site::components::form::ValidationErrors;
 pub async fn create_starboard(
     cx: Scope,
     guild_id: Id<GuildMarker>,
-    channel_id: Id<ChannelMarker>,
+    channel_id: Option<Id<ChannelMarker>>,
     name: String,
 ) -> Result<ValidationErrors, ServerFnError> {
     use database::{validation::name::validate_name, Starboard};
@@ -21,6 +21,11 @@ pub async fn create_starboard(
     use crate::site::routes::servers::id::api::can_manage_guild;
 
     let mut errors = ValidationErrors::new();
+
+    let Some(channel_id) = channel_id else {
+        errors.insert("channel_id".into(), "Please select a channel.".into());
+        return Ok(errors);
+    };
 
     can_manage_guild(cx, guild_id).await?;
 

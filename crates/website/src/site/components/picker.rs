@@ -77,7 +77,7 @@ fn clip_name(name: &str) -> String {
 pub fn PickerSingleInput(
     cx: Scope,
     data: Vec<PickerItem>,
-    id: &'static str,
+    name: &'static str,
     placeholder: &'static str,
 ) -> impl IntoView {
     let flat_data = store_value(cx, flatten_items(data.clone()));
@@ -88,23 +88,23 @@ pub fn PickerSingleInput(
     view! {cx,
         <input
             type="hidden"
-            id=id
-            name=id
+            name=name
             prop:value=move || selected.get().map(|v| v.value.clone()).unwrap_or("".into())
         />
         <button
             type="button"
-            onclick=format!("popup_{id}.showModal()")
+            onclick=format!("popup_{name}.showModal()")
             on:click=move |_| { if let Some(v) = selected.get() { v.selected.set(false) } }
             class="btn btn-ghost btn-sm normal-case"
         >
             <Show when=move || selected.with(|v| v.is_some()) fallback=move |_| placeholder>
                 {move || {
-                    let selected = selected.get().unwrap();
-                    view! {cx,
-                        <Icon icon=selected.icon/>
-                        {selected.name}
-                    }
+                    selected.get().map(|selected| {
+                        view! {cx,
+                            <Icon icon=selected.icon/>
+                            {selected.name}
+                        }
+                    })
                 }}
             </Show>
         </button>
@@ -115,7 +115,7 @@ pub fn PickerSingleInput(
 pub fn PickerMultiInput(
     cx: Scope,
     data: Vec<PickerItem>,
-    id: &'static str,
+    name: &'static str,
     placeholder: &'static str,
 ) -> impl IntoView {
     let flat_data = store_value(cx, flatten_items(data.clone()));
@@ -126,7 +126,7 @@ pub fn PickerMultiInput(
     });
 
     view! {cx,
-        <select hidden id=id name=id>
+        <select hidden name=name>
             <For
                 each=move || flat_data.with_value(|d| d.clone())
                 key=|p| p.value.clone()
@@ -151,7 +151,7 @@ pub fn PickerMultiInput(
                 />
             </Show>
             <button
-                onclick=format!("popup_{id}.showModal()")
+                onclick=format!("popup_{name}.showModal()")
                 type="button"
                 class="btn btn-xs btn-ghost normal-case"
             >
@@ -167,12 +167,12 @@ pub fn PickerPopup(
     mut items: Vec<PickerItem>,
     propagate: bool,
     single: bool,
-    id: &'static str,
+    name: &'static str,
 ) -> impl IntoView {
     let search = create_rw_signal(cx, "".to_string());
     recursive_set_search_visible(cx, search, &mut items);
     view! {cx,
-        <dialog id=format!("popup_{id}") class="modal">
+        <dialog id=format!("popup_{name}") class="modal">
             <form method="dialog" class="modal-box h-screen max-w-sm">
                 <input
                     type="text"

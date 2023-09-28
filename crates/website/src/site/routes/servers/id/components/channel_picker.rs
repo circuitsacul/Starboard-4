@@ -132,7 +132,7 @@ pub fn ChannelPickerPopup(
     cx: Scope,
     propagate: bool,
     single: bool,
-    id: &'static str,
+    name: &'static str,
 ) -> impl IntoView {
     let channels = expect_context::<ChannelPickerResource>(cx);
 
@@ -146,7 +146,7 @@ pub fn ChannelPickerPopup(
                                 items=items
                                 propagate=propagate
                                 single=single
-                                id=id
+                                name=name
                             />
                         }
                     })
@@ -157,7 +157,7 @@ pub fn ChannelPickerPopup(
 }
 
 #[component]
-pub fn SingleChannelPickerInput(cx: Scope, id: &'static str) -> impl IntoView {
+pub fn SingleChannelPickerInput(cx: Scope, name: &'static str) -> impl IntoView {
     let channels = expect_context::<ChannelPickerResource>(cx);
 
     view! {cx,
@@ -174,7 +174,7 @@ pub fn SingleChannelPickerInput(cx: Scope, id: &'static str) -> impl IntoView {
                         view! {cx,
                             <PickerSingleInput
                                 data=items
-                                id=id
+                                name=name
                                 placeholder="Select a channel"
                             />
                         }
@@ -185,7 +185,7 @@ pub fn SingleChannelPickerInput(cx: Scope, id: &'static str) -> impl IntoView {
     }
 }
 #[component]
-pub fn MultiChannelPickerInput(cx: Scope, id: &'static str) -> impl IntoView {
+pub fn MultiChannelPickerInput(cx: Scope, name: &'static str) -> impl IntoView {
     let channels = expect_context::<ChannelPickerResource>(cx);
 
     view! {cx,
@@ -201,7 +201,7 @@ pub fn MultiChannelPickerInput(cx: Scope, id: &'static str) -> impl IntoView {
                         view! {cx,
                             <PickerMultiInput
                                 data=items
-                                id=id
+                                name=name
                                 placeholder="No channels selected"
                             />
                         }

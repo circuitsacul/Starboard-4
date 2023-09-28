@@ -22,45 +22,51 @@ pub fn Add(cx: Scope) -> impl IntoView {
 
     view! { cx,
         <ChannelPickerProvider categories=false>
-            <Suspense fallback=|| ()>
-                <ActionForm action=create_sb>
-                    <Popup
-                        actions=move || {
-                            view! { cx,
-                                <div class="flex-1"></div>
-                                <A class="btn btn-ghost" href="..">
-                                    "Cancel"
-                                </A>
-                                <button type="submit" class="btn btn-primary">
-                                    "Create"
-                                </button>
-                            }
+            <ActionForm action=create_sb>
+                <Popup
+                    actions=move || {
+                        view! { cx,
+                            <div class="flex-1"></div>
+                            <A class="btn btn-ghost" href="..">
+                                "Cancel"
+                            </A>
+                            <button type="submit" class="btn btn-primary">
+                                "Create"
+                            </button>
                         }
+                    }
 
-                        title=|| "Create Starboard"
-                    >
-                        {move || {
-                            let Some(Ok(Some(g))) = guild.read(cx) else { return None; };
-                            let tview = view! { cx,
-                                <input type="hidden" name="guild_id" value=g.http.id.to_string()/>
-                                <div class="flex flex-col items-start gap-4">
-                                    <SingleChannelPickerInput id="channel_id"/>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        placeholder="Name"
-                                        class="input input-bordered w-full"
-                                    />
-                                </div>
-                                <ErrorNote errs=errs key="name"/>
-                            };
-                            Some(tview)
-                        }}
-
-                    </Popup>
-                </ActionForm>
-            </Suspense>
-            <ChannelPickerPopup propagate=false single=true id="channel_id" />
+                    title=|| "Create Starboard"
+                >
+                    <Suspense fallback=|| ()>
+                        {move || guild.read(cx).and_then(|v| v.ok().flatten()).map(|g| {
+                            view! {cx,
+                                <input
+                                    type="hidden"
+                                    name="guild_id"
+                                    value=g.http.id.to_string()
+                                />
+                            }
+                        })}
+                    </Suspense>
+                    <div class="flex flex-col items-start gap-4">
+                        <div class="w-full">
+                            <SingleChannelPickerInput name="channel_id"/>
+                            <ErrorNote errs=errs key="channel_id"/>
+                        </div>
+                        <div class="w-full">
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Name"
+                                class="input input-bordered w-full"
+                            />
+                            <ErrorNote errs=errs key="name"/>
+                        </div>
+                    </div>
+                </Popup>
+            </ActionForm>
+            <ChannelPickerPopup propagate=false single=true name="channel_id" />
         </ChannelPickerProvider>
     }
 }
