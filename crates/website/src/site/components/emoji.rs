@@ -10,7 +10,6 @@ pub fn EmojiButton<I: ToString>(
     name: &'static str,
     initial: I,
 ) -> impl IntoView {
-    // TODO: custom emojis
     let guild = use_context::<GuildContext>(cx);
 
     let value = create_rw_signal(cx, initial.to_string());

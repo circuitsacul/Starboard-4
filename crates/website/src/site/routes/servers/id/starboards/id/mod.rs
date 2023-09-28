@@ -162,9 +162,8 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                 </ul>
                 <Suspense fallback=||()>
                     {move || {
-                        let Some(Ok((Some(sb), _))) = sb.read(cx) else { return None;
-                    };
-                        let tview = view! { cx,
+                        let Some(Ok((Some(sb), _))) = sb.read(cx) else { return None; };
+                        Some(view! { cx,
                             <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>
                             <input type="hidden" name="starboard_id" value=sb.id.to_string()/>
 
@@ -176,8 +175,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                                 hidden=make_is_hidden(Tab::Requirements)
                             />
                             <Style errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Style)/>
-                        };
-                        Some(tview)
+                        })
                     }}
                 </Suspense>
 
