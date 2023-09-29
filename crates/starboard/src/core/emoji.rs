@@ -45,9 +45,12 @@ impl SimpleEmoji {
         guild_id: Id<GuildMarker>,
     ) -> Vec<Self> {
         lazy_static! {
-            static ref RE: Regex =
-                Regex::new(r"(<a?:\w+:(?P<emoji_id>\d+)>|(?P<unicode>.(\u{200d}.)*\u{fe0f}?))")
-                    .unwrap();
+            static ref RE: Regex = Regex::new(concat!(
+                r"(<a?:\w+:(?P<emoji_id>\d+)>",
+                r"|(?P<flag>[\u{1f1e6}-\u{1f1ff}]{2,})",
+                r"|(?P<unicode>.(\u{200d}.)*\u{fe0f}?))",
+            ))
+            .unwrap();
         };
 
         let mut emojis = Vec::new();
@@ -67,7 +70,44 @@ impl SimpleEmoji {
                     emojis.push(Self {
                         raw: emoji.as_str().to_owned(),
                         as_id: None,
-                    })
+                    });
+                }
+            } else if let Some(flag) = caps.name("flag") {
+                // a flag is two consecutive regional indicators. The good news is that
+                // regional indicators are single codepoints which makes it easy to iterate
+                let mut letters = flag.as_str().chars();
+                // safety: the regex only matches for 2 or more consecutive regional indicators
+                let mut previous = letters.next().unwrap();
+
+                loop {
+                    let Some(letter) = letters.next() else {
+                        emojis.push(Self {
+                            raw: previous.into(),
+                            as_id: None,
+                        });
+                        break;
+                    };
+
+                    let flag = String::from_iter([previous, letter]);
+
+                    if emojis::get(&flag).is_some() {
+                        emojis.push(Self {
+                            raw: flag,
+                            as_id: None,
+                        });
+
+                        if let Some(next) = letters.next() {
+                            previous = next;
+                        } else {
+                            break;
+                        }
+                    } else {
+                        emojis.push(Self {
+                            raw: previous.into(),
+                            as_id: None,
+                        });
+                        previous = letter;
+                    }
                 }
             }
         }
