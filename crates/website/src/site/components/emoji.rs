@@ -174,16 +174,18 @@ pub fn Emoji(cx: Scope, emoji: MaybeSignal<String>) -> impl IntoView {
     });
 
     view! {cx,
-        <Show when=move || custom.get().is_some() fallback=move |_| emoji.get()>
-            {move || {
-                custom.get().map(|custom| view! {cx,
+        {move || {
+            if let Some(custom) = custom.get() {
+                view! {cx,
                     <img
                         src=custom
                         style="max-width: 1em; max-height: 1em;"
                     />
-                })
-            }}
-        </Show>
+                }.into_view(cx)
+            } else {
+                emoji.get().into_view(cx)
+            }
+        }}
     }
 }
 
