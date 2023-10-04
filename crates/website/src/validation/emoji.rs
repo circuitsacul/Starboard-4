@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use twilight_model::{guild::Guild, id::Id};
 
-pub fn is_valid_emoji(emoji: &str, guild: Guild) -> bool {
+pub fn is_valid_emoji(emoji: &str, guild: &Guild) -> bool {
     if emojis::get(emoji).is_some() {
         return true;
     }

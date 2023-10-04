@@ -71,7 +71,7 @@ pub async fn update_starboard(
 
     // parse, validate, and set values
     if let Some(val) = &display_emoji {
-        if is_valid_emoji(val, guild) {
+        if is_valid_emoji(val, &guild) {
             sb.settings.display_emoji = display_emoji;
         } else {
             errors.insert("display_emoji".into(), "Invalid emoji.".into());
@@ -134,8 +134,16 @@ pub async fn update_starboard(
         sb.settings.required_remove = None;
     }
 
-    let upvote_emojis: Vec<_> = upvote_emojis.split(',').map(|s| s.to_owned()).collect();
-    let downvote_emojis: Vec<_> = downvote_emojis.split(',').map(|s| s.to_owned()).collect();
+    let upvote_emojis: Vec<_> = upvote_emojis
+        .split(',')
+        .map(|s| s.to_owned())
+        .filter(|e| is_valid_emoji(e, &guild))
+        .collect();
+    let downvote_emojis: Vec<_> = downvote_emojis
+        .split(',')
+        .map(|s| s.to_owned())
+        .filter(|e| is_valid_emoji(e, &guild))
+        .collect();
 
     match validation::starboard_settings::validate_vote_emojis(
         &upvote_emojis,
