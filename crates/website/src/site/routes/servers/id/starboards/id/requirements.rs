@@ -3,14 +3,19 @@ use std::time::Duration;
 use database::Starboard;
 use humantime::format_duration;
 use leptos::*;
+use twilight_model::guild::Guild;
 
-use crate::site::components::form::{ErrorNote, Label, ValidationErrors};
+use crate::site::components::{
+    form::{ErrorNote, Label, ValidationErrors},
+    MultiEmojiInput,
+};
 
 #[component]
 pub fn Requirements<E: SignalWith<ValidationErrors> + Copy + 'static>(
     cx: Scope,
     errs: E,
     sb: Starboard,
+    guild: Guild,
     hidden: Memo<bool>,
 ) -> impl IntoView {
     let required_enabled = create_rw_signal(cx, sb.settings.required.is_some());
@@ -63,6 +68,27 @@ pub fn Requirements<E: SignalWith<ValidationErrors> + Copy + 'static>(
                         />
                     </div>
                     <ErrorNote errs=errs key="required_remove"/>
+                </div>
+
+                <div>
+                    <Label for_="upvote_emojis">"Upvote Emojis"</Label>
+                    <MultiEmojiInput
+                        id="upvote_emojis"
+                        name="upvote_emojis"
+                        initial=sb.settings.upvote_emojis
+                        guild=guild.clone()
+                    />
+                    <ErrorNote errs=errs key="upvote_emojis"/>
+                </div>
+                <div>
+                    <Label for_="downvote_emojis">"Downvote Emojis"</Label>
+                    <MultiEmojiInput
+                        id="downvote_emojis"
+                        name="downvote_emojis"
+                        initial=sb.settings.downvote_emojis
+                        guild=guild.clone()
+                    />
+                    <ErrorNote errs=errs key="downvote_emojis"/>
                 </div>
 
                 <div class="flex items-center">

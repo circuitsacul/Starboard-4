@@ -26,8 +26,8 @@ pub async fn update_starboard(
     // requirements
     required: Option<i16>,
     required_remove: Option<i16>,
-    // upvote_emojis: Vec<String>,
-    // downvote_emojis: Vec<String>,
+    upvote_emojis: String,
+    downvote_emojis: String,
     self_vote: Checkbox,
     allow_bots: Checkbox,
     require_image: Checkbox,
@@ -134,19 +134,23 @@ pub async fn update_starboard(
         sb.settings.required_remove = None;
     }
 
-    // match validation::starboard_settings::validate_vote_emojis(
-    //     &upvote_emojis,
-    //     &downvote_emojis,
-    //     premium,
-    // ) {
-    //     Ok(()) => {
-    //         sb.settings.upvote_emojis = upvote_emojis;
-    //         sb.settings.downvote_emojis = downvote_emojis;
-    //     }
-    //     Err(why) => {
-    //         errors.insert("upvote_emojis".into(), why.to_web_str());
-    //     }
-    // }
+    let upvote_emojis: Vec<_> = upvote_emojis.split(',').map(|s| s.to_owned()).collect();
+    let downvote_emojis: Vec<_> = downvote_emojis.split(',').map(|s| s.to_owned()).collect();
+
+    match validation::starboard_settings::validate_vote_emojis(
+        &upvote_emojis,
+        &downvote_emojis,
+        premium,
+    ) {
+        Ok(()) => {
+            sb.settings.upvote_emojis = upvote_emojis;
+            sb.settings.downvote_emojis = downvote_emojis;
+        }
+        Err(why) => {
+            errors.insert("upvote_emojis".into(), why.to_web_str());
+            errors.insert("downvote_emojis".into(), why.to_web_str());
+        }
+    }
 
     'out: {
         let older_than = if let Some(older_than) = older_than {

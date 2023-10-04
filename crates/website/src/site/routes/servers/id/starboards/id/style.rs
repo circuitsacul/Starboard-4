@@ -1,6 +1,7 @@
 use common::constants;
 use database::Starboard;
 use leptos::*;
+use twilight_model::guild::Guild;
 
 use crate::site::components::{
     form::{ErrorNote, Label, ValidationErrors},
@@ -13,6 +14,7 @@ pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
     errs: E,
     sb: Starboard,
     hidden: Memo<bool>,
+    guild: Guild,
 ) -> impl IntoView {
     view! { cx,
         <div class:hidden=hidden>
@@ -23,6 +25,7 @@ pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
                         id="display_emoji"
                         name="display_emoji"
                         initial=sb.settings.display_emoji.clone().unwrap_or_else(|| "".into())
+                        guild=guild
                     />
                     <ErrorNote errs=errs key="display_emoji"/>
                 </div>

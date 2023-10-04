@@ -14,7 +14,7 @@ use leptos_router::*;
 
 use crate::site::{
     components::{toast, FullScreenPopup, Toast},
-    routes::servers::id::GuildIdContext,
+    routes::servers::id::{GuildContext, GuildIdContext},
 };
 
 use super::DeleteStarboardAction;
@@ -55,6 +55,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
 
     let params = use_params::<Props>(cx);
     let guild_id = expect_context::<GuildIdContext>(cx);
+    let guild = expect_context::<GuildContext>(cx);
 
     let sb = create_resource(
         cx,
@@ -162,7 +163,12 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                 </ul>
                 <Suspense fallback=||()>
                     {move || {
-                        let Some(Ok((Some(sb), _))) = sb.read(cx) else { return None; };
+                        let sb = sb.read(cx);
+                        let guild = guild.read(cx);
+
+                        let Some(Ok((Some(sb), _))) = sb else { return None; };
+                        let Some(Ok(Some(guild))) = guild else { return None; };
+
                         Some(view! { cx,
                             <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>
                             <input type="hidden" name="starboard_id" value=sb.id.to_string()/>
@@ -172,9 +178,10 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                             <Requirements
                                 errs=errs
                                 sb=sb.clone()
+                                guild=guild.http.clone()
                                 hidden=make_is_hidden(Tab::Requirements)
                             />
-                            <Style errs=errs sb=sb.clone() hidden=make_is_hidden(Tab::Style)/>
+                            <Style errs=errs sb=sb.clone() guild=guild.http.clone() hidden=make_is_hidden(Tab::Style)/>
                         })
                     }}
                 </Suspense>
