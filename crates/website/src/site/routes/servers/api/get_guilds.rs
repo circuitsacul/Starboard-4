@@ -19,8 +19,8 @@ use twilight_model::{
 };
 
 #[cfg(feature = "ssr")]
-pub async fn get_manageable_guilds(cx: Scope) -> Option<Arc<Guilds>> {
-    let acx = AuthContext::get(cx)?;
+pub async fn get_manageable_guilds() -> Option<Arc<Guilds>> {
+    let acx = AuthContext::get()?;
 
     let mut guilds = acx.guilds.write().await;
 
@@ -44,10 +44,8 @@ pub async fn get_manageable_guilds(cx: Scope) -> Option<Arc<Guilds>> {
 }
 
 #[server(GetGuilds, "/api")]
-pub async fn get_guilds(
-    cx: Scope,
-) -> Result<HashMap<Id<GuildMarker>, CurrentUserGuild>, ServerFnError> {
-    let Some(guilds) = get_manageable_guilds(cx).await else {
+pub async fn get_guilds() -> Result<HashMap<Id<GuildMarker>, CurrentUserGuild>, ServerFnError> {
+    let Some(guilds) = get_manageable_guilds().await else {
         return Err(ServerFnError::ServerError("Unauthorized.".to_string()));
     };
 

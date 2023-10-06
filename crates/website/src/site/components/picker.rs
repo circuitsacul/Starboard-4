@@ -18,19 +18,19 @@ impl PartialEq for PickerItem {
     }
 }
 
-fn recursive_set_search_visible<S>(cx: Scope, search: S, items: &mut [PickerItem])
+fn recursive_set_search_visible<S>(search: S, items: &mut [PickerItem])
 where
-    S: SignalWith<String> + Clone + Copy + 'static,
+    S: SignalWith<Value = String> + Clone + Copy + 'static,
 {
     for item in items {
-        recursive_set_search_visible(cx, search, &mut item.children);
+        recursive_set_search_visible(search, &mut item.children);
         let child_signals: Vec<_> = item
             .children
             .iter()
             .map(|item| item.search_visible.unwrap())
             .collect();
         let name = item.name.to_lowercase();
-        let sig = Signal::derive(cx, move || {
+        let sig = Signal::derive(move || {
             let children = child_signals.iter().any(|sig| sig.get());
             let this = search.with(|t| t.is_empty() || name.contains(t));
             children || this
@@ -75,17 +75,16 @@ fn clip_name(name: &str) -> String {
 
 #[component]
 pub fn PickerSingleInput(
-    cx: Scope,
     data: Vec<PickerItem>,
     name: &'static str,
     placeholder: &'static str,
 ) -> impl IntoView {
-    let flat_data = store_value(cx, flatten_items(data.clone()));
-    let selected = create_memo(cx, move |_| {
+    let flat_data = store_value(flatten_items(data.clone()));
+    let selected = create_memo(move |_| {
         flat_data.with_value(|d| d.iter().find(|i| i.selected.get()).cloned())
     });
 
-    view! {cx,
+    view! {
         <input
             type="hidden"
             name=name
@@ -97,10 +96,10 @@ pub fn PickerSingleInput(
             on:click=move |_| { if let Some(v) = selected.get() { v.selected.set(false) } }
             class="btn btn-ghost btn-sm normal-case"
         >
-            <Show when=move || selected.with(|v| v.is_some()) fallback=move |_| placeholder>
+            <Show when=move || selected.with(|v| v.is_some()) fallback=move || placeholder>
                 {move || {
                     selected.get().map(|selected| {
-                        view! {cx,
+                        view! {
                             <Icon icon=selected.icon/>
                             {selected.name}
                         }
@@ -113,24 +112,23 @@ pub fn PickerSingleInput(
 
 #[component]
 pub fn PickerMultiInput(
-    cx: Scope,
     data: Vec<PickerItem>,
     name: &'static str,
     placeholder: &'static str,
 ) -> impl IntoView {
-    let flat_data = store_value(cx, flatten_items(data.clone()));
-    let selected = create_memo(cx, move |_| {
+    let flat_data = store_value(flatten_items(data.clone()));
+    let selected = create_memo(move |_| {
         flat_data
             .with_value(|d| d.clone().into_iter().filter(|i| i.selected.get()))
             .collect::<Vec<_>>()
     });
 
-    view! {cx,
+    view! {
         <select hidden name=name>
             <For
                 each=move || flat_data.with_value(|d| d.clone())
                 key=|p| p.value.clone()
-                view=move |cx, p| view! {cx,
+                children=move |p| view! {
                     <option value=p.value selected=move || p.selected.get()/>
                 }
             />
@@ -141,12 +139,12 @@ pub fn PickerMultiInput(
                 "rounded-btn p-2 gap-1"
             )
         >
-            <Show when=move || !selected.with(|v| v.is_empty()) fallback=move |_| placeholder>
+            <Show when=move || !selected.with(|v| v.is_empty()) fallback=move || placeholder>
                 <For
                     each=move || selected.get()
                     key=|item| item.value.clone()
-                    view=move |cx, item| view! {cx,
-                        <ItemPill item=item disabled=Signal::derive(cx, || false) single=false/>
+                    children=move |item| view! {
+                        <ItemPill item=item disabled=Signal::derive(|| false) single=false/>
                     }
                 />
             </Show>
@@ -163,15 +161,14 @@ pub fn PickerMultiInput(
 
 #[component]
 pub fn PickerPopup(
-    cx: Scope,
     mut items: Vec<PickerItem>,
     propagate: bool,
     single: bool,
     name: &'static str,
 ) -> impl IntoView {
-    let search = create_rw_signal(cx, "".to_string());
-    recursive_set_search_visible(cx, search, &mut items);
-    view! {cx,
+    let search = create_rw_signal("".to_string());
+    recursive_set_search_visible(search, &mut items);
+    view! {
         <dialog id=format!("popup_{name}") class="modal">
             <form method="dialog" class="modal-box h-screen max-w-sm">
                 <input
@@ -185,7 +182,7 @@ pub fn PickerPopup(
                     propagate=propagate
                     single=single
                     search=search
-                    disabled=Signal::derive(cx, || false)
+                    disabled=Signal::derive(|| false)
                 />
             </form>
             <form method="dialog" class="modal-backdrop">
@@ -197,7 +194,6 @@ pub fn PickerPopup(
 
 #[component]
 pub fn ItemPills<DisabledS, SearchS>(
-    cx: Scope,
     items: Vec<PickerItem>,
     propagate: bool,
     single: bool,
@@ -205,31 +201,31 @@ pub fn ItemPills<DisabledS, SearchS>(
     search: SearchS,
 ) -> impl IntoView
 where
-    DisabledS: SignalGet<bool> + Clone + Copy + 'static,
-    SearchS: SignalWith<String> + Clone + Copy + 'static,
+    DisabledS: SignalGet<Value = bool> + Clone + Copy + 'static,
+    SearchS: SignalWith<Value = String> + Clone + Copy + 'static,
 {
-    view! {cx,
+    view! {
         <For
             each=move || items.clone()
             key=|p| p.value.clone()
-            view=move |cx, p| {
+            children=move |p| {
                 let selectable = p.selectable;
                 let has_children = !p.children.is_empty();
                 let search_visible = p.search_visible.unwrap();
-                let id = store_value(cx, format!("picker_item_{}", p.value));
+                let id = store_value(format!("picker_item_{}", p.value));
 
-                let p = store_value(cx, p);
+                let p = store_value(p);
 
-                let show_children = create_rw_signal(cx, false);
+                let show_children = create_rw_signal(false);
                 let children_shown = Signal::derive(
-                    cx, move || show_children.get() || search.with(|t| !t.is_empty())
+                    move || show_children.get() || search.with(|t| !t.is_empty())
                 );
-                view! {cx,
-                    <Show when=move || search_visible.get() fallback=|_| ()>
+                view! {
+                    <Show when=move || search_visible.get() fallback=|| ()>
                         <div class="m-1 flex gap-x-1">
                             <Show
                                 when=move || has_children
-                                fallback=|cx| view! { cx, <div style="width: 1.5rem"></div>}
+                                fallback=|| view! {<div style="width: 1.5rem"></div>}
                             >
                                 <button
                                     id=id.with_value(|id| id.clone())
@@ -243,10 +239,10 @@ where
                                     <Icon class="swap-off" icon=crate::icon!(FaChevronDownSolid)/>
                                 </button>
                             </Show>
-                            <Show when=move || selectable fallback=|_| ()>
+                            <Show when=move || selectable fallback=|| ()>
                                 <ItemPill item=p.with_value(|v| v.to_owned()) disabled=disabled single=single/>
                             </Show>
-                            <Show when=move || !selectable fallback=|_| ()>
+                            <Show when=move || !selectable fallback=|| ()>
                                 <label for=id.with_value(|id| id.clone()) class="text-xs flex items-center gap-2 px-1">
                                     <Icon icon=p.with_value(|p| p.icon)/>
                                     {move || p.with_value(|v| v.name.to_owned())}
@@ -256,16 +252,15 @@ where
                     </Show>
                     <Show
                         when=move || has_children && children_shown.get() && search_visible.get()
-                        fallback=|_| ()
+                        fallback=|| ()
                     >
                         {
                             let child_disabled = Signal::derive(
-                                cx,
                                 move || disabled.get() || (p.with_value(|p| p.selected.get()) && propagate)
                             );
                             let items = p.with_value(|p| p.children.clone());
                             move || {
-                                view! {cx,
+                                view! {
                                     <div class="ml-8">
                                         <ItemPills
                                             items=items.clone()
@@ -286,11 +281,11 @@ where
 }
 
 #[component]
-pub fn ItemPill<S>(cx: Scope, item: PickerItem, disabled: S, single: bool) -> impl IntoView
+pub fn ItemPill<S>(item: PickerItem, disabled: S, single: bool) -> impl IntoView
 where
-    S: SignalGet<bool> + Clone + Copy + 'static,
+    S: SignalGet<Value = bool> + Clone + Copy + 'static,
 {
-    view! {cx,
+    view! {
         <button
             type=if single {"submit"} else {"button"}
             class="btn btn-xs normal-case rounded-full"
@@ -301,12 +296,12 @@ where
             <Icon icon=item.icon/>
             {clip_name(&item.name)}
             {move || match count_selected(&item.children) {
-                0 => ().into_view(cx),
-                c => view! { cx,
+                0 => ().into_view(),
+                c => view! {
                     <div class=("text-primary", move || !item.selected.get() && !disabled.get())>
                         {format!(" ({c})")}
                     </div>
-                }.into_view(cx)
+                }.into_view()
             }}
         </button>
     }

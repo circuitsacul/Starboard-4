@@ -2,8 +2,8 @@ use leptos::*;
 use leptos_meta::*;
 
 #[component]
-pub fn Home(cx: Scope) -> impl IntoView {
-    view! { cx,
+pub fn Home() -> impl IntoView {
+    view! {
         <Title text="Home"/>
         <div class="hero">
             Hello 2!

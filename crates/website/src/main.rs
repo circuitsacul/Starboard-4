@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
     let conf = get_configuration(None).await.unwrap();
     let addr = conf.leptos_options.site_addr;
     // Generate the list of routes in your Leptos App
-    let routes = generate_route_list(|cx| view! { cx, <App/> });
+    let routes = generate_route_list(|| view! { <App/> });
 
     let config = Arc::new(common::config::Config::from_env());
     let db = Arc::new(database::DbClient::new(&config.db_url).await.unwrap());
@@ -74,13 +74,13 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .route(
                 "/api/{tail:.*}",
-                leptos_actix::handle_server_fns_with_context(move |cx| {
-                    provide_context(cx, db.clone());
-                    provide_context(cx, config.clone());
-                    provide_context(cx, http.clone());
-                    provide_context(cx, oauth_client.clone());
-                    provide_context(cx, jwt_key.clone());
-                    provide_context(cx, auth_states.clone());
+                leptos_actix::handle_server_fns_with_context(move || {
+                    provide_context(db.clone());
+                    provide_context(config.clone());
+                    provide_context(http.clone());
+                    provide_context(oauth_client.clone());
+                    provide_context(jwt_key.clone());
+                    provide_context(auth_states.clone());
                 }),
             )
             // serve JS/WASM/CSS from `pkg`
@@ -89,15 +89,15 @@ async fn main() -> std::io::Result<()> {
             .service(Files::new("/assets", site_root))
             // serve the favicon from /favicon.ico
             .service(favicon)
-            .leptos_routes(leptos_options.to_owned(), routes.to_owned(), move |cx| {
-                provide_context(cx, db2.clone());
-                provide_context(cx, config2.clone());
-                provide_context(cx, http2.clone());
-                provide_context(cx, oauth_client2.clone());
-                provide_context(cx, jwt_key2.clone());
-                provide_context(cx, auth_states2.clone());
+            .leptos_routes(leptos_options.to_owned(), routes.to_owned(), move || {
+                provide_context(db2.clone());
+                provide_context(config2.clone());
+                provide_context(http2.clone());
+                provide_context(oauth_client2.clone());
+                provide_context(jwt_key2.clone());
+                provide_context(auth_states2.clone());
 
-                view! { cx, <App/> }
+                view! { <App/> }
             })
             .app_data(web::Data::new(leptos_options.to_owned()))
         //.wrap(middleware::Compress::default())

@@ -4,13 +4,12 @@ use leptos::*;
 use crate::site::components::form::{ErrorNote, Label, ValidationErrors};
 
 #[component]
-pub fn Regex<E: SignalWith<ValidationErrors> + Copy + 'static>(
-    cx: Scope,
+pub fn Regex<E: SignalWith<Value = ValidationErrors> + Copy + 'static>(
     errs: E,
     sb: Starboard,
     hidden: Memo<bool>,
 ) -> impl IntoView {
-    view! { cx,
+    view! {
         <div class:hidden=hidden>
             <div>
                 <Label for_="matches">"Matches"</Label>

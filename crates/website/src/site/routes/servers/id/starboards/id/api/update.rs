@@ -9,7 +9,6 @@ type Checkbox = Option<String>;
 
 #[server(UpdateStarboard, "/api")]
 pub async fn update_starboard(
-    cx: Scope,
     guild_id: Id<GuildMarker>,
     starboard_id: i32,
     // general style
@@ -49,10 +48,10 @@ pub async fn update_starboard(
 
     use crate::{site::routes::servers::id::api::can_manage_guild, validation::is_valid_emoji};
 
-    can_manage_guild(cx, guild_id).await?;
+    can_manage_guild(guild_id).await?;
 
-    let db = crate::db(cx);
-    let http = crate::bot_http(cx);
+    let db = crate::db();
+    let http = crate::bot_http();
 
     let Some(mut sb) = Starboard::get(&db, starboard_id).await? else {
         return Err(ServerFnError::ServerError("Not found.".into()));

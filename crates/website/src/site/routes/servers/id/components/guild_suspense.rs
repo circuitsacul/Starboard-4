@@ -7,23 +7,23 @@ use crate::site::routes::servers::{
 };
 
 #[component]
-pub fn BaseGuildSuspense<F, FIV, C, CIV>(cx: Scope, fallback: F, child: C) -> impl IntoView
+pub fn BaseGuildSuspense<F, FIV, C, CIV>(fallback: F, child: C) -> impl IntoView
 where
     F: Fn() -> FIV + 'static,
     FIV: IntoView,
     C: Fn(CurrentUserGuild) -> CIV + 'static,
     CIV: IntoView,
 {
-    let fallback = store_value(cx, fallback);
-    let child = store_value(cx, child);
+    let fallback = store_value(fallback);
+    let child = store_value(child);
 
-    view! { cx,
+    view! {
         <Suspense fallback=move || {
             fallback.with_value(|f| f())
         }>
-            {move || match get_base_guild(cx) {
-                Some(g) => child.with_value(|f| f(g)).into_view(cx),
-                None => fallback.with_value(|f| f()).into_view(cx),
+            {move || match get_base_guild() {
+                Some(g) => child.with_value(|f| f(g)).into_view(),
+                None => fallback.with_value(|f| f()).into_view(),
             }}
 
         </Suspense>
@@ -31,46 +31,44 @@ where
 }
 
 #[component]
-pub fn FlatGuildSuspense<F, FIV, C, CIV>(cx: Scope, fallback: F, child: C) -> impl IntoView
+pub fn FlatGuildSuspense<F, FIV, C, CIV>(fallback: F, child: C) -> impl IntoView
 where
     F: Fn() -> FIV + 'static,
     FIV: IntoView,
     C: Fn(GuildData) -> CIV + 'static,
     CIV: IntoView,
 {
-    let fallback = store_value(cx, fallback);
-    let child = store_value(cx, child);
+    let fallback = store_value(fallback);
+    let child = store_value(child);
 
-    view! { cx,
+    view! {
         <Suspense fallback=move || {
             fallback.with_value(|f| f())
         }>
-            {move || match get_flat_guild(cx) {
-                Some(g) => child.with_value(|f| f(g)).into_view(cx),
-                None => fallback.with_value(|f| f()).into_view(cx),
+            {move || match get_flat_guild() {
+                Some(g) => child.with_value(|f| f(g)).into_view(),
+                None => fallback.with_value(|f| f()).into_view(),
             }}
 
         </Suspense>
     }
 }
 
-pub fn get_flat_guild(cx: Scope) -> Option<GuildData> {
-    let guild = expect_context::<GuildContext>(cx);
+pub fn get_flat_guild() -> Option<GuildData> {
+    let guild = expect_context::<GuildContext>();
 
-    guild.read(cx).and_then(|res| res.ok()).flatten()
+    guild.get().and_then(|res| res.ok()).flatten()
 }
 
-pub fn get_base_guild(cx: Scope) -> Option<CurrentUserGuild> {
-    let base_guilds = expect_context::<BaseGuildsResource>(cx);
-    let guild_id = expect_context::<GuildIdContext>(cx);
+pub fn get_base_guild() -> Option<CurrentUserGuild> {
+    let base_guilds = expect_context::<BaseGuildsResource>();
+    let guild_id = expect_context::<GuildIdContext>();
 
-    base_guilds
-        .with(cx, |guilds| {
-            let Ok(guilds) = guilds else {
-                return None;
-            };
+    base_guilds.with(|guilds| {
+        let Some(Ok(guilds)) = guilds else {
+            return None;
+        };
 
-            guilds.get(&guild_id.get()?).cloned()
-        })
-        .flatten()
+        guilds.get(&guild_id.get()?).cloned()
+    })
 }

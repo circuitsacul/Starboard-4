@@ -33,22 +33,22 @@ impl AuthContext {
         }
     }
 
-    pub fn provide(self, cx: leptos::Scope) -> Arc<Self> {
-        let states = expect_auth_states(cx);
+    pub fn provide(self) -> Arc<Self> {
+        let states = expect_auth_states();
         let acx = Arc::new(self);
         states.insert(acx.claims.custom.user_id, acx.clone());
         acx
     }
 
-    pub fn get(cx: leptos::Scope) -> Option<Arc<Self>> {
-        let req = use_context::<HttpRequest>(cx)?;
-        let key = jwt_key(cx);
+    pub fn get() -> Option<Arc<Self>> {
+        let req = use_context::<HttpRequest>()?;
+        let key = jwt_key();
         let Some(session) = req.cookie("SessionKey") else {
             return None;
         };
         let claims = AuthClaims::verify(session.value(), &key)?;
 
-        let states = expect_auth_states(cx);
+        let states = expect_auth_states();
         states.with(&claims.custom.user_id, |_, state| {
             let Some(state) = state else {
                 return None;

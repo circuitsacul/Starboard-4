@@ -1,8 +1,8 @@
 use leptos::*;
 
 #[component]
-pub fn Overview(cx: Scope) -> impl IntoView {
-    view! { cx,
+pub fn Overview() -> impl IntoView {
+    view! {
         "todo"
     }
 }

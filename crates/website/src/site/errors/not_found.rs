@@ -2,7 +2,7 @@ use leptos::*;
 use leptos_meta::*;
 
 #[component]
-pub fn NotFound(cx: Scope) -> impl IntoView {
+pub fn NotFound() -> impl IntoView {
     // set an HTTP status code 404
     // this is feature gated because it can only be done during
     // initial server-side rendering
@@ -13,11 +13,11 @@ pub fn NotFound(cx: Scope) -> impl IntoView {
     {
         // this can be done inline because it's synchronous
         // if it were async, we'd use a server function
-        let resp = expect_context::<leptos_actix::ResponseOptions>(cx);
+        let resp = expect_context::<leptos_actix::ResponseOptions>();
         resp.set_status(actix_web::http::StatusCode::NOT_FOUND);
     }
 
-    view! { cx,
+    view! {
         <Title text="404"/>
         <h1>"Not Found"</h1>
     }

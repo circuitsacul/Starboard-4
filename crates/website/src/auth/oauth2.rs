@@ -41,16 +41,16 @@ fn secure_cookie(name: &str, value: &str) -> HeaderValue {
 }
 
 #[server(BeginAuthFlow, "/api", "Url", "redirect")]
-pub async fn begin_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
+pub async fn begin_auth_flow() -> Result<(), ServerFnError> {
     #[derive(Deserialize)]
     struct QueryParams {
         guild_id: Option<u64>,
     }
 
-    let client = oauth_client(cx);
+    let client = oauth_client();
 
-    let response = expect_context::<ResponseOptions>(cx);
-    let req = expect_context::<actix_web::HttpRequest>(cx);
+    let response = expect_context::<ResponseOptions>();
+    let req = expect_context::<actix_web::HttpRequest>();
     let query = Query::<QueryParams>::from_query(req.query_string())?;
 
     let mut builder = client
@@ -71,13 +71,13 @@ pub async fn begin_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
         secure_cookie("ExpectedOAuth2State", csrf.secret()),
     );
 
-    redirect(cx, url.as_ref());
+    redirect(url.as_ref());
 
     Ok(())
 }
 
 #[server(FinishAuthFlow, "/api", "Url", "login")]
-pub async fn finish_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
+pub async fn finish_auth_flow() -> Result<(), ServerFnError> {
     #[derive(Deserialize)]
     struct QueryParams {
         state: String,
@@ -85,10 +85,10 @@ pub async fn finish_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
         guild_id: Option<u64>,
     }
 
-    let req = expect_context::<actix_web::HttpRequest>(cx);
-    let response = expect_context::<ResponseOptions>(cx);
-    let client = oauth_client(cx);
-    let jwt_key = jwt_key(cx);
+    let req = expect_context::<actix_web::HttpRequest>();
+    let response = expect_context::<ResponseOptions>();
+    let client = oauth_client();
+    let jwt_key = jwt_key();
 
     let query = Query::<QueryParams>::from_query(req.query_string())?;
 
@@ -114,14 +114,14 @@ pub async fn finish_auth_flow(cx: leptos::Scope) -> Result<(), ServerFnError> {
     let jwt = jwt_key.authenticate(claims.clone()).unwrap();
 
     let acx = AuthContext::new(http, claims, user);
-    acx.provide(cx);
+    acx.provide();
 
     response.insert_header(SET_COOKIE, secure_cookie("SessionKey", &jwt));
 
     if let Some(id) = query.guild_id {
-        redirect(cx, &format!("/servers/{id}"));
+        redirect(&format!("/servers/{id}"));
     } else {
-        redirect(cx, "/servers");
+        redirect("/servers");
     }
 
     Ok(())

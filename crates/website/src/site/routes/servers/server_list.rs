@@ -5,58 +5,56 @@ use leptos_router::*;
 use twilight_model::user::CurrentUserGuild;
 
 #[component]
-pub fn ServerList(cx: Scope) -> impl IntoView {
-    let guilds = expect_context::<super::BaseGuildsResource>(cx);
-    let sorted = create_memo(cx, move |_| {
-        guilds.read(cx).map(|guilds| {
+pub fn ServerList() -> impl IntoView {
+    let guilds = expect_context::<super::BaseGuildsResource>();
+
+    let guild_cards = move || {
+        let guilds = guilds.get().map(|guilds| {
             guilds.map(|guilds| {
                 let mut guilds: Vec<_> = guilds.into_values().collect();
                 guilds.sort_by(|l, r| l.name.cmp(&r.name));
                 guilds
             })
-        })
-    });
-
-    let guild_cards = move |cx| {
-        sorted.with(move |guilds| {
-            guilds.as_ref().map(move |guilds| {
-                guilds
-                    .as_ref()
-                    .map(|guilds| {
-                        let guilds = guilds.to_owned();
-                        view! { cx,
-                            <For
-                                each=move || guilds.clone()
-                                key=|g| g.id
-                                view=move |cx, g| view! { cx, <ServerCard guild=g.to_owned()/> }
-                            />
-                        }
-                    })
-                    .map_err(|e| (*e).to_owned())
-            })
+        });
+        guilds.as_ref().map(move |guilds| {
+            guilds
+                .as_ref()
+                .map(|guilds| {
+                    let guilds = guilds.to_owned();
+                    view! {
+                        <For
+                            each=move || guilds.clone()
+                            key=|g| g.id
+                            children=move |g| view! { <ServerCard guild=g.to_owned()/> }
+                        />
+                    }
+                })
+                .map_err(|e| (*e).to_owned())
         })
     };
-    let susp = move |cx| {
-        view! { cx,
+    let susp = move || {
+        view! {
             <For
                 each=move || 0..10
                 key=|v| v.to_owned()
-                view=move |cx, _| view! { cx, <ServerCardSkeleton/> }
+                children=move |_| view! { <ServerCardSkeleton/> }
             />
         }
     };
-    view! { cx,
+    view! {
         <div class="flex justify-center">
             <div class="max-w-4xl w-full p-1">
-                <ToastedSusp fallback=move || susp(cx)>{move || guild_cards(cx)}</ToastedSusp>
+                <ToastedSusp fallback=susp>
+                    {guild_cards}
+                </ToastedSusp>
             </div>
         </div>
     }
 }
 
 #[component]
-fn ServerCardSkeleton(cx: Scope) -> impl IntoView {
-    view! { cx,
+fn ServerCardSkeleton() -> impl IntoView {
+    view! {
         <button class="btn btn-lg btn-block btn-ghost my-2 normal-case !flex-nowrap btn-disabled !bg-transparent animate-pulse">
             <div class="avatar">
                 <div class="w-12 mask mask-squircle bg-gray-700 bg-opacity-30"></div>
@@ -70,19 +68,19 @@ fn ServerCardSkeleton(cx: Scope) -> impl IntoView {
 }
 
 #[component]
-fn ServerCard(cx: Scope, guild: CurrentUserGuild) -> impl IntoView {
+fn ServerCard(guild: CurrentUserGuild) -> impl IntoView {
     let icon_url = guild
         .icon
         .map(|icon| format!("https://cdn.discordapp.com/icons/{}/{}.png", guild.id, icon));
 
-    view! { cx,
+    view! {
         <A
             href=guild.id.to_string()
             class="btn btn-lg btn-block btn-ghost my-2 normal-case !flex-nowrap"
         >
             {match icon_url {
                 Some(url) => {
-                    view! { cx,
+                    view! {
                         <div class="avatar">
                             <div class="w-12 mask mask-squircle">
                                 <img src=url/>
@@ -91,8 +89,7 @@ fn ServerCard(cx: Scope, guild: CurrentUserGuild) -> impl IntoView {
                     }
                 }
                 None => {
-
-                    view! { cx,
+                    view! {
                         <div class="avatar">
                             <div class="w-12 mask mask-squircle bg-gray-500"></div>
                         </div>

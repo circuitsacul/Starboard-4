@@ -8,13 +8,12 @@ use twilight_model::{
 
 #[component]
 pub fn MultiEmojiInput(
-    cx: Scope,
     id: &'static str,
     name: &'static str,
     initial: Vec<String>,
     guild: Guild,
 ) -> impl IntoView {
-    let container_div_ref = create_node_ref::<html::Div>(cx);
+    let container_div_ref = create_node_ref::<html::Div>();
     let show_picker = move || {
         container_div_ref
             .get()
@@ -23,8 +22,8 @@ pub fn MultiEmojiInput(
 
     let emojis_to_str = |emojis: Vec<String>| emojis.into_iter().collect::<Vec<_>>().join(",");
 
-    let value = create_rw_signal(cx, emojis_to_str(initial));
-    let emojis = create_memo(cx, move |_| {
+    let value = create_rw_signal(emojis_to_str(initial));
+    let emojis = create_memo(move |_| {
         let mut used = HashSet::new();
         value.with(|value| {
             value
@@ -51,7 +50,7 @@ pub fn MultiEmojiInput(
         )
     };
 
-    view! {cx,
+    view! {
         <input
             id=id
             name=name
@@ -63,9 +62,9 @@ pub fn MultiEmojiInput(
             <For
                 each=move || {emojis.get()}
                 key=|e| e.to_owned()
-                view=move |cx, emoji| {
+                children=move |emoji| {
                     let emoji2 = emoji.clone();
-                    view! { cx,
+                    view! {
                         <button
                             type="button"
                             class="btn btn-ghost btn-sm btn-square text-xl"
@@ -115,16 +114,15 @@ pub fn MultiEmojiInput(
 
 #[component]
 pub fn EmojiButton<I: ToString>(
-    cx: Scope,
     id: &'static str,
     name: &'static str,
     initial: I,
     guild: Guild,
 ) -> impl IntoView {
-    let value = create_rw_signal(cx, initial.to_string());
-    let container_div_ref = create_node_ref::<html::Div>(cx);
+    let value = create_rw_signal(initial.to_string());
+    let container_div_ref = create_node_ref::<html::Div>();
 
-    view! {cx,
+    view! {
         <input
             id=id
             name=name
@@ -163,9 +161,9 @@ pub fn EmojiButton<I: ToString>(
 }
 
 #[component]
-pub fn Emoji(cx: Scope, emoji: MaybeSignal<String>) -> impl IntoView {
+pub fn Emoji(emoji: MaybeSignal<String>) -> impl IntoView {
     let emoji2 = emoji.clone();
-    let custom = create_memo(cx, move |_| {
+    let custom = create_memo(move |_| {
         emoji2
             .get()
             .parse::<Id<EmojiMarker>>()
@@ -173,17 +171,17 @@ pub fn Emoji(cx: Scope, emoji: MaybeSignal<String>) -> impl IntoView {
             .ok()
     });
 
-    view! {cx,
+    view! {
         {move || {
             if let Some(custom) = custom.get() {
-                view! {cx,
+                view! {
                     <img
                         src=custom
                         style="max-width: 1em; max-height: 1em;"
                     />
-                }.into_view(cx)
+                }.into_view()
             } else {
-                emoji.get().into_view(cx)
+                emoji.get().into_view()
             }
         }}
     }
@@ -191,7 +189,6 @@ pub fn Emoji(cx: Scope, emoji: MaybeSignal<String>) -> impl IntoView {
 
 #[component]
 pub fn EmojiPopup(
-    cx: Scope,
     id: &'static str,
     container_div_ref: NodeRef<html::Div>,
     on_select: String,
@@ -227,7 +224,7 @@ pub fn EmojiPopup(
         }}));"#
     );
 
-    view! {cx,
+    view! {
         <div
             ref=container_div_ref
             id=format!("picker_container_{id}")

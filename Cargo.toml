@@ -16,9 +16,3 @@ opt-level = 'z'
 lto = true
 codegen-units = 1
 panic = "abort"
-
-[patch.crates-io]
-leptos = { git = "https://github.com/leptos-rs/leptos.git"}
-leptos_meta = {git = "https://github.com/leptos-rs/leptos.git"}
-leptos_actix = {git = "https://github.com/leptos-rs/leptos.git"}
-leptos_router = {git = "https://github.com/leptos-rs/leptos.git"}

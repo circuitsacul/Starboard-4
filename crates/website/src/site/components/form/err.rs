@@ -5,15 +5,14 @@ use leptos::*;
 pub type ValidationErrors = HashMap<String, String>;
 
 #[component]
-pub fn ErrorNote<E: SignalWith<ValidationErrors> + 'static>(
-    cx: Scope,
+pub fn ErrorNote<E: SignalWith<Value = ValidationErrors> + 'static>(
     errs: E,
     key: &'static str,
 ) -> impl IntoView {
-    let err = Signal::derive(cx, move || errs.with(|errs| errs.get(key).cloned()));
+    let err = Signal::derive(move || errs.with(|errs| errs.get(key).cloned()));
 
-    view! { cx,
-        <Show when=move || err.get().is_some() fallback=|_| ()>
+    view! {
+        <Show when=move || err.get().is_some() fallback=|| ()>
             <label class="label">
                 <span class="label-text-alt text-error">
                     {move || err.get().unwrap_or_else(|| "".into())}

@@ -13,11 +13,11 @@ use super::errors;
 pub type UserResource = Resource<(), Result<CurrentUser, ServerFnError>>;
 
 #[component]
-pub fn Index(cx: Scope) -> impl IntoView {
-    let user: UserResource = create_resource(cx, || (), move |_| self::api::get_user(cx));
-    provide_context(cx, user);
+pub fn Index() -> impl IntoView {
+    let user: UserResource = create_resource(|| (), move |_| self::api::get_user());
+    provide_context(user);
 
-    view! { cx,
+    view! {
         <ToastProvider>
             <Router>
                 <Routes>
@@ -35,14 +35,14 @@ pub fn Index(cx: Scope) -> impl IntoView {
 }
 
 #[component(transparent)]
-fn DashboardRoutes(cx: Scope) -> impl IntoView {
-    view! { cx,
+fn DashboardRoutes() -> impl IntoView {
+    view! {
         <Route path="/servers" view=servers::Servers>
             <Route path="" view=servers::server_list::ServerList/>
             <Route path=":guild_id" view=servers::id::Server>
                 <Route path="" view=servers::id::overview::Overview/>
                 <Route path="/starboards" view=servers::id::starboards::Starboards>
-                    <Route path="" view=move |_| ()/>
+                    <Route path="" view=move || ()/>
                     <Route path="add" view=servers::id::starboards::add::Add/>
                     <Route path=":starboard_id" view=servers::id::starboards::id::Starboard/>
                 </Route>

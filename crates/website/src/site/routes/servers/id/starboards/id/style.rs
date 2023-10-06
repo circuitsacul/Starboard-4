@@ -9,14 +9,13 @@ use crate::site::components::{
 };
 
 #[component]
-pub fn Style<E: SignalWith<ValidationErrors> + Copy + 'static>(
-    cx: Scope,
+pub fn Style<E: SignalWith<Value = ValidationErrors> + Copy + 'static>(
     errs: E,
     sb: Starboard,
     hidden: Memo<bool>,
     guild: Guild,
 ) -> impl IntoView {
-    view! { cx,
+    view! {
         <div class:hidden=hidden>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>

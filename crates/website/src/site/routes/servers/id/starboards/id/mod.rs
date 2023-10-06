@@ -44,21 +44,20 @@ impl Tab {
 }
 
 #[component]
-pub fn Starboard(cx: Scope) -> impl IntoView {
-    let update_sb = create_server_action::<self::api::UpdateStarboard>(cx);
-    let errs = create_memo(cx, move |_| match update_sb.value().get() {
+pub fn Starboard() -> impl IntoView {
+    let update_sb = create_server_action::<self::api::UpdateStarboard>();
+    let errs = create_memo(move |_| match update_sb.value().get() {
         Some(Ok(v)) => v,
         _ => Default::default(),
     });
 
-    let current_tab = create_rw_signal(cx, Tab::Requirements);
+    let current_tab = create_rw_signal(Tab::Requirements);
 
-    let params = use_params::<Props>(cx);
-    let guild_id = expect_context::<GuildIdContext>(cx);
-    let guild = expect_context::<GuildContext>(cx);
+    let params = use_params::<Props>();
+    let guild_id = expect_context::<GuildIdContext>();
+    let guild = expect_context::<GuildContext>();
 
     let sb = create_resource(
-        cx,
         move || {
             let sb_id = params.get_untracked().ok().map(|p| p.starboard_id);
             let guild_id = guild_id.get();
@@ -72,39 +71,36 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                 return Ok((None, None));
             };
 
-            self::api::get_starboard(cx, guild_id, sb_id).await
+            self::api::get_starboard(guild_id, sb_id).await
         },
     );
 
-    let make_is_hidden = move |tab: Tab| create_memo(cx, move |_| tab != current_tab.get());
+    let make_is_hidden = move |tab: Tab| create_memo(move |_| tab != current_tab.get());
 
-    create_effect(cx, move |_| {
+    create_effect(move |_| {
         match update_sb.value().get() {
             Some(Ok(errs)) => {
                 if errs.is_empty() {
-                    toast(cx, Toast::success("Settings saved."));
+                    toast(Toast::success("Settings saved."));
                 } else {
-                    toast(
-                        cx,
-                        Toast::warning(
-                            "Some settings were saved, but there were some errors as well.",
-                        ),
-                    );
+                    toast(Toast::warning(
+                        "Some settings were saved, but there were some errors as well.",
+                    ));
                 }
             }
-            Some(Err(e)) => toast(cx, Toast::error(e)),
+            Some(Err(e)) => toast(Toast::error(e)),
             None => (),
         };
     });
 
-    let get_title = move |cx| {
+    let get_title = move || {
         let (sb_name, ch_name) = sb
-            .with(cx, |sb| {
+            .with(|sb| {
                 sb.as_ref()
-                    .ok()
+                    .map(|v| v.as_ref().ok())
+                    .flatten()
                     .map(|(sb, ch)| (sb.as_ref().map(|v| v.name.clone()), ch.clone()))
             })
-            .flatten()
             .unwrap_or((None, None));
 
         let sb_name = sb_name.unwrap_or_else(|| "unknown".into());
@@ -112,11 +108,11 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
         format!("'{sb_name}' in #{ch_name}")
     };
 
-    view! { cx,
+    view! {
         <Suspense fallback=|| ()>
             <Show
-                when=move || sb.with(cx, |s| matches!(s, Ok((None, _)))).unwrap_or(false)
-                fallback=|_| ()
+                when=move || sb.with(|s| matches!(s, Some(Ok((None, _)))))
+                fallback=|| ()
             >
                 <Redirect path=".."/>
             </Show>
@@ -124,13 +120,13 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
 
         <ActionForm action=update_sb>
             <FullScreenPopup
-                title=move || view! {cx,
+                title=move || view! {
                     <Suspense fallback=||()>
-                        {move || get_title(cx)}
+                        {move || get_title()}
                     </Suspense>
                 }
                 actions=move || {
-                    view! { cx,
+                    view! {
                         <div
                             class="btn btn-outline btn-error"
                             onclick="delete_sb_modal.showModal()"
@@ -146,7 +142,7 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                             class="btn btn-primary"
                             disabled=move || update_sb.pending().get()
                         >
-                            <Show when=move || update_sb.pending().get() fallback=|_| ()>
+                            <Show when=move || update_sb.pending().get() fallback=|| ()>
                                 <span class="loading loading-spinner loading-sm"></span>
                             </Show>
                             "Save"
@@ -163,13 +159,13 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
                 </ul>
                 <Suspense fallback=||()>
                     {move || {
-                        let sb = sb.read(cx);
-                        let guild = guild.read(cx);
+                        let sb = sb.get();
+                        let guild = guild.get();
 
                         let Some(Ok((Some(sb), _))) = sb else { return None; };
                         let Some(Ok(Some(guild))) = guild else { return None; };
 
-                        Some(view! { cx,
+                        Some(view! {
                             <input type="hidden" name="guild_id" value=sb.guild_id.to_string()/>
                             <input type="hidden" name="starboard_id" value=sb.id.to_string()/>
 
@@ -189,17 +185,18 @@ pub fn Starboard(cx: Scope) -> impl IntoView {
             </FullScreenPopup>
         </ActionForm>
 
-        <Suspense fallback=|| ()>
-            {move || {
-                params.get().map(move |p| view! {cx, <DeletePopup sb_id=p.starboard_id/>})
-            }}
-        </Suspense>
+        <DeletePopup sb_id=params.get().unwrap().starboard_id/>
+        // <Suspense fallback=|| ()>
+        //     {move || {
+        //         params.get().map(move |p| view! {<DeletePopup sb_id=p.starboard_id/>})
+        //     }}
+        // </Suspense>
     }
 }
 
 #[component]
-pub fn TabButton(cx: Scope, tab: Tab, sig: RwSignal<Tab>) -> impl IntoView {
-    view! { cx,
+pub fn TabButton(tab: Tab, sig: RwSignal<Tab>) -> impl IntoView {
+    view! {
         <li>
             <button
                 on:click=move |_| sig.set(tab)
@@ -214,12 +211,12 @@ pub fn TabButton(cx: Scope, tab: Tab, sig: RwSignal<Tab>) -> impl IntoView {
 }
 
 #[component]
-pub fn DeletePopup(cx: Scope, sb_id: i32) -> impl IntoView {
-    let action = expect_context::<DeleteStarboardAction>(cx);
+pub fn DeletePopup(sb_id: i32) -> impl IntoView {
+    let action = expect_context::<DeleteStarboardAction>();
 
-    let guild_id = expect_context::<GuildIdContext>(cx);
+    let guild_id = expect_context::<GuildIdContext>();
 
-    view! {cx,
+    view! {
         <dialog id="delete_sb_modal" class="modal">
             <div class="modal-box">
                 <h3 class="font-bold text-xl">"Are you sure?"</h3>
@@ -237,13 +234,14 @@ pub fn DeletePopup(cx: Scope, sb_id: i32) -> impl IntoView {
                             />
                             <input type="hidden" name="starboard_id" value=sb_id/>
                         </Suspense>
+                        // TODO: get the leptos bug fixed with pending actions on redirect
                         <button
                             class="btn btn-error"
-                            disabled=move || action.pending().get()
+                            // disabled=move || action.pending().get()
                         >
-                            <Show when=move || action.pending().get() fallback=|_| ()>
-                                <span class="loading loading-spinner loading-sm"></span>
-                            </Show>
+                            // <Show when=move || action.pending().get() fallback=|| ()>
+                            //     <span class="loading loading-spinner loading-sm"></span>
+                            // </Show>
                             "Delete"
                         </button>
                     </ActionForm>

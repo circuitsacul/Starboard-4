@@ -54,11 +54,11 @@ impl Toast {
 
 pub type ToastCx = RwSignal<Vec<Toast>>;
 
-pub fn toast(cx: Scope, toast: Toast) {
+pub fn toast(toast: Toast) {
     let id = toast.id;
-    let toasts = expect_context::<ToastCx>(cx);
+    let toasts = expect_context::<ToastCx>();
 
-    create_effect(cx, move |_| {
+    create_effect(move |_| {
         let toast = toast.clone();
         request_animation_frame(move || {
             toasts.update(|toasts| {
@@ -77,21 +77,21 @@ pub fn toast(cx: Scope, toast: Toast) {
 }
 
 #[component]
-pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
-    let toasts: ToastCx = create_rw_signal(cx, Vec::new());
-    provide_context(cx, toasts);
+pub fn ToastProvider(children: Children) -> impl IntoView {
+    let toasts: ToastCx = create_rw_signal(Vec::new());
+    provide_context(toasts);
 
     let close = move |id: u64| {
         toasts.update(|toasts| toasts.retain(|t| t.id != id));
     };
 
-    view! { cx,
+    view! {
         <div class="toast toast-end z-[1000] p-0 m-0 gap-0">
             <For
                 each=move || toasts.get()
                 key=|t| format!("toast_{}", t.id)
-                view=move |cx, t| {
-                    view! { cx,
+                children=move |t| {
+                    view! {
                         <div
                             style="width: unset"
                             class=concat!(
@@ -116,7 +116,7 @@ pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
                                     }
                                 };
 
-                                view! { cx,
+                                view! {
                                     <div class=class>
                                         <Icon icon=icon/>
                                     </div>
@@ -136,28 +136,28 @@ pub fn ToastProvider(cx: Scope, children: Children) -> impl IntoView {
             />
 
         </div>
-        {children(cx)}
+        {children()}
     }
 }
 
 #[component(transparent)]
-pub fn ToastedSusp<F, FIV>(cx: Scope, fallback: F, children: ChildrenFn) -> impl IntoView
+pub fn ToastedSusp<F, FIV>(fallback: F, children: ChildrenFn) -> impl IntoView
 where
     F: Fn() -> FIV + 'static,
     FIV: IntoView,
 {
-    let children = store_value(cx, children);
-    let fallback = store_value(cx, fallback);
+    let children = store_value(children);
+    let fallback = store_value(fallback);
 
-    view! { cx,
+    view! {
         <Suspense fallback=move || fallback.with_value(|f| f())>
-            <ErrorBoundary fallback=move |cx, errs| {
+            <ErrorBoundary fallback=move |errs| {
                 for (_, err) in errs.get() {
-                    toast(cx, Toast::error(err.to_string()));
+                    toast(Toast::error(err.to_string()));
                 }
                 fallback.with_value(|f| f())
             }>
-                <div>{children.with_value(|c| c(cx))}</div>
+                <div>{children.with_value(|c| c())}</div>
             </ErrorBoundary>
         </Suspense>
     }

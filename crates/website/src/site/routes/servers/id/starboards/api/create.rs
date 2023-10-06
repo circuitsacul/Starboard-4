@@ -9,7 +9,6 @@ use crate::site::components::form::ValidationErrors;
 /// TODO: validate channel existence and type
 #[server(CreateStarboard, "/api")]
 pub async fn create_starboard(
-    cx: Scope,
     guild_id: Id<GuildMarker>,
     channel_id: Option<Id<ChannelMarker>>,
     name: String,
@@ -27,9 +26,9 @@ pub async fn create_starboard(
         return Ok(errors);
     };
 
-    can_manage_guild(cx, guild_id).await?;
+    can_manage_guild(guild_id).await?;
 
-    let db = crate::db(cx);
+    let db = crate::db();
 
     let name = match validate_name(&name) {
         Ok(name) => name,
@@ -45,10 +44,11 @@ pub async fn create_starboard(
         return Ok(errors);
     };
 
-    redirect(
-        cx,
-        &format!("/servers/{}/starboards/{}", guild_id, &sb.id.to_string()),
-    );
+    redirect(&format!(
+        "/servers/{}/starboards/{}",
+        guild_id,
+        &sb.id.to_string()
+    ));
 
     Ok(errors)
 }

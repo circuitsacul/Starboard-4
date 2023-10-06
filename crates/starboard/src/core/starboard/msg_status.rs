@@ -63,7 +63,7 @@ pub async fn get_message_status(
 
     if let Some(required) = config.resolved.required {
         if validate_regex(config, message_obj, is_premium) {
-            #[allow(clippy:collapsible_if)]
+            #[allow(clippy::collapsible_if)]
             if points >= required as i32 {
                 return Ok(MessageStatus::Send(config.resolved.link_edits));
             }

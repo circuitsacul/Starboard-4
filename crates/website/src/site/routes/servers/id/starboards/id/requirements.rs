@@ -11,19 +11,18 @@ use crate::site::components::{
 };
 
 #[component]
-pub fn Requirements<E: SignalWith<ValidationErrors> + Copy + 'static>(
-    cx: Scope,
+pub fn Requirements<E: SignalWith<Value = ValidationErrors> + Copy + 'static>(
     errs: E,
     sb: Starboard,
     guild: Guild,
     hidden: Memo<bool>,
 ) -> impl IntoView {
-    let required_enabled = create_rw_signal(cx, sb.settings.required.is_some());
-    let required_remove_enabled = create_rw_signal(cx, sb.settings.required_remove.is_some());
-    let newer_than_enabled = create_rw_signal(cx, sb.settings.newer_than > 0);
-    let older_than_enabled = create_rw_signal(cx, sb.settings.older_than > 0);
+    let required_enabled = create_rw_signal(sb.settings.required.is_some());
+    let required_remove_enabled = create_rw_signal(sb.settings.required_remove.is_some());
+    let newer_than_enabled = create_rw_signal(sb.settings.newer_than > 0);
+    let older_than_enabled = create_rw_signal(sb.settings.older_than > 0);
 
-    view! { cx,
+    view! {
         <div class:hidden=hidden>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>

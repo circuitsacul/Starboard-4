@@ -2,7 +2,7 @@ pub mod add;
 mod api;
 pub mod id;
 
-use leptos::*;
+use leptos::{logging::log, *};
 use leptos_icons::*;
 use leptos_router::*;
 
@@ -17,16 +17,15 @@ pub type CreateStarboardAction =
 pub type DeleteStarboardAction = Action<self::api::DeleteStarboard, Result<(), ServerFnError>>;
 
 #[component]
-pub fn Starboards(cx: Scope) -> impl IntoView {
-    let create_sb: CreateStarboardAction = create_server_action::<self::api::CreateStarboard>(cx);
-    let delete_sb: DeleteStarboardAction = create_server_action::<self::api::DeleteStarboard>(cx);
-    provide_context(cx, create_sb);
-    provide_context(cx, delete_sb);
+pub fn Starboards() -> impl IntoView {
+    let create_sb: CreateStarboardAction = create_server_action::<self::api::CreateStarboard>();
+    let delete_sb: DeleteStarboardAction = create_server_action::<self::api::DeleteStarboard>();
+    provide_context(create_sb);
+    provide_context(delete_sb);
 
-    let guild_id = expect_context::<GuildIdContext>(cx);
+    let guild_id = expect_context::<GuildIdContext>();
 
     let starboards = create_resource(
-        cx,
         move || {
             (
                 guild_id.get(),
@@ -37,37 +36,37 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
             let Some(guild_id) = guild_id else {
                 return Err(ServerFnError::ServerError("No guild ID.".to_string()));
             };
-            self::api::get_starboards(cx, guild_id).await
+            self::api::get_starboards(guild_id).await
         },
     );
 
-    create_effect(cx, move |_| {
+    create_effect(move |_| {
         if let Some(Err(why)) = create_sb.value().get() {
             if matches!(why, ServerFnError::Deserialization(_)) {
                 return;
             }
-            toast(cx, Toast::error(why));
+            toast(Toast::error(why));
         }
     });
-    create_effect(cx, move |_| {
+    create_effect(move |_| {
         if let Some(Err(why)) = delete_sb.value().get() {
             if matches!(why, ServerFnError::Deserialization(_)) {
                 return;
             }
-            toast(cx, Toast::error(why));
+            toast(Toast::error(why));
         }
     });
 
-    let starboards_view = move |cx| {
-        starboards.read(cx).map(|sb| {
+    let starboards_view = move || {
+        starboards.get().map(|sb| {
             sb.map(|sb| {
-                let sb = store_value(cx, sb);
-                view! { cx,
+                let sb = store_value(sb);
+                view! {
                     <For
                         each=move || sb.with_value(|sb| sb.clone())
                         key=|sb| sb.0
-                        view=move |cx, sb| {
-                            view! { cx, <Card title=sb.1.name href=sb.0.to_string()/> }
+                        children=move |sb| {
+                            view! {<Card title=sb.1.name href=sb.0.to_string()/> }
                         }
                     />
                 }
@@ -76,7 +75,7 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
         })
     };
 
-    view! { cx,
+    view! {
         <Outlet/>
         <CardList>
             <div class="flex justify-end">
@@ -87,10 +86,10 @@ pub fn Starboards(cx: Scope) -> impl IntoView {
             </div>
 
             <ToastedSusp fallback=move || {
-                view! { cx,
-                    <For each=|| 0..10 key=|t| *t view=move |_, _| view! { cx, <CardSkeleton/> }/>
+                view! {
+                    <For each=|| 0..10 key=|t| *t children=move |_| view! { <CardSkeleton/> }/>
                 }
-            }>{move || starboards_view(cx)}</ToastedSusp>
+            }>{starboards_view}</ToastedSusp>
         </CardList>
     }
 }

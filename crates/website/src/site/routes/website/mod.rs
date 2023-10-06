@@ -6,8 +6,8 @@ use leptos_router::Outlet;
 use crate::site::components::NavBar;
 
 #[component]
-pub fn Website(cx: Scope) -> impl IntoView {
-    view! { cx,
+pub fn Website() -> impl IntoView {
+    view! {
         <nav>
             <NavBar/>
         </nav>

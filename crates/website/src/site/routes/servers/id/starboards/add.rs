@@ -12,20 +12,20 @@ use crate::site::{
 use super::CreateStarboardAction;
 
 #[component]
-pub fn Add(cx: Scope) -> impl IntoView {
-    let guild = expect_context::<GuildContext>(cx);
-    let create_sb = expect_context::<CreateStarboardAction>(cx);
-    let errs = create_memo(cx, move |_| match create_sb.value().get() {
+pub fn Add() -> impl IntoView {
+    let guild = expect_context::<GuildContext>();
+    let create_sb = expect_context::<CreateStarboardAction>();
+    let errs = create_memo(move |_| match create_sb.value().get() {
         Some(Ok(v)) => v,
         _ => Default::default(),
     });
 
-    view! { cx,
+    view! {
         <ChannelPickerProvider categories=false>
             <ActionForm action=create_sb>
                 <Popup
                     actions=move || {
-                        view! { cx,
+                        view! {
                             <div class="flex-1"></div>
                             <A class="btn btn-ghost" href="..">
                                 "Cancel"
@@ -39,8 +39,8 @@ pub fn Add(cx: Scope) -> impl IntoView {
                     title=|| "Create Starboard"
                 >
                     <Suspense fallback=|| ()>
-                        {move || guild.read(cx).and_then(|v| v.ok().flatten()).map(|g| {
-                            view! {cx,
+                        {move || guild.get().and_then(|v| v.ok().flatten()).map(|g| {
+                            view! {
                                 <input
                                     type="hidden"
                                     name="guild_id"

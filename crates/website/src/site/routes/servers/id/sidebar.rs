@@ -16,15 +16,15 @@ pub enum Tab {
 }
 
 #[component]
-pub fn SideBar(cx: Scope, active: Memo<Tab>) -> impl IntoView {
-    let cb: NodeRef<html::Input> = create_node_ref(cx);
+pub fn SideBar(active: Memo<Tab>) -> impl IntoView {
+    let cb: NodeRef<html::Input> = create_node_ref();
     let close = move || {
         cb.get_untracked().map(|cb| cb.set_checked(false)).unwrap();
     };
 
     let maybe_active = move |tab: Tab| if tab == active.get() { "active" } else { "" };
 
-    view! { cx,
+    view! {
         <div class="drawer lg:drawer-open">
             <input _ref=cb id="dashboard-drawer" type="checkbox" class="drawer-toggle"/>
             <div class="drawer-content items-center">

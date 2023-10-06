@@ -26,33 +26,33 @@ use wasm_bindgen::prelude::wasm_bindgen;
 pub type AuthStates = Arc<AsyncDashMap<Id<UserMarker>, Arc<AuthContext>>>;
 
 #[cfg(feature = "ssr")]
-pub fn expect_auth_states(cx: leptos::Scope) -> AuthStates {
-    leptos::expect_context(cx)
+pub fn expect_auth_states() -> AuthStates {
+    leptos::expect_context()
 }
 
 #[cfg(feature = "ssr")]
-pub fn expect_config(cx: leptos::Scope) -> Arc<common::config::Config> {
-    leptos::expect_context(cx)
+pub fn expect_config() -> Arc<common::config::Config> {
+    leptos::expect_context()
 }
 
 #[cfg(feature = "ssr")]
-pub fn jwt_key(cx: leptos::Scope) -> Arc<HS256Key> {
-    leptos::expect_context(cx)
+pub fn jwt_key() -> Arc<HS256Key> {
+    leptos::expect_context()
 }
 
 #[cfg(feature = "ssr")]
-pub fn oauth_client(cx: leptos::Scope) -> Arc<oauth2::basic::BasicClient> {
-    leptos::expect_context(cx)
+pub fn oauth_client() -> Arc<oauth2::basic::BasicClient> {
+    leptos::expect_context()
 }
 
 #[cfg(feature = "ssr")]
-pub fn db(cx: leptos::Scope) -> std::sync::Arc<database::DbClient> {
-    leptos::use_context(cx).expect("database")
+pub fn db() -> std::sync::Arc<database::DbClient> {
+    leptos::use_context().expect("database")
 }
 
 #[cfg(feature = "ssr")]
-pub fn bot_http(cx: leptos::Scope) -> Arc<Client> {
-    leptos::use_context(cx).expect("http client")
+pub fn bot_http() -> Arc<Client> {
+    leptos::use_context().expect("http client")
 }
 
 #[cfg(feature = "hydrate")]
@@ -63,7 +63,7 @@ pub fn hydrate() {
 
     console_error_panic_hook::set_once();
 
-    leptos::mount_to_body(move |cx| {
-        view! { cx, <App/> }
+    leptos::mount_to_body(move || {
+        view! { <App/> }
     });
 }

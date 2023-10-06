@@ -16,25 +16,24 @@ pub type BaseGuildsResource =
     Resource<(), Result<HashMap<Id<GuildMarker>, CurrentUserGuild>, ServerFnError>>;
 
 #[component]
-pub fn Servers(cx: Scope) -> impl IntoView {
-    let guilds: BaseGuildsResource =
-        create_resource(cx, move || (), move |_| self::api::get_guilds(cx));
-    provide_context(cx, guilds);
+pub fn Servers() -> impl IntoView {
+    let guilds: BaseGuildsResource = create_resource(move || (), move |_| self::api::get_guilds());
+    provide_context(guilds);
 
-    let user = expect_context::<super::UserResource>(cx);
+    let user = expect_context::<super::UserResource>();
 
-    let red = move |cx| {
-        user.with(cx, |u| {
-            if u.is_err() {
-                create_effect(cx, |_| {
+    let red = move || {
+        user.with(|u| {
+            if matches!(u, Some(Err(_))) {
+                create_effect(|_| {
                     window().location().assign("/api/redirect").unwrap();
-                })
+                });
             }
         });
     };
-    view! { cx,
+    view! {
         <Title text="Dashboard"/>
-        <Suspense fallback=|| ()>{move || red(cx)}</Suspense>
+        <Suspense fallback=|| ()>{move || red()}</Suspense>
         <Outlet/>
     }
 }

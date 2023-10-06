@@ -26,7 +26,6 @@ fn channel_sort_key(channel: &Channel) -> (i8, Option<i32>) {
 }
 
 fn channels_to_picker_items(
-    cx: Scope,
     allow_categories: bool,
     mut channels: Vec<Channel>,
     mut threads: Vec<Channel>,
@@ -45,7 +44,7 @@ fn channels_to_picker_items(
             value: t.id.to_string(),
             children: Vec::new(),
             selectable: true,
-            selected: create_rw_signal(cx, false),
+            selected: create_rw_signal(false),
             search_visible: None,
         };
 
@@ -68,7 +67,7 @@ fn channels_to_picker_items(
             name: c.name.unwrap_or("unknown".into()),
             value: c.id.to_string(),
             children: threads,
-            selected: create_rw_signal(cx, false),
+            selected: create_rw_signal(false),
             selectable: true,
             search_visible: None,
         };
@@ -107,41 +106,39 @@ pub type ChannelPickerResource =
     Resource<Option<Id<GuildMarker>>, Result<Vec<PickerItem>, ServerFnError>>;
 
 #[component]
-pub fn ChannelPickerProvider(cx: Scope, children: Children, categories: bool) -> impl IntoView {
-    let guild_id = expect_context::<GuildIdContext>(cx);
+pub fn ChannelPickerProvider(children: Children, categories: bool) -> impl IntoView {
+    let guild_id = expect_context::<GuildIdContext>();
     // local because PickerItem can't be Serialize/Deserialize
     let channels: ChannelPickerResource = create_local_resource(
-        cx,
         move || guild_id.get(),
         move |guild_id| async move {
             let Some(guild_id) = guild_id else {
                 return Err(ServerFnError::ServerError("No guild ID.".into()));
             };
 
-            let (channels, threads) = get_channels(cx, guild_id).await?;
-            Ok(channels_to_picker_items(cx, categories, channels, threads))
+            let (channels, threads) = get_channels(guild_id).await?;
+            Ok(channels_to_picker_items(categories, channels, threads))
         },
     );
-    provide_context(cx, channels);
+    provide_context(channels);
 
-    view! {cx, {children(cx)}}
+    view! {{children()}}
 }
 
 #[component]
-pub fn ChannelPickerPopup(
-    cx: Scope,
-    propagate: bool,
-    single: bool,
-    name: &'static str,
-) -> impl IntoView {
-    let channels = expect_context::<ChannelPickerResource>(cx);
+pub fn ChannelPickerPopup(propagate: bool, single: bool, name: &'static str) -> impl IntoView {
+    let channels = expect_context::<ChannelPickerResource>();
 
-    view! {cx,
+    view! {
         <Suspense fallback=move || ()>
             {move || {
-                channels.with(cx, |data| {
-                    data.clone().map(|items| {
-                        view! {cx,
+                channels.with(|data| {
+                    let Some(data) = data else {
+                        return None;
+                    };
+
+                    Some(data.clone().map(|items| {
+                        view! {
                             <PickerPopup
                                 items=items
                                 propagate=propagate
@@ -149,7 +146,7 @@ pub fn ChannelPickerPopup(
                                 name=name
                             />
                         }
-                    })
+                    }))
                 })
             }}
         </Suspense>
@@ -157,55 +154,63 @@ pub fn ChannelPickerPopup(
 }
 
 #[component]
-pub fn SingleChannelPickerInput(cx: Scope, name: &'static str) -> impl IntoView {
-    let channels = expect_context::<ChannelPickerResource>(cx);
+pub fn SingleChannelPickerInput(name: &'static str) -> impl IntoView {
+    let channels = expect_context::<ChannelPickerResource>();
 
-    view! {cx,
+    view! {
         <Suspense
-            fallback=move || view! {cx,
+            fallback=move || view! {
                 <button disabled class="btn btn-ghost btn-sm normal-case">
                     "Loading..."
                 </button>
             }
         >
             {move || {
-                channels.with(cx, |data| {
-                    data.clone().map(|items| {
-                        view! {cx,
+                channels.with(|data| {
+                    let Some(data) = data else {
+                        return None;
+                    };
+
+                    Some(data.clone().map(|items| {
+                        view! {
                             <PickerSingleInput
                                 data=items
                                 name=name
                                 placeholder="Select a channel"
                             />
                         }
-                    })
+                    }))
                 })
             }}
         </Suspense>
     }
 }
 #[component]
-pub fn MultiChannelPickerInput(cx: Scope, name: &'static str) -> impl IntoView {
-    let channels = expect_context::<ChannelPickerResource>(cx);
+pub fn MultiChannelPickerInput(name: &'static str) -> impl IntoView {
+    let channels = expect_context::<ChannelPickerResource>();
 
-    view! {cx,
-        <Suspense fallback=move || view! {cx,
+    view! {
+        <Suspense fallback=move || view! {
             <div class=concat!(
                 "inline-flex flex-row flex-wrap border border-base-content border-opacity-20 ",
                 "rounded-btn p-2 gap-1"
             )>"Loading..."</div>
         }>
             {move || {
-                channels.with(cx, |data| {
-                    data.clone().map(|items| {
-                        view! {cx,
+                channels.with(|data| {
+                    let Some(data) = data else {
+                        return None;
+                    };
+
+                    Some(data.clone().map(|items| {
+                        view! {
                             <PickerMultiInput
                                 data=items
                                 name=name
                                 placeholder="No channels selected"
                             />
                         }
-                    })
+                    }))
                 })
             }}
         </Suspense>

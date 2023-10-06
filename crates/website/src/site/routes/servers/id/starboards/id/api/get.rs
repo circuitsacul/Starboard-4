@@ -4,17 +4,16 @@ use twilight_model::id::{marker::GuildMarker, Id};
 
 #[server(GetStarboard, "/api")]
 pub async fn get_starboard(
-    cx: Scope,
     guild_id: Id<GuildMarker>,
     starboard_id: i32,
 ) -> Result<(Option<Starboard>, Option<String>), ServerFnError> {
     use crate::site::routes::servers::id::api::can_manage_guild;
     use errors::get_status;
 
-    can_manage_guild(cx, guild_id).await?;
+    can_manage_guild(guild_id).await?;
 
-    let db = crate::db(cx);
-    let http = crate::bot_http(cx);
+    let db = crate::db();
+    let http = crate::bot_http();
 
     let Some(sb) = Starboard::get(&db, starboard_id).await? else {
         return Ok((None, None));

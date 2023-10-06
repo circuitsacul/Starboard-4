@@ -3,11 +3,10 @@ use leptos_icons::*;
 use leptos_router::*;
 
 #[component]
-pub fn NavBar(cx: Scope) -> impl IntoView {
-    let loc = use_location(cx);
-    let show_hamburger = create_memo(cx, move |_| {
-        loc.pathname.get().trim_start_matches("/servers").len() > 1
-    });
+pub fn NavBar() -> impl IntoView {
+    let loc = use_location();
+    let show_hamburger =
+        create_memo(move |_| loc.pathname.get().trim_start_matches("/servers").len() > 1);
 
     let links = [
         ("Invite", common::constants::INVITE_URL),
@@ -17,18 +16,18 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
         ("GitHub", common::constants::SOURCE_URL),
     ];
 
-    let blur_active = move |cx| {
+    let blur_active = move || {
         document()
             .active_element()
-            .map(|elm| elm.to_leptos_element(cx).blur())
+            .map(|elm| elm.to_leptos_element().blur())
     };
 
-    view! { cx,
+    view! {
         <div class="navbar backdrop-blur bg-base-100/70 fixed z-[1]">
             {move || {
                 if show_hamburger.get() {
                     Some(
-                        view! { cx,
+                        view! {
                             <label
                                 for="dashboard-drawer"
                                 class="btn btn-ghost btn-square lg:hidden mr-2"
@@ -49,7 +48,7 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                 <ul
                     class="menu dropdown-content rounded-box p-2 drop-shadow-lg bg-base-100"
                     on:click=move |_| {
-                        let _ = blur_active(cx);
+                        let _ = blur_active();
                     }
                 >
 
@@ -59,7 +58,7 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                     {move || {
                         links
                             .map(|link| {
-                                view! { cx,
+                                view! {
                                     <li>
                                         <a href=link.1 target="_blank">
                                             {link.0}
@@ -80,7 +79,7 @@ pub fn NavBar(cx: Scope) -> impl IntoView {
                 {move || {
                     links
                         .map(|link| {
-                            view! { cx,
+                            view! {
                                 <a class="btn btn-ghost btn-sm" href=link.1 target="_blank">
                                     {link.0}
                                     <Icon icon=crate::icon!(FaArrowUpRightFromSquareSolid)/>
