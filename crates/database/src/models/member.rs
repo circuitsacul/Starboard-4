@@ -1,7 +1,8 @@
 #[cfg(feature = "backend")]
 use futures::stream::BoxStream;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DbMember {
     pub user_id: i64,
     pub guild_id: i64,

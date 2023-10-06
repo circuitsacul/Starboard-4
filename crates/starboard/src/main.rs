@@ -11,7 +11,9 @@ pub mod utils;
 use tokio::main;
 use tracing_subscriber::{fmt, EnvFilter};
 
-use crate::client::{bot::StarboardBot, config::Config, runner::run};
+use common::config::Config;
+
+use crate::client::{bot::StarboardBot, runner::run};
 
 fn init_tracing() {
     tracing::subscriber::set_global_default(

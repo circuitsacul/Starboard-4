@@ -12,7 +12,7 @@ where
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct OverrideValues {
     // General Style
     #[serde(deserialize_with = "null_to_some_none", default)]

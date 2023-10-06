@@ -1,0 +1,94 @@
+use leptos::*;
+use leptos_icons::*;
+use leptos_router::*;
+
+use super::components::BaseGuildSuspense;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Tab {
+    Overview,
+    Starboards,
+    Overrides,
+    Filters,
+    PermRoles,
+    AwardRoles,
+    AutoStar,
+}
+
+#[component]
+pub fn SideBar(active: Memo<Tab>) -> impl IntoView {
+    let cb: NodeRef<html::Input> = create_node_ref();
+    let close = move || {
+        cb.get_untracked().map(|cb| cb.set_checked(false)).unwrap();
+    };
+
+    let maybe_active = move |tab: Tab| if tab == active.get() { "active" } else { "" };
+
+    view! {
+        <div class="drawer lg:drawer-open">
+            <input _ref=cb id="dashboard-drawer" type="checkbox" class="drawer-toggle"/>
+            <div class="drawer-content items-center">
+                <Outlet/>
+            </div>
+            <div class="drawer-side lg:top-16 lg:h-min lg:z-auto z-[2]">
+                <label for="dashboard-drawer" class="drawer-overlay"></label>
+                <div class="w-60 p-4 bg-base-100 text-base-content h-full lg:h-min">
+                    <A
+                        href="/servers"
+                        class="btn btn-sm btn-ghost btn-block normal-case truncate !flex-nowrap"
+                    >
+                        <Icon icon=crate::icon!(FaChevronLeftSolid)/>
+                        <span class="truncate">
+                            <BaseGuildSuspense fallback=move || () child=move |g| g.name.clone()/>
+                        </span>
+                    </A>
+                    <div class="divider"></div>
+                    <ul class="menu p-0 flex flex-col space-y-2" on:click=move |_| close()>
+                        <li>
+                            <A class=move || maybe_active(Tab::Overview) href="">
+                                <Icon icon=crate::icon!(FaChartSimpleSolid)/>
+                                "Overview"
+                            </A>
+                        </li>
+                        <li>
+                            <A class=move || maybe_active(Tab::Starboards) href="starboards">
+                                <Icon icon=crate::icon!(FaStarSolid)/>
+                                "Starboards"
+                            </A>
+                        </li>
+                        <li>
+                            <A class=move || maybe_active(Tab::Overrides) href="overrides">
+                                <Icon icon=crate::icon!(FaGearSolid)/>
+                                "Overrides"
+                            </A>
+                        </li>
+                        <li>
+                            <A class=move || maybe_active(Tab::Filters) href="filters">
+                                <Icon icon=crate::icon!(FaFilterSolid)/>
+                                "Filters"
+                            </A>
+                        </li>
+                        <li>
+                            <A class=move || maybe_active(Tab::PermRoles) href="permroles">
+                                <Icon icon=crate::icon!(FaAtSolid)/>
+                                "PermRoles"
+                            </A>
+                        </li>
+                        <li>
+                            <A class=move || maybe_active(Tab::AwardRoles) href="awardroles">
+                                <Icon icon=crate::icon!(FaAwardSolid)/>
+                                "Award Roles"
+                            </A>
+                        </li>
+                        <li>
+                            <A class=move || maybe_active(Tab::AutoStar) href="autostar">
+                                <Icon icon=crate::icon!(FaRobotSolid)/>
+                                "Autostar Channels"
+                            </A>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+}

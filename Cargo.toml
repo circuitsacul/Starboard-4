@@ -2,7 +2,17 @@
 resolver = "2"
 members = [
     "crates/starboard",
+    "crates/website",
     "crates/common",
     "crates/database",
     "crates/errors",
 ]
+
+# Defines a size-optimized profile for the WASM bundle in release mode
+# this is used for the website
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = "abort"

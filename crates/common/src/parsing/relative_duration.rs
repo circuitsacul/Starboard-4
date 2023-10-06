@@ -3,7 +3,37 @@ use std::borrow::Cow;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use common::constants;
+use errors::ErrToStr;
+
+use crate::constants;
+
+#[derive(Debug, Clone)]
+pub enum RelativeDurationParseErr {
+    UnparsableToken(String),
+    UnknownUnit((String, String)),
+}
+
+impl ErrToStr for RelativeDurationParseErr {
+    fn to_bot_str(&self) -> String {
+        match self {
+            Self::UnparsableToken(token) => {
+                format!("I couldn't interpret `{token}` as a unit of time.")
+            }
+            Self::UnknownUnit((unit, token)) => {
+                format!("I don't know what `{unit}` is (you said `{token}{unit}`).")
+            }
+        }
+    }
+
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::UnparsableToken(token) => format!("Couldn't parse '{token}' as a unit of time."),
+            Self::UnknownUnit((unit, value)) => {
+                format!("Couldn't interpret '{unit}' as a unit of time (from '{value}{unit}').")
+            }
+        }
+    }
+}
 
 fn normalize_unit(unit: &str) -> &str {
     if unit == "s" {
@@ -35,7 +65,7 @@ fn unit_conversion(unit: &str) -> Option<i64> {
     }
 }
 
-pub fn parse_time_delta(inp: &str) -> Result<i64, String> {
+pub fn parse_relative_duration(inp: &str) -> Result<i64, RelativeDurationParseErr> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"^(?P<value>\d+)(?P<unit>\w+)$").unwrap();
     }
@@ -55,20 +85,21 @@ pub fn parse_time_delta(inp: &str) -> Result<i64, String> {
         }
 
         let found = match RE.captures(&token) {
-            None => return Err(format!("I couldn't interpret `{token}` as a unit of time.")),
+            None => return Err(RelativeDurationParseErr::UnparsableToken(token.into())),
             Some(found) => found,
         };
 
         let value: i64 = match found.name("value").unwrap().as_str().parse() {
-            Err(_) => return Err(format!("I couldn't interpret `{token}` as a unit of time.")),
+            Err(_) => return Err(RelativeDurationParseErr::UnparsableToken(token.into())),
             Ok(value) => value,
         };
         let unit = normalize_unit(found.name("unit").unwrap().as_str());
         let conversion = match unit_conversion(unit) {
             None => {
-                return Err(format!(
-                    "I don't know what `{unit}` is (you said `{value}{unit}`)."
-                ))
+                return Err(RelativeDurationParseErr::UnknownUnit((
+                    unit.into(),
+                    value.to_string(),
+                )))
             }
             Some(conversion) => conversion,
         };

@@ -1,8 +1,7 @@
 use std::time::Duration;
 
 use common::constants;
-
-use super::ToBotStr;
+use errors::ErrToStr;
 
 #[derive(Debug, Clone, Copy)]
 pub enum RelativeDurationErr {
@@ -13,7 +12,7 @@ pub enum RelativeDurationErr {
     NewerThanTooLarge,
 }
 
-impl ToBotStr for RelativeDurationErr {
+impl ErrToStr for RelativeDurationErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::OlderThanGreaterThanNewerThan => {
@@ -28,6 +27,23 @@ impl ToBotStr for RelativeDurationErr {
             Self::NewerThanTooLarge => format!(
                 "`newer-than` cannot be greater than `{}`.",
                 humantime::format_duration(Duration::from_secs(constants::MAX_NEWER_THAN as u64))
+            ),
+        }
+    }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::OlderThanGreaterThanNewerThan => {
+                "The minimum age must be less than the maximum age.".into()
+            }
+            Self::OlderThanNegative => "Minimum age must be greater than 0.".into(),
+            Self::NewerThanNegative => "Maximum age must be greater than 0.".into(),
+            Self::NewerThanTooLarge => format!(
+                "Maximum age must be less than {}.",
+                humantime::format_duration(Duration::from_secs(constants::MAX_NEWER_THAN as _))
+            ),
+            Self::OlderThanTooLarge => format!(
+                "Minimum age must be less than {}.",
+                humantime::format_duration(Duration::from_secs(constants::MAX_OLDER_THAN as _))
             ),
         }
     }

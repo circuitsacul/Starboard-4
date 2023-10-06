@@ -1,7 +1,5 @@
-use database::validation::{
-    starboard_settings::{validate_required, validate_required_remove},
-    ToBotStr,
-};
+use database::validation::starboard_settings::{validate_required, validate_required_remove};
+use errors::ErrToStr;
 
 use super::none_or;
 

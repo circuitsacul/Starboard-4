@@ -1,10 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use database::{
-    validation::{self, ToBotStr},
-    ExclusiveGroup, Starboard,
-};
-use errors::StarboardResult;
+use database::{validation, ExclusiveGroup, Starboard};
+use errors::{ErrToStr, StarboardResult};
 
 use crate::{
     get_guild_id,

@@ -1,6 +1,5 @@
 use common::constants;
-
-use super::ToBotStr;
+use errors::ErrToStr;
 
 #[derive(Clone, Copy)]
 pub enum NameErr {
@@ -8,7 +7,7 @@ pub enum NameErr {
     TooShort,
 }
 
-impl ToBotStr for NameErr {
+impl ErrToStr for NameErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::TooLong => format!(
@@ -16,6 +15,12 @@ impl ToBotStr for NameErr {
                 constants::MAX_NAME_LENGTH
             ),
             Self::TooShort => "The name must be at least 3 characters.".into(),
+        }
+    }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::TooLong => format!("Too long (max {}).", constants::MAX_NAME_LENGTH),
+            Self::TooShort => "Too short (min 3).".into(),
         }
     }
 }

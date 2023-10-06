@@ -1,10 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use database::{
-    validation::{self, ToBotStr},
-    Starboard,
-};
-use errors::StarboardResult;
+use database::{validation, Starboard};
+use errors::{ErrToStr, StarboardResult};
 
 use crate::{
     core::{
@@ -136,9 +133,9 @@ impl EditRequirements {
             starboard.settings.require_image = val;
         }
         if let Some(val) = self.older_than {
-            let delta = match parsing::time_delta::parse_time_delta(&val) {
+            let delta = match common::parsing::relative_duration::parse_relative_duration(&val) {
                 Err(why) => {
-                    ctx.respond_str(&why, true).await?;
+                    ctx.respond_str(&why.to_bot_str(), true).await?;
                     return Ok(());
                 }
                 Ok(delta) => delta,
@@ -146,9 +143,9 @@ impl EditRequirements {
             starboard.settings.older_than = delta;
         }
         if let Some(val) = self.newer_than {
-            let delta = match parsing::time_delta::parse_time_delta(&val) {
+            let delta = match common::parsing::relative_duration::parse_relative_duration(&val) {
                 Err(why) => {
-                    ctx.respond_str(&why, true).await?;
+                    ctx.respond_str(&why.to_bot_str(), true).await?;
                     return Ok(());
                 }
                 Ok(delta) => delta,

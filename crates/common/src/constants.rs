@@ -50,6 +50,7 @@ pub const XP_REFRESH: (u64, Duration) = (1, Duration::from_secs(60 * 10));
 pub const VOTE_RECOUNT: (u64, Duration) = (5, Duration::from_secs(30));
 
 // Common Validation
+pub const HEX_MAX: i32 = 16777215;
 pub const MAX_NAME_LENGTH: u32 = 32;
 pub const MIN_NAME_LENGTH: u32 = 3;
 pub const MAX_REGEX_LENGTH: u32 = 1_000;

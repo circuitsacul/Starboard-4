@@ -2,7 +2,7 @@ use std::hash::Hash;
 
 use dashmap::DashSet;
 
-use crate::utils::async_dash::AsyncDashSet;
+use crate::async_dash::AsyncDashSet;
 
 pub struct DashSetLock<T>
 where

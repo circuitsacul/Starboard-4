@@ -1,4 +1,4 @@
-pub const MAX_HEX_COLOR: i32 = 16777215;
+use common::constants;
 
 pub fn parse_color(input: &str) -> Result<i32, &str> {
     // For now, this just handles hex colors. Allowed formats should be:
@@ -10,7 +10,7 @@ pub fn parse_color(input: &str) -> Result<i32, &str> {
     let parsed = i32::from_str_radix(parsed, 16);
 
     match parsed {
-        Ok(val) => match val > MAX_HEX_COLOR {
+        Ok(val) => match val > constants::HEX_MAX {
             false => Ok(val),
             true => Err("Color code was too large. Maximum value is `#FFFFFF`."),
         },

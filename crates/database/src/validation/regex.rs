@@ -1,6 +1,5 @@
 use common::constants;
-
-use super::ToBotStr;
+use errors::ErrToStr;
 
 pub enum RegexErr {
     NotPremium,
@@ -8,7 +7,7 @@ pub enum RegexErr {
     ParseError(regex::Error),
 }
 
-impl ToBotStr for RegexErr {
+impl ErrToStr for RegexErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::NotPremium => "The `matches` and `not-matches` settings require premium".into(),
@@ -17,6 +16,13 @@ impl ToBotStr for RegexErr {
                 constants::MAX_REGEX_LENGTH
             ),
             Self::ParseError(err) => format!("```\n{err}\n```"),
+        }
+    }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::NotPremium => "This setting requires premium.".into(),
+            Self::TooLong => format!("Too long (max {}).", constants::MAX_REGEX_LENGTH),
+            Self::ParseError(err) => err.to_string(),
         }
     }
 }

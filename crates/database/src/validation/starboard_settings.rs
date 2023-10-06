@@ -5,8 +5,7 @@
 use std::collections::HashSet;
 
 use common::constants;
-
-use super::ToBotStr;
+use errors::ErrToStr;
 
 pub enum RequiredErr {
     LessThanRemove,
@@ -14,7 +13,7 @@ pub enum RequiredErr {
     TooLarge,
 }
 
-impl ToBotStr for RequiredErr {
+impl ErrToStr for RequiredErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::LessThanRemove => "`required` must be greater than `required-remove`.".into(),
@@ -26,6 +25,13 @@ impl ToBotStr for RequiredErr {
                 "`required` cannot be greater than {}.",
                 constants::MAX_REQUIRED
             ),
+        }
+    }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::LessThanRemove => "Must be greater than Required to Remove.".into(),
+            Self::TooSmall => format!("Cannot be less than {}.", constants::MIN_REQUIRED),
+            Self::TooLarge => format!("Cannot be greater than {}.", constants::MAX_REQUIRED),
         }
     }
 }
@@ -52,7 +58,7 @@ pub enum RemoveErr {
     TooLarge,
 }
 
-impl ToBotStr for RemoveErr {
+impl ErrToStr for RemoveErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::GreaterThanRequired => "`required-remove` must be less than `required.`".into(),
@@ -64,6 +70,13 @@ impl ToBotStr for RemoveErr {
                 "`required-remove` cannot be greater than {}.",
                 constants::MAX_REQUIRED_REMOVE
             ),
+        }
+    }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::GreaterThanRequired => "Must be less than the Required.".into(),
+            Self::TooSmall => format!("Must be at least {}.", constants::MIN_REQUIRED_REMOVE),
+            Self::TooLarge => format!("Must be at most {}.", constants::MAX_REQUIRED_REMOVE),
         }
     }
 }
@@ -89,7 +102,7 @@ pub enum XPMulErr {
     TooSmall,
 }
 
-impl ToBotStr for XPMulErr {
+impl ErrToStr for XPMulErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::TooLarge => format!(
@@ -100,6 +113,12 @@ impl ToBotStr for XPMulErr {
                 "`xp-multiplier` cannot be less than {}.",
                 constants::MIN_XP_MULTIPLIER
             ),
+        }
+    }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::TooLarge => format!("Must be at most {}.", constants::MAX_XP_MULTIPLIER),
+            Self::TooSmall => format!("Must be at least {}.", constants::MIN_XP_MULTIPLIER),
         }
     }
 }
@@ -120,7 +139,7 @@ pub enum CooldownErr {
     PeriodTooLarge,
 }
 
-impl ToBotStr for CooldownErr {
+impl ErrToStr for CooldownErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::Negative => {
@@ -132,6 +151,19 @@ impl ToBotStr for CooldownErr {
             ),
             Self::PeriodTooLarge => format!(
                 "The cooldown period cannot be greater than {}.",
+                constants::MAX_COOLDOWN_PERIOD
+            ),
+        }
+    }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::Negative => "Capacity and period cannot be negative.".into(),
+            Self::CapacityTooLarge => format!(
+                "Capacity is too large (max {}).",
+                constants::MAX_COOLDOWN_CAPACITY
+            ),
+            Self::PeriodTooLarge => format!(
+                "Period is too large (max {}).",
                 constants::MAX_COOLDOWN_PERIOD
             ),
         }
@@ -156,12 +188,26 @@ pub enum VoteEmojiErr {
     PremiumLimitReached,
 }
 
-impl ToBotStr for VoteEmojiErr {
+impl ErrToStr for VoteEmojiErr {
     fn to_bot_str(&self) -> String {
         match self {
             Self::EmojisNotUnique => {
                 "`upvote-emojis` and `downvote-emojis` cannot share emojis.".into()
             }
+            Self::LimitReached => format!(
+                "You can only have up to {} vote emojis. Upgrade to premium to get up to {}.",
+                constants::MAX_VOTE_EMOJIS,
+                constants::MAX_PREM_VOTE_EMOJIS
+            ),
+            Self::PremiumLimitReached => format!(
+                "You can only have up to {} vote emojis.",
+                constants::MAX_PREM_VOTE_EMOJIS
+            ),
+        }
+    }
+    fn to_web_str(&self) -> String {
+        match self {
+            Self::EmojisNotUnique => "Emojis cannot be both upvote and downvote emojis.".into(),
             Self::LimitReached => format!(
                 "You can only have up to {} vote emojis. Upgrade to premium to get up to {}.",
                 constants::MAX_VOTE_EMOJIS,

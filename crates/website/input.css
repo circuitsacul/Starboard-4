@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input[type="color"] {
+    background: none;
+    cursor: pointer;
+}
+
+em-emoji {
+    display: flex;
+    justify-content: center;
+}
+
+em-emoji span {
+    display: flex;
+    justify-content: center;
+}

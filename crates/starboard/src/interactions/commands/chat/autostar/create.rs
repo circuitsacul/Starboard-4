@@ -2,11 +2,8 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::application::interaction::application_command::InteractionChannel;
 
 use common::constants;
-use database::{
-    validation::{self, ToBotStr},
-    AutoStarChannel, DbGuild,
-};
-use errors::StarboardResult;
+use database::{validation, AutoStarChannel, DbGuild};
+use errors::{ErrToStr, StarboardResult};
 
 use crate::{
     core::premium::is_premium::is_guild_premium, get_guild_id, interactions::context::CommandCtx,

@@ -1,4 +1,5 @@
-use database::validation::{starboard_settings::validate_cooldown, ToBotStr};
+use database::validation::starboard_settings::validate_cooldown;
+use errors::ErrToStr;
 use lazy_static::lazy_static;
 
 pub fn parse_cooldown(inp: &str) -> Result<(i16, i16), String> {

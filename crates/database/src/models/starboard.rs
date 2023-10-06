@@ -1,10 +1,12 @@
+use serde::{Deserialize, Serialize};
+
 #[cfg(feature = "backend")]
 use crate::{
     call_with_starboard_settings, helpers::query::build_update::build_update,
     starboard_from_record, starboard_from_row, DbClient,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Starboard {
     pub id: i32,
     pub name: String,
@@ -51,6 +53,17 @@ impl Starboard {
         .fetch_optional(&db.pool)
         .await
         .map(|row| row.map(|row| starboard_from_record!(row)))
+    }
+
+    pub async fn delete_by_id(db: &DbClient, guild_id: i64, id: i32) -> sqlx::Result<bool> {
+        sqlx::query!(
+            "DELETE FROM starboards WHERE guild_id=$1 AND id=$2",
+            guild_id,
+            id
+        )
+        .fetch_optional(&db.pool)
+        .await
+        .map(|row| row.is_some())
     }
 
     pub async fn update_settings(self, db: &DbClient) -> sqlx::Result<Option<Self>> {

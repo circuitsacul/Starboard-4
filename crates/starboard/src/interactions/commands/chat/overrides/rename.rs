@@ -1,10 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
-use database::{
-    validation::{self, ToBotStr},
-    StarboardOverride,
-};
-use errors::{PgErrorTraits, StarboardResult};
+use database::{validation, StarboardOverride};
+use errors::{ErrToStr, PgErrorTraits, StarboardResult};
 
 use crate::{get_guild_id, interactions::context::CommandCtx, utils::id_as_i64::GetI64};
 
