@@ -21,4 +21,4 @@ In addition to setting global permissions, you can also set per-starboard permis
 | vote          | Whether to allow members with this role to vote on messages.     |
 | ------------- | ---------------------------------------------------------------- |
 | receive-votes | Whether messages sent by members with this role can be voted on. |
-| gain-xproles  | Whether mebers with this role can gain XPRoles.                  |
+| gain-xproles  | Whether members with this role can gain XPRoles.                 |
