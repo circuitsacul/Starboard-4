@@ -1,4 +1,4 @@
-FROM rust:1.82.0-slim-buster as builder
+FROM rust:1.81.0-slim-bookworm as builder
 WORKDIR /usr/src/starboard
 
 # force cargo to update the crates.io index.
@@ -29,7 +29,7 @@ COPY sqlx-data.json sqlx-data.json
 RUN cargo build --release
 
 # get rid of cargo
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 
 # install certificates
 RUN apt-get update && apt-get install -y ca-certificates
