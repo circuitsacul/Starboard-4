@@ -5,7 +5,7 @@ WORKDIR /usr/src/starboard
 # putting this first means that the cache won't be
 # invalidated if src/migrations/cargo.toml/cargo.lock
 # is changed.
-RUN cargo search --limit 0
+RUN cargo search --limit 1
 
 # install pkg-config (required for reqwest dependency)
 RUN apt-get update
