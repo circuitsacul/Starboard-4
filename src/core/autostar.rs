@@ -103,6 +103,7 @@ pub async fn handle(
     }
 
     for emoji in to_react {
+        tokio::time::sleep(Duration::from_secs(1)).await;
         let _ = bot
             .http
             .create_reaction(channel_id, message_id, &emoji.reactable())

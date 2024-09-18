@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use cached::Cached;
 use twilight_model::id::{marker::MessageMarker, Id};
@@ -371,6 +371,7 @@ impl RefreshStarboard {
             }
 
             for emoji in to_react {
+                tokio::time::sleep(Duration::from_secs(2)).await;
                 let _ = self
                     .refresh
                     .bot
