@@ -26,6 +26,7 @@ pub async fn patreon_loop(bot: Arc<StarboardBot>) {
 
     loop {
         tokio::time::sleep(constants::UPDATE_PATREON_DELAY).await;
+        tracing::info!("running patreon_loop");
 
         let task = tokio::spawn(StarboardBot::catch_future_errors(
             bot.clone(),
@@ -84,7 +85,9 @@ pub async fn update_patrons(bot: Arc<StarboardBot>) -> StarboardResult<()> {
         }
 
         // add credits the corresponding user, if needed
-        let Some(user_id) = patron.discord_id else { continue; };
+        let Some(user_id) = patron.discord_id else {
+            continue;
+        };
         let user = DbUser::get(&bot.pool, user_id).await?.unwrap();
 
         let cents_difference = patron.total_cents as i64 - sql_patron.last_patreon_total_cents;
