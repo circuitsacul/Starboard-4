@@ -26,7 +26,7 @@ pub async fn patreon_loop(bot: Arc<StarboardBot>) {
 
     loop {
         tokio::time::sleep(constants::UPDATE_PATREON_DELAY).await;
-        tracing::info!("running patreon_loop");
+        println!("running patreon loop");
 
         let task = tokio::spawn(StarboardBot::catch_future_errors(
             bot.clone(),
