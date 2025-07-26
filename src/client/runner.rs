@@ -1,8 +1,10 @@
 use std::sync::Arc;
 
-use futures::stream::StreamExt;
-use tokio::signal::unix::{signal, SignalKind};
-use twilight_gateway::{stream, CloseFrame};
+use tokio::{
+    signal::unix::{SignalKind, signal},
+    task::JoinSet,
+};
+use twilight_gateway::{EventTypeFlags, Shard, StreamExt as _, create_iterator};
 
 use crate::{
     client::bot::StarboardBot,
@@ -45,40 +47,29 @@ pub async fn run(bot: StarboardBot) {
     tokio::spawn(loop_update_supporter_roles(bot.clone()));
 
     // handle events
-    let mut shards: Vec<_> = stream::create_range(
+    let shards: Vec<_> = create_iterator(
         0..bot.config.shards,
         bot.config.shards,
         bot.gw_config.clone(),
         |_, b| b.build(),
     )
     .collect();
-    let events = stream::ShardEventStream::new(shards.iter_mut());
-    let mut events = events.take_until(Box::pin(wait_for_shutdown()));
 
-    while let Some((shard, event)) = events.next().await {
-        let event = match event {
-            Ok(event) => event,
-            Err(why) => {
-                let fatal = why.is_fatal();
-                eprintln!("{}: {:#?}", shard.id(), shard.status());
-                bot.handle_error(&why.into()).await;
-
-                if fatal {
-                    break;
-                } else {
-                    continue;
-                }
-            }
-        };
-
-        handle_event(shard.id(), event, bot.clone());
+    let mut runners = JoinSet::new();
+    for shard in shards {
+        runners.spawn(run_shard(shard, bot.clone()));
     }
 
-    std::mem::drop(events);
-    for mut shard in shards {
-        if let Err(why) = shard.close(CloseFrame::NORMAL).await {
-            bot.handle_error(&why.into()).await;
-        };
-        println!("Shard {} shutdown.", shard.id());
+    wait_for_shutdown().await;
+    runners.shutdown().await;
+}
+
+async fn run_shard(mut shard: Shard, bot: Arc<StarboardBot>) {
+    let shard_id = shard.id();
+    while let Some(event) = shard.next_event(EventTypeFlags::all()).await {
+        match event {
+            Ok(event) => handle_event(shard_id, event, bot.clone()),
+            Err(why) => bot.handle_error(&why.into()).await,
+        }
     }
 }

@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use twilight_model::id::{
-    marker::{ChannelMarker, MessageMarker, UserMarker},
     Id,
+    marker::{ChannelMarker, MessageMarker, UserMarker},
 };
 
 use crate::{
@@ -28,7 +28,12 @@ pub async fn handle_message(
     let message = match message {
         Some(msg) => msg,
         None => {
-            let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await?.into_option() else {
+            let Some(msg) = bot
+                .cache
+                .fog_message(bot, channel_id, message_id)
+                .await?
+                .into_option()
+            else {
                 return Ok(());
             };
             message_owner = msg;
@@ -59,7 +64,7 @@ pub async fn handle_message(
     if let Err(err) = ret {
         bot.http
             .create_message(channel_id)
-            .content(&err.to_string())?
+            .content(&err.to_string())
             .await?;
     }
 

@@ -1,4 +1,4 @@
-FROM rust:1.81.0-slim-bookworm as builder
+FROM rust:1.88.0-slim-bookworm as builder
 WORKDIR /usr/src/starboard
 
 # force cargo to update the crates.io index.

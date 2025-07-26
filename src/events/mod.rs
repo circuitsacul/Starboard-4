@@ -78,7 +78,7 @@ async fn match_events(
                         "See `/help` for more information on Starboard. If you don't see ",
                         "slash commands, try reinviting me using the \"Add to Server\" ",
                         "button on my profile.",
-                    ))?
+                    ))
                     .reply(event.id)
                     .await;
             }
@@ -112,17 +112,15 @@ async fn match_events(
             .await?;
         }
         Event::MessageUpdate(event) => {
-            if let Some(author) = &event.author {
-                crate::owner::handle::handle_message(
-                    &bot,
-                    event.channel_id,
-                    event.id,
-                    author.id,
-                    None,
-                    true,
-                )
-                .await?;
-            }
+            crate::owner::handle::handle_message(
+                &bot,
+                event.channel_id,
+                event.id,
+                event.author.id,
+                None,
+                true,
+            )
+            .await?;
 
             core::starboard::link_events::handle_message_update(bot, event).await?;
         }

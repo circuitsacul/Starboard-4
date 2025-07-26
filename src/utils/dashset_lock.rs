@@ -30,7 +30,7 @@ where
         }
     }
 
-    pub fn lock(&self, key: T) -> Option<DashSetLockGuard<T>> {
+    pub fn lock(&'_ self, key: T) -> Option<DashSetLockGuard<'_, T>> {
         if self.set.insert(key.clone()) {
             Some(DashSetLockGuard::new(self, key))
         } else {

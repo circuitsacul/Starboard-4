@@ -1,14 +1,12 @@
 use std::sync::Arc;
 
 use twilight_interactions::command::{CommandModel, CreateCommand};
-use twilight_model::{
-    application::interaction::application_command::InteractionChannel, user::User,
-};
+use twilight_model::{application::interaction::InteractionChannel, user::User};
 
 use crate::{
     client::bot::StarboardBot,
     core::{
-        embedder::{builder::BuiltStarboardEmbed, Embedder},
+        embedder::{Embedder, builder::BuiltStarboardEmbed},
         premium::is_premium::is_guild_premium,
         starboard::config::StarboardConfig,
     },
@@ -147,8 +145,13 @@ impl RandomPost {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
 
-        let Some(sb) = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id_i64).await? else {
-            ctx.respond_str(&format!("Starboard '{}' does not exist.", self.starboard), true).await?;
+        let Some(sb) = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id_i64).await?
+        else {
+            ctx.respond_str(
+                &format!("Starboard '{}' does not exist.", self.starboard),
+                true,
+            )
+            .await?;
             return Ok(());
         };
         if sb.settings.private {

@@ -1,11 +1,11 @@
 use twilight_model::{
     channel::message::{
-        component::{ActionRow, Button, ButtonStyle},
         Component, Embed, MessageFlags,
+        component::{ActionRow, Button, ButtonStyle},
     },
     id::{
-        marker::{MessageMarker, UserMarker},
         Id,
+        marker::{MessageMarker, UserMarker},
     },
 };
 
@@ -19,6 +19,7 @@ use super::wait_for::wait_for_component;
 pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Component> {
     let buttons = vec![
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("paginator::to_start".to_string()),
             disabled: current_page == 0 || done,
             emoji: None,
@@ -27,6 +28,7 @@ pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Comp
             url: None,
         }),
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("paginator::back".to_string()),
             disabled: current_page == 0 || done,
             emoji: None,
@@ -35,6 +37,7 @@ pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Comp
             url: None,
         }),
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("paginator::meta".to_string()),
             disabled: true,
             emoji: None,
@@ -43,6 +46,7 @@ pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Comp
             url: None,
         }),
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("paginator::next".to_string()),
             disabled: current_page == last_page || done,
             emoji: None,
@@ -51,6 +55,7 @@ pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Comp
             url: None,
         }),
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("paginator::to_end".to_string()),
             disabled: current_page == last_page || done,
             emoji: None,
@@ -141,7 +146,7 @@ pub async fn simple(
             let i = ctx.bot.interaction_client().await;
             let mut update = i.update_response(&ctx.interaction.token);
             let comp = components(current_page, last_page, true);
-            update = update.components(Some(&comp))?;
+            update = update.components(Some(&comp));
             update.await?;
             return Ok(());
         };

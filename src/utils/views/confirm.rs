@@ -2,12 +2,12 @@ use std::sync::Arc;
 
 use twilight_model::{
     channel::message::{
-        component::{ActionRow, Button, ButtonStyle},
         Component,
+        component::{ActionRow, Button, ButtonStyle},
     },
     id::{
-        marker::{MessageMarker, UserMarker},
         Id,
+        marker::{MessageMarker, UserMarker},
     },
 };
 
@@ -22,6 +22,7 @@ use super::wait_for::wait_for_component;
 pub fn components(danger: bool) -> Vec<Component> {
     let buttons = vec![
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("confirm::no".to_string()),
             disabled: false,
             emoji: None,
@@ -30,6 +31,7 @@ pub fn components(danger: bool) -> Vec<Component> {
             url: None,
         }),
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("confirm::yes".to_string()),
             disabled: false,
             emoji: None,
@@ -101,8 +103,8 @@ pub async fn simple(
         ctx.bot
             .http
             .update_message(msg.channel_id, msg.id)
-            .content(Some("Canceled."))?
-            .components(Some(&[]))?
+            .content(Some("Canceled."))
+            .components(Some(&[]))
             .await?;
     }
 

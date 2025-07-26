@@ -1,20 +1,20 @@
 use std::sync::Arc;
 
-use futures::{stream::BoxStream, TryStreamExt};
+use futures::{TryStreamExt, stream::BoxStream};
 use sqlx::{Postgres, QueryBuilder};
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::{
-    application::interaction::application_command::InteractionChannel,
+    application::interaction::InteractionChannel,
     channel::message::{
-        component::{ActionRow, Button, ButtonStyle},
         Component,
+        component::{ActionRow, Button, ButtonStyle},
     },
-    id::{marker::MessageMarker, Id},
+    id::{Id, marker::MessageMarker},
     user::User,
 };
 
 use crate::{
-    core::embedder::{builder::BuiltStarboardEmbed, Embedder},
+    core::embedder::{Embedder, builder::BuiltStarboardEmbed},
     database::{DbMessage, Starboard, StarboardMessage},
     errors::StarboardResult,
     get_guild_id,
@@ -55,8 +55,13 @@ impl MostStarred {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
 
-        let Some(sb) = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id_i64).await? else {
-            ctx.respond_str(&format!("Starboard '{}' does not exist.", self.starboard), true).await?;
+        let Some(sb) = Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id_i64).await?
+        else {
+            ctx.respond_str(
+                &format!("Starboard '{}' does not exist.", self.starboard),
+                true,
+            )
+            .await?;
             return Ok(());
         };
 
@@ -111,6 +116,7 @@ fn components(
 ) -> Vec<Component> {
     let buttons = vec![
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("moststarred_scroller::back".to_string()),
             disabled: done || current_page == 1,
             emoji: None,
@@ -119,6 +125,7 @@ fn components(
             url: None,
         }),
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("moststarred_scroller::page_number".to_string()),
             disabled: true,
             emoji: None,
@@ -127,6 +134,7 @@ fn components(
             url: None,
         }),
         Component::Button(Button {
+            sku_id: None,
             custom_id: Some("moststarred_scroller::next".to_string()),
             disabled: done || Some(current_page) == last_page,
             emoji: None,
@@ -251,7 +259,7 @@ async fn scrolling_paginator(
     } else if message_id.is_some() {
         let i = ctx.bot.interaction_client().await;
         i.update_response(&ctx.interaction.token)
-            .components(Some(&components(current_page, last_page, true, gtm_btn)))?
+            .components(Some(&components(current_page, last_page, true, gtm_btn)))
             .await?;
     } else {
         ctx.respond_str("Nothing to show.", true).await?;

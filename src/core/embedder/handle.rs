@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use twilight_model::id::{marker::MessageMarker, Id};
+use twilight_model::id::{Id, marker::MessageMarker};
 
 use crate::{
-    cache::{models::message::CachedMessage, MessageResult},
+    cache::{MessageResult, models::message::CachedMessage},
     client::bot::StarboardBot,
     core::{
         premium::is_premium::is_guild_premium,
@@ -93,12 +93,12 @@ impl Embedder {
                     let mut ret = bot
                         .http
                         .execute_webhook(wh.id, wh.token.as_ref().unwrap())
-                        .content(&built.top_content)?
-                        .embeds(&built.embeds)?
-                        .components(&built.components)?;
+                        .content(&built.top_content)
+                        .embeds(&built.embeds)
+                        .components(&built.components);
 
                     if let Some(attachments) = &attachments {
-                        ret = ret.attachments(attachments)?;
+                        ret = ret.attachments(attachments);
                     }
 
                     if parent != sb_channel_id {
@@ -119,6 +119,8 @@ impl Embedder {
                     if get_status(&err) == Some(404) {
                         bot.cache.webhooks.remove(&wh.id);
                         continue;
+                    } else {
+                        return Err(err.into());
                     }
                 }
 
@@ -132,12 +134,12 @@ impl Embedder {
                 .http
                 .create_forum_thread(sb_channel_id, &name)
                 .message()
-                .content(&built.top_content)?
-                .embeds(&built.embeds)?
-                .components(&built.components)?;
+                .content(&built.top_content)
+                .embeds(&built.embeds)
+                .components(&built.components);
 
             if let Some(attachments) = &attachments {
-                ret = ret.attachments(attachments)?;
+                ret = ret.attachments(attachments);
             };
 
             Ok(ret.await?.model().await?.message)
@@ -145,12 +147,12 @@ impl Embedder {
             let mut ret = bot
                 .http
                 .create_message(self.config.starboard.channel_id.into_id())
-                .content(&built.top_content)?
-                .embeds(&built.embeds)?
-                .components(&built.components)?;
+                .content(&built.top_content)
+                .embeds(&built.embeds)
+                .components(&built.components);
 
             if let Some(attachments) = &attachments {
-                ret = ret.attachments(attachments)?;
+                ret = ret.attachments(attachments);
             }
 
             Ok(ret.await?.model().await?)
@@ -209,9 +211,9 @@ impl Embedder {
                     let mut ud = bot
                         .http
                         .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
-                        .content(Some(&built.top_content))?
-                        .embeds(Some(&built.embeds))?
-                        .components(Some(&built.components))?;
+                        .content(Some(&built.top_content))
+                        .embeds(Some(&built.embeds))
+                        .components(Some(&built.components));
 
                     if is_thread || is_forum {
                         ud = ud.thread_id(real_channel_id);
@@ -221,9 +223,9 @@ impl Embedder {
                 } else {
                     bot.http
                         .update_message(real_channel_id, message_id)
-                        .content(Some(&built.top_content))?
-                        .embeds(Some(&built.embeds))?
-                        .components(Some(&built.components))?
+                        .content(Some(&built.top_content))
+                        .embeds(Some(&built.embeds))
+                        .components(Some(&built.components))
                         .await?;
                 }
             }
@@ -232,7 +234,7 @@ impl Embedder {
                     let mut ud = bot
                         .http
                         .update_webhook_message(wh.id, wh.token.as_ref().unwrap(), message_id)
-                        .content(Some(&built.top_content))?;
+                        .content(Some(&built.top_content));
 
                     if is_thread || is_forum {
                         ud = ud.thread_id(real_channel_id);
@@ -242,7 +244,7 @@ impl Embedder {
                 } else {
                     bot.http
                         .update_message(real_channel_id, message_id)
-                        .content(Some(&built.top_content))?
+                        .content(Some(&built.top_content))
                         .await?;
                 }
             }
