@@ -40,6 +40,9 @@ pub async fn post_commands(bot: Arc<StarboardBot>) {
 
     match inter_client.set_global_commands(&commands).await {
         Ok(_) => println!("Successfully registered commands"),
-        Err(e) => eprintln!("Failed to register commands: {e}"),
+        Err(e) => {
+            dbg!(e);
+            // eprintln!("Failed to register commands: {e}");
+        }
     }
 }

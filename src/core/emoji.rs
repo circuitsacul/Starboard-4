@@ -5,10 +5,10 @@ use regex::Regex;
 use twilight_http::request::channel::reaction::RequestReactionType;
 use twilight_mention::Mention;
 use twilight_model::{
-    channel::message::ReactionType,
+    channel::message::EmojiReactionType,
     id::{
-        marker::{EmojiMarker, GuildMarker},
         Id,
+        marker::{EmojiMarker, GuildMarker},
     },
 };
 
@@ -126,7 +126,7 @@ pub trait EmojiCommon: Sized {
 }
 
 impl SimpleEmoji {
-    pub fn reactable(&self) -> RequestReactionType {
+    pub fn reactable(&'_ self) -> RequestReactionType<'_> {
         if let Some(emoji_id) = self.as_id {
             RequestReactionType::Custom {
                 name: None,
@@ -201,14 +201,14 @@ impl EmojiCommon for Vec<SimpleEmoji> {
     }
 }
 
-impl From<ReactionType> for SimpleEmoji {
-    fn from(reaction: ReactionType) -> Self {
+impl From<EmojiReactionType> for SimpleEmoji {
+    fn from(reaction: EmojiReactionType) -> Self {
         match reaction {
-            ReactionType::Custom { id, .. } => SimpleEmoji {
+            EmojiReactionType::Custom { id, .. } => SimpleEmoji {
                 raw: id.to_string(),
                 as_id: Some(id),
             },
-            ReactionType::Unicode { name } => SimpleEmoji {
+            EmojiReactionType::Unicode { name } => SimpleEmoji {
                 raw: name,
                 as_id: None,
             },

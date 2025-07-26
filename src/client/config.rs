@@ -5,7 +5,7 @@ pub struct Config {
     pub token: String,
     pub patreon_token: Option<String>,
     pub sentry: Option<String>,
-    pub shards: u64,
+    pub shards: u32,
     pub db_url: String,
     pub error_channel: Option<u64>,
     pub development: bool,

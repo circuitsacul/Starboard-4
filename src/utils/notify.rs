@@ -1,6 +1,6 @@
 use twilight_model::{
     channel::message::component::{ActionRow, Button, ButtonStyle, Component},
-    id::{marker::UserMarker, Id},
+    id::{Id, marker::UserMarker},
 };
 
 use crate::{client::bot::StarboardBot, errors::StarboardResult};
@@ -20,6 +20,7 @@ pub async fn notify(
 
     let comp = Component::ActionRow(ActionRow {
         components: vec![Component::Button(Button {
+            sku_id: None,
             label: Some("Dismiss".to_string()),
             url: None,
             style: ButtonStyle::Secondary,
@@ -31,8 +32,8 @@ pub async fn notify(
 
     let _ = dm::dm(bot, user_id)
         .await?
-        .content(message)?
-        .components(&[comp])?
+        .content(message)
+        .components(&[comp])
         .await;
 
     Ok(())

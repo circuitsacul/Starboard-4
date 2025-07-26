@@ -4,10 +4,10 @@ use std::{
     time::{Duration, Instant},
 };
 
-use sqlx::{postgres::PgRow, Column, Executor, Row, ValueRef};
+use sqlx::{Column, Executor, Row, ValueRef, postgres::PgRow};
 use twilight_model::id::{
-    marker::{ChannelMarker, MessageMarker},
     Id,
+    marker::{ChannelMarker, MessageMarker},
 };
 
 use crate::{
@@ -118,7 +118,7 @@ pub async fn run_sql(
         let ret = bot
             .http
             .update_message(channel_id, to_edit)
-            .content(Some(&final_result))?
+            .content(Some(&final_result))
             .await;
 
         if ret.is_ok() {
@@ -129,7 +129,7 @@ pub async fn run_sql(
     let msg = bot
         .http
         .create_message(channel_id)
-        .content(&final_result)?
+        .content(&final_result)
         .reply(message_id)
         .await?
         .model()

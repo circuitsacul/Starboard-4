@@ -51,11 +51,11 @@ pub enum StarboardError {
         source: twilight_gateway::error::ReceiveMessageError,
         backtrace: Backtrace,
     },
-    #[snafu(context(false))]
-    SendError {
-        source: twilight_gateway::error::SendError,
-        backtrace: Backtrace,
-    },
+    // #[snafu(context(false))]
+    // SendError {
+    //     source: twilight_gateway::error::SendError,
+    //     backtrace: Backtrace,
+    // },
     #[snafu(context(false))]
     JoinError {
         source: tokio::task::JoinError,

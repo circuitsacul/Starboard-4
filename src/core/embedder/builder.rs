@@ -4,11 +4,11 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use twilight_model::{
     channel::message::{
+        Component,
         component::{ActionRow, Button, ButtonStyle},
         embed::Embed,
-        Component,
     },
-    id::{marker::MessageMarker, Id},
+    id::{Id, marker::MessageMarker},
     util::Timestamp,
 };
 use twilight_util::{
@@ -19,7 +19,7 @@ use twilight_util::{
 };
 
 use crate::{
-    cache::{models::message::CachedMessage, MessageResult},
+    cache::{MessageResult, models::message::CachedMessage},
     constants,
     core::emoji::{EmojiCommon, SimpleEmoji},
     errors::StarboardResult,
@@ -28,7 +28,7 @@ use crate::{
     },
 };
 
-use super::{parser::ParsedMessage, AttachmentHandle, Embedder};
+use super::{AttachmentHandle, Embedder, parser::ParsedMessage};
 
 lazy_static! {
     static ref URL_REGEX: Regex = Regex::new(concat!(
@@ -86,6 +86,7 @@ impl BuiltStarboardEmbed {
         }
 
         Some(Button {
+            sku_id: None,
             custom_id: None,
             disabled: false,
             emoji: None,

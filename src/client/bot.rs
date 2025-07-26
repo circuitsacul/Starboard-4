@@ -8,7 +8,7 @@ use twilight_gateway::{Config as GatewayConfig, Intents};
 use twilight_http::client::{Client as HttpClient, InteractionClient};
 use twilight_model::{
     http::attachment::Attachment,
-    id::{marker::ChannelMarker, Id},
+    id::{Id, marker::ChannelMarker},
     oauth::PartialApplication,
 };
 use twilight_standby::Standby;
@@ -105,7 +105,7 @@ impl StarboardBot {
         })
     }
 
-    pub async fn interaction_client(&self) -> InteractionClient {
+    pub async fn interaction_client(&'_ self) -> InteractionClient<'_> {
         match &*self.application.read().await {
             Some(info) => self.http.interaction(info.id),
             None => panic!("interaction_client called before bot was ready."),
@@ -131,12 +131,10 @@ impl StarboardBot {
             let ret = self
                 .http
                 .create_message(chid.into_id())
-                .attachments(attachments);
-            let ret = match ret {
-                Ok(ret) => ret,
-                Err(why) => return eprintln!("{why}"),
-            };
-            if let Err(why) = ret.await {
+                .attachments(attachments)
+                .await;
+
+            if let Err(why) = ret {
                 eprintln!("{why}");
             }
         }

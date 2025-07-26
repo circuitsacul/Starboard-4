@@ -1,10 +1,10 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
-use twilight_model::application::interaction::application_command::InteractionChannel;
+use twilight_model::application::interaction::InteractionChannel;
 
 use crate::{
     constants,
     core::premium::is_premium::is_guild_premium,
-    database::{validation, AutoStarChannel, DbGuild},
+    database::{AutoStarChannel, DbGuild, validation},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

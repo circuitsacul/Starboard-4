@@ -3,12 +3,12 @@ use std::sync::Arc;
 use twilight_http::Response;
 use twilight_model::{
     application::interaction::{
-        application_command::CommandData, message_component::MessageComponentInteractionData,
-        Interaction,
+        Interaction, application_command::CommandData,
+        message_component::MessageComponentInteractionData,
     },
     channel::{
-        message::{AllowedMentions, MessageFlags},
         Message,
+        message::{AllowedMentions, MessageFlags},
     },
     http::interaction::{InteractionResponse, InteractionResponseData, InteractionResponseType},
 };
@@ -17,7 +17,7 @@ use twilight_util::builder::InteractionResponseDataBuilder;
 use crate::{client::bot::StarboardBot, errors::StarboardResult};
 
 pub type CommandCtx = Ctx<CommandData>;
-pub type ComponentCtx = Ctx<MessageComponentInteractionData>;
+pub type ComponentCtx = Ctx<Box<MessageComponentInteractionData>>;
 
 #[derive(Debug)]
 pub struct Ctx<T> {
@@ -61,16 +61,16 @@ impl<T> Ctx<T> {
                 followup = followup.allowed_mentions(Some(mentions));
             }
             if let Some(attachments) = &data.attachments {
-                followup = followup.attachments(attachments)?;
+                followup = followup.attachments(attachments);
             }
             if let Some(components) = &data.components {
-                followup = followup.components(components)?;
+                followup = followup.components(components);
             }
             if let Some(content) = &data.content {
-                followup = followup.content(content)?;
+                followup = followup.content(content);
             }
             if let Some(embeds) = &data.embeds {
-                followup = followup.embeds(embeds)?;
+                followup = followup.embeds(embeds);
             }
             if let Some(flags) = data.flags {
                 followup = followup.flags(flags);

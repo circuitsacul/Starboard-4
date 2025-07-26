@@ -53,10 +53,12 @@ pub async fn get_valid_webhook(
             starboard.channel_id.into_id(),
         )
         .await?;
-    let Some(webhook_channel) = webhook_channel else { return Ok(None); };
+    let Some(webhook_channel) = webhook_channel else {
+        return Ok(None);
+    };
 
     let name = format!("Webhook for '{}'", starboard.name);
-    let wh = bot.http.create_webhook(webhook_channel, &name)?;
+    let wh = bot.http.create_webhook(webhook_channel, &name);
 
     let Ok(wh) = wh.await else {
         return Ok(None);

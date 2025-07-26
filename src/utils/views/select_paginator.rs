@@ -2,12 +2,12 @@ use std::sync::Arc;
 
 use twilight_model::{
     channel::message::{
-        component::{ActionRow, Button, ButtonStyle, SelectMenu, SelectMenuOption},
-        Component, Embed, ReactionType,
+        Component, Embed, EmojiReactionType,
+        component::{ActionRow, Button, ButtonStyle, SelectMenu, SelectMenuOption, SelectMenuType},
     },
     id::{
-        marker::{ChannelMarker, MessageMarker, UserMarker},
         Id,
+        marker::{ChannelMarker, MessageMarker, UserMarker},
     },
 };
 
@@ -39,7 +39,7 @@ impl AnyContext {
 pub struct SelectPaginatorPage {
     pub label: String,
     pub description: Option<String>,
-    pub emoji: Option<ReactionType>,
+    pub emoji: Option<EmojiReactionType>,
     pub content: Option<String>,
     pub embeds: Option<Vec<Embed>>,
 }
@@ -134,13 +134,13 @@ impl SelectPaginator {
                     let i = ctx.bot.interaction_client().await;
                     let mut update = i
                         .update_response(&ctx.interaction.token)
-                        .components(Some(&components))?;
+                        .components(Some(&components));
 
                     if let Some(content) = &page.content {
-                        update = update.content(Some(content))?;
+                        update = update.content(Some(content));
                     }
                     if let Some(embeds) = &page.embeds {
-                        update = update.embeds(Some(embeds))?;
+                        update = update.embeds(Some(embeds));
                     }
 
                     update.await?.model().await?.id
@@ -190,6 +190,7 @@ impl SelectPaginator {
 
         let buttons = vec![
             Component::Button(Button {
+                sku_id: None,
                 custom_id: Some("select_paginator::back".to_string()),
                 disabled: current == 0 || self.done,
                 emoji: None,
@@ -198,6 +199,7 @@ impl SelectPaginator {
                 url: None,
             }),
             Component::Button(Button {
+                sku_id: None,
                 custom_id: Some("select_paginator::meta".to_string()),
                 disabled: true,
                 emoji: None,
@@ -206,6 +208,7 @@ impl SelectPaginator {
                 url: None,
             }),
             Component::Button(Button {
+                sku_id: None,
                 custom_id: Some("select_paginator::next".to_string()),
                 disabled: current == last_chunk || self.done,
                 emoji: None,
@@ -233,11 +236,14 @@ impl SelectPaginator {
         }
 
         Component::SelectMenu(SelectMenu {
+            kind: SelectMenuType::Text,
+            channel_types: None,
+            default_values: None,
             custom_id: "select_paginator::select".to_string(),
             disabled: self.done || options.len() == 1,
             max_values: Some(1),
             min_values: Some(1),
-            options,
+            options: Some(options),
             placeholder: None,
         })
     }
@@ -288,7 +294,7 @@ impl SelectPaginatorPageBuilder {
         self
     }
 
-    pub fn emoji(mut self, emoji: ReactionType) -> Self {
+    pub fn emoji(mut self, emoji: EmojiReactionType) -> Self {
         self.0.emoji = Some(emoji);
         self
     }

@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::channel::message::{
-    component::{ActionRow, Button, ButtonStyle},
     Component,
+    component::{ActionRow, Button, ButtonStyle},
 };
 use twilight_util::builder::embed::EmbedFieldBuilder;
 
@@ -13,6 +13,7 @@ use crate::{
 fn buttons() -> Vec<Component> {
     let link_btn = |name: &str, link: &str| {
         Component::Button(Button {
+            sku_id: None,
             custom_id: None,
             disabled: false,
             emoji: None,
