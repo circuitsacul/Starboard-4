@@ -48,7 +48,7 @@ impl SimpleEmoji {
             static ref RE: Regex = Regex::new(concat!(
                 r"(<a?:\w+:(?P<emoji_id>\d+)>",
                 r"|(?P<flag>[\u{1f1e6}-\u{1f1ff}]{2,})",
-                r"|(?P<unicode>.(\u{200d}.)*\u{fe0f}?))",
+                r"|(?P<unicode>.(\u{fe0f}?\u{200d}.)*\u{fe0f}?))",
             ))
             .unwrap();
         };
