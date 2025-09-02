@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use twilight_model::id::{Id, marker::MessageMarker};
-
 use crate::{
     cache::{MessageResult, models::message::CachedMessage},
     client::bot::StarboardBot,
@@ -130,9 +129,15 @@ impl Embedder {
         }
 
         if let Some(name) = forum_post_name {
+            let mut applied_tags = Vec::new();
+            if let Some(forum_tag) = self.config.starboard.settings.forum_tag {
+                applied_tags.push(forum_tag.into_id());
+            }
+
             let mut ret = bot
                 .http
                 .create_forum_thread(sb_channel_id, &name)
+                .applied_tags(&applied_tags)
                 .message()
                 .content(&built.top_content)
                 .embeds(&built.embeds)

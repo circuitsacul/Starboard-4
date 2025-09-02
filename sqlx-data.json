@@ -906,6 +906,11 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
+        },
+        {
+          "name": "forum_tag",
+          "ordinal": 40,
+          "type_info": "Int8"
         }
       ],
       "nullable": [
@@ -947,6 +952,7 @@
         false,
         false,
         false,
+        true,
         true,
         true
       ],
@@ -1246,6 +1252,11 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
+        },
+        {
+          "name": "forum_tag",
+          "ordinal": 40,
+          "type_info": "Int8"
         }
       ],
       "nullable": [
@@ -1287,6 +1298,7 @@
         false,
         false,
         false,
+        true,
         true,
         true
       ],
@@ -2035,6 +2047,11 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
+        },
+        {
+          "name": "forum_tag",
+          "ordinal": 40,
+          "type_info": "Int8"
         }
       ],
       "nullable": [
@@ -2076,6 +2093,7 @@
         false,
         false,
         false,
+        true,
         true,
         true
       ],
@@ -3503,6 +3521,11 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
+        },
+        {
+          "name": "forum_tag",
+          "ordinal": 40,
+          "type_info": "Int8"
         }
       ],
       "nullable": [
@@ -3544,6 +3567,7 @@
         false,
         false,
         false,
+        true,
         true,
         true
       ],
@@ -3879,6 +3903,11 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
+        },
+        {
+          "name": "forum_tag",
+          "ordinal": 40,
+          "type_info": "Int8"
         }
       ],
       "nullable": [
@@ -3920,6 +3949,7 @@
         false,
         false,
         false,
+        true,
         true,
         true
       ],
@@ -5318,6 +5348,11 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
+        },
+        {
+          "name": "forum_tag",
+          "ordinal": 40,
+          "type_info": "Int8"
         }
       ],
       "nullable": [
@@ -5359,6 +5394,7 @@
         false,
         false,
         false,
+        true,
         true,
         true
       ],
@@ -5900,6 +5936,11 @@
           "name": "not_matches",
           "ordinal": 39,
           "type_info": "Text"
+        },
+        {
+          "name": "forum_tag",
+          "ordinal": 40,
+          "type_info": "Int8"
         }
       ],
       "nullable": [
@@ -5941,6 +5982,7 @@
         false,
         false,
         false,
+        true,
         true,
         true
       ],
