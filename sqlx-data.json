@@ -1845,268 +1845,6 @@
     },
     "query": "UPDATE xproles SET required=$1 WHERE role_id=$2 RETURNING *"
   },
-  "43346766aade3e6791d9efc583ab1018988223dbfd3a187198edadb72b003bb9": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "channel_id",
-          "ordinal": 2,
-          "type_info": "Int8"
-        },
-        {
-          "name": "guild_id",
-          "ordinal": 3,
-          "type_info": "Int8"
-        },
-        {
-          "name": "webhook_id",
-          "ordinal": 4,
-          "type_info": "Int8"
-        },
-        {
-          "name": "premium_locked",
-          "ordinal": 5,
-          "type_info": "Bool"
-        },
-        {
-          "name": "display_emoji",
-          "ordinal": 6,
-          "type_info": "Text"
-        },
-        {
-          "name": "ping_author",
-          "ordinal": 7,
-          "type_info": "Bool"
-        },
-        {
-          "name": "use_server_profile",
-          "ordinal": 8,
-          "type_info": "Bool"
-        },
-        {
-          "name": "extra_embeds",
-          "ordinal": 9,
-          "type_info": "Bool"
-        },
-        {
-          "name": "use_webhook",
-          "ordinal": 10,
-          "type_info": "Bool"
-        },
-        {
-          "name": "color",
-          "ordinal": 11,
-          "type_info": "Int4"
-        },
-        {
-          "name": "attachments_list",
-          "ordinal": 12,
-          "type_info": "Bool"
-        },
-        {
-          "name": "replied_to",
-          "ordinal": 13,
-          "type_info": "Bool"
-        },
-        {
-          "name": "required",
-          "ordinal": 14,
-          "type_info": "Int2"
-        },
-        {
-          "name": "required_remove",
-          "ordinal": 15,
-          "type_info": "Int2"
-        },
-        {
-          "name": "upvote_emojis",
-          "ordinal": 16,
-          "type_info": "TextArray"
-        },
-        {
-          "name": "downvote_emojis",
-          "ordinal": 17,
-          "type_info": "TextArray"
-        },
-        {
-          "name": "self_vote",
-          "ordinal": 18,
-          "type_info": "Bool"
-        },
-        {
-          "name": "allow_bots",
-          "ordinal": 19,
-          "type_info": "Bool"
-        },
-        {
-          "name": "require_image",
-          "ordinal": 20,
-          "type_info": "Bool"
-        },
-        {
-          "name": "older_than",
-          "ordinal": 21,
-          "type_info": "Int8"
-        },
-        {
-          "name": "newer_than",
-          "ordinal": 22,
-          "type_info": "Int8"
-        },
-        {
-          "name": "enabled",
-          "ordinal": 23,
-          "type_info": "Bool"
-        },
-        {
-          "name": "autoreact_upvote",
-          "ordinal": 24,
-          "type_info": "Bool"
-        },
-        {
-          "name": "autoreact_downvote",
-          "ordinal": 25,
-          "type_info": "Bool"
-        },
-        {
-          "name": "remove_invalid_reactions",
-          "ordinal": 26,
-          "type_info": "Bool"
-        },
-        {
-          "name": "link_deletes",
-          "ordinal": 27,
-          "type_info": "Bool"
-        },
-        {
-          "name": "link_edits",
-          "ordinal": 28,
-          "type_info": "Bool"
-        },
-        {
-          "name": "private",
-          "ordinal": 29,
-          "type_info": "Bool"
-        },
-        {
-          "name": "xp_multiplier",
-          "ordinal": 30,
-          "type_info": "Float4"
-        },
-        {
-          "name": "cooldown_enabled",
-          "ordinal": 31,
-          "type_info": "Bool"
-        },
-        {
-          "name": "cooldown_count",
-          "ordinal": 32,
-          "type_info": "Int2"
-        },
-        {
-          "name": "cooldown_period",
-          "ordinal": 33,
-          "type_info": "Int2"
-        },
-        {
-          "name": "exclusive_group",
-          "ordinal": 34,
-          "type_info": "Int4"
-        },
-        {
-          "name": "exclusive_group_priority",
-          "ordinal": 35,
-          "type_info": "Int2"
-        },
-        {
-          "name": "on_delete",
-          "ordinal": 36,
-          "type_info": "Int2"
-        },
-        {
-          "name": "go_to_message",
-          "ordinal": 37,
-          "type_info": "Int2"
-        },
-        {
-          "name": "matches",
-          "ordinal": 38,
-          "type_info": "Text"
-        },
-        {
-          "name": "not_matches",
-          "ordinal": 39,
-          "type_info": "Text"
-        },
-        {
-          "name": "forum_tag",
-          "ordinal": 40,
-          "type_info": "Int8"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Int8",
-          "Int8"
-        ]
-      }
-    },
-    "query": "INSERT INTO STARBOARDS (name, channel_id, guild_id) VALUES ($1, $2, $3)\n            ON CONFLICT DO NOTHING RETURNING *"
-  },
   "443ac1e7a47fe77b43199d6f45b73fc3eedd89069d6ddec9151dfcf1f00dd5d0": {
     "describe": {
       "columns": [
@@ -4630,6 +4368,269 @@
       }
     },
     "query": "UPDATE users SET patreon_status=$1 WHERE user_id=$2"
+  },
+  "a8621090c1bffb285e26e99eb41ee36acc59efb5525e840342511ed22a98348b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "channel_id",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "webhook_id",
+          "ordinal": 4,
+          "type_info": "Int8"
+        },
+        {
+          "name": "premium_locked",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "display_emoji",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "ping_author",
+          "ordinal": 7,
+          "type_info": "Bool"
+        },
+        {
+          "name": "use_server_profile",
+          "ordinal": 8,
+          "type_info": "Bool"
+        },
+        {
+          "name": "extra_embeds",
+          "ordinal": 9,
+          "type_info": "Bool"
+        },
+        {
+          "name": "use_webhook",
+          "ordinal": 10,
+          "type_info": "Bool"
+        },
+        {
+          "name": "color",
+          "ordinal": 11,
+          "type_info": "Int4"
+        },
+        {
+          "name": "attachments_list",
+          "ordinal": 12,
+          "type_info": "Bool"
+        },
+        {
+          "name": "replied_to",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "required",
+          "ordinal": 14,
+          "type_info": "Int2"
+        },
+        {
+          "name": "required_remove",
+          "ordinal": 15,
+          "type_info": "Int2"
+        },
+        {
+          "name": "upvote_emojis",
+          "ordinal": 16,
+          "type_info": "TextArray"
+        },
+        {
+          "name": "downvote_emojis",
+          "ordinal": 17,
+          "type_info": "TextArray"
+        },
+        {
+          "name": "self_vote",
+          "ordinal": 18,
+          "type_info": "Bool"
+        },
+        {
+          "name": "allow_bots",
+          "ordinal": 19,
+          "type_info": "Bool"
+        },
+        {
+          "name": "require_image",
+          "ordinal": 20,
+          "type_info": "Bool"
+        },
+        {
+          "name": "older_than",
+          "ordinal": 21,
+          "type_info": "Int8"
+        },
+        {
+          "name": "newer_than",
+          "ordinal": 22,
+          "type_info": "Int8"
+        },
+        {
+          "name": "enabled",
+          "ordinal": 23,
+          "type_info": "Bool"
+        },
+        {
+          "name": "autoreact_upvote",
+          "ordinal": 24,
+          "type_info": "Bool"
+        },
+        {
+          "name": "autoreact_downvote",
+          "ordinal": 25,
+          "type_info": "Bool"
+        },
+        {
+          "name": "remove_invalid_reactions",
+          "ordinal": 26,
+          "type_info": "Bool"
+        },
+        {
+          "name": "link_deletes",
+          "ordinal": 27,
+          "type_info": "Bool"
+        },
+        {
+          "name": "link_edits",
+          "ordinal": 28,
+          "type_info": "Bool"
+        },
+        {
+          "name": "private",
+          "ordinal": 29,
+          "type_info": "Bool"
+        },
+        {
+          "name": "xp_multiplier",
+          "ordinal": 30,
+          "type_info": "Float4"
+        },
+        {
+          "name": "cooldown_enabled",
+          "ordinal": 31,
+          "type_info": "Bool"
+        },
+        {
+          "name": "cooldown_count",
+          "ordinal": 32,
+          "type_info": "Int2"
+        },
+        {
+          "name": "cooldown_period",
+          "ordinal": 33,
+          "type_info": "Int2"
+        },
+        {
+          "name": "exclusive_group",
+          "ordinal": 34,
+          "type_info": "Int4"
+        },
+        {
+          "name": "exclusive_group_priority",
+          "ordinal": 35,
+          "type_info": "Int2"
+        },
+        {
+          "name": "on_delete",
+          "ordinal": 36,
+          "type_info": "Int2"
+        },
+        {
+          "name": "go_to_message",
+          "ordinal": 37,
+          "type_info": "Int2"
+        },
+        {
+          "name": "matches",
+          "ordinal": 38,
+          "type_info": "Text"
+        },
+        {
+          "name": "not_matches",
+          "ordinal": 39,
+          "type_info": "Text"
+        },
+        {
+          "name": "forum_tag",
+          "ordinal": 40,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int8",
+          "Int8",
+          "Int8"
+        ]
+      }
+    },
+    "query": "INSERT INTO STARBOARDS (name, channel_id, guild_id, forum_tag) VALUES ($1, $2, $3, $4)\n            ON CONFLICT DO NOTHING RETURNING *"
   },
   "aa01abe50e0f3b206185e4872206866ba1f497a47b336612b92e600f48239d92": {
     "describe": {
