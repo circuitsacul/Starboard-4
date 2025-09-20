@@ -1,6 +1,6 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_mention::Mention;
-use twilight_model::channel::{ChannelFlags, ChannelType};
+use twilight_model::channel::ChannelFlags;
 
 use crate::{
     database::{
@@ -138,10 +138,8 @@ impl EditBehavior {
             };
             starboard.settings.exclusive_group = Some(group.id);
         }
-        if let Some(val) = self.remove_exclusive_group {
-            if val {
-                starboard.settings.exclusive_group = None;
-            }
+        if self.remove_exclusive_group == Some(true) {
+            starboard.settings.exclusive_group = None;
         }
         if let Some(val) = self.exclusive_group_priority {
             starboard.settings.exclusive_group_priority = val as i16;
@@ -150,8 +148,8 @@ impl EditBehavior {
             let channel = ctx.bot.http.channel(starboard.channel_id.into_id()).await?.model().await?;
             let channel_mention = channel.mention();
 
-            if channel.kind == ChannelType::GuildForum && let Some(available_tags) = channel.available_tags {
-                let tag = available_tags.into_iter().find(|available_tag| available_tag.name == forum_tag);
+            if let Some(available_tags) = channel.available_tags {
+                let tag = available_tags.iter().find(|tag| tag.name == forum_tag);
                 if let Some(tag) = tag {
                     starboard.settings.forum_tag = Some(tag.id.get_i64());
                 } else {
@@ -164,23 +162,21 @@ impl EditBehavior {
                 }
             }
         }
-        if let Some(val) = self.remove_forum_tag {
-            if val {
-                let channel = ctx.bot.http.channel(starboard.channel_id.into_id()).await?.model().await?;
-                let channel_mention = channel.mention();
+        if self.remove_forum_tag == Some(true) {
+            let channel = ctx.bot.http.channel(starboard.channel_id.into_id()).await?.model().await?;
+            let channel_mention = channel.mention();
 
-                let requires_tag = channel.flags.unwrap().contains(ChannelFlags::REQUIRE_TAG);
-                if requires_tag {
-                    ctx.respond_str(
-                        &format!("Cannot remove forum-tag because channel '{}' requires a tag to post.", channel_mention),
-                        true,
-                    )
-                        .await?;
-                    return Ok(());
-                }
-
-                starboard.settings.forum_tag = None;
+            let requires_tag = channel.flags.map(|f| f.contains(ChannelFlags::REQUIRE_TAG)).unwrap_or(false);
+            if requires_tag {
+                ctx.respond_str(
+                    &format!("Cannot remove forum-tag because channel '{}' requires a tag to post.", channel_mention),
+                    true,
+                )
+                    .await?;
+                return Ok(());
             }
+
+            starboard.settings.forum_tag = None;
         }
 
         starboard.update_settings(&ctx.bot.pool).await?;

@@ -129,15 +129,16 @@ impl Embedder {
         }
 
         if let Some(name) = forum_post_name {
-            let mut applied_tags = Vec::new();
-            if let Some(forum_tag) = self.config.starboard.settings.forum_tag {
-                applied_tags.push(forum_tag.into_id());
-            }
+            let applied_tags: &[_] = if let Some(tag) = self.config.starboard.settings.forum_tag {
+                &[tag.into_id()]
+            } else {
+                &[]
+            };
 
             let mut ret = bot
                 .http
                 .create_forum_thread(sb_channel_id, &name)
-                .applied_tags(&applied_tags)
+                .applied_tags(applied_tags)
                 .message()
                 .content(&built.top_content)
                 .embeds(&built.embeds)

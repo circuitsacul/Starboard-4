@@ -73,7 +73,7 @@ impl CreateStarboard {
             let channel = ctx.bot.http.channel(self.channel.id).await?.model().await?;
             let channel_mention = channel.mention();
 
-            let requires_tag = channel.flags.unwrap().contains(ChannelFlags::REQUIRE_TAG);
+            let requires_tag = channel.flags.map(|f| f.contains(ChannelFlags::REQUIRE_TAG)).unwrap_or(false);
 
             if requires_tag && self.forum_tag.is_none() {
                 ctx.respond_str(
@@ -84,7 +84,7 @@ impl CreateStarboard {
             }
 
             if let Some(tag_name) = self.forum_tag && let Some(available_tags) = channel.available_tags {
-                let tag = available_tags.into_iter().find(|available_tag| available_tag.name == tag_name);
+                let tag = available_tags.iter().find(|available_tag| available_tag.name == tag_name);
                 if let Some(tag) = tag {
                     forum_tag = Some(tag.id.get_i64())
                 } else {
