@@ -1,0 +1,1 @@
+ALTER TABLE starboards ADD COLUMN forum_tag BIGINT DEFAULT NULL;

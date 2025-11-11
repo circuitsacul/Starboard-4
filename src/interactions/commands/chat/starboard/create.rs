@@ -1,5 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
+use twilight_mention::Mention;
 use twilight_model::application::interaction::InteractionChannel;
+use twilight_model::channel::{ChannelFlags, ChannelType};
 
 use crate::{
     constants,
@@ -28,6 +30,9 @@ pub struct CreateStarboard {
             guild_forum
         "#)]
     channel: InteractionChannel,
+    /// The forum-tag to post with if the channel is a forum
+    #[command(rename = "forum-tag")]
+    forum_tag: Option<String>,
 }
 
 impl CreateStarboard {
@@ -63,7 +68,37 @@ impl CreateStarboard {
             Ok(name) => name,
         };
 
-        let ret = Starboard::create(&ctx.bot.pool, &name, channel_id, guild_id).await?;
+        let mut forum_tag = None;
+        if self.channel.kind == ChannelType::GuildForum {
+            let channel = ctx.bot.http.channel(self.channel.id).await?.model().await?;
+            let channel_mention = channel.mention();
+
+            let requires_tag = channel.flags.map(|f| f.contains(ChannelFlags::REQUIRE_TAG)).unwrap_or(false);
+
+            if requires_tag && self.forum_tag.is_none() {
+                ctx.respond_str(
+                    &format!("The channel {} requires a tag to post. Set the 'forum-tag' option on the command.",
+                     channel_mention,
+                ), true).await?;
+                return Ok(());
+            }
+
+            if let Some(tag_name) = self.forum_tag && let Some(available_tags) = channel.available_tags {
+                let tag = available_tags.iter().find(|available_tag| available_tag.name == tag_name);
+                if let Some(tag) = tag {
+                    forum_tag = Some(tag.id.get_i64())
+                } else {
+                    ctx.respond_str(
+                        &format!("Tag '{}' not found in channel {}.", tag_name, channel_mention),
+                        true,
+                    )
+                        .await?;
+                    return Ok(());
+                }
+            }
+        }
+
+        let ret = Starboard::create(&ctx.bot.pool, &name, channel_id, guild_id, forum_tag).await?;
 
         if ret.is_none() {
             ctx.respond_str(

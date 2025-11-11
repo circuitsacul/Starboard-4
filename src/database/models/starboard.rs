@@ -66,13 +66,15 @@ impl Starboard {
         name: &String,
         channel_id: i64,
         guild_id: i64,
+        forum_tag: Option<i64>,
     ) -> sqlx::Result<Option<Self>> {
         let starboard = sqlx::query!(
-            "INSERT INTO STARBOARDS (name, channel_id, guild_id) VALUES ($1, $2, $3)
+            "INSERT INTO STARBOARDS (name, channel_id, guild_id, forum_tag) VALUES ($1, $2, $3, $4)
             ON CONFLICT DO NOTHING RETURNING *",
             name,
             channel_id,
             guild_id,
+            forum_tag,
         )
         .fetch_optional(pool)
         .await?;

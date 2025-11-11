@@ -20,7 +20,7 @@ struct PatronData {
 }
 
 pub async fn patreon_loop(bot: Arc<StarboardBot>) {
-    if bot.config.patreon_token.is_none() {
+    if bot.config.patreon_token.is_none() || bot.config.patreon_token == Some("".into()) {
         return eprintln!("Warning: no Patreon token set.");
     }
 

@@ -37,7 +37,8 @@ macro_rules! call_with_starboard_settings {
             cooldown_period,
             private,
             exclusive_group,
-            exclusive_group_priority
+            exclusive_group_priority,
+            forum_tag
         )
     };
 }

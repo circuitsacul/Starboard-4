@@ -42,6 +42,7 @@ pub struct StarboardSettings {
     pub cooldown_period: i16,
     pub exclusive_group: Option<i32>,
     pub exclusive_group_priority: i16,
+    pub forum_tag: Option<i64>,
 }
 
 macro_rules! settings_from_record {
