@@ -2,7 +2,7 @@ use std::{fmt::Debug, sync::Arc, time::Duration};
 
 use chrono::{DateTime, Utc};
 use futures::Future;
-use sqlx::PgPool;
+use sqlx::{PgPool, postgres::PgPoolOptions};
 use tokio::sync::RwLock;
 use twilight_gateway::{Config as GatewayConfig, Intents};
 use twilight_http::client::{Client as HttpClient, InteractionClient};
@@ -65,7 +65,10 @@ impl StarboardBot {
         let http = http.build();
 
         // Setup database connection
-        let pool = PgPool::connect(&config.db_url).await?;
+        let pool = PgPoolOptions::new()
+            .max_connections(config.db_connections)
+            .connect(&config.db_url)
+            .await?;
 
         // run migrations
         sqlx::migrate!()

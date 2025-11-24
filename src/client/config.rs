@@ -7,6 +7,7 @@ pub struct Config {
     pub sentry: Option<String>,
     pub shards: u32,
     pub db_url: String,
+    pub db_connections: u32,
     pub error_channel: Option<u64>,
     pub development: bool,
     pub owner_ids: Vec<u64>,
@@ -31,6 +32,9 @@ impl Config {
             .parse()
             .unwrap();
         let db_url = env::var("SB_DATABASE_URL").expect("No database url specified.");
+        let db_connections = env::var("DB_MAX_DB_CONNECTIONS")
+            .map(|v| v.parse().unwrap())
+            .unwrap_or(10);
         let error_channel = env::var("ERROR_CHANNEL_ID")
             .ok()
             .map(|v| v.parse().expect("Invalid ID for error log channel."));
@@ -60,6 +64,7 @@ impl Config {
             sentry,
             shards,
             db_url,
+            db_connections,
             error_channel,
             development,
             owner_ids: owner_ids.unwrap_or_default(),
