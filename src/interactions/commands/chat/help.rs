@@ -20,6 +20,7 @@ fn buttons() -> Vec<Component> {
             label: Some(name.into()),
             style: ButtonStyle::Link,
             url: Some(link.into()),
+            id: None,
         })
     };
 
@@ -33,6 +34,7 @@ fn buttons() -> Vec<Component> {
 
     let row = Component::ActionRow(ActionRow {
         components: buttons,
+        id: None,
     });
 
     vec![row]

@@ -29,6 +29,7 @@ pub fn components(danger: bool) -> Vec<Component> {
             label: Some("Cancel".to_string()),
             style: ButtonStyle::Secondary,
             url: None,
+            id: None,
         }),
         Component::Button(Button {
             sku_id: None,
@@ -42,11 +43,13 @@ pub fn components(danger: bool) -> Vec<Component> {
                 ButtonStyle::Primary
             },
             url: None,
+            id: None,
         }),
     ];
 
     let row = Component::ActionRow(ActionRow {
         components: buttons,
+        id: None,
     });
 
     vec![row]

@@ -197,6 +197,7 @@ impl SelectPaginator {
                 label: Some("<".to_string()),
                 style: ButtonStyle::Secondary,
                 url: None,
+                id: None,
             }),
             Component::Button(Button {
                 sku_id: None,
@@ -206,6 +207,7 @@ impl SelectPaginator {
                 label: Some(format!("{}/{}", current + 1, last_chunk + 1)),
                 style: ButtonStyle::Secondary,
                 url: None,
+                id: None,
             }),
             Component::Button(Button {
                 sku_id: None,
@@ -215,6 +217,7 @@ impl SelectPaginator {
                 label: Some(">".to_string()),
                 style: ButtonStyle::Secondary,
                 url: None,
+                id: None,
             }),
         ];
 
@@ -245,6 +248,8 @@ impl SelectPaginator {
             min_values: Some(1),
             options: Some(options),
             placeholder: None,
+            id: None,
+            required: None,
         })
     }
 
@@ -254,11 +259,13 @@ impl SelectPaginator {
         if let Some(buttons) = self.pagination_buttons() {
             rows.push(Component::ActionRow(ActionRow {
                 components: buttons,
+                id: None,
             }));
         }
 
         rows.push(Component::ActionRow(ActionRow {
             components: vec![self.select_component()],
+            id: None,
         }));
 
         rows
