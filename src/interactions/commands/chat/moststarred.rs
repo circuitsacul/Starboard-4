@@ -123,6 +123,7 @@ fn components(
             label: Some("Back".to_string()),
             style: ButtonStyle::Secondary,
             url: None,
+            id: None,
         }),
         Component::Button(Button {
             sku_id: None,
@@ -132,6 +133,7 @@ fn components(
             label: Some(current_page.to_string()),
             style: ButtonStyle::Secondary,
             url: None,
+            id: None,
         }),
         Component::Button(Button {
             sku_id: None,
@@ -141,16 +143,19 @@ fn components(
             label: Some("Next".to_string()),
             style: ButtonStyle::Secondary,
             url: None,
+            id: None,
         }),
     ];
 
     let mut action_rows = vec![Component::ActionRow(ActionRow {
         components: buttons,
+        id: None,
     })];
 
     if let Some(btn) = gtm_btn {
         action_rows.push(Component::ActionRow(ActionRow {
             components: vec![Component::Button(btn)],
+            id: None,
         }));
     }
 

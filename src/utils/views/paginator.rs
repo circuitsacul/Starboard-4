@@ -26,6 +26,7 @@ pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Comp
             label: Some("<<".to_string()),
             style: ButtonStyle::Secondary,
             url: None,
+            id: None,
         }),
         Component::Button(Button {
             sku_id: None,
@@ -35,6 +36,7 @@ pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Comp
             label: Some("<".to_string()),
             style: ButtonStyle::Secondary,
             url: None,
+            id: None,
         }),
         Component::Button(Button {
             sku_id: None,
@@ -44,6 +46,7 @@ pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Comp
             label: Some(format!("{}/{}", current_page + 1, last_page + 1)),
             style: ButtonStyle::Secondary,
             url: None,
+            id: None,
         }),
         Component::Button(Button {
             sku_id: None,
@@ -53,6 +56,7 @@ pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Comp
             label: Some(">".to_string()),
             style: ButtonStyle::Secondary,
             url: None,
+            id: None,
         }),
         Component::Button(Button {
             sku_id: None,
@@ -62,11 +66,13 @@ pub fn components(current_page: usize, last_page: usize, done: bool) -> Vec<Comp
             label: Some(">>".to_string()),
             style: ButtonStyle::Secondary,
             url: None,
+            id: None,
         }),
     ];
 
     let row = Component::ActionRow(ActionRow {
         components: buttons,
+        id: None,
     });
 
     vec![row]

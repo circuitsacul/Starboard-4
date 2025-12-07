@@ -27,7 +27,9 @@ pub async fn notify(
             custom_id: Some("stateless::dismiss_notification".to_string()),
             disabled: false,
             emoji: None,
+            id: None,
         })],
+        id: None,
     });
 
     let _ = dm::dm(bot, user_id)

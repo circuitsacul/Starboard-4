@@ -97,6 +97,7 @@ impl BuiltStarboardEmbed {
                 handle.orig_sql_message.channel_id,
                 handle.orig_sql_message.message_id,
             )),
+            id: None,
         })
     }
 
@@ -107,6 +108,7 @@ impl BuiltStarboardEmbed {
 
         vec![Component::ActionRow(ActionRow {
             components: vec![Component::Button(gtm)],
+            id: None,
         })]
     }
 
