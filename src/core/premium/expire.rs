@@ -8,7 +8,7 @@ use crate::{
 
 use super::{
     is_premium::is_guild_premium,
-    redeem::{redeem_premium, RedeemPremiumResult},
+    redeem::{RedeemPremiumResult, redeem_premium},
 };
 
 pub async fn loop_expire_premium(bot: Arc<StarboardBot>) {

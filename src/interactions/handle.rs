@@ -13,7 +13,9 @@ pub async fn handle_interaction(
     interaction: Interaction,
     bot: Arc<StarboardBot>,
 ) -> StarboardResult<()> {
-    let Some(data) = &interaction.data else { return Ok(()); };
+    let Some(data) = &interaction.data else {
+        return Ok(());
+    };
 
     match data {
         InteractionData::ApplicationCommand(data) => {

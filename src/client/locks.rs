@@ -1,4 +1,4 @@
-use twilight_model::id::{marker::MessageMarker, Id};
+use twilight_model::id::{Id, marker::MessageMarker};
 
 use crate::utils::dashset_lock::DashSetLock;
 

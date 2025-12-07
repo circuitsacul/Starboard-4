@@ -1,8 +1,8 @@
 use std::{sync::Arc, time::Duration};
 
 use twilight_model::id::{
-    marker::{ChannelMarker, GuildMarker, MessageMarker},
     Id,
+    marker::{ChannelMarker, GuildMarker, MessageMarker},
 };
 
 use crate::{
@@ -133,8 +133,8 @@ async fn recount_votes_reaction(
             let status = VoteStatus::get_vote_status(bot, vote, configs).await?;
 
             let VoteStatus::Valid((upvotes, downvotes)) = status else {
-            continue;
-        };
+                continue;
+            };
 
             let user_id = user.id.get_i64();
             DbUser::create(&bot.pool, user_id, user.bot).await?;

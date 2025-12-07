@@ -57,7 +57,9 @@ pub async fn handle_reaction_add(
         return Ok(());
     }
 
-    let (Some(orig_msg), author_is_bot) = get_or_create_original(&bot, guild_id, event.channel_id, event.message_id).await? else {
+    let (Some(orig_msg), author_is_bot) =
+        get_or_create_original(&bot, guild_id, event.channel_id, event.message_id).await?
+    else {
         return Ok(());
     };
     let author_is_bot = match author_is_bot {

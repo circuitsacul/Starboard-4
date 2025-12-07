@@ -1,6 +1,6 @@
 use twilight_model::id::{
-    marker::{GuildMarker, UserMarker},
     Id,
+    marker::{GuildMarker, UserMarker},
 };
 
 use crate::{
@@ -21,7 +21,8 @@ pub async fn refresh_xpr(
     let member_roles = &member.roles;
 
     let xproles = XPRole::list_by_guild(&bot.pool, guild_id.get_i64()).await?;
-    let Some(member) = DbMember::get(&bot.pool, guild_id.get_i64(), user_id.get_i64()).await? else {
+    let Some(member) = DbMember::get(&bot.pool, guild_id.get_i64(), user_id.get_i64()).await?
+    else {
         return Ok(());
     };
 

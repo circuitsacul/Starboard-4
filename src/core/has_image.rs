@@ -1,4 +1,4 @@
-use twilight_model::channel::{message::embed::Embed, Attachment};
+use twilight_model::channel::{Attachment, message::embed::Embed};
 
 pub fn has_image(embeds: &Vec<Embed>, attachments: &Vec<Attachment>) -> bool {
     for attachment in attachments {

@@ -4,7 +4,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     constants,
-    core::premium::redeem::{redeem_premium, RedeemPremiumResult},
+    core::premium::redeem::{RedeemPremiumResult, redeem_premium},
     database::DbGuild,
     errors::StarboardResult,
     interactions::context::CommandCtx,
@@ -22,7 +22,11 @@ pub struct Redeem {
 impl Redeem {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let Some(guild_id) = ctx.interaction.guild_id else {
-            ctx.respond_str("Please run this command in the server you want premium for.", true).await?;
+            ctx.respond_str(
+                "Please run this command in the server you want premium for.",
+                true,
+            )
+            .await?;
             return Ok(());
         };
         let guild_id_i64 = guild_id.get_i64();

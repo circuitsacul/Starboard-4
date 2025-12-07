@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use twilight_model::{
     gateway::payload::incoming::MemberUpdate,
     guild::Member,
-    id::{marker::RoleMarker, Id},
+    id::{Id, marker::RoleMarker},
     util::ImageHash,
 };
 

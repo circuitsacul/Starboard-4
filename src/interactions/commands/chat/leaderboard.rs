@@ -70,14 +70,16 @@ impl Leaderboard {
             .map(|p| {
                 (
                     None,
-                    Some(vec![embed::build()
-                        .title(if include_gone {
-                            "Leaderboard (Including Gone)"
-                        } else {
-                            "Leaderboard"
-                        })
-                        .description(p)
-                        .build()]),
+                    Some(vec![
+                        embed::build()
+                            .title(if include_gone {
+                                "Leaderboard (Including Gone)"
+                            } else {
+                                "Leaderboard"
+                            })
+                            .description(p)
+                            .build(),
+                    ]),
                 )
             })
             .collect();

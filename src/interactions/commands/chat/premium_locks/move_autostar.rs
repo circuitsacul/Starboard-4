@@ -22,17 +22,22 @@ pub struct MoveAutostar {
 impl MoveAutostar {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let Some(guild_id) = ctx.interaction.guild_id else {
-            ctx.respond_str("Please run this command inside a server.", true).await?;
+            ctx.respond_str("Please run this command inside a server.", true)
+                .await?;
             return Ok(());
         };
         let guild_id_i64 = guild_id.get_i64();
 
         let mut tx = ctx.bot.pool.begin().await?;
 
-        let Some(asc_from) = get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.autostar_from).await? else {
+        let Some(asc_from) =
+            get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.autostar_from).await?
+        else {
             return Ok(());
         };
-        let Some(asc_to) = get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.autostar_to).await? else {
+        let Some(asc_to) =
+            get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.autostar_to).await?
+        else {
             return Ok(());
         };
 
@@ -89,7 +94,8 @@ async fn get_for_update(
     .fetch_optional(con)
     .await?;
     let Some(asc) = asc else {
-        ctx.respond_str(&format!("Autotstar channel '{name}' does not exist."), true).await?;
+        ctx.respond_str(&format!("Autotstar channel '{name}' does not exist."), true)
+            .await?;
         return Ok(None);
     };
 

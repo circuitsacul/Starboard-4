@@ -1,4 +1,4 @@
-use twilight_model::id::{marker::GuildMarker, Id};
+use twilight_model::id::{Id, marker::GuildMarker};
 
 use crate::{client::bot::StarboardBot, utils::into_id::IntoId};
 

@@ -2,7 +2,7 @@
 
 use std::hash::Hash;
 
-use dashmap::{mapref::one::Ref, DashMap, DashSet};
+use dashmap::{DashMap, DashSet, mapref::one::Ref};
 
 pub struct AsyncDashMap<K, V> {
     map: DashMap<K, V>,

@@ -1,4 +1,4 @@
-use twilight_model::channel::message::{embed::EmbedImage, Embed};
+use twilight_model::channel::message::{Embed, embed::EmbedImage};
 
 pub fn modify_yt_embed(embed: &mut Embed) {
     embed.description = None;

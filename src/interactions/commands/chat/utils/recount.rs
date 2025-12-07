@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    core::starboard::recount::{recount_votes, RecountResult},
+    core::starboard::recount::{RecountResult, recount_votes},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

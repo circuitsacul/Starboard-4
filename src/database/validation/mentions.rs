@@ -3,7 +3,7 @@
 use std::{collections::HashSet, str::FromStr};
 
 use lazy_static::lazy_static;
-use twilight_model::id::{marker::GuildMarker, Id};
+use twilight_model::id::{Id, marker::GuildMarker};
 
 use crate::{client::bot::StarboardBot, errors::StarboardResult, utils::id_as_i64::GetI64};
 

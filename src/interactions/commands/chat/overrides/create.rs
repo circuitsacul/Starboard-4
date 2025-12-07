@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     constants,
-    database::{validation, Starboard, StarboardOverride},
+    database::{Starboard, StarboardOverride, validation},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

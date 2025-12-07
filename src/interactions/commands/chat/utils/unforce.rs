@@ -31,7 +31,7 @@ impl UnForce {
 
         let Some(msg) = DbMessage::get_original(&ctx.bot.pool, message_id).await? else {
             ctx.respond_str("That message isn't forced.", true).await?;
-            return Ok(())
+            return Ok(());
         };
 
         if msg.guild_id != guild_id {
@@ -42,8 +42,11 @@ impl UnForce {
 
         match self.starboard {
             Some(name) => {
-                let Some(starboard) = Starboard::get_by_name(&ctx.bot.pool, &name, guild_id).await? else {
-                    ctx.respond_str(&format!("Starboard '{name}' does not exist."), true).await?;
+                let Some(starboard) =
+                    Starboard::get_by_name(&ctx.bot.pool, &name, guild_id).await?
+                else {
+                    ctx.respond_str(&format!("Starboard '{name}' does not exist."), true)
+                        .await?;
                     return Ok(());
                 };
 

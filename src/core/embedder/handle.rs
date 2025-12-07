@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use twilight_model::id::{Id, marker::MessageMarker};
 use crate::{
     cache::{MessageResult, models::message::CachedMessage},
     client::bot::StarboardBot,
@@ -12,6 +11,7 @@ use crate::{
     errors::StarboardResult,
     utils::{get_status::get_status, id_as_i64::GetI64, into_id::IntoId},
 };
+use twilight_model::id::{Id, marker::MessageMarker};
 
 use super::{attachment_handle::VecAttachments, builder::BuiltStarboardEmbed};
 

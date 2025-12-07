@@ -1,11 +1,11 @@
 use twilight_model::{
     channel::{
-        message::{embed::Embed, sticker::MessageSticker},
         Attachment, Message,
+        message::{embed::Embed, sticker::MessageSticker},
     },
     id::{
-        marker::{MessageMarker, UserMarker},
         Id,
+        marker::{MessageMarker, UserMarker},
     },
     user::User,
     util::ImageHash,

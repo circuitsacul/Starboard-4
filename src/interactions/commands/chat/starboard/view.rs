@@ -3,7 +3,7 @@ use std::fmt::Write;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::{
     channel::message::Embed,
-    id::{marker::GuildMarker, Id},
+    id::{Id, marker::GuildMarker},
 };
 use twilight_util::builder::embed::EmbedFieldBuilder;
 

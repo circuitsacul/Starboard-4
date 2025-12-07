@@ -6,7 +6,9 @@ use crate::cache::{cache_struct::Cache, models::channel::CachedChannel, update::
 #[async_trait]
 impl UpdateCache for ChannelCreate {
     async fn update_cache(&self, cache: &Cache) {
-        let Some(guild_id) = self.guild_id else { return; };
+        let Some(guild_id) = self.guild_id else {
+            return;
+        };
 
         cache.guilds.alter(&guild_id, |_, mut guild| {
             let channel = guild.channels.get(&self.id);
@@ -22,7 +24,9 @@ impl UpdateCache for ChannelCreate {
 #[async_trait]
 impl UpdateCache for ChannelDelete {
     async fn update_cache(&self, cache: &Cache) {
-        let Some(guild_id) = self.guild_id else { return; };
+        let Some(guild_id) = self.guild_id else {
+            return;
+        };
 
         cache.guilds.alter(&guild_id, |_, mut guild| {
             guild.channels.remove(&self.id);
@@ -39,7 +43,9 @@ impl UpdateCache for ChannelDelete {
 #[async_trait]
 impl UpdateCache for ChannelUpdate {
     async fn update_cache(&self, cache: &Cache) {
-        let Some(guild_id) = self.guild_id else { return; };
+        let Some(guild_id) = self.guild_id else {
+            return;
+        };
 
         cache.guilds.alter(&guild_id, |_, mut guild| {
             let channel = guild.channels.get(&self.id);

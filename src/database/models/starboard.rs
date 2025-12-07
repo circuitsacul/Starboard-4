@@ -1,10 +1,10 @@
 use sqlx::Row;
 
 use crate::database::{
+    StarboardSettings,
     helpers::{
         query::build_update::build_update, settings::starboard::call_with_starboard_settings,
     },
-    StarboardSettings,
 };
 
 #[derive(Debug, Clone)]

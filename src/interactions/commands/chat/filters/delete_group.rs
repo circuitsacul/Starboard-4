@@ -22,9 +22,14 @@ impl DeleteGroup {
 
         let Some(mut btn_ctx) = confirm::simple(
             &mut ctx,
-            &format!("This will delete the filter group '{}'. Continue?", self.name),
+            &format!(
+                "This will delete the filter group '{}'. Continue?",
+                self.name
+            ),
             true,
-        ).await? else {
+        )
+        .await?
+        else {
             return Ok(());
         };
 

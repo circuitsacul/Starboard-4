@@ -1,11 +1,11 @@
 use twilight_model::id::{
-    marker::{GuildMarker, UserMarker},
     Id,
+    marker::{GuildMarker, UserMarker},
 };
 
 use crate::{
     client::bot::StarboardBot,
-    database::{models::permrole::SortVecPermRole, PermRole, PermRoleStarboard},
+    database::{PermRole, PermRoleStarboard, models::permrole::SortVecPermRole},
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, into_id::IntoId},
 };
@@ -80,7 +80,9 @@ impl Permissions {
 
             if let Some(sb_id) = starboard_id {
                 let pr_sb = PermRoleStarboard::get(&bot.pool, pr.role_id, sb_id).await?;
-                let Some(pr_sb) = pr_sb else { continue; };
+                let Some(pr_sb) = pr_sb else {
+                    continue;
+                };
 
                 if let Some(val) = pr_sb.give_votes {
                     perms.give_votes = val;

@@ -4,7 +4,7 @@ use twilight_model::{channel::message::Embed, guild::Role};
 use crate::{
     client::bot::StarboardBot,
     concat_format,
-    database::{models::permrole::SortVecPermRole, PermRole, PermRoleStarboard, Starboard},
+    database::{PermRole, PermRoleStarboard, Starboard, models::permrole::SortVecPermRole},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

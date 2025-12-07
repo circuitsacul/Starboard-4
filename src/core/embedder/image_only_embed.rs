@@ -1,6 +1,6 @@
 use twilight_model::channel::message::embed::Embed;
 
-use super::{gifv::get_gif_url, AttachmentHandle};
+use super::{AttachmentHandle, gifv::get_gif_url};
 
 pub fn maybe_get_attachment_handle(embed: &Embed) -> Option<AttachmentHandle> {
     // gifs

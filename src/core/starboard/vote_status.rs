@@ -3,8 +3,8 @@
 use std::time::Duration;
 
 use twilight_model::id::{
-    marker::{ChannelMarker, MessageMarker, UserMarker},
     Id,
+    marker::{ChannelMarker, MessageMarker, UserMarker},
 };
 
 use crate::{

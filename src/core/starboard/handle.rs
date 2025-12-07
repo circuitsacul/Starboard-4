@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use cached::Cached;
-use twilight_model::id::{marker::MessageMarker, Id};
+use twilight_model::id::{Id, marker::MessageMarker};
 
 use crate::{
     cache::MessageResult,
@@ -17,7 +17,7 @@ use crate::{
 
 use super::{
     config::StarboardConfig,
-    msg_status::{get_message_status, MessageStatus},
+    msg_status::{MessageStatus, get_message_status},
 };
 
 async fn refresh_exclusive_group(

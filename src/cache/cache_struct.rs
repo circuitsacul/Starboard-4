@@ -7,10 +7,10 @@ use twilight_gateway::Event;
 use twilight_model::{
     channel::{Channel, ChannelType, Webhook},
     id::{
+        Id,
         marker::{
             ChannelMarker, EmojiMarker, GuildMarker, MessageMarker, UserMarker, WebhookMarker,
         },
-        Id,
     },
 };
 
@@ -395,7 +395,7 @@ impl Cache {
                     return match get_status(&why) {
                         Some(404) => Ok(None),
                         _ => Err(why.into()),
-                    }
+                    };
                 }
             };
             Ok(Some(channel.model().await?))
@@ -418,7 +418,9 @@ impl Cache {
         channel_id: Id<ChannelMarker>,
     ) -> StarboardResult<Option<Id<ChannelMarker>>> {
         let parent = self.guilds.with(&guild_id, |_, guild| {
-            let Some(guild) = guild else { return None; };
+            let Some(guild) = guild else {
+                return None;
+            };
 
             if guild.channels.contains_key(&channel_id) {
                 return Some(channel_id);
@@ -488,7 +490,9 @@ impl Cache {
 
         let is_nsfw = self.guilds.with(&guild_id, |_, guild| {
             // get the guild from the cache
-            let Some(guild) = guild else { return CachedResult::None; };
+            let Some(guild) = guild else {
+                return CachedResult::None;
+            };
 
             // check if the channel_id is a known thread, and use the parent_id
             // if it is.

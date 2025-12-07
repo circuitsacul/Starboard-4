@@ -4,7 +4,7 @@
 //! for join messages, boost messages, and other
 //! "system" messages.
 
-use twilight_model::channel::{message::MessageType, Message};
+use twilight_model::channel::{Message, message::MessageType};
 
 use crate::concat_format;
 

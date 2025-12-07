@@ -25,7 +25,11 @@ impl DeleteFilter {
 
         let group = FilterGroup::get_by_name(&ctx.bot.pool, guild_id, &self.group).await?;
         let Some(group) = group else {
-            ctx.respond_str(&format!("Filter group '{}' does not exist.", self.group), true).await?;
+            ctx.respond_str(
+                &format!("Filter group '{}' does not exist.", self.group),
+                true,
+            )
+            .await?;
             return Ok(());
         };
 
@@ -37,7 +41,8 @@ impl DeleteFilter {
             ),
             true,
         )
-        .await? else {
+        .await?
+        else {
             return Ok(());
         };
 

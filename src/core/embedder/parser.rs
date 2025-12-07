@@ -7,10 +7,10 @@ use twilight_util::builder::embed::ImageSource;
 use crate::cache::models::message::CachedMessage;
 
 use super::{
-    image_only_embed::maybe_get_attachment_handle,
-    imgur::{modify_imgur_embed, ImgurResult},
-    youtube::modify_yt_embed,
     AttachmentHandle,
+    image_only_embed::maybe_get_attachment_handle,
+    imgur::{ImgurResult, modify_imgur_embed},
+    youtube::modify_yt_embed,
 };
 
 pub type StickerNames = String;
@@ -145,8 +145,12 @@ impl ParsedMessage {
 
             // handle embeds with videos
             'out: {
-                let Some(video) = &embed.video else { break 'out; };
-                let Some(proxy_url) = &video.proxy_url else { break 'out; };
+                let Some(video) = &embed.video else {
+                    break 'out;
+                };
+                let Some(proxy_url) = &video.proxy_url else {
+                    break 'out;
+                };
 
                 let handle = AttachmentHandle {
                     filename: format!(

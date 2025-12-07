@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     constants,
-    database::{models::filter_group::FilterGroup, validation::name::validate_name, DbGuild},
+    database::{DbGuild, models::filter_group::FilterGroup, validation::name::validate_name},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

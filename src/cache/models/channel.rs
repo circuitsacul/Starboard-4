@@ -1,6 +1,6 @@
 use twilight_model::{
     channel::{Channel, ChannelType},
-    id::{marker::ChannelMarker, Id},
+    id::{Id, marker::ChannelMarker},
 };
 
 pub struct CachedChannel {

@@ -14,7 +14,8 @@ pub struct Refresh;
 impl Refresh {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let Some(guild_id) = ctx.interaction.guild_id else {
-            ctx.respond_str("Please run this command inside a server.", true).await?;
+            ctx.respond_str("Please run this command inside a server.", true)
+                .await?;
             return Ok(());
         };
         let guild_id = guild_id.get_i64();

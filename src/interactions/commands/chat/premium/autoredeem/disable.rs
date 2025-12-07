@@ -22,8 +22,9 @@ impl Disable {
                 let Some(guild_id) = ctx.interaction.guild_id else {
                     ctx.respond_str(
                         "Please specify a server, or run this command inside one.",
-                        true
-                    ).await?;
+                        true,
+                    )
+                    .await?;
                     return Ok(());
                 };
 
@@ -32,9 +33,10 @@ impl Disable {
 
             let Ok(guild_id) = input_guild.parse::<i64>() else {
                 ctx.respond_str(
-                    "Please entire a server ID, or select a server from the options.", 
-                    true
-                ).await?;
+                    "Please entire a server ID, or select a server from the options.",
+                    true,
+                )
+                .await?;
                 return Ok(());
             };
 

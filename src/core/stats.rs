@@ -1,6 +1,6 @@
 use twilight_model::id::{
-    marker::{GuildMarker, UserMarker},
     Id,
+    marker::{GuildMarker, UserMarker},
 };
 
 use crate::{
@@ -138,7 +138,8 @@ pub async fn refresh_xp(
         return Ok(());
     }
 
-    let Some(stats) = MemberStats::get(&bot.pool, guild_id.get_i64(), user_id.get_i64()).await? else {
+    let Some(stats) = MemberStats::get(&bot.pool, guild_id.get_i64(), user_id.get_i64()).await?
+    else {
         return Ok(());
     };
 

@@ -13,8 +13,12 @@ use crate::{
 #[async_trait]
 impl UpdateCache for ThreadCreate {
     async fn update_cache(&self, cache: &Cache) {
-        let Some(parent_id) = self.parent_id else { return; };
-        let Some(guild_id) = self.guild_id else { return; };
+        let Some(parent_id) = self.parent_id else {
+            return;
+        };
+        let Some(guild_id) = self.guild_id else {
+            return;
+        };
 
         cache.guilds.alter(&guild_id, |_, mut guild| {
             guild.active_thread_parents.insert(self.id, parent_id);
@@ -37,9 +41,15 @@ impl UpdateCache for ThreadDelete {
 #[async_trait]
 impl UpdateCache for ThreadUpdate {
     async fn update_cache(&self, cache: &Cache) {
-        let Some(guild_id) = self.guild_id else { return; };
-        let Some(thread) = &self.thread_metadata else { return; };
-        let Some(parent_id) = self.parent_id else { return; };
+        let Some(guild_id) = self.guild_id else {
+            return;
+        };
+        let Some(thread) = &self.thread_metadata else {
+            return;
+        };
+        let Some(parent_id) = self.parent_id else {
+            return;
+        };
 
         cache.guilds.alter(&guild_id, |_, mut guild| {
             if thread.archived {

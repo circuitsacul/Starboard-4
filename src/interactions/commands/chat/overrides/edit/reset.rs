@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::{helpers::settings::overrides::call_with_override_settings, StarboardOverride},
+    database::{StarboardOverride, helpers::settings::overrides::call_with_override_settings},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

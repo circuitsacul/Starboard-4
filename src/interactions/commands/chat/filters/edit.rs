@@ -150,23 +150,28 @@ impl Edit {
         let guild_id = get_guild_id!(ctx);
         let guild_id_i64 = guild_id.get_i64();
 
-        let Some(group) = FilterGroup::get_by_name(
-            &ctx.bot.pool, guild_id_i64, &self.group
-        ).await? else {
+        let Some(group) =
+            FilterGroup::get_by_name(&ctx.bot.pool, guild_id_i64, &self.group).await?
+        else {
             ctx.respond_str(
                 &format!("No filter group named '{}' exists.", self.group),
                 true,
-            ).await?;
+            )
+            .await?;
             return Ok(());
         };
 
-        let Some(mut filter) = Filter::get_by_position(
-            &ctx.bot.pool, group.id, self.position as i16
-        ).await? else {
+        let Some(mut filter) =
+            Filter::get_by_position(&ctx.bot.pool, group.id, self.position as i16).await?
+        else {
             ctx.respond_str(
-                &format!("No filter for group '{}' at {} exists.", self.group, self.position),
+                &format!(
+                    "No filter for group '{}' at {} exists.",
+                    self.group, self.position
+                ),
                 true,
-            ).await?;
+            )
+            .await?;
             return Ok(());
         };
 

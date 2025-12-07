@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::{validation::mentions::textable_channel_ids, StarboardOverride},
+    database::{StarboardOverride, validation::mentions::textable_channel_ids},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

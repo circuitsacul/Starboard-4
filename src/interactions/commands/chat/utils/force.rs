@@ -51,8 +51,11 @@ impl Force {
                 .map(|s| s.id)
                 .collect(),
             Some(name) => {
-                let Some(sb) = Starboard::get_by_name(&ctx.bot.pool, &name, guild_id.get_i64()).await? else {
-                    ctx.respond_str(&format!("Starboard '{name}' does not exist."), true).await?;
+                let Some(sb) =
+                    Starboard::get_by_name(&ctx.bot.pool, &name, guild_id.get_i64()).await?
+                else {
+                    ctx.respond_str(&format!("Starboard '{name}' does not exist."), true)
+                        .await?;
                     return Ok(());
                 };
                 vec![sb.id]
@@ -84,7 +87,10 @@ impl Force {
                     "I don't have the necessary permissions to see that message. Make ",
                     "sure I have the 'view channel' and 'read message history' ",
                     "permissions in that channel."
-                ), true).await?;
+                ),
+                true,
+            )
+            .await?;
             return Ok(());
         };
 

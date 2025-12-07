@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use twilight_model::channel::message::{embed::EmbedImage, Embed};
+use twilight_model::channel::message::{Embed, embed::EmbedImage};
 
 use super::AttachmentHandle;
 

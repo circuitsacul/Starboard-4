@@ -12,7 +12,7 @@ pub fn parse_cooldown(inp: &str) -> Result<(i16, i16), String> {
                 "I couldn't parse the cooldown you passed. The ",
                 "correct format is `capacity/period` (e.x. `5/6`)."
             )
-            .to_string())
+            .to_string());
         }
         Some(found) => found,
     };

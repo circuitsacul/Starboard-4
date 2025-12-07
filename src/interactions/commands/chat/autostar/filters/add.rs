@@ -2,10 +2,10 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     database::{
+        AutoStarChannel,
         models::{
             autostar_channel_filter_group::AutostarChannelFilterGroup, filter_group::FilterGroup,
         },
-        AutoStarChannel,
     },
     errors::StarboardResult,
     get_guild_id,
@@ -28,23 +28,28 @@ impl Add {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
 
-        let Some(group) = FilterGroup::get_by_name(
-            &ctx.bot.pool, guild_id, &self.filter_group
-        ).await? else {
+        let Some(group) =
+            FilterGroup::get_by_name(&ctx.bot.pool, guild_id, &self.filter_group).await?
+        else {
             ctx.respond_str(
                 &format!("No filter group named '{}' exists.", self.filter_group),
                 true,
-            ).await?;
+            )
+            .await?;
             return Ok(());
         };
 
-        let Some(asc) = AutoStarChannel::get_by_name(
-            &ctx.bot.pool, &self.autostar_channel, guild_id
-        ).await? else {
+        let Some(asc) =
+            AutoStarChannel::get_by_name(&ctx.bot.pool, &self.autostar_channel, guild_id).await?
+        else {
             ctx.respond_str(
-                &format!("No autostar channel named '{}' exists.", self.autostar_channel),
+                &format!(
+                    "No autostar channel named '{}' exists.",
+                    self.autostar_channel
+                ),
                 true,
-            ).await?;
+            )
+            .await?;
             return Ok(());
         };
 

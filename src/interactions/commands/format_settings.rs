@@ -6,7 +6,7 @@ use std::{
 };
 
 use humantime::format_duration;
-use twilight_model::id::{marker::GuildMarker, Id};
+use twilight_model::id::{Id, marker::GuildMarker};
 
 use crate::{
     client::bot::StarboardBot,
@@ -16,8 +16,8 @@ use crate::{
         starboard::config::StarboardConfig,
     },
     database::{
-        models::{filter_group::FilterGroup, starboard_filter_group::StarboardFilterGroup},
         ExclusiveGroup,
+        models::{filter_group::FilterGroup, starboard_filter_group::StarboardFilterGroup},
     },
     errors::StarboardResult,
 };
@@ -223,11 +223,11 @@ pub async fn format_settings(
         behavior,
         regex: format!(
             concat!(
-            "These settings are premium-only. You can input a simple phrase to match on, or you ",
-            "can use regex for more advanced filtering. See [rustexp](https://rustexp.lpil.uk) ",
-            "for more info on regex.{}\n\nMessages **must** match:\n{}\n",
-            "Messages **must not** match:\n{}",
-        ),
+                "These settings are premium-only. You can input a simple phrase to match on, or you ",
+                "can use regex for more advanced filtering. See [rustexp](https://rustexp.lpil.uk) ",
+                "for more info on regex.{}\n\nMessages **must** match:\n{}\n",
+                "Messages **must not** match:\n{}",
+            ),
             resync, must_match, must_not_match
         ),
         filters: filters_field(bot, config.starboard.id).await?,

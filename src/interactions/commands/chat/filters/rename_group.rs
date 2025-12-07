@@ -25,7 +25,11 @@ impl RenameGroup {
 
         let group = FilterGroup::get_by_name(&ctx.bot.pool, guild_id, &self.current_name).await?;
         let Some(group) = group else {
-            ctx.respond_str(&format!("Filter group '{}' does not exist.", self.current_name), true).await?;
+            ctx.respond_str(
+                &format!("Filter group '{}' does not exist.", self.current_name),
+                true,
+            )
+            .await?;
             return Ok(());
         };
 

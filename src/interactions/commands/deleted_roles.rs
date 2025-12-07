@@ -1,7 +1,7 @@
 use twilight_mention::Mention;
 use twilight_model::id::{
-    marker::{GuildMarker, RoleMarker},
     Id,
+    marker::{GuildMarker, RoleMarker},
 };
 
 use crate::client::bot::StarboardBot;

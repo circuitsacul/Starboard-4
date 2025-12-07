@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use twilight_model::id::{
-    marker::{ChannelMarker, EmojiMarker, RoleMarker},
     Id,
+    marker::{ChannelMarker, EmojiMarker, RoleMarker},
 };
 
 use super::{channel::CachedChannel, role::CachedRole};

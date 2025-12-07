@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use futures::TryStreamExt;
 use twilight_model::id::{
-    marker::{GuildMarker, RoleMarker, UserMarker},
     Id,
+    marker::{GuildMarker, RoleMarker, UserMarker},
 };
 
 use crate::{

@@ -1,16 +1,16 @@
 use std::cmp::Ordering;
 
 use twilight_model::id::{
-    marker::{ChannelMarker, GuildMarker},
     Id,
+    marker::{ChannelMarker, GuildMarker},
 };
 
 use crate::{
     client::bot::StarboardBot,
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::{
-        helpers::settings::overrides::call_with_override_settings, Starboard, StarboardOverride,
-        StarboardSettings,
+        Starboard, StarboardOverride, StarboardSettings,
+        helpers::settings::overrides::call_with_override_settings,
     },
     errors::{StarboardError, StarboardResult},
     utils::id_as_i64::GetI64,

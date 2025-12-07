@@ -1,7 +1,9 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_mention::Mention;
-use twilight_model::application::interaction::InteractionChannel;
-use twilight_model::channel::{ChannelFlags, ChannelType};
+use twilight_model::{
+    application::interaction::InteractionChannel,
+    channel::{ChannelFlags, ChannelType},
+};
 
 use crate::{
     constants,
@@ -73,7 +75,10 @@ impl CreateStarboard {
             let channel = ctx.bot.http.channel(self.channel.id).await?.model().await?;
             let channel_mention = channel.mention();
 
-            let requires_tag = channel.flags.map(|f| f.contains(ChannelFlags::REQUIRE_TAG)).unwrap_or(false);
+            let requires_tag = channel
+                .flags
+                .map(|f| f.contains(ChannelFlags::REQUIRE_TAG))
+                .unwrap_or(false);
 
             if requires_tag && self.forum_tag.is_none() {
                 ctx.respond_str(
@@ -83,16 +88,23 @@ impl CreateStarboard {
                 return Ok(());
             }
 
-            if let Some(tag_name) = self.forum_tag && let Some(available_tags) = channel.available_tags {
-                let tag = available_tags.iter().find(|available_tag| available_tag.name == tag_name);
+            if let Some(tag_name) = self.forum_tag
+                && let Some(available_tags) = channel.available_tags
+            {
+                let tag = available_tags
+                    .iter()
+                    .find(|available_tag| available_tag.name == tag_name);
                 if let Some(tag) = tag {
                     forum_tag = Some(tag.id.get_i64())
                 } else {
                     ctx.respond_str(
-                        &format!("Tag '{}' not found in channel {}.", tag_name, channel_mention),
+                        &format!(
+                            "Tag '{}' not found in channel {}.",
+                            tag_name, channel_mention
+                        ),
                         true,
                     )
-                        .await?;
+                    .await?;
                     return Ok(());
                 }
             }

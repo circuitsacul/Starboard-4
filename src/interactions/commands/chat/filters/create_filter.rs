@@ -24,8 +24,13 @@ impl CreateFilter {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
 
-        let Some(group) = FilterGroup::get_by_name(&ctx.bot.pool, guild_id, &self.group).await? else {
-            ctx.respond_str(&format!("Filter group '{}' does not exist.", self.group), true).await?;
+        let Some(group) = FilterGroup::get_by_name(&ctx.bot.pool, guild_id, &self.group).await?
+        else {
+            ctx.respond_str(
+                &format!("Filter group '{}' does not exist.", self.group),
+                true,
+            )
+            .await?;
             return Ok(());
         };
 

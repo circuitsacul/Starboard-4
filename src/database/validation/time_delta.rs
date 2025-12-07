@@ -68,7 +68,7 @@ pub fn parse_time_delta(inp: &str) -> Result<i64, String> {
             None => {
                 return Err(format!(
                     "I don't know what `{unit}` is (you said `{value}{unit}`)."
-                ))
+                ));
             }
             Some(conversion) => conversion,
         };

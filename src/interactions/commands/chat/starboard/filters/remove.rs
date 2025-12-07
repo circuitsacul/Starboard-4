@@ -2,8 +2,8 @@ use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
     database::{
-        models::{filter_group::FilterGroup, starboard_filter_group::StarboardFilterGroup},
         Starboard,
+        models::{filter_group::FilterGroup, starboard_filter_group::StarboardFilterGroup},
     },
     errors::StarboardResult,
     get_guild_id,
@@ -26,23 +26,25 @@ impl Remove {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let guild_id = get_guild_id!(ctx).get_i64();
 
-        let Some(starboard) = Starboard::get_by_name(
-            &ctx.bot.pool, &self.starboard, guild_id
-        ).await? else {
+        let Some(starboard) =
+            Starboard::get_by_name(&ctx.bot.pool, &self.starboard, guild_id).await?
+        else {
             ctx.respond_str(
                 &format!("No starboard named '{}' exists.", self.starboard),
                 true,
-            ).await?;
+            )
+            .await?;
             return Ok(());
         };
 
-        let Some(group) = FilterGroup::get_by_name(
-            &ctx.bot.pool, guild_id, &self.filter_group
-        ).await? else {
+        let Some(group) =
+            FilterGroup::get_by_name(&ctx.bot.pool, guild_id, &self.filter_group).await?
+        else {
             ctx.respond_str(
                 &format!("No filter group named '{}' exists.", self.filter_group),
                 true,
-            ).await?;
+            )
+            .await?;
             return Ok(());
         };
 

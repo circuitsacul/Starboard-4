@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::{models::starboard::starboard_from_record, Starboard},
+    database::{Starboard, models::starboard::starboard_from_record},
     errors::StarboardResult,
     interactions::context::CommandCtx,
     utils::id_as_i64::GetI64,
@@ -24,17 +24,22 @@ pub struct MoveStarboard {
 impl MoveStarboard {
     pub async fn callback(self, mut ctx: CommandCtx) -> StarboardResult<()> {
         let Some(guild_id) = ctx.interaction.guild_id else {
-            ctx.respond_str("Please run this command inside a server.", true).await?;
+            ctx.respond_str("Please run this command inside a server.", true)
+                .await?;
             return Ok(());
         };
         let guild_id_i64 = guild_id.get_i64();
 
         let mut tx = ctx.bot.pool.begin().await?;
 
-        let Some(sb_from) = get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.starboard_from).await? else {
+        let Some(sb_from) =
+            get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.starboard_from).await?
+        else {
             return Ok(());
         };
-        let Some(sb_to) = get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.starboard_to).await? else {
+        let Some(sb_to) =
+            get_for_update(&mut ctx, &mut tx, guild_id_i64, &self.starboard_to).await?
+        else {
             return Ok(());
         };
 
@@ -91,7 +96,8 @@ async fn get_for_update(
     .await?;
 
     let Some(sb) = sb else {
-        ctx.respond_str(&format!("Starboard '{name}' does not exist."), true).await?;
+        ctx.respond_str(&format!("Starboard '{name}' does not exist."), true)
+            .await?;
         return Ok(None);
     };
 

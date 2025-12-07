@@ -3,8 +3,8 @@ use std::{sync::Arc, time::Duration};
 use floodgate::{DynamicMapping, FixedMapping};
 use tokio::time::sleep;
 use twilight_model::id::{
-    marker::{ChannelMarker, GuildMarker, UserMarker},
     Id,
+    marker::{ChannelMarker, GuildMarker, UserMarker},
 };
 
 use crate::constants;

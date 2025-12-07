@@ -1,6 +1,6 @@
 use twilight_model::id::{
-    marker::{ChannelMarker, GuildMarker, MessageMarker},
     Id,
+    marker::{ChannelMarker, GuildMarker, MessageMarker},
 };
 
 use crate::{

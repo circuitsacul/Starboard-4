@@ -1,16 +1,16 @@
 use std::{sync::Arc, time::Duration};
 
 use twilight_model::id::{
-    marker::{ChannelMarker, GuildMarker, MessageMarker},
     Id,
+    marker::{ChannelMarker, GuildMarker, MessageMarker},
 };
 
 use crate::{
-    cache::{models::message::CachedMessage, MessageResult},
+    cache::{MessageResult, models::message::CachedMessage},
     client::bot::StarboardBot,
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::{
-        models::autostar_channel_filter_group::AutostarChannelFilterGroup, AutoStarChannel,
+        AutoStarChannel, models::autostar_channel_filter_group::AutostarChannelFilterGroup,
     },
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, notify},
@@ -64,7 +64,12 @@ pub async fn handle(
     let message = match message {
         Some(msg) => msg,
         None => {
-            let Some(msg) = bot.cache.fog_message(bot, channel_id, message_id).await?.into_option() else {
+            let Some(msg) = bot
+                .cache
+                .fog_message(bot, channel_id, message_id)
+                .await?
+                .into_option()
+            else {
                 return Ok(());
             };
             msg

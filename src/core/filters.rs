@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
 use twilight_model::id::{
-    marker::{ChannelMarker, GuildMarker, MessageMarker, UserMarker},
     Id,
+    marker::{ChannelMarker, GuildMarker, MessageMarker, UserMarker},
 };
 
 use crate::{
-    cache::{models::member::CachedMember, MessageResult},
+    cache::{MessageResult, models::member::CachedMember},
     client::bot::StarboardBot,
-    database::{models::filter::Filter, DbUser},
+    database::{DbUser, models::filter::Filter},
     errors::StarboardResult,
     utils::{id_as_i64::GetI64, snowflake_age::SnowflakeAge},
 };
@@ -232,8 +232,8 @@ impl<'a> FilterEvaluater<'a> {
         if premium {
             if let Some(req) = &check.matches {
                 let MessageResult::Ok(message) = self.get_message().await? else {
-                return Ok(false);
-            };
+                    return Ok(false);
+                };
 
                 let re = regex::Regex::new(req)?;
                 if !re.is_match(&message.content) {
@@ -243,8 +243,8 @@ impl<'a> FilterEvaluater<'a> {
 
             if let Some(req) = &check.not_matches {
                 let MessageResult::Ok(message) = self.get_message().await? else {
-                return Ok(false);
-            };
+                    return Ok(false);
+                };
 
                 let re = regex::Regex::new(req)?;
                 if re.is_match(&message.content) {

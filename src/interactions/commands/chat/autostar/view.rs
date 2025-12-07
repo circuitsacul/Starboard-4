@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::{
     channel::message::Embed,
-    id::{marker::GuildMarker, Id},
+    id::{Id, marker::GuildMarker},
 };
 use twilight_util::builder::embed::EmbedFieldBuilder;
 
@@ -10,10 +10,10 @@ use crate::{
     concat_format,
     core::emoji::{EmojiCommon, SimpleEmoji},
     database::{
+        AutoStarChannel,
         models::{
             autostar_channel_filter_group::AutostarChannelFilterGroup, filter_group::FilterGroup,
         },
-        AutoStarChannel,
     },
     errors::StarboardResult,
     get_guild_id,

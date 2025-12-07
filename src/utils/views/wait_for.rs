@@ -3,8 +3,8 @@ use std::{sync::Arc, time::Duration};
 use twilight_model::{
     application::interaction::{Interaction, InteractionData},
     id::{
-        marker::{MessageMarker, UserMarker},
         Id,
+        marker::{MessageMarker, UserMarker},
     },
 };
 
@@ -38,9 +38,7 @@ pub async fn wait_for_component(
             Some(user_id) => user_id,
         };
 
-        {
-            msg.id == message_id && int_user_id == user_id && button_ids.contains(&&*data.custom_id)
-        }
+        { msg.id == message_id && int_user_id == user_id && button_ids.contains(&&*data.custom_id) }
     };
 
     let event = tokio::time::timeout(

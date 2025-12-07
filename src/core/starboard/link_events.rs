@@ -3,7 +3,7 @@ use std::sync::Arc;
 use cached::Cached;
 use twilight_model::{
     gateway::payload::incoming::MessageUpdate,
-    id::{marker::MessageMarker, Id},
+    id::{Id, marker::MessageMarker},
 };
 
 use crate::{

@@ -1,7 +1,7 @@
 use twilight_interactions::command::{CommandModel, CreateCommand};
 
 use crate::{
-    database::{validation::name::validate_name, ExclusiveGroup},
+    database::{ExclusiveGroup, validation::name::validate_name},
     errors::StarboardResult,
     get_guild_id,
     interactions::context::CommandCtx,

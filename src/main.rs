@@ -12,7 +12,7 @@ pub mod utils;
 
 use snafu::ErrorCompat;
 use tokio::main;
-use tracing_subscriber::{fmt, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt};
 
 use crate::client::{bot::StarboardBot, config::Config, runner::run};
 

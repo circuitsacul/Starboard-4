@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use twilight_model::id::{marker::UserMarker, Id};
+use twilight_model::id::{Id, marker::UserMarker};
 
 use crate::{
     client::bot::StarboardBot,
