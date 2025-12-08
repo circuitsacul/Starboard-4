@@ -64,13 +64,13 @@ impl MoveStarboard {
             "UPDATE starboards SET premium_locked=true WHERE id=$1",
             sb_to.id,
         )
-        .fetch_all(&mut tx)
+        .fetch_all(&mut *tx)
         .await?;
         sqlx::query!(
             "UPDATE starboards SET premium_locked=false WHERE id=$1",
             sb_from.id,
         )
-        .fetch_all(&mut tx)
+        .fetch_all(&mut *tx)
         .await?;
 
         tx.commit().await?;
@@ -92,7 +92,7 @@ async fn get_for_update(
         guild_id,
         name,
     )
-    .fetch_optional(con)
+    .fetch_optional(&mut **con)
     .await?;
 
     let Some(sb) = sb else {

@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM starboard_messages WHERE starboard_id=$1 AND message_id=$2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "message_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "starboard_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "starboard_message_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "last_known_point_count",
+        "type_info": "Int2"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f82801c420e139303f7a931b601b5d95be61de8607350bbd7d2c9729723623e9"
+}

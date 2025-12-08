@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE patrons SET discord_id=$1 WHERE patreon_id=$2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "86a6918e81e9ade16762da1d29ea1e031aaf97fca5fcbbc90e48e6fa568bd6fd"
+}

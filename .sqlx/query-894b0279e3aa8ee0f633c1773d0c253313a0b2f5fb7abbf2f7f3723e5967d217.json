@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE overrides SET overrides=$1 WHERE id=$2 RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "guild_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "starboard_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "channel_ids",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 5,
+        "name": "overrides",
+        "type_info": "Json"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Json",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "894b0279e3aa8ee0f633c1773d0c253313a0b2f5fb7abbf2f7f3723e5967d217"
+}

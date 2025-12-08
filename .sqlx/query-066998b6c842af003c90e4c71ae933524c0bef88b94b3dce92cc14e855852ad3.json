@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM permroles WHERE role_id=$1 RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "role_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "guild_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "obtain_xproles",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "give_votes",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "receive_votes",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "066998b6c842af003c90e4c71ae933524c0bef88b94b3dce92cc14e855852ad3"
+}

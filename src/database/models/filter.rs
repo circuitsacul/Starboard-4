@@ -160,7 +160,7 @@ impl Filter {
             "SELECT FROM filters WHERE filter_group_id=$1 FOR UPDATE",
             filter_group_id
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
         // fetch the item that we're moving
@@ -175,7 +175,7 @@ impl Filter {
         } else {
             (current, new, -1)
         };
-        Filter::shift(&mut tx, filter_group_id, start, Some(end), dir).await?;
+        Filter::shift(&mut *tx, filter_group_id, start, Some(end), dir).await?;
 
         // update the position
         let ret = sqlx::query!(
@@ -184,7 +184,7 @@ impl Filter {
             to_move.id,
             filter_group_id
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
         // commit & return

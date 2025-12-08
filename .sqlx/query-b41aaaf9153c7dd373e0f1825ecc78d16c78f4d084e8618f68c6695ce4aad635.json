@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE permrole_starboards SET give_votes=$1, receive_votes=$2 WHERE permrole_id=$3\n            AND starboard_id=$4 RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "permrole_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "starboard_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "give_votes",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "receive_votes",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Bool",
+        "Int8",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "b41aaaf9153c7dd373e0f1825ecc78d16c78f4d084e8618f68c6695ce4aad635"
+}

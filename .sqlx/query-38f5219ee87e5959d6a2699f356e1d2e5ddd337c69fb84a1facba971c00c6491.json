@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE overrides SET overrides = (overrides::jsonb - 'exclusive_group')::json\n            WHERE guild_id=$1 AND (overrides::jsonb->'exclusive_group')::int=$2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "38f5219ee87e5959d6a2699f356e1d2e5ddd337c69fb84a1facba971c00c6491"
+}

@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE permroles SET obtain_xproles=$1, give_votes=$2,\n            receive_votes=$3 WHERE role_id=$4 RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "role_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "guild_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "obtain_xproles",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "give_votes",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "receive_votes",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Bool",
+        "Bool",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "382d03439a68e5be3e01510b19594da6cb84cfb4ab8c104112623bd456450bf8"
+}

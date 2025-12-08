@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE starboards SET use_webhook=false WHERE id=$1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8ebe2f3f7ea74aa02940f579111f68e03c429e711fd5e7dd808eafaf47a8e394"
+}

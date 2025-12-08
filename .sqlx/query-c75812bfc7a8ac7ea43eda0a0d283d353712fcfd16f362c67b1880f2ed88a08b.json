@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT FROM filters WHERE filter_group_id=$1 FOR UPDATE",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c75812bfc7a8ac7ea43eda0a0d283d353712fcfd16f362c67b1880f2ed88a08b"
+}

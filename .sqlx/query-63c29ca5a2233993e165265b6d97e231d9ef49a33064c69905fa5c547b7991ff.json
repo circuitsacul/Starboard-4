@@ -1,0 +1,74 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO messages (message_id, guild_id, channel_id, author_id, is_nsfw)\n            VALUES ($1, $2, $3, $4, $5)\n            ON CONFLICT DO NOTHING RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "message_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "guild_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "channel_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "author_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "is_nsfw",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "forced_to",
+        "type_info": "Int4Array"
+      },
+      {
+        "ordinal": 6,
+        "name": "trashed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "trash_reason",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "frozen",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "63c29ca5a2233993e165265b6d97e231d9ef49a33064c69905fa5c547b7991ff"
+}

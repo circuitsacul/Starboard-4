@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM autostar_channels WHERE guild_id=$1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "channel_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "guild_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "premium_locked",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "emojis",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 6,
+        "name": "min_chars",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 7,
+        "name": "max_chars",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 8,
+        "name": "require_image",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "delete_invalid",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "60e1c4b63284b53ef3119b8a51b4f307c33a66443f2258523817d1e773a91542"
+}

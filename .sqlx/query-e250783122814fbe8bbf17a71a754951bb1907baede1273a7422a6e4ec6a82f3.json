@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM permrole_starboards WHERE permrole_id=$1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "permrole_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "starboard_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "give_votes",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "receive_votes",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "e250783122814fbe8bbf17a71a754951bb1907baede1273a7422a6e4ec6a82f3"
+}

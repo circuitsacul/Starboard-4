@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE votes SET is_downvote=$1 WHERE message_id=$2 AND starboard_id=$3 AND user_id=$4",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Int8",
+        "Int4",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fde9f975f9c5f5450e32c3eb957bb25da0e317bfd610180abbaad41dbcad4657"
+}

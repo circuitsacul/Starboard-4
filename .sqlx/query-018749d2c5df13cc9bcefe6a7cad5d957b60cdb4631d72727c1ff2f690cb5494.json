@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE autostar_channels SET premium_locked=true WHERE id=any($1)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4Array"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "018749d2c5df13cc9bcefe6a7cad5d957b60cdb4631d72727c1ff2f690cb5494"
+}

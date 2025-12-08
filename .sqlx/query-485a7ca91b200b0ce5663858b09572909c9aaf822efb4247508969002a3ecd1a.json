@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE filters SET position = position + $1\n            WHERE position >= $2 AND ($3::SMALLINT IS NULL OR position <= $3)\n            AND filter_group_id=$4",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int2",
+        "Int2",
+        "Int2",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "485a7ca91b200b0ce5663858b09572909c9aaf822efb4247508969002a3ecd1a"
+}

@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO starboard_messages\n            (message_id, starboard_id, starboard_message_id, last_known_point_count)\n            VALUES ($1, $2, $3, $4)\n            ON CONFLICT DO NOTHING RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "message_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "starboard_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "starboard_message_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "last_known_point_count",
+        "type_info": "Int2"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int4",
+        "Int8",
+        "Int2"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "2aeb2b9fe9a5f0cbc2a93dca1e395164009c0a97fbb3fd9a00f7675e60eada79"
+}

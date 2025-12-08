@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE members SET autoredeem_enabled=$1 WHERE user_id=$2 AND guild_id=$3",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ca6765443683c4135bf4fa61d4934e5a235e582766b7bb9b0c48cf89ebf485c8"
+}

@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM messages WHERE guild_id=$1 AND trashed=true ORDER BY message_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "message_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "guild_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "channel_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "author_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "is_nsfw",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "forced_to",
+        "type_info": "Int4Array"
+      },
+      {
+        "ordinal": 6,
+        "name": "trashed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "trash_reason",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "frozen",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "b70d1de98a1b8bab6ea1ee0e60b2fa8a717fcc3315887ea0b2c23ce8fdbfbb5e"
+}

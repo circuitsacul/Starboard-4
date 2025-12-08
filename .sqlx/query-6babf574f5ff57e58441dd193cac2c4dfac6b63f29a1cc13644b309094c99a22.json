@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO VOTES (message_id, starboard_id, user_id, target_author_id, is_downvote)\n            VALUES ($1, $2, $3, $4, $5)\n            ON CONFLICT DO NOTHING",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int4",
+        "Int8",
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6babf574f5ff57e58441dd193cac2c4dfac6b63f29a1cc13644b309094c99a22"
+}

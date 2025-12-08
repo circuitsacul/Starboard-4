@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO users (user_id, is_bot) VALUES ($1, $2)\n            ON CONFLICT DO NOTHING RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "is_bot",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "credits",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "donated_cents",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "patreon_status",
+        "type_info": "Int2"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e650031fb35457c6ce57feab4149597cfaa8da0d8ae858acdfc822c62c3a39e5"
+}

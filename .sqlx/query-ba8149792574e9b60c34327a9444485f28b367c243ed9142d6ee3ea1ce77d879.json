@@ -1,0 +1,72 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE messages SET trashed=$1, trash_reason=$2 WHERE message_id=$3 RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "message_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "guild_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "channel_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "author_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "is_nsfw",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "forced_to",
+        "type_info": "Int4Array"
+      },
+      {
+        "ordinal": 6,
+        "name": "trashed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "trash_reason",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "frozen",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Varchar",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "ba8149792574e9b60c34327a9444485f28b367c243ed9142d6ee3ea1ce77d879"
+}

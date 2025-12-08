@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO permroles (role_id, guild_id) VALUES ($1, $2)\n            ON CONFLICT DO NOTHING RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "role_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "guild_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "obtain_xproles",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "give_votes",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "receive_votes",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "616f9c7b21fc84d2483124f3521be028995f85d106167c5cb14e87fffb6c8c6c"
+}

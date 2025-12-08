@@ -62,13 +62,13 @@ impl MoveAutostar {
             "UPDATE autostar_channels SET premium_locked=true WHERE id=$1",
             asc_to.id,
         )
-        .fetch_all(&mut tx)
+        .fetch_all(&mut *tx)
         .await?;
         sqlx::query!(
             "UPDATE autostar_channels SET premium_locked=false WHERE id=$1",
             asc_from.id,
         )
-        .fetch_all(&mut tx)
+        .fetch_all(&mut *tx)
         .await?;
 
         tx.commit().await?;
@@ -91,7 +91,7 @@ async fn get_for_update(
         guild_id,
         name,
     )
-    .fetch_optional(con)
+    .fetch_optional(&mut **con)
     .await?;
     let Some(asc) = asc else {
         ctx.respond_str(&format!("Autotstar channel '{name}' does not exist."), true)

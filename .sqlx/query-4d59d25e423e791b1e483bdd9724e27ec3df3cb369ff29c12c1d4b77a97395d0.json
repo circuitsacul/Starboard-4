@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE starboards SET premium_locked=true WHERE id=$1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4d59d25e423e791b1e483bdd9724e27ec3df3cb369ff29c12c1d4b77a97395d0"
+}

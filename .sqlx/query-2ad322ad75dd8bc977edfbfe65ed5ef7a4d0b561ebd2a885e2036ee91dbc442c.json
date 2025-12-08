@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT count(*) FROM votes WHERE starboard_id=$1 AND user_id=$2\n            AND is_downvote=true",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "2ad322ad75dd8bc977edfbfe65ed5ef7a4d0b561ebd2a885e2036ee91dbc442c"
+}

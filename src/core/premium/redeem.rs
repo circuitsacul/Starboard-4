@@ -35,7 +35,7 @@ pub async fn redeem_premium(
         "SELECT * FROM guilds WHERE guild_id=$1 FOR UPDATE",
         guild_id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
     if let Some(assert_guild_status) = assert_guild_status {
         if guild.premium_end != assert_guild_status {
@@ -49,7 +49,7 @@ pub async fn redeem_premium(
         "SELECT * FROM users WHERE user_id=$1 FOR UPDATE",
         user_id
     )
-    .fetch_optional(&mut tx)
+    .fetch_optional(&mut *tx)
     .await?;
     let Some(user) = user else {
         return Ok(RedeemPremiumResult::TooFewCredits);
@@ -70,14 +70,14 @@ pub async fn redeem_premium(
         new_end,
         guild_id
     )
-    .fetch_all(&mut tx)
+    .fetch_all(&mut *tx)
     .await?;
     sqlx::query!(
         "UPDATE users SET credits = credits - $1 WHERE user_id=$2",
         credits as i32,
         user_id,
     )
-    .fetch_all(&mut tx)
+    .fetch_all(&mut *tx)
     .await?;
 
     // commit the transaction and return

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE guilds SET premium_end=null WHERE premium_end IS NOT NULL AND premium_end < $1\n        RETURNING guild_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "guild_id",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "624cc73a723098f569d744a61b7ea796a22c550cc4cb65d38d94df268b4d88b0"
+}

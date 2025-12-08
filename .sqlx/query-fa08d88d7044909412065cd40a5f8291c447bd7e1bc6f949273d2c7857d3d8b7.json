@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM permroles WHERE role_id=$1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "role_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "guild_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "obtain_xproles",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "give_votes",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "receive_votes",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "fa08d88d7044909412065cd40a5f8291c447bd7e1bc6f949273d2c7857d3d8b7"
+}

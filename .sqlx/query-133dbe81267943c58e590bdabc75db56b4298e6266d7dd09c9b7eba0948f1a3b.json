@@ -1,0 +1,172 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM filters WHERE filter_group_id=$1 ORDER BY position ASC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "position",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 2,
+        "name": "filter_group_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "instant_pass",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "instant_fail",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "user_has_all_of",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 6,
+        "name": "user_missing_all_of",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 7,
+        "name": "user_has_some_of",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 8,
+        "name": "user_missing_some_of",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 9,
+        "name": "user_is_bot",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "not_in_channel",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 11,
+        "name": "in_channel",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 12,
+        "name": "not_in_channel_or_sub_channels",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 13,
+        "name": "in_channel_or_sub_channels",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 14,
+        "name": "min_length",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
+        "name": "max_length",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 16,
+        "name": "min_attachments",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 17,
+        "name": "max_attachments",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 18,
+        "name": "matches",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 19,
+        "name": "not_matches",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 20,
+        "name": "voter_has_all_of",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 21,
+        "name": "voter_missing_all_of",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 22,
+        "name": "voter_has_some_of",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 23,
+        "name": "voter_missing_some_of",
+        "type_info": "Int8Array"
+      },
+      {
+        "ordinal": 24,
+        "name": "older_than",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 25,
+        "name": "newer_than",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "133dbe81267943c58e590bdabc75db56b4298e6266d7dd09c9b7eba0948f1a3b"
+}
