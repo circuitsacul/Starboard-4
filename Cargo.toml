@@ -37,7 +37,7 @@ snafu = { version = "0.8.9", features = ["backtraces-impl-backtrace-crate"] }
 serde_with = "3.16.1"
 psutil = "3.3.0"
 rust-fuzzy-search = "0.1.1"
-moka = { version = "0.11.3", features = ["future"] }
+moka = { version = "0.12.11", features = ["future"] }
 cached = "0.56.0"
 tracing = "0.1.43"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
