@@ -23,7 +23,7 @@ RUN rm -r src && rm target/release/starboard
 COPY build.rs build.rs
 COPY ./src ./src
 COPY ./migrations ./migrations
-COPY sqlx-data.json sqlx-data.json
+COPY ./.sqlx ./.sqlx
 
 # install starboard
 RUN cargo build --release
